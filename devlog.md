@@ -76,7 +76,12 @@
  $playerSpeed = 30$
  $playerCollisionKnockback = 5000$
 # $20230306$ $v0.4.3$
+ - 添加了一个在标题旁边显示的图标。
+ - 新增了一个存放所有生物属性的模块。
  - 常数修改/添加。
- $playerMass = 5$
- $playerSpeed = 225$
- $playerCollisionKnockback = 5000$
+ $player.mass = 5$
+ $player.speed = 225$
+ $player.collisionKnockback = 750$
+ $speedAttenuationCoefficient = 0.75$
+ $(+)tickPerSecond = 60$
+ $(-)playerAccelerationBias$

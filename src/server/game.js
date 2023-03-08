@@ -1,4 +1,5 @@
 const Constants = require('../shared/constants');
+const EntityAttributes = require('../../public/entity_attributes');
 const Player = require('./player');
 const applyPlayerCollisions = require('./collisions');
 
@@ -9,7 +10,7 @@ class Game {
 		this.bullets = [];
 		this.lastUpdateTime = Date.now();
 		this.shouldSendUpdate = false;
-		setInterval(this.update.bind(this), 1000 / 60);
+		setInterval(this.update.bind(this), 1000 / Constants.TICK_PER_SECOND);
 	}
 
 	addPlayer(socket, username) {
@@ -46,8 +47,8 @@ class Game {
 		hurtPlayers.forEach(element => {
 			const player = this.players[element.playerID];
 			player.hurtTime = 0;
-			player.hp -= Constants.PLAYER_BODY_DAMAGE;
-			const knockbackMagnitude = Constants.PLAYER_COLLISION_KNOCKBACK;
+			player.hp -= EntityAttributes.PLAYER.BODY_DAMAGE;
+			const knockbackMagnitude = EntityAttributes.PLAYER.COLLISION_KNOCKBACK;
 			const knockbackDirection = element.knockbackDirection;
 			player.handlePassiveMotion({
 				direction: knockbackDirection,

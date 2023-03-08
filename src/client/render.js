@@ -3,7 +3,9 @@ import { getCurrentState } from './state';
 
 const Constants = require('../shared/constants');
 
-const { PLAYER_RADIUS, MAP_WIDTH, MAP_HEIGHT, RATED_WIDTH, RATED_HEIGHT, PLAYER_MAX_HP} = Constants;
+const { MAP_WIDTH, MAP_HEIGHT, RATED_WIDTH, RATED_HEIGHT } = Constants;
+
+const EntityAttributes = require('../../public/entity_attributes');
 
 const canvas = document.getElementById('game-canvas');
 const context = canvas.getContext('2d');
@@ -33,6 +35,7 @@ function renderGame() {
 		renderBackground(me.x, me.y);
 		renderPlayer(me, me);
 		others.forEach(renderPlayer.bind(null, me));
+		// renderLeaderboard();
 	}
 	animationFrameRequestId = requestAnimationFrame(renderGame);
 }
@@ -96,7 +99,7 @@ function renderPlayer(me, player) {
 	context.save();
 
 	context.translate(canvasX, canvasY);
-	const renderRadius = PLAYER_RADIUS + 2;
+	const renderRadius = EntityAttributes.PLAYER.RADIUS + 2;
 	context.drawImage(
 		getAsset('player.svg'),
 		- renderRadius,
@@ -130,13 +133,13 @@ function renderPlayer(me, player) {
 
 	const healthBarBaseWidth = 10;
 	const healthBarBaseStyle = 'rgb(51, 51, 51)';
-	const healthBarBaseLength = PLAYER_RADIUS * 2 + 20;
+	const healthBarBaseLength = EntityAttributes.PLAYER.RADIUS * 2 + 20;
 
 	const healthBarOutline = 3;
 	const healthBarWidth = healthBarBaseWidth - healthBarOutline;
 	const healthBarStyleNormal = 'rgb(117, 221, 52)';
 	const healthBarStyleHurt = 'rgb(221, 52, 52)';
-	const healthBarLength = healthBarBaseLength * player.hp / PLAYER_MAX_HP;
+	const healthBarLength = healthBarBaseLength * player.hp / EntityAttributes.PLAYER.MAX_HP_BASE;
 
 	context.save();
 
@@ -161,6 +164,22 @@ function renderPlayer(me, player) {
 	context.closePath();
 
 	context.restore();
+
+	context.restore();
+}
+
+function renderLeaderboard(leaderboard) { // wip
+	context.save();
+
+	context.translate(context.width * 0.8, context.height * 0.05);
+
+	context.beginPath();
+
+	const leaderboardOutlineWidth = 8;
+	context.lineWidth = leaderboardOutlineWidth;
+
+
+	context.closePath();
 
 	context.restore();
 }

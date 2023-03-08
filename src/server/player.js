@@ -1,9 +1,10 @@
 const ObjectClass = require('./object_movable');
 const Constants = require('../shared/constants');
+const EntityAttributes = require('../../public/entity_attributes');
 
 class Player extends ObjectClass {
 	constructor(id, username, x, y) {
-		super(id, x, y, Constants.PLAYER_MAX_HP, {x: 0, y: 0}, {x: 0, y: 0});
+		super(id, x, y, EntityAttributes.PLAYER.MAX_HP_BASE, {x: 0, y: 0}, {x: 0, y: 0});
 		this.username = username;
 		this.activeDirection = 0;
 		this.activeMotionMagnitude = {
@@ -19,6 +20,7 @@ class Player extends ObjectClass {
 			y: 0,
 		};
 		this.passiveVelocity = [];
+		this.score = 0;
 	}
 
 	update(deltaT) { // updates every tick
@@ -80,7 +82,7 @@ class Player extends ObjectClass {
 		this.velocity.x += this.activeVelocity.x;
 		this.velocity.y += this.activeVelocity.y;
 
-		this.handleBorder(Constants.PLAYER_RADIUS);
+		this.handleBorder(EntityAttributes.PLAYER.RADIUS);
 
 		return null;
 	}
@@ -104,7 +106,7 @@ class Player extends ObjectClass {
 	}
 
 	getAccelerationMagnitude(magnitude) {
-		const accelerationMagnitude = magnitude * Constants.PLAYER_MASS + Constants.PLAYER_ACCELERATION_BIAS;
+		const accelerationMagnitude = magnitude * EntityAttributes.PLAYER.MASS;
 		return accelerationMagnitude;
 	}
 

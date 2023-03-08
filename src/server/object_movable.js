@@ -15,7 +15,7 @@ class GameObjectMovable extends GameObject {
 			if ( this.hurtTime >= Constants.HURT_INTERVAL ) {
 				this.hurtTime = -1;
 			} else {
-				this.hurtTime += (deltaT / (1 / 60) );
+				this.hurtTime += (deltaT / (1 / Constants.TICK_PER_SECOND) );
 			}
 		}
 	}

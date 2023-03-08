@@ -1,4 +1,4 @@
-const Constants = require('../shared/constants');
+const EntityAttributes = require('../../public/entity_attributes');
 
 function applyPlayerCollisions(players) {
 	const hurtPlayers = [];
@@ -8,7 +8,7 @@ function applyPlayerCollisions(players) {
 			if ( i !== j ) {
 				const playerA = players[playersID[i]];
 				const playerB = players[playersID[j]];
-				if ( playerA.distanceTo(playerB) <= Constants.PLAYER_RADIUS * 2 && playerA.hurtTime == -1) {
+				if ( playerA.distanceTo(playerB) <= EntityAttributes.PLAYER.RADIUS * 2 && playerA.hurtTime == -1) {
 					hurtPlayers.push({
 						playerID: playersID[i],
 						knockbackDirection: Math.atan2(playerA.x - playerB.x, playerB.y - playerA.y),

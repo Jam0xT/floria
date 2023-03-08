@@ -1,5 +1,5 @@
 import { sendInput } from './networking';
-import { PLAYER_SPEED } from '../shared/constants';
+const EntityAttributes = require('../../public/entity_attributes');
 
 var keyDown = {
 	'w': false,
@@ -27,7 +27,7 @@ function handleInput(x, y) {
 	const speedRatio = Math.min(100, distanceMouseCenter) / 100;
 	const input = {
 		direction: direction,
-		magnitude: speedRatio * PLAYER_SPEED,
+		magnitude: speedRatio * EntityAttributes.PLAYER.SPEED,
 	}
 	sendInput(input);
 }
@@ -48,8 +48,6 @@ function handleKeyDownInput(e) {
 		if ( keyDown['d'] )
 			directionX ++;
 		
-		console.log('down', directionX, directionY);
-
 		if ( directionX == 0 && directionY == 0 ) {
 			sendInput({
 				direction: currentDirection,
@@ -59,7 +57,7 @@ function handleKeyDownInput(e) {
 			currentDirection = Math.atan2(directionX, directionY);
 			sendInput({
 				direction: currentDirection,
-				magnitude: PLAYER_SPEED,
+				magnitude: EntityAttributes.PLAYER.SPEED,
 			});
 		}
 	}
@@ -81,8 +79,6 @@ function handleKeyUpInput(e) {
 		if ( keyDown['d'] )
 			directionX ++;
 
-		console.log('up', directionX, directionY);
-
 		if ( directionX == 0 && directionY == 0 ) {
 			sendInput({
 				direction: currentDirection,
@@ -92,7 +88,7 @@ function handleKeyUpInput(e) {
 			currentDirection = Math.atan2(directionX, directionY);
 			sendInput({
 				direction: currentDirection,
-				magnitude: PLAYER_SPEED,
+				magnitude: EntityAttributes.PLAYER.SPEED,
 			});
 		}
 	}
