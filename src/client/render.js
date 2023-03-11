@@ -100,13 +100,23 @@ function renderPlayer(me, player) {
 
 	context.translate(canvasX, canvasY);
 	const renderRadius = EntityAttributes.PLAYER.RADIUS + 2;
-	context.drawImage(
-		getAsset('player.svg'),
-		- renderRadius,
-		- renderRadius,
-		renderRadius * 2,
-		renderRadius * 2,
-	);
+	if ( player.username == "Pop!" ) {
+		context.drawImage(
+			getAsset('bubble.svg'),
+			- renderRadius,
+			- renderRadius,
+			renderRadius * 2,
+			renderRadius * 2,
+		);
+	} else {
+		context.drawImage(
+			getAsset('player.svg'),
+			- renderRadius,
+			- renderRadius,
+			renderRadius * 2,
+			renderRadius * 2,
+		);
+	}
 
 	renderText(player.username, 0, -35, 20, 'center');
 	renderText(Math.floor(Math.sqrt((player.x - me.x) * (player.x - me.x) + (player.y - me.y) * (player.y - me.y))), 0, -60);
@@ -151,7 +161,6 @@ function renderPlayer(me, player) {
 
 function renderLeaderboardRank(rank, leaderboardRankBaseLength, leaderboardRankOutlineWidth, leaderboardRankBaseWidth, rankTopScore,
 	leaderboardHeadHeight, leaderboardHeightPerPlayer, rankOnLeaderboard, leaderboardRank, baseX, baseY) { // render the current rank on leaderboard
-	console.log(leaderboardRank);
 
 	context.save();
 
@@ -193,8 +202,6 @@ function renderLeaderboardRank(rank, leaderboardRankBaseLength, leaderboardRankO
 }
 
 function renderLeaderboard(leaderboard, playerCount, me, rankOnLeaderboard) {
-	console.log(rankOnLeaderboard);
-
 	context.save();
 
 	const leaderboardOutlineWidth = 5;

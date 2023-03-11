@@ -4,14 +4,22 @@ const Player = require('./player');
 const applyPlayerCollisions = require('./collisions');
 const Bubble = require('./entity/bubble');
 
+var TOTAL_SPAWN_WEIGHT = 0; // this is a constant
+Object.values(EntityAttributes).forEach(attribute => {
+	TOTAL_SPAWN_WEIGHT += attribute.SPAWN_WEIGHT;
+});
+
 class Game {
 	constructor() {
 		this.leaderboard = [{score: -1}]; // the leaderboard handles all players, but only send the first 'LEADERBOARD_LENGTH' objects to each client
 		this.sockets = {};
 		this.players = {};
-		this.entity = {};
+		this.entities = {};
 		this.lastUpdateTime = Date.now();
+		this.mobSpawnTimer = 0;
+		this.volumeTaken = 0;
 		this.shouldSendUpdate = false;
+		this.mobID = 0;
 		setInterval(this.update.bind(this), 1000 / Constants.TICK_PER_SECOND); // update the game every tick
 	}
 
@@ -26,7 +34,7 @@ class Game {
 		this.updateLeaderboard(this.players[socket.id]);
 	}
 
-	disconnectPlayer(socket) { // calls when a player is disconnected (currently the webpage will refresh for a player that dies)
+	onPlayerDisconnect(socket) { // calls when a player is disconnected (currently the webpage will refresh for a player that dies)
 		if ( this.players[socket.id] ) {
 			this.removeFromLeaderboard(this.players[socket.id]);
 		}
@@ -93,31 +101,7 @@ class Game {
 		console.log(`${player.username} is dead!`);
 	}
 
-	update() { // called every tick
-		const now = Date.now();
-		const deltaT = (now - this.lastUpdateTime) / 1000; // the length of the last tick
-		this.lastUpdateTime = now;
-
-		Object.keys(this.sockets).forEach(playerID => { // updates the movement of each player
-			const player = this.players[playerID];
-			player.update(deltaT);
-		})
-
-		const hurtPlayers = applyPlayerCollisions(this.players); // check player collisions and return involved players
-
-		hurtPlayers.forEach(element => { // handle knockback and other stuff of involved players
-			const player = this.players[element.playerID];
-			player.hurtTime = 0;
-			player.hurtBy = element.hurtBy;
-			player.hp -= EntityAttributes.PLAYER.BODY_DAMAGE;
-			const knockbackMagnitude = EntityAttributes.PLAYER.COLLISION_KNOCKBACK;
-			const knockbackDirection = element.knockbackDirection;
-			player.handlePassiveMotion({
-				direction: knockbackDirection,
-				magnitude: knockbackMagnitude,
-			});
-		})
-
+	handlePlayerDeaths() {
 		Object.keys(this.sockets).forEach(playerID => { // handle player deaths
 			const player = this.players[playerID];
 			if ( player.hp <= 0 ) {
@@ -133,7 +117,98 @@ class Game {
 				this.removePlayer(socket);
 			}
 		})
+	}
 
+	handleEntityDeaths() { // WIP
+
+	}
+
+	updatePlayers(deltaT) {
+		Object.keys(this.sockets).forEach(playerID => { // updates the movement of each player
+			const player = this.players[playerID];
+			player.update(deltaT);
+		});
+	}
+
+	updateEntities(deltaT) {
+		Object.values(this.entities).forEach(entity => {
+			const mob = entity.mob;
+			const type = entity.type;
+			mob.update(deltaT, EntityAttributes[type]);
+		});
+	}
+
+	rnd(x, y) {
+		return ((Math.random() * y) + x);
+	}
+
+	mobSpawn() {
+		if ( this.mobSpawnTimer >= Constants.MOB_SPAWN_INTERVAL ) {
+			this.mobSpawnTimer = 0;
+			while ( this.volumeTaken < Constants.MOB_VOLUME_LIMIT ) {
+				const mobNumber = this.rnd(1, TOTAL_SPAWN_WEIGHT);
+				const currentMobNumber = 0;
+				Object.values(EntityAttributes).forEach(attribute => {
+					const weight = attribute.SPAWN_WEIGHT;
+					const volume = attribute.VOLUME;
+					if ( currentMobNumber < mobNumber && currentMobNumber + weight >= mobNumber ) {
+						this.mobID ++;
+						this.volumeTaken += volume;
+						const spawnX = this.rnd(0, Constants.MAP_WIDTH);
+						const spawnY = this.rnd(0, Constants.MAP_HEIGHT);
+						if ( attribute.TYPE == 'BUBBLE' ) {
+							this.entities[this.mobID] = {
+								type: attribute.TYPE,
+								mob: new Bubble(this.mobID, spawnX, spawnY),
+							};
+							console.log(`A bubble spawned at (${spawnX}, ${spawnY}) !`);
+						}
+					}
+				});
+			}
+		} else {
+			this.mobSpawnTimer ++;
+		}
+	}
+
+	handleCollisions() { // WIP
+		const hurtPlayers = applyPlayerCollisions(this.players); // check player collisions and return involved players
+
+		hurtPlayers.forEach(element => { // handle knockback and other stuff of involved players
+			const player = this.players[element.playerID];
+			player.hurtTime = 0;
+			player.hurtBy = element.hurtBy;
+			player.hp -= EntityAttributes.PLAYER.BODY_DAMAGE;
+			const knockbackMagnitude = EntityAttributes.PLAYER.COLLISION_KNOCKBACK;
+			const knockbackDirection = element.knockbackDirection;
+			player.handlePassiveMotion({
+				direction: knockbackDirection,
+				magnitude: knockbackMagnitude,
+			});
+		});
+	}
+
+	update() { // called every tick
+		const now = Date.now();
+		const deltaT = (now - this.lastUpdateTime) / 1000; // the length of the last tick
+		this.lastUpdateTime = now;
+
+		this.updatePlayers(deltaT);
+
+		this.updateEntities(deltaT);
+
+		this.mobSpawn();
+
+		this.handleCollisions(); // WIP
+		
+		this.handleEntityDeaths();
+
+		this.handlePlayerDeaths();
+
+		this.sendUpdate();
+	}
+
+	sendUpdate() {
 		if ( this.shouldSendUpdate ) { // send updates to client
 			Object.keys(this.sockets).forEach(playerID => {
 				const socket = this.sockets[playerID];

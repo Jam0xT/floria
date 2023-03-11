@@ -1,5 +1,6 @@
 const ASSET_NAMES = [
 	'player.svg',
+	'bubble.svg',
 ];
 
 const assets = {};

@@ -24,4 +24,8 @@ module.exports = Object.freeze({
 	NEARBY_DISTANCE: 1500,
 
 	LEADERBOARD_LENGTH: 10,
+
+	MOB_VOLUME_LIMIT: 5000,
+
+	MOB_SPAWN_INTERVAL: 60,
 });

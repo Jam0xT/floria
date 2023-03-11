@@ -9,6 +9,8 @@ class Player extends Entity {
 		this.username = username;
 		this.score = 1;
 		this.haveRankOnLeaderboard = false;
+		this.exp = 0;
+		this.slotCount = 5;
 	}
 
 	update(deltaT) { // updates velocity every tick
@@ -17,6 +19,10 @@ class Player extends Entity {
 
 	handleActiveMotion(activeMotion) { // handles active motion (the motion from player input)
 		super.handleActiveMotion(activeMotion, Attribute.MASS);
+	}
+
+	addExp(exp) {
+		this.exp += exp;
 	}
 
 	serializeForUpdate() { // get neccesary data and send to client

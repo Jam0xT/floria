@@ -7,7 +7,21 @@ module.exports = Object.freeze({
 		BODY_DAMAGE: 25,
 		COLLISION_KNOCKBACK: 750,
 		VALUE: 10,
+		SPAWN_WEIGHT: 0,
+		VOLUME: 0,
+		TYPE: 'PLAYER',
 	},
+	BUBBLE: {
+		MASS: 1,
+		SPEED: 0,
+		RADIUS: 30,
+		MAX_HP: 10,
+		COLLISION_KNOCKBACK: 2500,
+		VALUE: 5,
+		SPAWN_WEIGHT: 100,
+		VOLUME: 100,
+		TYPE: 'BUBBLE',
+	}
 });
 
 // all entity attributes are here

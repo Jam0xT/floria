@@ -43,5 +43,5 @@ function handleInput(input) {
 }
 
 function onDisconnect() {
-	game.disconnectPlayer(this);
+	game.onPlayerDisconnect(this);
 }

@@ -81,6 +81,7 @@
  - 把$ObjectImmovable$和$ObjectMovable$类删除，所有实体统一继承$Object$类。
  - 完成了计分板。
  - 进行了一些模块化。
+ - 写了一些注释。
  - 常数修改/添加。
  $player.mass = 5$
  $player.speed = 225$
@@ -89,3 +90,7 @@
  $leaderboardLength = 10$
  $(+)tickPerSecond = 60$
  $(-)playerAccelerationBias$
+# $20230312$ $v0.5.0$
+ - 进行了一些模块化处理。
+ - 添加了一个彩蛋。
+ <!-- 当玩家名为'Pop!'时会以泡泡的形式显示 -->
