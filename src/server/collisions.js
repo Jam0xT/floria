@@ -11,6 +11,7 @@ function applyPlayerCollisions(players) {
 				if ( playerA.distanceTo(playerB) <= EntityAttributes.PLAYER.RADIUS * 2 && playerA.hurtTime == -1) {
 					hurtPlayers.push({
 						playerID: playersID[i],
+						hurtBy: playersID[j],
 						knockbackDirection: Math.atan2(playerA.x - playerB.x, playerB.y - playerA.y),
 					});
 					break;

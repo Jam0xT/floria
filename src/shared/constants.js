@@ -22,4 +22,6 @@ module.exports = Object.freeze({
 	RATED_HEIGHT: 1080,
 
 	NEARBY_DISTANCE: 1500,
+
+	LEADERBOARD_LENGTH: 10,
 });

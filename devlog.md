@@ -78,10 +78,14 @@
 # $20230306$ $v0.4.3$
  - 添加了一个在标题旁边显示的图标。
  - 新增了一个存放所有生物属性的模块。
+ - 把$ObjectImmovable$和$ObjectMovable$类删除，所有实体统一继承$Object$类。
+ - 完成了计分板。
+ - 进行了一些模块化。
  - 常数修改/添加。
  $player.mass = 5$
  $player.speed = 225$
  $player.collisionKnockback = 750$
  $speedAttenuationCoefficient = 0.75$
+ $leaderboardLength = 10$
  $(+)tickPerSecond = 60$
  $(-)playerAccelerationBias$
