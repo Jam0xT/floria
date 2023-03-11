@@ -1,9 +1,9 @@
-const ObjectClass = require('./object');
+const Entity = require('./entity');
 const Constants = require('../shared/constants');
 const EntityAttributes = require('../../public/entity_attributes');
 const Attribute = EntityAttributes.PLAYER;
 
-class Player extends ObjectClass {
+class Player extends Entity {
 	constructor(id, username, x, y) {
 		super(id, x, y, EntityAttributes.PLAYER.MAX_HP_BASE, EntityAttributes.PLAYER.MAX_HP_BASE);
 		this.username = username;
@@ -15,15 +15,15 @@ class Player extends ObjectClass {
 		super.update(deltaT, Attribute);
 	}
 
-	handleActiveMotion(activeMotion) {
+	handleActiveMotion(activeMotion) { // handles active motion (the motion from player input)
 		super.handleActiveMotion(activeMotion, Attribute.MASS);
 	}
 
-	serializeForUpdate() {
+	serializeForUpdate() { // get neccesary data and send to client
 		return {
 			...(super.serializeForUpdate()),
 			score: this.score,
-			activeDirection: this.activeDirection,
+			activeDirection: this.activeDirection, // the direction of input, not in use at the moment
 			hp: this.hp,
 			username: this.username,
 		};

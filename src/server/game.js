@@ -2,19 +2,20 @@ const Constants = require('../shared/constants');
 const EntityAttributes = require('../../public/entity_attributes');
 const Player = require('./player');
 const applyPlayerCollisions = require('./collisions');
+const Bubble = require('./entity/bubble');
 
 class Game {
 	constructor() {
-		this.leaderboard = [{score: -1}];
+		this.leaderboard = [{score: -1}]; // the leaderboard handles all players, but only send the first 'LEADERBOARD_LENGTH' objects to each client
 		this.sockets = {};
 		this.players = {};
-		this.bullets = [];
+		this.entity = {};
 		this.lastUpdateTime = Date.now();
 		this.shouldSendUpdate = false;
-		setInterval(this.update.bind(this), 1000 / Constants.TICK_PER_SECOND);
+		setInterval(this.update.bind(this), 1000 / Constants.TICK_PER_SECOND); // update the game every tick
 	}
 
-	addPlayer(socket, username) {
+	addPlayer(socket, username) { // add a player
 		this.sockets[socket.id] = socket;
 
 		const x = Constants.MAP_WIDTH * (0.25 + Math.random() * 0.5);
@@ -25,36 +26,36 @@ class Game {
 		this.updateLeaderboard(this.players[socket.id]);
 	}
 
-	disconnectPlayer(socket) {
+	disconnectPlayer(socket) { // calls when a player is disconnected (currently the webpage will refresh for a player that dies)
 		if ( this.players[socket.id] ) {
 			this.removeFromLeaderboard(this.players[socket.id]);
 		}
 		this.removePlayer(socket);
 	}
 
-	removePlayer(socket) {
+	removePlayer(socket) { // remove a player
 		delete this.sockets[socket.id];
 		delete this.players[socket.id];
 	}
 
-	handleInput(socket, input) {
+	handleInput(socket, input) { // handle input from a player
 		if ( this.players[socket.id] ) {
 			this.players[socket.id].handleActiveMotion(input);
 		}
 	}
 
-	getRankOnLeaderboard(playerID) {
+	getRankOnLeaderboard(playerID) { // find the rank of a player
 		return (this.leaderboard.findIndex((player) => {
 			return player.id == playerID;
 		}));
 	}
 
-	removeFromLeaderboard(player) {
+	removeFromLeaderboard(player) { // remove a player from leaderboard
 		this.leaderboard.splice(this.getRankOnLeaderboard(player.id), 1);
 	}
 
-	updateLeaderboard(player) {
-		if ( player.haveRankOnLeaderboard == false ) {
+	updateLeaderboard(player) { // called when a player's score changes, update the player's rank on leaderboard
+		if ( player.haveRankOnLeaderboard == false ) { // this is true only if this function is called in this.addPlayer.
 			this.leaderboard.push({
 				score: 1,
 				id: player.id,
@@ -67,7 +68,7 @@ class Game {
 		var playerRank = rankOnLeaderboard;
 		const playerScore = player.score;
 		var rankChanged = false;
-		while( playerScore > this.leaderboard[playerRank].score && playerRank > 0 ) {
+		while( playerScore > this.leaderboard[playerRank].score && playerRank > 0 ) {// comparing one by one, can be optimized with binary search
 			playerRank --;
 			rankChanged = true;
 		}
@@ -78,28 +79,33 @@ class Game {
 	}
 
 	handlePlayerDeath(player) {
+		// called when a player dies, adding score to 'killedBy' and remove the dead player from leaderboard
+		// this function will not remove the player itself
 		const killedBy = this.players[player.hurtBy];
 		killedBy.score += Math.floor(EntityAttributes.PLAYER.VALUE + player.score / 2);
 		if ( this.getRankOnLeaderboard(killedBy.id) > 0 ) {
+			// avoid crashing when two players kill each other at the exact same time
+			// it will crash because the player who killed you is not on the leaderboard anymore
+			// (the player who killed you is dead, and he has already been removed from leaderboard)
 			this.updateLeaderboard(killedBy);
 		}
 		this.removeFromLeaderboard(player);
 		console.log(`${player.username} is dead!`);
 	}
 
-	update() {
+	update() { // called every tick
 		const now = Date.now();
-		const deltaT = (now - this.lastUpdateTime) / 1000;
+		const deltaT = (now - this.lastUpdateTime) / 1000; // the length of the last tick
 		this.lastUpdateTime = now;
 
-		Object.keys(this.sockets).forEach(playerID => {
+		Object.keys(this.sockets).forEach(playerID => { // updates the movement of each player
 			const player = this.players[playerID];
 			player.update(deltaT);
 		})
 
-		const hurtPlayers = applyPlayerCollisions(this.players);
+		const hurtPlayers = applyPlayerCollisions(this.players); // check player collisions and return involved players
 
-		hurtPlayers.forEach(element => {
+		hurtPlayers.forEach(element => { // handle knockback and other stuff of involved players
 			const player = this.players[element.playerID];
 			player.hurtTime = 0;
 			player.hurtBy = element.hurtBy;
@@ -112,14 +118,14 @@ class Game {
 			});
 		})
 
-		Object.keys(this.sockets).forEach(playerID => {
+		Object.keys(this.sockets).forEach(playerID => { // handle player deaths
 			const player = this.players[playerID];
 			if ( player.hp <= 0 ) {
 				this.handlePlayerDeath(player);
 			}
 		});
 
-		Object.keys(this.sockets).forEach(playerID => {
+		Object.keys(this.sockets).forEach(playerID => { // remove dead players
 			const socket = this.sockets[playerID];
 			const player = this.players[playerID];
 			if ( player.hp <= 0 ) {
@@ -128,7 +134,7 @@ class Game {
 			}
 		})
 
-		if ( this.shouldSendUpdate ) {
+		if ( this.shouldSendUpdate ) { // send updates to client
 			Object.keys(this.sockets).forEach(playerID => {
 				const socket = this.sockets[playerID];
 				const player = this.players[playerID];
@@ -140,18 +146,18 @@ class Game {
 		}
 	}
 
-	createUpdate(player) {
+	createUpdate(player) { // send update to client
 		const nearbyPlayers = Object.values(this.players).filter(
 			p => p !== player && p.distanceTo(player) <= Constants.NEARBY_DISTANCE,
-		);
+		); // getting nearby players
 
 		return {
-			t: Date.now(),
-			leaderboard: this.leaderboard.slice(0, Constants.LEADERBOARD_LENGTH + 1),
-			rankOnLeaderboard: this.getRankOnLeaderboard(player.id),
-			me: player.serializeForUpdate(),
-			others: nearbyPlayers.map(p => p.serializeForUpdate()),
-			playerCount: Object.keys(this.players).length,
+			t: Date.now(), // current time
+			leaderboard: this.leaderboard.slice(0, Constants.LEADERBOARD_LENGTH + 1), // leaderboard
+			rankOnLeaderboard: this.getRankOnLeaderboard(player.id), // this player's rank on leaderboard
+			me: player.serializeForUpdate(), // this player
+			others: nearbyPlayers.map(p => p.serializeForUpdate()), // nearby players
+			playerCount: Object.keys(this.players).length, // the number of players online
 		}
 	}
 }

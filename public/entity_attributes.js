@@ -9,3 +9,5 @@ module.exports = Object.freeze({
 		VALUE: 10,
 	},
 });
+
+// all entity attributes are here

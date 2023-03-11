@@ -1,6 +1,8 @@
 const EntityAttributes = require('../../public/entity_attributes');
 
 function applyPlayerCollisions(players) {
+	// apply player collisions by getting the distance between every 2 players
+	// can be optimized by only checking collisions for nearby players
 	const hurtPlayers = [];
 	const playersID = Object.keys(players);
 	for (let i = 0; i < playersID.length; i++) {

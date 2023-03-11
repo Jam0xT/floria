@@ -75,7 +75,7 @@
  $playerMass = 1$
  $playerSpeed = 30$
  $playerCollisionKnockback = 5000$
-# $20230306$ $v0.4.3$
+# $20230311$ $v0.4.3$
  - 添加了一个在标题旁边显示的图标。
  - 新增了一个存放所有生物属性的模块。
  - 把$ObjectImmovable$和$ObjectMovable$类删除，所有实体统一继承$Object$类。

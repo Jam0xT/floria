@@ -1,6 +1,6 @@
 const Constants = require('../shared/constants');
 
-class GameObject {
+class Entity {
 	constructor(id, x, y, hp, maxHp) {
 		this.id = id;
 		this.x = x;
@@ -53,11 +53,11 @@ class GameObject {
 		}
 	}
 
-	update(deltaT, attribute) {
+	update(deltaT, attribute) { // called every tick in game.js
 		this.x += deltaT * this.velocity.x;
 		this.y -= deltaT * this.velocity.y;
 
-		if ( this.hurtTime > -1 ) {
+		if ( this.hurtTime > -1 ) { // handle hurt interval
 			if ( this.hurtTime >= Constants.HURT_INTERVAL ) {
 				this.hurtTime = -1;
 			} else {
@@ -124,12 +124,12 @@ class GameObject {
 		this.handleBorder(attribute.RADIUS);
 	}
 	
-	getAccelerationMagnitude(magnitude, entityMass) {
+	getAccelerationMagnitude(magnitude, entityMass) { // calculate the accelertion magnitude in this.handleActiveMotion
 		const accelerationMagnitude = magnitude * entityMass;
 		return accelerationMagnitude;
 	}
 
-	handlePassiveMotion(passiveMotion) {
+	handlePassiveMotion(passiveMotion) { // handls passive motion
 		const direction = passiveMotion.direction;
 		const magnitude = passiveMotion.magnitude;
 		
@@ -142,7 +142,7 @@ class GameObject {
 		});
 	}
 
-	handleActiveMotion(activeMotion, entityMass) {
+	handleActiveMotion(activeMotion, entityMass) { // handles active motion
 		const direction = activeMotion.direction;
 		const magnitude = activeMotion.magnitude;
 
@@ -163,7 +163,7 @@ class GameObject {
 		}
 	}
 
-	serializeForUpdate() {
+	serializeForUpdate() { // get necessary data and send to client
 		return {
 			id: this.id,
 			x: this.x,
@@ -173,4 +173,4 @@ class GameObject {
 	}
 }
 
-module.exports = GameObject;
+module.exports = Entity;
