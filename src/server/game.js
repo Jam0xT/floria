@@ -79,8 +79,8 @@ class Game {
 
 	handlePlayerDeath(player) {
 		const killedBy = this.players[player.hurtBy];
-		if ( this.getRankOnLeaderboard(killedBy) > 0 ) {
-			killedBy.score += Math.floor(EntityAttributes.PLAYER.VALUE + player.score / 2);
+		killedBy.score += Math.floor(EntityAttributes.PLAYER.VALUE + player.score / 2);
+		if ( this.getRankOnLeaderboard(killedBy.id) > 0 ) {
 			this.updateLeaderboard(killedBy);
 		}
 		this.removeFromLeaderboard(player);

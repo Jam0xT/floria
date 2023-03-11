@@ -204,7 +204,7 @@ function renderLeaderboard(leaderboard, playerCount, me, rankOnLeaderboard) {
 	const leaderboardRoundCornerRadius = 5;
 
 	const leaderboardHeadHeight = 40;
-	const leaderboardHeightPerPlayer = 22;
+	const leaderboardHeightPerPlayer = 20;
 
 	const leaderboardWidth = 200;
 	const leaderboardHeight = leaderboardHeadHeight + leaderboardHeightPerPlayer * (Constants.LEADERBOARD_LENGTH + 1);
@@ -232,45 +232,41 @@ function renderLeaderboard(leaderboard, playerCount, me, rankOnLeaderboard) {
 	context.strokeStyle = "rgb(69, 151, 69)";
 	context.stroke();
 
-		context.save();
+	var baseX = position.x + leaderboardWidth / 2;
+	var baseY = position.y;
 
-		var baseX = position.x + leaderboardWidth / 2;
-		var baseY = position.y;
+	context.textAlign = "center";	
+	context.lineWidth = 18 / 8;
+	context.font = "18px Ubuntu";
 
-		context.textAlign = "center";	
-		context.lineWidth = 18 / 8;
-		context.font = "18px Ubuntu";
+	context.textAlign = "center"
+
+	if ( playerCount > 1 ) {
+		renderText(`${playerCount} Flowers`, baseX + 0, baseY + leaderboardHeadHeight / 2 + leaderboardOutlineWidth);
+	} else {
+		renderText('1 Flower', baseX + 0, baseY + leaderboardHeadHeight / 2 + leaderboardOutlineWidth);
+	}
+	const rankTopScore = leaderboard[1].score;
+
+	const leaderboardRankBaseLength = leaderboardWidth - leaderboardOutlineWidth - 30;
+	const leaderboardRankOutlineWidth = 2;
+	const leaderboardRankBaseWidth = leaderboardHeightPerPlayer - 1;
+
+	const leaderboardLength = Math.min(Constants.LEADERBOARD_LENGTH, leaderboard.length - 1);
+
+	for(var i = 1;i <= leaderboardLength - 1; i++) {
+		renderLeaderboardRank(i, leaderboardRankBaseLength, leaderboardRankOutlineWidth, leaderboardRankBaseWidth, rankTopScore,
+			leaderboardHeadHeight, leaderboardHeightPerPlayer, rankOnLeaderboard, leaderboard[i], baseX, baseY);
+	}
+
+	if ( rankOnLeaderboard <= leaderboardLength ) { // if I should be on leaderboard
+		renderLeaderboardRank(leaderboardLength, leaderboardRankBaseLength, leaderboardRankOutlineWidth, leaderboardRankBaseWidth, rankTopScore,
+			leaderboardHeadHeight, leaderboardHeightPerPlayer, rankOnLeaderboard, leaderboard[leaderboardLength], baseX, baseY);
+	} else { // if not
+		renderLeaderboardRank(leaderboardLength, leaderboardRankBaseLength, leaderboardRankOutlineWidth, leaderboardRankBaseWidth, rankTopScore,
+			leaderboardHeadHeight, leaderboardHeightPerPlayer, leaderboardLength, {score: me.score, id: me.id, username: me.username}, baseX, baseY);
+	}
 	
-		context.textAlign = "center"
-	
-		if ( playerCount > 1 ) {
-			renderText(`${playerCount} Flowers`, baseX + 0, baseY + leaderboardHeadHeight / 2 + leaderboardOutlineWidth);
-		} else {
-			renderText('1 Flower', baseX + 0, baseY + leaderboardHeadHeight / 2 + leaderboardOutlineWidth);
-		}
-		const rankTopScore = leaderboard[1].score;
-
-		const leaderboardRankBaseLength = leaderboardWidth - leaderboardOutlineWidth - 30;
-		const leaderboardRankOutlineWidth = 1;
-		const leaderboardRankBaseWidth = leaderboardHeightPerPlayer - 2;
-
-		const leaderboardLength = Math.min(Constants.LEADERBOARD_LENGTH, leaderboard.length - 1);
-
-		for(var i = 1;i <= leaderboardLength - 1; i++) {
-			renderLeaderboardRank(i, leaderboardRankBaseLength, leaderboardRankOutlineWidth, leaderboardRankBaseWidth, rankTopScore,
-				leaderboardHeadHeight, leaderboardHeightPerPlayer, rankOnLeaderboard, leaderboard[i], baseX, baseY);
-		}
-
-		if ( rankOnLeaderboard <= leaderboardLength ) { // if I should be on leaderboard
-			renderLeaderboardRank(leaderboardLength, leaderboardRankBaseLength, leaderboardRankOutlineWidth, leaderboardRankBaseWidth, rankTopScore,
-				leaderboardHeadHeight, leaderboardHeightPerPlayer, rankOnLeaderboard, leaderboard[leaderboardLength], baseX, baseY);
-		} else { // if not
-			renderLeaderboardRank(leaderboardLength, leaderboardRankBaseLength, leaderboardRankOutlineWidth, leaderboardRankBaseWidth, rankTopScore,
-				leaderboardHeadHeight, leaderboardHeightPerPlayer, leaderboardLength, {score: me.score, id: me.id, username: me.username}, baseX, baseY);
-		}
-
-		context.restore();
-
 	context.restore();
 }
 
