@@ -1,7 +1,7 @@
 const Constants = require('../shared/constants');
 const EntityAttributes = require('../../public/entity_attributes');
 const Player = require('./player');
-const applyPlayerCollisions = require('./collisions');
+const applyCollisions = require('./collisions');
 const Bubble = require('./entity/bubble');
 
 var TOTAL_SPAWN_WEIGHT = 0; // this is a constant
@@ -14,7 +14,8 @@ class Game {
 		this.leaderboard = [{score: -1}]; // the leaderboard handles all players, but only send the first 'LEADERBOARD_LENGTH' objects to each client
 		this.sockets = {};
 		this.players = {};
-		this.entities = {};
+		this.entities = {}; // {id:{type: type, mob: mob},...}
+		this.chunks = {}; // {{x:x, y:x}:[{type: type, id: id},...],...}
 		this.lastUpdateTime = Date.now();
 		this.mobSpawnTimer = 0;
 		this.volumeTaken = 0;
@@ -89,13 +90,16 @@ class Game {
 	handlePlayerDeath(player) {
 		// called when a player dies, adding score to 'killedBy' and remove the dead player from leaderboard
 		// this function will not remove the player itself
-		const killedBy = this.players[player.hurtBy];
-		killedBy.score += Math.floor(EntityAttributes.PLAYER.VALUE + player.score / 2);
-		if ( this.getRankOnLeaderboard(killedBy.id) > 0 ) {
-			// avoid crashing when two players kill each other at the exact same time
-			// it will crash because the player who killed you is not on the leaderboard anymore
-			// (the player who killed you is dead, and he has already been removed from leaderboard)
-			this.updateLeaderboard(killedBy);
+		const killedByInfo = player.hurtByInfo;
+		if ( killedByInfo.type == 'player' ) {
+			const killedBy = this.players[killedByInfo.id];
+			killedBy.score += Math.floor(EntityAttributes.PLAYER.VALUE + player.score / 2);
+			if ( this.getRankOnLeaderboard(killedBy.id) > 0 ) {
+				// avoid crashing when two players kill each other at the exact same time
+				// it will crash because the player who killed you is not on the leaderboard anymore
+				// (the player who killed you is dead, and he has already been removed from leaderboard)
+				this.updateLeaderboard(killedBy);
+			}
 		}
 		this.removeFromLeaderboard(player);
 		console.log(`${player.username} is dead!`);
@@ -119,27 +123,82 @@ class Game {
 		})
 	}
 
-	handleEntityDeaths() { // WIP
-
+	handleEntityDeaths() {
+		Object.keys(this.entities).forEach(mobID => {
+			const entity = this.entities[mobID];
+			if ( entity.mob.hp <= 0 ) {
+				const killedByInfo = entity.mob.hurtByInfo;
+				if ( killedByInfo.type == 'player' ) {
+					const killedBy = this.players[killedByInfo.id];
+					killedBy.score += Math.floor(EntityAttributes[entity.type].VALUE);
+					if ( this.getRankOnLeaderboard(killedBy.id) > 0 ) {
+						this.updateLeaderboard(killedBy);
+					}
+				}
+				delete this.chunks[this.getChunkID(entity.mob.chunk)];
+				delete this.entities[mobID];
+			}
+		});
 	}
 
 	updatePlayers(deltaT) {
 		Object.keys(this.sockets).forEach(playerID => { // updates the movement of each player
 			const player = this.players[playerID];
-			player.update(deltaT);
+			const chunk = player.update(deltaT);
+			if ( chunk ) {
+				const chunkOld = chunk.chunkOld;
+				const chunkNew = chunk.chunkNew;
+				if( this.chunks[this.getChunkID(chunkOld)] ) {
+					this.chunks[this.getChunkID(chunkOld)].splice(
+						this.chunks[this.getChunkID(chunkOld)].findIndex((entityInChunk) => {
+							return entityInChunk.type == 'player' && entityInChunk.id == playerID;
+						}),
+						1
+					);
+				}
+				if( this.chunks[this.getChunkID(chunkNew)] ) {
+					this.chunks[this.getChunkID(chunkNew)].push({type: 'player', id: playerID});
+				} else {
+					this.chunks[this.getChunkID(chunkNew)] = new Array({type: 'player', id: playerID});
+				}
+			}
 		});
+	}
+
+	getChunkID(chunk) {
+		return chunk.x * Constants.CHUNK_ID_CONSTANT + chunk.y;
 	}
 
 	updateEntities(deltaT) {
 		Object.values(this.entities).forEach(entity => {
-			const mob = entity.mob;
-			const type = entity.type;
-			mob.update(deltaT, EntityAttributes[type]);
+			const chunk = entity.mob.update(deltaT, EntityAttributes[entity.type]);
+			if ( chunk ) {
+				const chunkOld = chunk.chunkOld;
+				const chunkNew = chunk.chunkNew;
+				if( this.chunks[this.getChunkID(chunkOld)] ) {
+					this.chunks[this.getChunkID(chunkOld)].splice(
+						this.chunks[this.getChunkID(chunkOld)].findIndex((entityInChunk) => {
+							return entityInChunk.type == 'mob' && entityInChunk.id == entity.mob.id;
+						}),
+						1
+					);
+				}
+				if( this.chunks[this.getChunkID(chunkNew)] ) {
+					this.chunks[this.getChunkID(chunkNew)].push({type: 'mob', id: entity.mob.id});
+				} else {
+					this.chunks[this.getChunkID(chunkNew)] = new Array({type: 'mob', id: entity.mob.id});
+				}
+			}
 		});
 	}
 
 	rnd(x, y) {
 		return ((Math.random() * y) + x);
+	}
+
+	getNewMobID() {
+		this.mobID ++;
+		return `mob-${this.mobID}`;
 	}
 
 	mobSpawn() {
@@ -152,16 +211,16 @@ class Game {
 					const weight = attribute.SPAWN_WEIGHT;
 					const volume = attribute.VOLUME;
 					if ( currentMobNumber < mobNumber && currentMobNumber + weight >= mobNumber ) {
-						this.mobID ++;
 						this.volumeTaken += volume;
 						const spawnX = this.rnd(0, Constants.MAP_WIDTH);
 						const spawnY = this.rnd(0, Constants.MAP_HEIGHT);
 						if ( attribute.TYPE == 'BUBBLE' ) {
-							this.entities[this.mobID] = {
+							const newMobID = this.getNewMobID();
+							this.entities[newMobID] = {
 								type: attribute.TYPE,
-								mob: new Bubble(this.mobID, spawnX, spawnY),
+								mob: new Bubble(newMobID, spawnX, spawnY, 'mob-hostile'),
 							};
-							console.log(`A bubble spawned at (${spawnX}, ${spawnY}) !`);
+							// console.log(`A bubble spawned at (${spawnX}, ${spawnY}) !`);
 						}
 					}
 				});
@@ -171,17 +230,44 @@ class Game {
 		}
 	}
 
-	handleCollisions() { // WIP
-		const hurtPlayers = applyPlayerCollisions(this.players); // check player collisions and return involved players
+	handleCollisions() {
+		const {hurtPlayers, hurtEntities} = applyCollisions(this.players, this.entities, this.chunks);
+		// applyCollisions: check collisions and return involved players and mobs
 
-		hurtPlayers.forEach(element => { // handle knockback and other stuff of involved players
-			const player = this.players[element.playerID];
+		hurtPlayers.forEach(element => {
+			const {entityID, sourceInfo, knockbackDirection} = element;
+			const player = this.players[entityID];
 			player.hurtTime = 0;
-			player.hurtBy = element.hurtBy;
-			player.hp -= EntityAttributes.PLAYER.BODY_DAMAGE;
-			const knockbackMagnitude = EntityAttributes.PLAYER.COLLISION_KNOCKBACK;
-			const knockbackDirection = element.knockbackDirection;
+			player.hurtByInfo = sourceInfo;
+			var sourceAttribute;
+			if ( sourceInfo.type == 'player' ) {
+				sourceAttribute = EntityAttributes['PLAYER'];
+			} else if ( sourceInfo.type == 'mob' ) {
+				sourceAttribute = EntityAttributes[this.entities[sourceInfo.id].type];
+			}
+			player.hp -= sourceAttribute.BODY_DAMAGE;
+			const knockbackMagnitude = sourceAttribute.COLLISION_KNOCKBACK;
 			player.handlePassiveMotion({
+				direction: knockbackDirection,
+				magnitude: knockbackMagnitude,
+			});
+			
+		});
+
+		hurtEntities.forEach(element => {
+			const {entityID, sourceInfo, knockbackDirection} = element;
+			const entity = this.entities[entityID];
+			entity.mob.hurtTime = 0;
+			entity.mob.hurtByInfo = sourceInfo;
+			var sourceAttribute;
+			if ( sourceInfo.type == 'player' ) {
+				sourceAttribute = EntityAttributes['PLAYER'];
+			} else if ( sourceInfo.type == 'mob' ) {
+				sourceAttribute = EntityAttributes[this.entities[sourceInfo.id].type];
+			}
+			entity.mob.hp -= sourceAttribute.BODY_DAMAGE;
+			const knockbackMagnitude = sourceAttribute.COLLISION_KNOCKBACK;
+			entity.mob.handlePassiveMotion({
 				direction: knockbackDirection,
 				magnitude: knockbackMagnitude,
 			});
@@ -199,11 +285,11 @@ class Game {
 
 		this.mobSpawn();
 
-		this.handleCollisions(); // WIP
-		
-		this.handleEntityDeaths();
+		this.handleCollisions();
 
 		this.handlePlayerDeaths();
+		
+		this.handleEntityDeaths();
 
 		this.sendUpdate();
 	}
@@ -223,8 +309,16 @@ class Game {
 
 	createUpdate(player) { // send update to client
 		const nearbyPlayers = Object.values(this.players).filter(
-			p => p !== player && p.distanceTo(player) <= Constants.NEARBY_DISTANCE,
+			p => {
+				return p !== player && p.distanceTo(player) <= Constants.NEARBY_DISTANCE;
+			}
 		); // getting nearby players
+
+		const nearbyEntities = Object.values(this.entities).filter(
+			e => {
+				return e.mob.distanceTo(player) <= Constants.NEARBY_DISTANCE;
+			}
+		) // getting nearby entities
 
 		return {
 			t: Date.now(), // current time
@@ -233,6 +327,7 @@ class Game {
 			me: player.serializeForUpdate(), // this player
 			others: nearbyPlayers.map(p => p.serializeForUpdate()), // nearby players
 			playerCount: Object.keys(this.players).length, // the number of players online
+			entities: nearbyEntities.map(e => e.mob.serializeForUpdate()),
 		}
 	}
 }

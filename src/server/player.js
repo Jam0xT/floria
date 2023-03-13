@@ -5,7 +5,8 @@ const Attribute = EntityAttributes.PLAYER;
 
 class Player extends Entity {
 	constructor(id, username, x, y) {
-		super(id, x, y, EntityAttributes.PLAYER.MAX_HP_BASE, EntityAttributes.PLAYER.MAX_HP_BASE);
+		super(id, x, y, id, 'PLAYER', EntityAttributes.PLAYER.MAX_HP_BASE, EntityAttributes.PLAYER.MAX_HP_BASE);
+		// a player's team equals to his id
 		this.username = username;
 		this.score = 1;
 		this.haveRankOnLeaderboard = false;
@@ -14,7 +15,7 @@ class Player extends Entity {
 	}
 
 	update(deltaT) { // updates velocity every tick
-		super.update(deltaT, Attribute);
+		return super.update(deltaT, Attribute);
 	}
 
 	handleActiveMotion(activeMotion) { // handles active motion (the motion from player input)

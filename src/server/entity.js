@@ -1,14 +1,19 @@
 const Constants = require('../shared/constants');
 
 class Entity {
-	constructor(id, x, y, hp, maxHp) {
+	constructor(id, x, y, team, type, hp, maxHp) {
 		this.id = id;
 		this.x = x;
 		this.y = y;
+		this.team = team;
+		this.type = type;
 		this.hp = hp;
 		this.maxHp = maxHp;
 		this.hurtTime = -1;
-		this.hurtBy = -1;
+		this.hurtByInfo = {
+			type: -1,
+			id: -1,
+		};
 		this.velocity = {
 			x: 0,
 			y: 0,
@@ -27,6 +32,10 @@ class Entity {
 			y: 0,
 		};
 		this.passiveVelocity = [];
+		this.chunk = {
+			x: -1,
+			y: -1,
+		};
 	}
 
 	distanceTo(object) {
@@ -122,6 +131,19 @@ class Entity {
 		this.velocity.y += this.activeVelocity.y;
 
 		this.handleBorder(attribute.RADIUS);
+
+		const chunkNew = {
+			x: Math.floor(this.x / Constants.CHUNK_SIZE),
+			y: Math.floor(this.y / Constants.CHUNK_SIZE),
+		};
+
+		if ( chunkNew == this.chunk ) {
+			return false;
+		} else {
+			const chunkOld = this.chunk;
+			this.chunk = chunkNew;
+			return {chunkOld, chunkNew};
+		}
 	}
 	
 	getAccelerationMagnitude(magnitude, entityMass) { // calculate the accelertion magnitude in this.handleActiveMotion
@@ -169,6 +191,8 @@ class Entity {
 			x: this.x,
 			y: this.y,
 			hurtTime: this.hurtTime,
+			chunk: this.chunk,
+			hp: this.hp,
 		};
 	}
 }

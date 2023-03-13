@@ -90,7 +90,14 @@
  $leaderboardLength = 10$
  $(+)tickPerSecond = 60$
  $(-)playerAccelerationBias$
-# $20230312$ $v0.5.0$
+# $20230313$ $v0.5.0$
  - 进行了一些模块化处理。
  - 添加了一个彩蛋。
  <!-- 当玩家名为'Pop!'时会以泡泡的形式显示 -->
+ - 更新了生物：泡泡。
+ - 生物碰撞判定的实现：维护一个区块数组，里面存放每个区块里有哪些生物
+ 所有玩家只检测以当前区块为中心$3\times 3$的区块中是否有生物与自己碰撞。
+ - 常数修改/添加。
+ $mobVolumeLimit = 5000$
+ $mobSpawnInterval = 60$
+ $chunkSize = 500$

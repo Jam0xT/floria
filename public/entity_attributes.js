@@ -14,8 +14,9 @@ module.exports = Object.freeze({
 	BUBBLE: {
 		MASS: 1,
 		SPEED: 0,
-		RADIUS: 30,
-		MAX_HP: 10,
+		RADIUS: 250,
+		MAX_HP: 1000,
+		BODY_DAMAGE: 5,
 		COLLISION_KNOCKBACK: 2500,
 		VALUE: 5,
 		SPAWN_WEIGHT: 100,

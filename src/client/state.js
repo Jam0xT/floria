@@ -53,6 +53,7 @@ export function getCurrentState() {
 		return {
 			me: interpolateObject(baseUpdate.me, nextUpdate.me, ratio),
 			others: interpolateObjectArray(baseUpdate.others, nextUpdate.others, ratio),
+			entities: interpolateObjectArray(baseUpdate.entities, nextUpdate.entities, ratio),
 			leaderboard: baseUpdate.leaderboard,
 			playerCount: baseUpdate.playerCount,
 			rankOnLeaderboard: baseUpdate.rankOnLeaderboard,
@@ -67,7 +68,7 @@ function interpolateObject(object1, object2, ratio) {
 
 	const interpolated = {};
 	Object.keys(object1).forEach(key => {
-		if ( key === 'direction' ) {
+		if ( key === 'activeDirection') {
 			interpolated[key] = interpolateDirection(object1[key], object2[key], ratio);
 		} else if ( key === 'x' || key === 'y' || key === 'hp' || key === 'score') {
 			interpolated[key] = object1[key] + (object2[key] - object1[key]) * ratio;

@@ -30,11 +30,14 @@ window.addEventListener('resize', setCanvasDimensions);
 let animationFrameRequestId;
 
 function renderGame() {
-	const { me, others, leaderboard, playerCount, rankOnLeaderboard } = getCurrentState();
+	const { me, others, entities, leaderboard, playerCount, rankOnLeaderboard } = getCurrentState();
 	if ( me ) {
 		renderBackground(me.x, me.y);
 		renderPlayer(me, me);
 		others.forEach(renderPlayer.bind(null, me));
+		entities.forEach(entity => {
+			renderEntity(me, entity);
+		})
 		renderLeaderboard(leaderboard, playerCount, me, rankOnLeaderboard);
 	}
 	animationFrameRequestId = requestAnimationFrame(renderGame);
@@ -120,7 +123,9 @@ function renderPlayer(me, player) {
 
 	renderText(player.username, 0, -35, 20, 'center');
 	renderText(Math.floor(Math.sqrt((player.x - me.x) * (player.x - me.x) + (player.y - me.y) * (player.y - me.y))), 0, -60);
-	renderText(`(${Math.floor(me.x)} , ${Math.floor(me.y)})`, 0, -85);
+	renderText(`(${Math.floor(player.x)} , ${Math.floor(player.y)})`, 0, -85);
+	renderText(`(${player.chunk.x} , ${player.chunk.y})`, 0, -110);
+	renderText(`${player.hp}`, 0, 65);
 
 	const healthBarBaseWidth = 10;
 	const healthBarBaseStyle = 'rgb(51, 51, 51)';
@@ -155,6 +160,31 @@ function renderPlayer(me, player) {
 		context.closePath();
 
 		context.restore();
+
+	context.restore();
+}
+
+function renderEntity(me, entity) {
+	console.log('check');
+	const {x, y} = entity;
+	const canvasX = canvas.width / 2 + x - me.x;
+	const canvasY = canvas.height / 2 + y - me.y;
+
+	context.save();
+
+	context.translate(canvasX, canvasY);
+	const renderRadius = EntityAttributes[entity.type].RADIUS + 2;
+
+	context.drawImage(
+		getAsset(`mobs/${entity.type.toLowerCase()}.svg`),
+		- renderRadius,
+		- renderRadius,
+		renderRadius * 2,
+		renderRadius * 2,
+	);
+
+	renderText(entity.id, 0, -35, 20, 'center');
+	renderText(`hp:${entity.hp}`, 0, 65);
 
 	context.restore();
 }
