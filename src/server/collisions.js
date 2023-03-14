@@ -18,7 +18,7 @@ function applyCollisions(players, entities, chunks) {
 						const {type, id} = entityInfo;
 						if ( type == 'player' ) {
 							if ( id != playersID[i] ) {
-								console.log(id);
+								// console.log(id);
 								if ( player.distanceTo(players[id]) <= EntityAttributes.PLAYER.RADIUS * 2 && player.hurtTime == -1) {
 									// hurt: 'player', source: 'players[id]'
 									hurtPlayers.push({
