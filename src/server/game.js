@@ -38,8 +38,9 @@ class Game {
 	onPlayerDisconnect(socket) { // calls when a player is disconnected (currently the webpage will refresh for a player that dies)
 		if ( this.players[socket.id] ) {
 			this.removeFromLeaderboard(this.players[socket.id]);
+			delete this.chunks[this.getChunkID(player.chunk)];
+			this.removePlayer(socket);
 		}
-		this.removePlayer(socket);
 	}
 
 	removePlayer(socket) { // remove a player
@@ -118,7 +119,6 @@ class Game {
 			const player = this.players[playerID];
 			if ( player.hp <= 0 ) {
 				socket.emit(Constants.MSG_TYPES.GAME_OVER);
-				delete this.chunks[this.getChunkID(player.chunk)];
 				this.removePlayer(socket);
 			}
 		})
