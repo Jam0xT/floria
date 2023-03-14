@@ -38,12 +38,12 @@ class Game {
 	onPlayerDisconnect(socket) { // calls when a player is disconnected (currently the webpage will refresh for a player that dies)
 		if ( this.players[socket.id] ) {
 			this.removeFromLeaderboard(this.players[socket.id]);
-			delete this.chunks[this.getChunkID(player.chunk)];
 			this.removePlayer(socket);
 		}
 	}
 
 	removePlayer(socket) { // remove a player
+		delete this.chunks[this.getChunkID(this.players[socket.id].chunk)];
 		delete this.sockets[socket.id];
 		delete this.players[socket.id];
 	}
