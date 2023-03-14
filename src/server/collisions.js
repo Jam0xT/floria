@@ -17,13 +17,16 @@ function applyCollisions(players, entities, chunks) {
 					entitiesInChunk.forEach(entityInfo => {
 						const {type, id} = entityInfo;
 						if ( type == 'player' ) {
-							if ( id != playersID[i] && player.distanceTo(players[id]) <= EntityAttributes.PLAYER.RADIUS * 2 && player.hurtTime == -1) {
-								// hurt: 'player', source: 'players[id]'
-								hurtPlayers.push({
-									entityID: playersID[i],
-									sourceInfo: entityInfo,
-									knockbackDirection: Math.atan2(player.x - players[id].x, players[id].y - player.y),
-								});
+							if ( id != playersID[i] ) {
+								console.log(id);
+								if ( player.distanceTo(players[id]) <= EntityAttributes.PLAYER.RADIUS * 2 && player.hurtTime == -1) {
+									// hurt: 'player', source: 'players[id]'
+									hurtPlayers.push({
+										entityID: playersID[i],
+										sourceInfo: entityInfo,
+										knockbackDirection: Math.atan2(player.x - players[id].x, players[id].y - player.y),
+									});
+								}
 							}
 						} else if ( type == 'mob' ) {
 							const entity = entities[id];

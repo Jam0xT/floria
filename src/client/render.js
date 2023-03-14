@@ -173,7 +173,7 @@ function renderEntity(me, entity) {
 	context.save();
 
 	context.translate(canvasX, canvasY);
-	const renderRadius = EntityAttributes[entity.type].RADIUS + 2;
+	const renderRadius = EntityAttributes[entity.type].RADIUS;
 
 	context.drawImage(
 		getAsset(`mobs/${entity.type.toLowerCase()}.svg`),

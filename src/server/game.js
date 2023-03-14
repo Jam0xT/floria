@@ -118,6 +118,7 @@ class Game {
 			const player = this.players[playerID];
 			if ( player.hp <= 0 ) {
 				socket.emit(Constants.MSG_TYPES.GAME_OVER);
+				delete this.chunks[this.getChunkID(player.chunk)];
 				this.removePlayer(socket);
 			}
 		})
