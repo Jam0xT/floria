@@ -16,6 +16,7 @@ Promise.all([
 ]).then(() => {
 	startRenderingMainMenu();
 	usernameInput.classList.remove('hidden');
+	usernameInput.value = window.localStorage.getItem('username') || '';
 	usernameInput.focus();
 	window.onkeyup = e => {
 		if ( e.keyCode == 16 && e.location == KeyboardEvent.DOM_KEY_LOCATION_RIGHT ) {
@@ -33,6 +34,7 @@ Promise.all([
 				play(usernameInput.value);
 			}
 			usernameInput.classList.add('hidden');
+			window.localStorage.setItem('username', usernameInput.value);
 			initState();
 			startRenderingGame();
 			startCapturingInput(isKeyboardInput);
