@@ -30,13 +30,13 @@ window.addEventListener('resize', setCanvasDimensions);
 let animationFrameRequestId;
 
 function renderGame() {
-	const { me, others, entities, leaderboard, playerCount, rankOnLeaderboard } = getCurrentState();
+	const { me, others, mobs, leaderboard, playerCount, rankOnLeaderboard } = getCurrentState();
 	if ( me ) {
 		renderBackground(me.x, me.y);
 		renderPlayer(me, me);
 		others.forEach(renderPlayer.bind(null, me));
-		entities.forEach(entity => {
-			renderEntity(me, entity);
+		mobs.forEach(mob => {
+			renderMob(me, mob);
 		})
 		renderLeaderboard(leaderboard, playerCount, me, rankOnLeaderboard);
 	}
@@ -102,10 +102,10 @@ function renderPlayer(me, player) {
 	context.save();
 
 	context.translate(canvasX, canvasY);
-	const renderRadius = EntityAttributes.PLAYER.RADIUS + 2;
+	const renderRadius = EntityAttributes.PLAYER.RADIUS * 1.05;
 	if ( player.username == "Pop!" ) {
 		context.drawImage(
-			getAsset('bubble.svg'),
+			getAsset('mobs/bubble.svg'),
 			- renderRadius,
 			- renderRadius,
 			renderRadius * 2,
@@ -124,7 +124,7 @@ function renderPlayer(me, player) {
 	renderText(player.username, 0, -35, 20, 'center');
 	renderText(Math.floor(Math.sqrt((player.x - me.x) * (player.x - me.x) + (player.y - me.y) * (player.y - me.y))), 0, -60);
 	renderText(`(${Math.floor(player.x)} , ${Math.floor(player.y)})`, 0, -85);
-	renderText(`(${player.chunk.x} , ${player.chunk.y})`, 0, -110);
+	renderText(`${player.chunks}`, 0, -110);
 	renderText(`${player.hp}`, 0, 65);
 
 	const healthBarBaseWidth = 10;
@@ -164,27 +164,27 @@ function renderPlayer(me, player) {
 	context.restore();
 }
 
-function renderEntity(me, entity) {
+function renderMob(me, mob) {
 	console.log('check');
-	const {x, y} = entity;
+	const {x, y} = mob;
 	const canvasX = canvas.width / 2 + x - me.x;
 	const canvasY = canvas.height / 2 + y - me.y;
 
 	context.save();
 
 	context.translate(canvasX, canvasY);
-	const renderRadius = EntityAttributes[entity.type].RADIUS + 2;
+	const renderRadius = EntityAttributes[mob.type].RADIUS * 1.05;
 
 	context.drawImage(
-		getAsset(`mobs/${entity.type.toLowerCase()}.svg`),
+		getAsset(`mobs/${mob.type.toLowerCase()}.svg`),
 		- renderRadius,
 		- renderRadius,
 		renderRadius * 2,
 		renderRadius * 2,
 	);
 
-	renderText(entity.id, 0, -35, 20, 'center');
-	renderText(`hp:${entity.hp}`, 0, 65);
+	renderText(mob.id, 0, -35, 20, 'center');
+	renderText(`hp:${mob.hp}`, 0, 65);
 
 	context.restore();
 }
@@ -394,16 +394,17 @@ function renderText(text, x, y, fontSize, textAlign) {
 }
 
 function getNumberDisplay(x) {
-	if ( x > 10**12 ) {
-		x = Math.floor(x / 10**11) / 10;
-		x = x.toFixed(1) + 't';
-	} else if ( x > 10**9 ) {
+	if ( x >= 10**10 ) {
+		const digitNumber = Math.floor(Math.log10(x));
+		x = Math.floor(x / 10**(digitNumber - 1)) / 10;
+		x = x.toFixed(1) + 'e+' + digitNumber;
+	} else if ( x >= 10**9 ) {
 		x = Math.floor(x / 10**8) / 10;
 		x = x.toFixed(1) + 'b';
-	} else if ( x > 10**6 ) {
+	} else if ( x >= 10**6 ) {
 		x = Math.floor(x / 10**5) / 10;
-		x = score.toFixed(1) + 'm';
-	} else if ( x > 1000 ) {
+		x = x.toFixed(1) + 'm';
+	} else if ( x >= 1000 ) {
 		x = Math.floor(x / 100) / 10;
 		x = x.toFixed(1) + 'k';
 	}

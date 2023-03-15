@@ -53,7 +53,7 @@ export function getCurrentState() {
 		return {
 			me: interpolateObject(baseUpdate.me, nextUpdate.me, ratio),
 			others: interpolateObjectArray(baseUpdate.others, nextUpdate.others, ratio),
-			entities: interpolateObjectArray(baseUpdate.entities, nextUpdate.entities, ratio),
+			mobs: interpolateObjectArray(baseUpdate.mobs, nextUpdate.mobs, ratio),
 			leaderboard: baseUpdate.leaderboard,
 			playerCount: baseUpdate.playerCount,
 			rankOnLeaderboard: baseUpdate.rankOnLeaderboard,
