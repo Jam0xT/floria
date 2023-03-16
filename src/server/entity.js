@@ -32,10 +32,7 @@ class Entity {
 			y: 0,
 		};
 		this.passiveVelocity = [];
-		this.chunk = {
-			x: -1,
-			y: -1,
-		};
+		this.chunks = [];
 	}
 
 	distanceTo(object) {
@@ -132,17 +129,103 @@ class Entity {
 
 		this.handleBorder(attribute.RADIUS);
 
-		const chunkNew = {
+		const chunksNew = [];
+
+		const chunkRadius = Math.ceil(attribute.RADIUS / Constants.CHUNK_SIZE + 1);
+
+		const baseChunk = {
 			x: Math.floor(this.x / Constants.CHUNK_SIZE),
 			y: Math.floor(this.y / Constants.CHUNK_SIZE),
-		};
+		}
 
-		if ( chunkNew == this.chunk ) {
+		var chunkX = baseChunk.x - chunkRadius, chunkY = baseChunk.y - chunkRadius;
+
+		while ( chunkX <= baseChunk.x + chunkRadius && chunkY <= baseChunk.y + chunkRadius ) {
+			if ( chunkX < baseChunk.x + chunkRadius ) {
+				chunkX ++;
+			} else if ( chunkY < baseChunk.y + chunkRadius ) {
+				chunkX = baseChunk.x - chunkRadius;
+				chunkY ++;
+			} else {
+				break;
+			}
+			if( chunkX < 0 || chunkY < 0 )
+				continue;
+			if ( chunkX == baseChunk.x ) {
+				if ( chunkY > baseChunk.y ) {
+					if ( chunkY * Constants.CHUNK_SIZE <= this.y + attribute.RADIUS ) {
+						chunksNew.push({x: chunkX, y: chunkY});
+					}
+				} else {
+					if ( (chunkY + 1) * Constants.CHUNK_SIZE >= this.y - attribute.RADIUS ) {
+						chunksNew.push({x: chunkX, y: chunkY});
+					}
+				}
+			} else if ( chunkY == baseChunk.y ) {
+				if ( chunkX > baseChunk.x ) {
+					if ( chunkX * Constants.CHUNK_SIZE <= this.x + attribute.RADIUS ) {
+						chunksNew.push({x: chunkX, y: chunkY});
+					}
+				} else if ( chunkX < baseChunk.x ){
+					if ( (chunkX + 1) * Constants.CHUNK_SIZE >= this.x - attribute.RADIUS ) {
+						chunksNew.push({x: chunkX, y: chunkY});
+					}
+				}
+			} else {
+				if ( chunkX > baseChunk.x && chunkY > baseChunk.y ) {
+					const deltaX = chunkX * Constants.CHUNK_SIZE - this.x;
+					const deltaY = chunkY * Constants.CHUNK_SIZE - this.y;
+					if ( Math.sqrt(deltaX * deltaX + deltaY * deltaY) <= attribute.RADIUS ) {
+						chunksNew.push({x: chunkX, y: chunkY});
+					}
+				} else if ( chunkX > baseChunk.x && chunkY < baseChunk.y ) {
+					const deltaX = chunkX * Constants.CHUNK_SIZE - this.x;
+					const deltaY = (chunkY + 1) * Constants.CHUNK_SIZE - this.y;
+					if ( Math.sqrt(deltaX * deltaX + deltaY * deltaY) <= attribute.RADIUS ) {
+						chunksNew.push({x: chunkX, y: chunkY});
+					}
+				} else if ( chunkX < baseChunk.x && chunkY > baseChunk.y ) {
+					const deltaX = (chunkX + 1) * Constants.CHUNK_SIZE - this.x;
+					const deltaY = chunkY * Constants.CHUNK_SIZE - this.y;
+					if ( Math.sqrt(deltaX * deltaX + deltaY * deltaY) <= attribute.RADIUS ) {
+						chunksNew.push({x: chunkX, y: chunkY});
+					}
+				} else {
+					const deltaX = (chunkX + 1) * Constants.CHUNK_SIZE - this.x;
+					const deltaY = (chunkY + 1) * Constants.CHUNK_SIZE - this.y;
+					if ( Math.sqrt(deltaX * deltaX + deltaY * deltaY) <= attribute.RADIUS ) {
+						chunksNew.push({x: chunkX, y: chunkY});
+					}
+				}
+			}
+		}
+		if ( this.isSameArray(chunksNew, this.chunks) ) {
 			return false;
 		} else {
-			const chunkOld = this.chunk;
-			this.chunk = chunkNew;
-			return {chunkOld, chunkNew};
+			const chunksOld = [];
+			this.chunks.forEach(chunkOld => {
+				chunksOld.push(chunkOld);
+			});
+			this.chunks = [];
+			chunksNew.forEach(chunkNew => {
+				this.chunks.push(chunkNew);
+			});
+			return {
+				chunksOld: chunksOld, 
+				chunksNew: chunksNew,
+			};
+		}
+	}
+
+	isSameArray(array1, array2) {
+		if ( array1.length != array2.length ) {
+			return false;
+		} else {
+			for (let i = 0; i < array1.length; i++) {
+				if ( array1[i] != array2[i] )
+					return false;
+			}
+			return true;
 		}
 	}
 	
@@ -191,9 +274,18 @@ class Entity {
 			x: this.x,
 			y: this.y,
 			hurtTime: this.hurtTime,
-			chunk: this.chunk,
+			chunks: this.getChunksForUpdate(),
 			hp: this.hp,
 		};
+	}
+
+	getChunksForUpdate() {
+		var chunksForUpdate = '[';
+		this.chunks.forEach(chunk => {
+			chunksForUpdate += `{x: ${chunk.x}, y: ${chunk.y}},`
+		});
+		chunksForUpdate += ']';
+		return chunksForUpdate;
 	}
 }
 

@@ -14,8 +14,8 @@ class Game {
 		this.leaderboard = [{score: -1}]; // the leaderboard handles all players, but only send the first 'LEADERBOARD_LENGTH' objects to each client
 		this.sockets = {};
 		this.players = {};
-		this.entities = {}; // {id:{type: type, mob: mob},...}
-		this.chunks = {}; // {{x:x, y:x}:[{type: type, id: id},...],...}
+		this.mobs = {}; // {id:{type: mobType, value: mob},...}
+		this.chunks = {}; // {chunkID:[{type: entityType, id: id},...],...}
 		this.lastUpdateTime = Date.now();
 		this.mobSpawnTimer = 0;
 		this.volumeTaken = 0;
@@ -43,9 +43,19 @@ class Game {
 	}
 
 	removePlayer(socket) { // remove a player
-		delete this.chunks[this.getChunkID(this.players[socket.id].chunk)];
-		delete this.sockets[socket.id];
-		delete this.players[socket.id];
+		const playerID = socket.id;
+		this.players[playerID].chunks.forEach(chunk => {
+			if( this.chunks[this.getChunkID(chunk)] ) {
+				this.chunks[this.getChunkID(chunk)].splice(
+					this.chunks[this.getChunkID(chunk)].findIndex((entityInChunk) => {
+						return entityInChunk.type == 'player' && entityInChunk.id == playerID;
+					}),
+					1
+				);
+			}
+		});
+		delete this.sockets[playerID];
+		delete this.players[playerID];
 	}
 
 	handleInput(socket, input) { // handle input from a player
@@ -94,7 +104,7 @@ class Game {
 		const killedByInfo = player.hurtByInfo;
 		if ( killedByInfo.type == 'player' ) {
 			const killedBy = this.players[killedByInfo.id];
-			killedBy.score += Math.floor(EntityAttributes.PLAYER.VALUE + player.score / 2);
+			killedBy.score += Math.floor(EntityAttributes.PLAYER.VALUE + player.score * Constants.SCORE_LOOTING_COEFFICIENT);
 			if ( this.getRankOnLeaderboard(killedBy.id) > 0 ) {
 				// avoid crashing when two players kill each other at the exact same time
 				// it will crash because the player who killed you is not on the leaderboard anymore
@@ -124,44 +134,30 @@ class Game {
 		})
 	}
 
-	handleEntityDeaths() {
-		Object.keys(this.entities).forEach(mobID => {
-			const entity = this.entities[mobID];
-			if ( entity.mob.hp <= 0 ) {
-				const killedByInfo = entity.mob.hurtByInfo;
+	handleMobDeaths() {
+		Object.keys(this.mobs).forEach(mobID => {
+			const mob = this.mobs[mobID];
+			if ( mob.value.hp <= 0 ) {
+				const killedByInfo = mob.value.hurtByInfo;
 				if ( killedByInfo.type == 'player' ) {
 					const killedBy = this.players[killedByInfo.id];
-					killedBy.score += Math.floor(EntityAttributes[entity.type].VALUE);
+					killedBy.score += Math.floor(EntityAttributes[mob.type].VALUE);
 					if ( this.getRankOnLeaderboard(killedBy.id) > 0 ) {
 						this.updateLeaderboard(killedBy);
 					}
 				}
-				delete this.chunks[this.getChunkID(entity.mob.chunk)];
-				delete this.entities[mobID];
-			}
-		});
-	}
-
-	updatePlayers(deltaT) {
-		Object.keys(this.sockets).forEach(playerID => { // updates the movement of each player
-			const player = this.players[playerID];
-			const chunk = player.update(deltaT);
-			if ( chunk ) {
-				const chunkOld = chunk.chunkOld;
-				const chunkNew = chunk.chunkNew;
-				if( this.chunks[this.getChunkID(chunkOld)] ) {
-					this.chunks[this.getChunkID(chunkOld)].splice(
-						this.chunks[this.getChunkID(chunkOld)].findIndex((entityInChunk) => {
-							return entityInChunk.type == 'player' && entityInChunk.id == playerID;
-						}),
-						1
-					);
-				}
-				if( this.chunks[this.getChunkID(chunkNew)] ) {
-					this.chunks[this.getChunkID(chunkNew)].push({type: 'player', id: playerID});
-				} else {
-					this.chunks[this.getChunkID(chunkNew)] = new Array({type: 'player', id: playerID});
-				}
+				mob.value.chunks.forEach(chunk => {
+					if( this.chunks[this.getChunkID(chunk)] ) {
+						this.chunks[this.getChunkID(chunk)].splice(
+							this.chunks[this.getChunkID(chunk)].findIndex((entityInChunk) => {
+								return entityInChunk.type == 'mob' && entityInChunk.id == mob.value.id;
+							}),
+							1
+						);
+					}
+				});
+				this.volumeTaken -= EntityAttributes[mob.type].VOLUME;
+				delete this.mobs[mobID];
 			}
 		});
 	}
@@ -170,25 +166,57 @@ class Game {
 		return chunk.x * Constants.CHUNK_ID_CONSTANT + chunk.y;
 	}
 
-	updateEntities(deltaT) {
-		Object.values(this.entities).forEach(entity => {
-			const chunk = entity.mob.update(deltaT, EntityAttributes[entity.type]);
-			if ( chunk ) {
-				const chunkOld = chunk.chunkOld;
-				const chunkNew = chunk.chunkNew;
-				if( this.chunks[this.getChunkID(chunkOld)] ) {
-					this.chunks[this.getChunkID(chunkOld)].splice(
-						this.chunks[this.getChunkID(chunkOld)].findIndex((entityInChunk) => {
-							return entityInChunk.type == 'mob' && entityInChunk.id == entity.mob.id;
-						}),
-						1
-					);
-				}
-				if( this.chunks[this.getChunkID(chunkNew)] ) {
-					this.chunks[this.getChunkID(chunkNew)].push({type: 'mob', id: entity.mob.id});
-				} else {
-					this.chunks[this.getChunkID(chunkNew)] = new Array({type: 'mob', id: entity.mob.id});
-				}
+	updatePlayers(deltaT) {
+		Object.keys(this.sockets).forEach(playerID => { // updates the movement of each player
+			const player = this.players[playerID];
+			const chunks = player.update(deltaT);
+			if ( chunks ) {
+				const chunksOld = chunks.chunksOld;
+				const chunksNew = chunks.chunksNew;
+				chunksOld.forEach(chunk => {
+					if( this.chunks[this.getChunkID(chunk)] ) {
+						this.chunks[this.getChunkID(chunk)].splice(
+							this.chunks[this.getChunkID(chunk)].findIndex((entityInChunk) => {
+								return entityInChunk.type == 'player' && entityInChunk.id == playerID;
+							}),
+							1
+						);
+					}
+				});
+				chunksNew.forEach(chunk => {
+					if( this.chunks[this.getChunkID(chunk)] ) {
+						this.chunks[this.getChunkID(chunk)].push({type: 'player', id: playerID});
+					} else {
+						this.chunks[this.getChunkID(chunk)] = new Array({type: 'player', id: playerID});
+					}
+				});
+			}
+		});
+	}
+
+	updateMobs(deltaT) {
+		Object.values(this.mobs).forEach(mob => {
+			const chunks = mob.value.update(deltaT, EntityAttributes[mob.type]);
+			if ( chunks ) {
+				const chunksOld = chunks.chunksOld;
+				const chunksNew = chunks.chunksNew;
+				chunksOld.forEach(chunk => {
+					if( this.chunks[this.getChunkID(chunk)] ) {
+						this.chunks[this.getChunkID(chunk)].splice(
+							this.chunks[this.getChunkID(chunk)].findIndex((entityInChunk) => {
+								return entityInChunk.type == 'mob' && entityInChunk.id == mob.value.id;
+							}),
+							1
+						);
+					}
+				});
+				chunksNew.forEach(chunk => {
+					if( this.chunks[this.getChunkID(chunk)] ) {
+						this.chunks[this.getChunkID(chunk)].push({type: 'mob', id: mob.value.id});
+					} else {
+						this.chunks[this.getChunkID(chunk)] = new Array({type: 'mob', id: mob.value.id});
+					}
+				});
 			}
 		});
 	}
@@ -217,9 +245,9 @@ class Game {
 						const spawnY = this.rnd(0, Constants.MAP_HEIGHT);
 						if ( attribute.TYPE == 'BUBBLE' ) {
 							const newMobID = this.getNewMobID();
-							this.entities[newMobID] = {
+							this.mobs[newMobID] = {
 								type: attribute.TYPE,
-								mob: new Bubble(newMobID, spawnX, spawnY, 'mob-hostile'),
+								value: new Bubble(newMobID, spawnX, spawnY, 'mob-hostile'),
 							};
 							// console.log(`A bubble spawned at (${spawnX}, ${spawnY}) !`);
 						}
@@ -232,7 +260,7 @@ class Game {
 	}
 
 	handleCollisions() {
-		const {hurtPlayers, hurtEntities} = applyCollisions(this.players, this.entities, this.chunks);
+		const {hurtPlayers, hurtMobs} = applyCollisions(this.players, this.mobs, this.chunks);
 		// applyCollisions: check collisions and return involved players and mobs
 
 		hurtPlayers.forEach(element => {
@@ -244,7 +272,7 @@ class Game {
 			if ( sourceInfo.type == 'player' ) {
 				sourceAttribute = EntityAttributes['PLAYER'];
 			} else if ( sourceInfo.type == 'mob' ) {
-				sourceAttribute = EntityAttributes[this.entities[sourceInfo.id].type];
+				sourceAttribute = EntityAttributes[this.mobs[sourceInfo.id].type];
 			}
 			player.hp -= sourceAttribute.BODY_DAMAGE;
 			const knockbackMagnitude = sourceAttribute.COLLISION_KNOCKBACK;
@@ -255,20 +283,20 @@ class Game {
 			
 		});
 
-		hurtEntities.forEach(element => {
+		hurtMobs.forEach(element => {
 			const {entityID, sourceInfo, knockbackDirection} = element;
-			const entity = this.entities[entityID];
-			entity.mob.hurtTime = 0;
-			entity.mob.hurtByInfo = sourceInfo;
+			const entity = this.mobs[entityID];
+			entity.value.hurtTime = 0;
+			entity.value.hurtByInfo = sourceInfo;
 			var sourceAttribute;
 			if ( sourceInfo.type == 'player' ) {
 				sourceAttribute = EntityAttributes['PLAYER'];
 			} else if ( sourceInfo.type == 'mob' ) {
-				sourceAttribute = EntityAttributes[this.entities[sourceInfo.id].type];
+				sourceAttribute = EntityAttributes[this.mobs[sourceInfo.id].type];
 			}
-			entity.mob.hp -= sourceAttribute.BODY_DAMAGE;
+			entity.value.hp -= sourceAttribute.BODY_DAMAGE;
 			const knockbackMagnitude = sourceAttribute.COLLISION_KNOCKBACK;
-			entity.mob.handlePassiveMotion({
+			entity.value.handlePassiveMotion({
 				direction: knockbackDirection,
 				magnitude: knockbackMagnitude,
 			});
@@ -282,15 +310,15 @@ class Game {
 
 		this.updatePlayers(deltaT);
 
-		this.updateEntities(deltaT);
+		this.updateMobs(deltaT);
 
 		this.mobSpawn();
 
 		this.handleCollisions();
 
+		this.handleMobDeaths();
+
 		this.handlePlayerDeaths();
-		
-		this.handleEntityDeaths();
 
 		this.sendUpdate();
 	}
@@ -315,11 +343,11 @@ class Game {
 			}
 		); // getting nearby players
 
-		const nearbyEntities = Object.values(this.entities).filter(
+		const nearbyMobs = Object.values(this.mobs).filter(
 			e => {
-				return e.mob.distanceTo(player) <= Constants.NEARBY_DISTANCE;
+				return e.value.distanceTo(player) <= Constants.NEARBY_DISTANCE;
 			}
-		) // getting nearby entities
+		) // getting nearby mobs
 
 		return {
 			t: Date.now(), // current time
@@ -328,7 +356,7 @@ class Game {
 			me: player.serializeForUpdate(), // this player
 			others: nearbyPlayers.map(p => p.serializeForUpdate()), // nearby players
 			playerCount: Object.keys(this.players).length, // the number of players online
-			entities: nearbyEntities.map(e => e.mob.serializeForUpdate()),
+			mobs: nearbyMobs.map(e => e.value.serializeForUpdate()),
 		}
 	}
 }
