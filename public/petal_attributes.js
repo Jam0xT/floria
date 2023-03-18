@@ -1,9 +1,12 @@
 module.exports = Object.freeze({
 	BASIC: {
-		RADIUS: 5,
+		RADIUS: 10,
 		DAMAGE: 5,
 		MAX_HP: 5,
+		MASS: 1,
+		SPEED: 0,
+		COLLISION_KNOCKBACK: 2500,
+		TYPE: 'BASIC_PETAL',
 	}
 });
-
 // all petal attributes are here

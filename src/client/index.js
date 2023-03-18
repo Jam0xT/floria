@@ -3,7 +3,6 @@ import { startRenderingMainMenu, startRenderingGame } from './render';
 import { startCapturingInput, stopCapturingInput } from './input';
 import { downloadAssets } from './assets';
 import { initState } from './state';
-// leaderboard
 
 import './css/main.css';
 

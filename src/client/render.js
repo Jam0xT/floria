@@ -6,6 +6,7 @@ const Constants = require('../shared/constants');
 const { MAP_WIDTH, MAP_HEIGHT, RATED_WIDTH, RATED_HEIGHT } = Constants;
 
 const EntityAttributes = require('../../public/entity_attributes');
+const PetalAttributes = require('../../public/petal_attributes');
 
 const canvas = document.getElementById('game-canvas');
 const context = canvas.getContext('2d');
@@ -38,6 +39,8 @@ function renderGame() {
 		mobs.forEach(mob => {
 			renderMob(me, mob);
 		})
+		// render user interface
+		renderText('florr.cn', 20, 40, 30, 'start');
 		renderLeaderboard(leaderboard, playerCount, me, rankOnLeaderboard);
 	}
 	animationFrameRequestId = requestAnimationFrame(renderGame);
@@ -77,21 +80,6 @@ function renderBackground(x, y) {
 		context.stroke();
 		context.closePath();
 	}
-
-	context.save();
-
-	context.textAlign = "start"
-
-	context.lineWidth = 30 / 8;
-	context.font = "30px Ubuntu";
-
-	context.strokeStyle = "black";
-	context.strokeText("florr.cn", 20, 40);
-
-	context.fillStyle = "rgb(221, 239, 230)";
-	context.fillText("florr.cn", 20, 40);
-
-	context.restore();
 }
 
 function renderPlayer(me, player) {
@@ -125,7 +113,7 @@ function renderPlayer(me, player) {
 	renderText(Math.floor(Math.sqrt((player.x - me.x) * (player.x - me.x) + (player.y - me.y) * (player.y - me.y))), 0, -60);
 	renderText(`(${Math.floor(player.x)} , ${Math.floor(player.y)})`, 0, -85);
 	renderText(`${player.chunks}`, 0, -110);
-	renderText(`${player.hp}`, 0, 65);
+	renderText(`${Math.floor(player.hp)}`, 0, 65);
 
 	const healthBarBaseWidth = 10;
 	const healthBarBaseStyle = 'rgb(51, 51, 51)';
@@ -137,35 +125,56 @@ function renderPlayer(me, player) {
 	const healthBarStyleHurt = 'rgb(221, 52, 52)';
 	const healthBarLength = healthBarBaseLength * player.hp / EntityAttributes.PLAYER.MAX_HP_BASE;
 
-		context.save();
+	context.save();
 
-		context.translate(0, 45);
+	context.translate(0, 45);
 
-		context.beginPath();
-		context.lineWidth = healthBarBaseWidth;
-		context.moveTo(- healthBarBaseLength / 2, 0);
-		context.lineTo(healthBarBaseLength / 2, 0);
-		context.strokeStyle = healthBarBaseStyle;
-		context.lineCap = 'round';
-		context.stroke();
-		context.closePath();
+	context.beginPath();
+	context.lineWidth = healthBarBaseWidth;
+	context.moveTo(- healthBarBaseLength / 2, 0);
+	context.lineTo(healthBarBaseLength / 2, 0);
+	context.strokeStyle = healthBarBaseStyle;
+	context.lineCap = 'round';
+	context.stroke();
+	context.closePath();
 
-		context.beginPath();
-		context.lineWidth = healthBarWidth;
-		context.moveTo(- healthBarBaseLength / 2, 0);
-		context.lineTo(- healthBarBaseLength / 2 + healthBarLength, 0);
-		context.strokeStyle = healthBarStyleNormal;
-		context.lineCap = 'round';
-		context.stroke();
-		context.closePath();
-
-		context.restore();
+	context.beginPath();
+	context.lineWidth = healthBarWidth;
+	context.moveTo(- healthBarBaseLength / 2, 0);
+	context.lineTo(- healthBarBaseLength / 2 + healthBarLength, 0);
+	context.strokeStyle = healthBarStyleNormal;
+	context.lineCap = 'round';
+	context.stroke();
+	context.closePath();
 
 	context.restore();
+
+	player.petals.forEach(petal => {
+		context.save();
+
+		context.translate(petal.x - player.x, petal.y - player.y);
+
+		const renderRadius = PetalAttributes[petal.type].RADIUS + 2;
+	
+		context.drawImage(
+			getAsset(`petals/${petal.type.toLowerCase()}.svg`),
+			- renderRadius,
+			- renderRadius,
+			renderRadius * 2,
+			renderRadius * 2,
+		);
+	
+		renderText(petal.id, 0, -35, 20, 'center');
+		renderText(petal.id, 0, -60, 20, 'center');
+	
+		context.restore();
+	});
+	
+	context.restore();
+
 }
 
 function renderMob(me, mob) {
-	console.log('check');
 	const {x, y} = mob;
 	const canvasX = canvas.width / 2 + x - me.x;
 	const canvasY = canvas.height / 2 + y - me.y;
@@ -187,6 +196,10 @@ function renderMob(me, mob) {
 	renderText(`hp:${mob.hp}`, 0, 65);
 
 	context.restore();
+}
+
+function renderEntity(x, y, entity, direction) {
+	
 }
 
 function renderLeaderboardRank(rank, leaderboardRankBaseLength, leaderboardRankOutlineWidth, leaderboardRankBaseWidth, rankTopScore,

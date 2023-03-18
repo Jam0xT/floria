@@ -274,7 +274,7 @@ class Game {
 			} else if ( sourceInfo.type == 'mob' ) {
 				sourceAttribute = EntityAttributes[this.mobs[sourceInfo.id].type];
 			}
-			player.hp -= sourceAttribute.BODY_DAMAGE;
+			player.hp -= sourceAttribute.DAMAGE;
 			const knockbackMagnitude = sourceAttribute.COLLISION_KNOCKBACK;
 			player.handlePassiveMotion({
 				direction: knockbackDirection,
@@ -294,7 +294,7 @@ class Game {
 			} else if ( sourceInfo.type == 'mob' ) {
 				sourceAttribute = EntityAttributes[this.mobs[sourceInfo.id].type];
 			}
-			entity.value.hp -= sourceAttribute.BODY_DAMAGE;
+			entity.value.hp -= sourceAttribute.DAMAGE;
 			const knockbackMagnitude = sourceAttribute.COLLISION_KNOCKBACK;
 			entity.value.handlePassiveMotion({
 				direction: knockbackDirection,

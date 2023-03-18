@@ -1,11 +1,12 @@
 const Constants = require('../shared/constants');
 
 class Entity {
-	constructor(id, x, y, team, type, hp, maxHp) {
+	constructor(id, x, y, team, generalType, type, hp, maxHp) {
 		this.id = id;
 		this.x = x;
 		this.y = y;
 		this.team = team;
+		this.generalType = generalType;
 		this.type = type;
 		this.hp = hp;
 		this.maxHp = maxHp;
@@ -229,8 +230,8 @@ class Entity {
 		}
 	}
 	
-	getAccelerationMagnitude(magnitude, entityMass) { // calculate the accelertion magnitude in this.handleActiveMotion
-		const accelerationMagnitude = magnitude * entityMass;
+	getAccelerationMagnitude(magnitude, magnitudeCoe) { // calculate the accelertion magnitude in this.handleActiveMotion
+		const accelerationMagnitude = magnitude * magnitudeCoe;
 		return accelerationMagnitude;
 	}
 
@@ -247,7 +248,7 @@ class Entity {
 		});
 	}
 
-	handleActiveMotion(activeMotion, entityMass) { // handles active motion
+	handleActiveMotion(activeMotion, magnitudeCoe) { // handles active motion
 		const direction = activeMotion.direction;
 		const magnitude = activeMotion.magnitude;
 
@@ -257,7 +258,7 @@ class Entity {
 		};
 		this.activeDirection = direction;
 
-		const accelerationMagnitude = this.getAccelerationMagnitude(magnitude, entityMass);
+		const accelerationMagnitude = this.getAccelerationMagnitude(magnitude, magnitudeCoe);
 
 		const accelerationMagnitudeX = accelerationMagnitude * Math.sin(direction);
 		const accelerationMagnitudeY = accelerationMagnitude * Math.cos(direction);

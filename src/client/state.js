@@ -72,6 +72,8 @@ function interpolateObject(object1, object2, ratio) {
 			interpolated[key] = interpolateDirection(object1[key], object2[key], ratio);
 		} else if ( key === 'x' || key === 'y' || key === 'hp' || key === 'score') {
 			interpolated[key] = object1[key] + (object2[key] - object1[key]) * ratio;
+		} else if ( key == 'petals' ) {
+			interpolated[key] = interpolateObjectArray(object1[key], object2[key], ratio);
 		} else {
 			interpolated[key] = object1[key];
 		}
