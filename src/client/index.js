@@ -9,6 +9,7 @@ import './css/main.css';
 
 const usernameInput = document.getElementById('username-input');
 var isKeyboardInput = false;
+var inGame = false;
 
 Promise.all([
 	connect(onGameOver),
@@ -28,21 +29,25 @@ Promise.all([
 			isKeyboardInput = true;
 		}
 		if ( e.keyCode == 13) {
-			if(usernameInput.value == '') {
-				play('Random Flower');
-			} else {
-				play(usernameInput.value);
+			if ( inGame == false ) {
+				if( usernameInput.value == '' ) {
+					play('Random Flower');
+				} else {
+					play(usernameInput.value);
+				}
+				inGame = true;
+				usernameInput.classList.add('hidden');
+				window.localStorage.setItem('username', usernameInput.value);
+				initState();
+				startRenderingGame();
+				startCapturingInput(isKeyboardInput);
 			}
-			usernameInput.classList.add('hidden');
-			window.localStorage.setItem('username', usernameInput.value);
-			initState();
-			startRenderingGame();
-			startCapturingInput(isKeyboardInput);
 		}
 	}
 }).catch(console.error);
 
 function onGameOver() {
 	stopCapturingInput(isKeyboardInput);
+	inGame = false;
 	window.location.reload();
 }
