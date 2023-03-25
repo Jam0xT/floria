@@ -4,7 +4,7 @@ const Attribute = PetalAttributes.BASIC;
 
 class BasicPetal extends Petal {
 	constructor(id, x, y, parent) {
-		super(id, x, y, parent, 'BASIC', Attribute.MAX_HP);
+		super(id, x, y, parent, 'BASIC', Attribute.MAX_HP, true);
 	}
 
 	update(deltaT) {

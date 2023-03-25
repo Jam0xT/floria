@@ -6,7 +6,7 @@ const PetalBasic = require('./petal/basic');
 
 class Player extends Entity {
 	constructor(id, username, x, y) {
-		super(id, x, y, id, 'mob', 'PLAYER', EntityAttributes.PLAYER.MAX_HP_BASE, EntityAttributes.PLAYER.MAX_HP_BASE);
+		super(id, x, y, id, 'mob', 'PLAYER', EntityAttributes.PLAYER.MAX_HP_BASE, EntityAttributes.PLAYER.MAX_HP_BASE, false);
 		// a player's team equals to his id
 		this.username = username;
 		this.score = 1;
@@ -18,6 +18,7 @@ class Player extends Entity {
 		this.petalCount = 5;
 		this.rotationSpeed = 2.5;
 		this.firstPetalPosition = 0;
+		this.rotateClockwise = 1; // 1 for clockwise, -1 for counter-clockwise
 		this.petalExpandRadius = 100;
 		this.petals = [
 			new PetalBasic(0, x, y, id),
@@ -29,14 +30,9 @@ class Player extends Entity {
 	}
 
 	updatePetals(deltaT) {
-		this.firstPetalPosition += this.rotationSpeed * deltaT;
+		this.firstPetalPosition += this.rotateClockwise * this.rotationSpeed * deltaT;
 		this.petals.forEach(petal => {
-			const toX = this.x + Math.sin(this.firstPetalPosition + (petal.id * Math.PI * 2 / this.petalCount)) * this.petalExpandRadius;
-			const toY = this.y - Math.cos(this.firstPetalPosition + (petal.id * Math.PI * 2 / this.petalCount)) * this.petalExpandRadius;
-			petal.handleActiveMotion({
-				direction: Math.atan2(toX - petal.x, petal.y - toY),
-				magnitude: this.rotationSpeed * this.petalExpandRadius,
-			}, 25);
+			petal.rotate(this.rotationSpeed, this.petalExpandRadius, this.firstPetalPosition + 2 * Math.PI * petal.id / this.petalCount, {x: this.x, y: this.y});
 			petal.update(deltaT);
 		});
 	}

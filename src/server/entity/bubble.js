@@ -4,7 +4,7 @@ const Attribute = EntityAttributes.BUBBLE;
 
 class Bubble extends Mob {
 	constructor(id, x, y, team) {
-		super(id, x, y, 'BUBBLE', team)
+		super(id, x, y, 'BUBBLE', team, false)
 	}
 }
 

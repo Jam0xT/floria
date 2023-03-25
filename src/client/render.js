@@ -39,7 +39,6 @@ function renderGame() {
 		mobs.forEach(mob => {
 			renderMob(me, mob);
 		})
-		// render user interface
 		renderText('florr.cn', 20, 40, 30, 'start');
 		renderLeaderboard(leaderboard, playerCount, me, rankOnLeaderboard);
 	}
@@ -165,7 +164,6 @@ function renderPlayer(me, player) {
 		);
 	
 		renderText(petal.id, 0, -35, 20, 'center');
-		renderText(petal.id, 0, -60, 20, 'center');
 	
 		context.restore();
 	});
@@ -355,6 +353,7 @@ export function startRenderingMainMenu() {
 	cancelAnimationFrame(animationFrameRequestId);
 	render(renderMainMenu);
 }
+
 export function startRenderingGame() {
 	cancelAnimationFrame(animationFrameRequestId);
 	render(renderGame);

@@ -1,7 +1,7 @@
 const Constants = require('../shared/constants');
 
 class Entity {
-	constructor(id, x, y, team, generalType, type, hp, maxHp) {
+	constructor(id, x, y, team, generalType, type, hp, maxHp, noBorderCollision) {
 		this.id = id;
 		this.x = x;
 		this.y = y;
@@ -34,6 +34,7 @@ class Entity {
 		};
 		this.passiveVelocity = [];
 		this.chunks = [];
+		this.noBorderCollision = noBorderCollision;
 	}
 
 	distanceTo(object) {
@@ -128,7 +129,9 @@ class Entity {
 		this.velocity.x += this.activeVelocity.x;
 		this.velocity.y += this.activeVelocity.y;
 
-		this.handleBorder(attribute.RADIUS);
+		if ( this.noBorderCollision == false ) {
+			this.handleBorder(attribute.RADIUS);
+		}
 
 		const chunksNew = [];
 
