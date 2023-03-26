@@ -1,1 +1,2 @@
-I don't know what to write here. xd
+# Florr.cn
+An imitation and modification of the multiplayer web game florr.io.
