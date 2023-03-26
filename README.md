@@ -1,2 +1,2 @@
 # Florr.cn
-一款 Florr 的中文模拟版，正在开发中.......
+An imitation and modification of the multiplayer web game florr.io.
