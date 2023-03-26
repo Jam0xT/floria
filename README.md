@@ -1,1 +1,2 @@
-I don't know what to write here. xd
+# Florr.cn
+一款 Florr 的中文模拟版，正在开发中.......
