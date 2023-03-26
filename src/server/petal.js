@@ -19,7 +19,6 @@ class Petal extends Entity {
 	}
 
 	rotate(rotationSpeed, targetRadius, targetPosition, targetCenter) {
-		const radius = Math.sqrt((targetCenter.x - this.x) ** 2 + (targetCenter.y - this.y) ** 2);
 		// const followDirection = position - clockWise * Math.PI;
 		// const followMagnitude = ( radius - expandRadius ) * 1.0;
 		// this.followVelocity = {
@@ -31,9 +30,13 @@ class Petal extends Entity {
 		const target = {
 			x: targetCenter.x + targetRadius * Math.sin(targetPosition),
 			y: targetCenter.y + targetRadius * Math.cos(targetPosition),
-		}
+		};
+		// const radius = Math.sqrt((targetCenter.x - this.x) ** 2 + (targetCenter.y - this.y) ** 2);
 
-		const rotationSpeedMagnitude = rotationSpeed * targetRadius + Math.abs(radius - targetRadius);
+		const distance = Math.sqrt((target.x - this.x) ** 2 + (target.y - this.y) ** 2);
+
+		const rotationSpeedMagnitude = rotationSpeed * targetRadius + distance * 2;
+		// console.log(Math.abs(radius - targetRadius));
 		const rotationSpeedDirection = Math.atan2(target.x - this.x, this.y - target.y);
 		this.rotationVelocity = {
 			x: rotationSpeedMagnitude * Math.sin(rotationSpeedDirection),
