@@ -3,8 +3,8 @@ const PetalAttributes = require('../../../public/petal_attributes');
 const Attribute = PetalAttributes.BASIC;
 
 class BasicPetal extends Petal {
-	constructor(id, x, y, parent) {
-		super(id, x, y, parent, 'BASIC', Attribute.MAX_HP, true);
+	constructor(id, x, y, absoluteCenter, parent) {
+		super(id, x, y, absoluteCenter, parent, 'BASIC', Attribute.MAX_HP, true);
 	}
 
 	update(deltaT) {
