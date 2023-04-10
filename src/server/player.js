@@ -14,29 +14,35 @@ class Player extends Entity {
 		this.exp = 0;
 		this.level = 1;
 		this.currentExpForLevel = this.getExpForLevel(this.level);
-		this.slotCount = 5;
-		this.petalCount = 5;
-		this.rotationSpeed = 2.5;
-		this.firstPetalPosition = 0;
+		this.slotCount = Constants.SLOT_COUNT_BASE;
+		this.petalCount = 5; // petalCount doesn't always equal to slotCount because some petals have more than one object
+		this.rotationSpeed = Constants.PETAL_ROTATION_SPEED_BASE;
+		this.firstPetalDirection = 0;
 		this.rotateClockwise = 1; // 1 for clockwise, -1 for counter-clockwise
 		this.petalExpandRadius = 100;
 		this.petals = [
-			new PetalBasic(0, x, y, id),
-			new PetalBasic(1, x, y, id),
-			new PetalBasic(2, x, y, id),
-			new PetalBasic(3, x, y, id),
-			new PetalBasic(4, x, y, id),
+			new PetalBasic(0, x, y, {x: this.x, y: this.y}, id),
+			new PetalBasic(1, x, y, {x: this.x, y: this.y}, id),
+			new PetalBasic(2, x, y, {x: this.x, y: this.y}, id),
+			new PetalBasic(3, x, y, {x: this.x, y: this.y}, id),
+			new PetalBasic(4, x, y, {x: this.x, y: this.y}, id),
 		];
 	}
-
+	
 	updatePetals(deltaT) {
-		this.firstPetalPosition += this.rotateClockwise * this.rotationSpeed * deltaT;
+		this.firstPetalDirection += this.rotateClockwise * this.rotationSpeed * deltaT;
+		if ( this.firstPetalDirection > 2 * Math.PI ) {
+			this.firstPetalDirection -= 2 * Math.PI;
+		}
+		if ( this.firstPetalDirection < - 2 * Math.PI ) {
+			this.firstPetalDirection += 2 * Math.PI;
+		}
 		this.petals.forEach(petal => {
-			petal.rotate(this.rotationSpeed, this.petalExpandRadius, this.firstPetalPosition + 2 * Math.PI * petal.id / this.petalCount, {x: this.x, y: this.y});
+			petal.rotateAndFollow(this.petalExpandRadius, this.firstPetalDirection + 2 * Math.PI * petal.id / this.petalCount, {x: this.x, y: this.y});
 			petal.update(deltaT);
 		});
 	}
-
+ 
 	update(deltaT) { // updates every tick
 		this.updatePetals(deltaT);
 		return super.update(deltaT, Attribute);

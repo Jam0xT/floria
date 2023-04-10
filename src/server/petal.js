@@ -1,46 +1,71 @@
+const Constants = require('../shared/constants');
 const Entity = require('./entity');
 
 class Petal extends Entity {
-	constructor(id, x, y, parent, type, maxHp, noBorderCollision) {
+	constructor(id, x, y, absoluteCenter, parent, type, maxHp, noBorderCollision) {
 		super(id, x, y, parent, 'petal', type, maxHp, maxHp, noBorderCollision);
 		this.parent = parent;
 		this.rotationVelocity = {
 			x: 0,
 			y: 0,
 		};
+		this.followVelocity = {
+			x: 0,
+			y: 0,
+		};
+		this.absoluteCenter = absoluteCenter;
+		this.direction = 0;
+		this.radius = 0;
 	}
 
 	update(deltaT, attribute) {
-		this.velocity.x += this.rotationVelocity.x;
-		this.velocity.y += this.rotationVelocity.y;
-		// this.velocity.x += this.followVelocity.x;
-		// this.velocity.y += this.followVelocity.y;
+		this.x += this.rotationVelocity.x;
+		this.y += this.rotationVelocity.y;
+		this.x += this.followVelocity.x * deltaT;
+		this.y += this.followVelocity.y * deltaT;
 		super.update(deltaT, attribute);
 	}
 
-	rotate(rotationSpeed, targetRadius, targetPosition, targetCenter) {
-		// const followDirection = position - clockWise * Math.PI;
-		// const followMagnitude = ( radius - expandRadius ) * 1.0;
-		// this.followVelocity = {
-		// 	x: followMagnitude * Math.sin(followDirection),
-		// 	y: followMagnitude * Math.cos(followDirection),
-		// }
-		// if ( this.id == 0 )
-		// 	console.log(this.followVelocity, followMagnitude);
-		const target = {
-			x: targetCenter.x + targetRadius * Math.sin(targetPosition),
-			y: targetCenter.y + targetRadius * Math.cos(targetPosition),
+	rotateAndFollow(targetRadius, targetDirection, parentCenter) {
+		const position = {
+			x: this.radius * Math.sin(this.direction),
+			y: this.radius * Math.cos(this.direction),
 		};
-		// const radius = Math.sqrt((targetCenter.x - this.x) ** 2 + (targetCenter.y - this.y) ** 2);
 
-		const distance = Math.sqrt((target.x - this.x) ** 2 + (target.y - this.y) ** 2);
+		this.absoluteCenter = {
+			x: this.x - position.x,
+			y: this.y - position.y,
+		}
 
-		const rotationSpeedMagnitude = rotationSpeed * targetRadius + distance * 2;
-		// console.log(Math.abs(radius - targetRadius));
-		const rotationSpeedDirection = Math.atan2(target.x - this.x, this.y - target.y);
+		if ( this.radius < targetRadius ) {
+			if ( this.radius + 10 >= targetRadius ) {
+				this.radius = targetRadius;
+			} else {
+				this.radius += 10;
+			}
+		} else if ( this.radius > targetRadius ) {
+			if ( this.radius - 10 <= targetRadius ) {
+				this.radius = targetRadius;
+			} else {
+				this.radius -= 10;
+			}
+		}
+
+		const targetPosition = {
+			x: this.radius * Math.sin(targetDirection),
+			y: this.radius * Math.cos(targetDirection),
+		};
+
+		this.direction = targetDirection;
+
 		this.rotationVelocity = {
-			x: rotationSpeedMagnitude * Math.sin(rotationSpeedDirection),
-			y: rotationSpeedMagnitude * Math.cos(rotationSpeedDirection),
+			x: targetPosition.x - position.x,
+			y: targetPosition.y - position.y,
+		};
+
+		this.followVelocity = {
+			x: Constants.PETAL_FOLLOW_SPEED * (parentCenter.x - this.absoluteCenter.x),
+			y: Constants.PETAL_FOLLOW_SPEED * (parentCenter.y - this.absoluteCenter.y),
 		};
 	}
 
