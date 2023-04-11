@@ -19,10 +19,17 @@ class Petal extends Entity {
 	}
 
 	update(deltaT, attribute) {
-		this.x += this.rotationVelocity.x;
-		this.y += this.rotationVelocity.y;
-		this.x += this.followVelocity.x * deltaT;
-		this.y += this.followVelocity.y * deltaT;
+		const activeVelocityX = this.rotationVelocity.x + this.followVelocity.x * deltaT;
+		const activeVelocityY = this.rotationVelocity.y + this.followVelocity.y * deltaT;
+		var activeVelocity = {
+			magnitude: Math.sqrt(activeVelocityX ** 2 + activeVelocityY ** 2),
+			direction: Math.atan2(activeVelocityX, activeVelocityY),
+		}
+		if ( activeVelocity.magnitude > Constants.PETAL_SPEED_LIMIT ) {
+			activeVelocity.magnitude = Constants.PETAL_SPEED_LIMIT;
+		}
+		this.x += activeVelocity.magnitude * Math.sin(activeVelocity.direction);
+		this.y += activeVelocity.magnitude * Math.cos(activeVelocity.direction);
 		super.update(deltaT, attribute);
 	}
 
