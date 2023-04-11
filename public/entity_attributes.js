@@ -2,7 +2,6 @@ module.exports = Object.freeze({
 	// an entity with bigger mass will receive less knockback
 	PLAYER: {
 		MASS: 5,
-		ACTIVE_SPEED_COE: 5,
 		SPEED: 225,
 		RADIUS: 22.5,
 		MAX_HP_BASE: 1500,

@@ -27,6 +27,19 @@ class Player extends Entity {
 			new PetalBasic(3, x, y, {x: this.x, y: this.y}, id),
 			new PetalBasic(4, x, y, {x: this.x, y: this.y}, id),
 		];
+		this.activeDirection = 0;
+		this.activeMotionMagnitude = {
+			x: 0,
+			y: 0,
+		};
+		this.activeVelocity = {
+			x: 0,
+			y: 0,
+		};
+		this.activeAcceleration = {
+			x: 0,
+			y: 0,
+		};
 	}
 	
 	updatePetals(deltaT) {
@@ -42,14 +55,66 @@ class Player extends Entity {
 			petal.update(deltaT);
 		});
 	}
- 
-	update(deltaT) { // updates every tick
-		this.updatePetals(deltaT);
-		return super.update(deltaT, Attribute);
+
+	getAccelerationMagnitude(magnitude, magnitudeCoe) { // calculate the accelertion magnitude in this.handleActiveMotion
+		const accelerationMagnitude = magnitude * magnitudeCoe;
+		return accelerationMagnitude;
 	}
 
-	handleActiveMotion(activeMotion) { // handles active motion (the motion from player input)
-		super.handleActiveMotion(activeMotion, Attribute.ACTIVE_SPEED_COE);
+	handleActiveMotion(activeMotion) { // handles active motion
+		const direction = activeMotion.direction;
+		const magnitude = activeMotion.magnitude;
+
+		this.activeMotionMagnitude = {
+			x: magnitude * Math.sin(direction),
+			y: magnitude * Math.cos(direction),
+		};
+		this.activeDirection = direction;
+
+		const accelerationMagnitude = this.getAccelerationMagnitude(magnitude, 5);
+
+		const accelerationMagnitudeX = accelerationMagnitude * Math.sin(direction);
+		const accelerationMagnitudeY = accelerationMagnitude * Math.cos(direction);
+
+		this.activeAcceleration = {
+			x: accelerationMagnitudeX,
+			y: accelerationMagnitudeY,
+		}
+	}
+
+	updateActiveMovement(deltaT) {
+		this.activeVelocity.x += this.activeAcceleration.x * deltaT;
+		this.activeVelocity.y += this.activeAcceleration.y * deltaT;
+
+		var activeVelocityX = this.activeVelocity.x;
+		var activeVelocityY = this.activeVelocity.y;
+
+		if ( Math.abs(activeVelocityX) > Math.abs(this.activeMotionMagnitude.x) ) {
+			if ( Math.abs(activeVelocityX) * Constants.SPEED_ATTENUATION_COEFFICIENT <= Math.abs(this.activeMotionMagnitude.x) ) {
+				activeVelocityX = this.activeMotionMagnitude.x;
+			} else {
+				activeVelocityX *= Constants.SPEED_ATTENUATION_COEFFICIENT;
+			}
+			this.activeVelocity.x = activeVelocityX;
+		}
+
+		if ( Math.abs(activeVelocityY) > Math.abs(this.activeMotionMagnitude.y) ) {
+			if ( Math.abs(activeVelocityY) * Constants.SPEED_ATTENUATION_COEFFICIENT <= Math.abs(this.activeMotionMagnitude.y) ) {
+				activeVelocityY = this.activeMotionMagnitude.y;
+			} else {
+				activeVelocityY *= Constants.SPEED_ATTENUATION_COEFFICIENT;
+			}
+			this.activeVelocity.y = activeVelocityY;
+		}
+
+		this.velocity.x += this.activeVelocity.x;
+		this.velocity.y += this.activeVelocity.y;
+	}
+ 
+	update(deltaT) { // updates every tick
+		this.updateActiveMovement(deltaT);
+		this.updatePetals(deltaT);
+		return super.update(deltaT, Attribute);
 	}
 
 	getExpForLevel(level) {

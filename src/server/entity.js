@@ -19,19 +19,6 @@ class Entity {
 			x: 0,
 			y: 0,
 		};
-		this.activeDirection = 0;
-		this.activeMotionMagnitude = {
-			x: 0,
-			y: 0,
-		};
-		this.activeVelocity = {
-			x: 0,
-			y: 0,
-		};
-		this.activeAcceleration = {
-			x: 0,
-			y: 0,
-		};
 		this.passiveVelocity = [];
 		this.chunks = [];
 		this.noBorderCollision = noBorderCollision;
@@ -62,8 +49,6 @@ class Entity {
 	}
 
 	update(deltaT, attribute) { // called every tick in game.js
-		this.x += deltaT * this.velocity.x;
-		this.y -= deltaT * this.velocity.y;
 
 		if ( this.hurtTime > -1 ) { // handle hurt interval
 			if ( this.hurtTime >= Constants.HURT_INTERVAL ) {
@@ -71,30 +56,6 @@ class Entity {
 			} else {
 				this.hurtTime += (deltaT / (1 / Constants.TICK_PER_SECOND) );
 			}
-		}
-
-		this.activeVelocity.x += this.activeAcceleration.x * deltaT;
-		this.activeVelocity.y += this.activeAcceleration.y * deltaT;
-
-		var activeVelocityX = this.activeVelocity.x;
-		var activeVelocityY = this.activeVelocity.y;
-
-		if ( Math.abs(activeVelocityX) > Math.abs(this.activeMotionMagnitude.x) ) {
-			if ( Math.abs(activeVelocityX) * Constants.SPEED_ATTENUATION_COEFFICIENT <= Math.abs(this.activeMotionMagnitude.x) ) {
-				activeVelocityX = this.activeMotionMagnitude.x;
-			} else {
-				activeVelocityX *= Constants.SPEED_ATTENUATION_COEFFICIENT;
-			}
-			this.activeVelocity.x = activeVelocityX;
-		}
-
-		if ( Math.abs(activeVelocityY) > Math.abs(this.activeMotionMagnitude.y) ) {
-			if ( Math.abs(activeVelocityY) * Constants.SPEED_ATTENUATION_COEFFICIENT <= Math.abs(this.activeMotionMagnitude.y) ) {
-				activeVelocityY = this.activeMotionMagnitude.y;
-			} else {
-				activeVelocityY *= Constants.SPEED_ATTENUATION_COEFFICIENT;
-			}
-			this.activeVelocity.y = activeVelocityY;
 		}
 
 		for( let i = 0; i < this.passiveVelocity.length; i ++) {
@@ -116,22 +77,23 @@ class Entity {
 			}
 		}
 
-		this.velocity = {
-			x: 0,
-			y: 0,
-		};
 
 		this.passiveVelocity.forEach(velocity => {
 			this.velocity.x += velocity.x;
 			this.velocity.y += velocity.y;
 		});
 
-		this.velocity.x += this.activeVelocity.x;
-		this.velocity.y += this.activeVelocity.y;
-
 		if ( this.noBorderCollision == false ) {
 			this.handleBorder(attribute.RADIUS);
 		}
+		
+		this.x += deltaT * this.velocity.x;
+		this.y -= deltaT * this.velocity.y;
+
+		this.velocity = {
+			x: 0,
+			y: 0,
+		};
 
 		const chunksNew = [];
 
@@ -233,11 +195,6 @@ class Entity {
 		}
 	}
 	
-	getAccelerationMagnitude(magnitude, magnitudeCoe) { // calculate the accelertion magnitude in this.handleActiveMotion
-		const accelerationMagnitude = magnitude * magnitudeCoe;
-		return accelerationMagnitude;
-	}
-
 	handlePassiveMotion(passiveMotion) { // handls passive motion
 		const direction = passiveMotion.direction;
 		const magnitude = passiveMotion.magnitude;
@@ -249,27 +206,6 @@ class Entity {
 			x: magnitudeX,
 			y: magnitudeY,
 		});
-	}
-
-	handleActiveMotion(activeMotion, magnitudeCoe) { // handles active motion
-		const direction = activeMotion.direction;
-		const magnitude = activeMotion.magnitude;
-
-		this.activeMotionMagnitude = {
-			x: magnitude * Math.sin(direction),
-			y: magnitude * Math.cos(direction),
-		};
-		this.activeDirection = direction;
-
-		const accelerationMagnitude = this.getAccelerationMagnitude(magnitude, magnitudeCoe);
-
-		const accelerationMagnitudeX = accelerationMagnitude * Math.sin(direction);
-		const accelerationMagnitudeY = accelerationMagnitude * Math.cos(direction);
-
-		this.activeAcceleration = {
-			x: accelerationMagnitudeX,
-			y: accelerationMagnitudeY,
-		}
 	}
 
 	serializeForUpdate() { // get necessary data and send to client

@@ -110,10 +110,14 @@
  - 加入了花瓣的旋转和渲染，花瓣的$ID$是从0开始的数，花瓣通过$ID$和$parent$来识别。
  花瓣的旋转是和跟随分开的。花瓣永远都会保持在正确的方向上，只有相对半径会改变。
  花瓣跟随速度和花瓣相对中心与玩家中心距离有关。
- 花瓣的总主动速度有一个上限$petalSpeedLimit$
  - 新增一个实体是否需要判定边界的属性。
  - 常数修改/添加。
  $(+)petalRotationSpeedBase = 2.5$
  $(+)slotCountBase = 5$
  $(+)petalFollowSpeed = 5.0$
+ $(+)petalSpeedLimit = 15$
+ # $20230411$ $v0.5.2$
+ - 花瓣的总主动速度有一个上限$petalSpeedLimit$
+ - 把玩家处理主动速度的方法和属性全都从$Entity$类中删去。
+ - 常数修改/添加。
  $(+)petalSpeedLimit = 15$
