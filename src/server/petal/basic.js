@@ -8,7 +8,7 @@ class BasicPetal extends Petal {
 	}
 
 	update(deltaT) {
-		super.update(deltaT, Attribute);
+		return super.update(deltaT, Attribute);
 	}
 
 	serializeForUpdate() {

@@ -1,5 +1,6 @@
 const Constants = require('../shared/constants');
 const EntityAttributes = require('../../public/entity_attributes');
+const PetalAttributes = require('../../public/petal_attributes');
 const Player = require('./player');
 const applyCollisions = require('./collisions');
 const Bubble = require('./entity/bubble');
@@ -19,7 +20,7 @@ class Game {
 		this.lastUpdateTime = Date.now();
 		this.mobSpawnTimer = 0;
 		this.volumeTaken = 0;
-		this.shouldSendUpdate = false;
+		// this.shouldSendUpdate = false;
 		this.mobID = 0;
 		setInterval(this.update.bind(this), 1000 / Constants.TICK_PER_SECOND); // update the game every tick
 	}
@@ -45,7 +46,7 @@ class Game {
 	removePlayer(socket) { // remove a player
 		const playerID = socket.id;
 		this.players[playerID].chunks.forEach(chunk => {
-			if( this.chunks[this.getChunkID(chunk)] ) {
+			if ( this.chunks[this.getChunkID(chunk)] ) {
 				this.chunks[this.getChunkID(chunk)].splice(
 					this.chunks[this.getChunkID(chunk)].findIndex((entityInChunk) => {
 						return entityInChunk.type == 'player' && entityInChunk.id == playerID;
@@ -53,6 +54,18 @@ class Game {
 					1
 				);
 			}
+		});
+		this.players[playerID].petals.forEach(petal => {
+			petal.chunks.forEach(chunk => {
+				if ( this.chunks[this.getChunkID(chunk)] ) {
+					this.chunks[this.getChunkID(chunk)].splice(
+						this.chunks[this.getChunkID(chunk)].findIndex((entityInChunk) => {
+							return entityInChunk.type == 'petal' && entityInChunk.id == {playerID: playerID, petalID: petal.id};
+						}),
+						1
+					);
+				}
+			});
 		});
 		delete this.sockets[playerID];
 		delete this.players[playerID];
@@ -102,8 +115,13 @@ class Game {
 		// called when a player dies, adding score to 'killedBy' and remove the dead player from leaderboard
 		// this function will not remove the player itself
 		const killedByInfo = player.hurtByInfo;
-		if ( killedByInfo.type == 'player' ) {
-			const killedBy = this.players[killedByInfo.id];
+		if ( killedByInfo.type == 'player' || killedByInfo.type == 'petal' ) {
+			var killedBy;
+			if ( killedByInfo.type == 'player' ) {
+				killedBy = this.players[killedByInfo.id];
+			} else if ( killedByInfo.type == 'petal' ) {
+				killedBy = this.players[killedByInfo.id.playerID];
+			}
 			killedBy.score += Math.floor(EntityAttributes.PLAYER.VALUE + player.score * Constants.SCORE_LOOTING_COEFFICIENT);
 			if ( this.getRankOnLeaderboard(killedBy.id) > 0 ) {
 				// avoid crashing when two players kill each other at the exact same time
@@ -139,8 +157,13 @@ class Game {
 			const mob = this.mobs[mobID];
 			if ( mob.value.hp <= 0 ) {
 				const killedByInfo = mob.value.hurtByInfo;
-				if ( killedByInfo.type == 'player' ) {
-					const killedBy = this.players[killedByInfo.id];
+				if ( killedByInfo.type == 'player' || killedByInfo.type == 'petal') {
+					var killedBy;
+					if ( killedByInfo.type == 'player' ) {
+						killedBy = this.players[killedByInfo.id];
+					} else if ( killedByInfo.type == 'petal' ) {
+						killedBy = this.players[killedByInfo.id.playerID];
+					}
 					killedBy.score += Math.floor(EntityAttributes[mob.type].VALUE);
 					if ( this.getRankOnLeaderboard(killedBy.id) > 0 ) {
 						this.updateLeaderboard(killedBy);
@@ -167,14 +190,15 @@ class Game {
 	}
 
 	updatePlayers(deltaT) {
+		// console.log(this.chunks);
 		Object.keys(this.sockets).forEach(playerID => { // updates the movement of each player
 			const player = this.players[playerID];
-			const chunks = player.update(deltaT);
-			if ( chunks ) {
-				const chunksOld = chunks.chunksOld;
-				const chunksNew = chunks.chunksNew;
+			const {playerChunks, petalsChunks} = player.update(deltaT);
+			if ( playerChunks ) {
+				const chunksOld = playerChunks.chunksOld;
+				const chunksNew = playerChunks.chunksNew;
 				chunksOld.forEach(chunk => {
-					if( this.chunks[this.getChunkID(chunk)] ) {
+					if ( this.chunks[this.getChunkID(chunk)] ) {
 						this.chunks[this.getChunkID(chunk)].splice(
 							this.chunks[this.getChunkID(chunk)].findIndex((entityInChunk) => {
 								return entityInChunk.type == 'player' && entityInChunk.id == playerID;
@@ -184,10 +208,36 @@ class Game {
 					}
 				});
 				chunksNew.forEach(chunk => {
-					if( this.chunks[this.getChunkID(chunk)] ) {
+					if ( this.chunks[this.getChunkID(chunk)] ) {
 						this.chunks[this.getChunkID(chunk)].push({type: 'player', id: playerID});
 					} else {
 						this.chunks[this.getChunkID(chunk)] = new Array({type: 'player', id: playerID});
+					}
+				});
+			}
+			if ( petalsChunks ) {
+				petalsChunks.forEach(petalChunks => {
+					if ( petalChunks.chunks ) {
+						const chunksOld = petalChunks.chunks.chunksOld;
+						const chunksNew = petalChunks.chunks.chunksNew;
+						const petalID = petalChunks.petalID;
+						chunksOld.forEach(chunk => {
+							if ( this.chunks[this.getChunkID(chunk)] ) {
+								this.chunks[this.getChunkID(chunk)].splice(
+									this.chunks[this.getChunkID(chunk)].findIndex((entityInChunk) => {
+										return entityInChunk.type == 'petal' && entityInChunk.id == {playerID: playerID, petalID: petalID};
+									}),
+									1
+								);
+							}
+						});
+						chunksNew.forEach(chunk => {
+							if ( this.chunks[this.getChunkID(chunk)] ) {
+								this.chunks[this.getChunkID(chunk)].push({type: 'petal', id: {playerID: playerID, petalID: petalID}});
+							} else {
+								this.chunks[this.getChunkID(chunk)] = new Array({type: 'petal', id: {playerID: playerID, petalID: petalID}});
+							}
+						});
 					}
 				});
 			}
@@ -249,7 +299,6 @@ class Game {
 								type: attribute.TYPE,
 								value: new Bubble(newMobID, spawnX, spawnY, 'mob-hostile'),
 							};
-							// console.log(`A bubble spawned at (${spawnX}, ${spawnY}) !`);
 						}
 					}
 				});
@@ -260,7 +309,7 @@ class Game {
 	}
 
 	handleCollisions() {
-		const {hurtPlayers, hurtMobs} = applyCollisions(this.players, this.mobs, this.chunks);
+		const {hurtPlayers, hurtMobs, hurtPetals} = applyCollisions(this.players, this.mobs, this.chunks);
 		// applyCollisions: check collisions and return involved players and mobs
 
 		hurtPlayers.forEach(element => {
@@ -273,6 +322,8 @@ class Game {
 				sourceAttribute = EntityAttributes['PLAYER'];
 			} else if ( sourceInfo.type == 'mob' ) {
 				sourceAttribute = EntityAttributes[this.mobs[sourceInfo.id].type];
+			} else if ( sourceInfo.type == 'petal' ) {
+				sourceAttribute = PetalAttributes[this.players[sourceInfo.id.playerID].petals[sourceInfo.id.petalID].type];
 			}
 			player.hp -= sourceAttribute.DAMAGE;
 			const knockbackMagnitude = sourceAttribute.COLLISION_KNOCKBACK;
@@ -280,7 +331,6 @@ class Game {
 				direction: knockbackDirection,
 				magnitude: knockbackMagnitude,
 			});
-			
 		});
 
 		hurtMobs.forEach(element => {
@@ -293,6 +343,8 @@ class Game {
 				sourceAttribute = EntityAttributes['PLAYER'];
 			} else if ( sourceInfo.type == 'mob' ) {
 				sourceAttribute = EntityAttributes[this.mobs[sourceInfo.id].type];
+			} else if ( sourceInfo.type == 'petal' ) {
+				sourceAttribute = PetalAttributes[this.players[sourceInfo.id.playerID].petals[sourceInfo.id.petalID].type];
 			}
 			entity.value.hp -= sourceAttribute.DAMAGE;
 			const knockbackMagnitude = sourceAttribute.COLLISION_KNOCKBACK;
@@ -301,6 +353,29 @@ class Game {
 				magnitude: knockbackMagnitude,
 			});
 		});
+
+		Object.keys(hurtPetals).forEach(parentID => {
+			hurtPetals[parentID].forEach(element => {
+				const {petalID, sourceInfo, knockbackDirection} = element;
+				const petal = this.players[parentID].petals[petalID];
+				petal.hurtTime = 0;
+				petal.hurtByInfo = sourceInfo;
+				var sourceAttribute;
+				if ( sourceInfo.type == 'player' ) {
+					sourceAttribute = EntityAttributes['PLAYER'];
+				} else if ( sourceInfo.type == 'mob' ) {
+					sourceAttribute = EntityAttributes[this.mobs[sourceInfo.id].type];
+				} else if ( sourceInfo.type == 'petal' ) {
+					sourceAttribute = PetalAttributes[this.players[sourceInfo.id.playerID].petals[sourceInfo.id.petalID].type];
+				}
+				petal.hp -= sourceAttribute.DAMAGE;
+				const knockbackMagnitude = sourceAttribute.COLLISION_KNOCKBACK;
+				petal.handlePassiveMotion({
+					direction: knockbackDirection,
+					magnitude: knockbackMagnitude,
+				});
+			});
+		})
 	}
 
 	update() { // called every tick
@@ -324,16 +399,12 @@ class Game {
 	}
 
 	sendUpdate() {
-		if ( this.shouldSendUpdate ) { // send updates to client
-			Object.keys(this.sockets).forEach(playerID => {
-				const socket = this.sockets[playerID];
-				const player = this.players[playerID];
-				socket.emit(Constants.MSG_TYPES.GAME_UPDATE, this.createUpdate(player))
-			});
-			this.shouldSendUpdate = false;
-		} else {
-			this.shouldSendUpdate = true;
-		}
+		// send updates to client
+		Object.keys(this.sockets).forEach(playerID => {
+			const socket = this.sockets[playerID];
+			const player = this.players[playerID];
+			socket.emit(Constants.MSG_TYPES.GAME_UPDATE, this.createUpdate(player))
+		});
 	}
 
 	createUpdate(player) { // send update to client

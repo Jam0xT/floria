@@ -19,7 +19,7 @@ class Player extends Entity {
 		this.rotationSpeed = Constants.PETAL_ROTATION_SPEED_BASE;
 		this.firstPetalDirection = 0;
 		this.rotateClockwise = 1; // 1 for clockwise, -1 for counter-clockwise
-		this.petalExpandRadius = 100;
+		this.petalExpandRadius = 75;
 		this.petals = [
 			new PetalBasic(0, x, y, {x: this.x, y: this.y}, id),
 			new PetalBasic(1, x, y, {x: this.x, y: this.y}, id),
@@ -50,10 +50,12 @@ class Player extends Entity {
 		if ( this.firstPetalDirection < - 2 * Math.PI ) {
 			this.firstPetalDirection += 2 * Math.PI;
 		}
+		const petalsChunks = [];
 		this.petals.forEach(petal => {
 			petal.rotateAndFollow(this.petalExpandRadius, this.firstPetalDirection + 2 * Math.PI * petal.id / this.petalCount, {x: this.x, y: this.y});
-			petal.update(deltaT);
+			petalsChunks.push({chunks: petal.update(deltaT), petalID: petal.id});
 		});
+		return petalsChunks;
 	}
 
 	getAccelerationMagnitude(magnitude, magnitudeCoe) { // calculate the accelertion magnitude in this.handleActiveMotion
@@ -113,8 +115,9 @@ class Player extends Entity {
  
 	update(deltaT) { // updates every tick
 		this.updateActiveMovement(deltaT);
-		this.updatePetals(deltaT);
-		return super.update(deltaT, Attribute);
+		const petalsChunks = this.updatePetals(deltaT);
+		const playerChunks = super.update(deltaT, Attribute);
+		return {playerChunks: playerChunks, petalsChunks: petalsChunks};
 	}
 
 	getExpForLevel(level) {

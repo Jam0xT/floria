@@ -30,7 +30,7 @@ class Petal extends Entity {
 		}
 		this.x += activeVelocity.magnitude * Math.sin(activeVelocity.direction);
 		this.y += activeVelocity.magnitude * Math.cos(activeVelocity.direction);
-		super.update(deltaT, attribute);
+		return super.update(deltaT, attribute);
 	}
 
 	rotateAndFollow(targetRadius, targetDirection, parentCenter) {
