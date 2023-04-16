@@ -55,18 +55,21 @@ class Game {
 				);
 			}
 		});
-		this.players[playerID].petals.forEach(petal => {
-			petal.chunks.forEach(chunk => {
-				if ( this.chunks[this.getChunkID(chunk)] ) {
-					this.chunks[this.getChunkID(chunk)].splice(
-						this.chunks[this.getChunkID(chunk)].findIndex((entityInChunk) => {
-							return entityInChunk.type == 'petal' && entityInChunk.id == {playerID: playerID, petalID: petal.id};
-						}),
-						1
-					);
-				}
-			});
-		});
+		for ( var petalID = 0; petalID < this.players[playerID].slotCount; petalID ++ ) {
+			if ( !this.players[playerID].inCooldown[petalID] ) {
+				var petal = this.players[playerID].petals[petalID];
+				petal.chunks.forEach(chunk => {
+					if ( this.chunks[this.getChunkID(chunk)] ) {
+						this.chunks[this.getChunkID(chunk)].splice(
+							this.chunks[this.getChunkID(chunk)].findIndex((entityInChunk) => {
+								return entityInChunk.type == 'petal' && entityInChunk.id == {playerID: playerID, petalID: petal.id};
+							}),
+							1
+						);
+					}
+				});
+			}
+		}
 		delete this.sockets[playerID];
 		delete this.players[playerID];
 	}
