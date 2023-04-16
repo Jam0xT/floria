@@ -134,9 +134,29 @@ class Game {
 		console.log(`${player.username} is dead!`);
 	}
 
+	handlePetalDeaths(player) {
+		player.petals.forEach(petal => {
+			if ( petal.hp <= 0 ) {
+				player.inCooldown[petal.id] = true;
+				petal.chunks.forEach(chunk => {
+					if ( this.chunks[this.getChunkID(chunk)] ) {
+						this.chunks[this.getChunkID(chunk)].splice(
+							this.chunks[this.getChunkID(chunk)].findIndex((entityInChunk) => {
+								return entityInChunk.type == 'petal' && entityInChunk.id == {playerID: player.id, petalID: petal.id};
+							}),
+							1
+						);
+					}
+				});
+				player.reload(petal.id);
+			}
+		});
+	}
+
 	handlePlayerDeaths() {
 		Object.keys(this.sockets).forEach(playerID => { // handle player deaths
 			const player = this.players[playerID];
+			this.handlePetalDeaths(player);
 			if ( player.hp <= 0 ) {
 				this.handlePlayerDeath(player);
 			}
@@ -221,23 +241,25 @@ class Game {
 						const chunksOld = petalChunks.chunks.chunksOld;
 						const chunksNew = petalChunks.chunks.chunksNew;
 						const petalID = petalChunks.petalID;
-						chunksOld.forEach(chunk => {
-							if ( this.chunks[this.getChunkID(chunk)] ) {
-								this.chunks[this.getChunkID(chunk)].splice(
-									this.chunks[this.getChunkID(chunk)].findIndex((entityInChunk) => {
-										return entityInChunk.type == 'petal' && entityInChunk.id == {playerID: playerID, petalID: petalID};
-									}),
-									1
-								);
-							}
-						});
-						chunksNew.forEach(chunk => {
-							if ( this.chunks[this.getChunkID(chunk)] ) {
-								this.chunks[this.getChunkID(chunk)].push({type: 'petal', id: {playerID: playerID, petalID: petalID}});
-							} else {
-								this.chunks[this.getChunkID(chunk)] = new Array({type: 'petal', id: {playerID: playerID, petalID: petalID}});
-							}
-						});
+						if ( !player.inCooldown[petalID] ) {
+							chunksOld.forEach(chunk => {
+								if ( this.chunks[this.getChunkID(chunk)] ) {
+									this.chunks[this.getChunkID(chunk)].splice(
+										this.chunks[this.getChunkID(chunk)].findIndex((entityInChunk) => {
+											return entityInChunk.type == 'petal' && entityInChunk.id == {playerID: playerID, petalID: petalID};
+										}),
+										1
+									);
+								}
+							});
+							chunksNew.forEach(chunk => {
+								if ( this.chunks[this.getChunkID(chunk)] ) {
+									this.chunks[this.getChunkID(chunk)].push({type: 'petal', id: {playerID: playerID, petalID: petalID}});
+								} else {
+									this.chunks[this.getChunkID(chunk)] = new Array({type: 'petal', id: {playerID: playerID, petalID: petalID}});
+								}
+							});
+						}
 					}
 				});
 			}

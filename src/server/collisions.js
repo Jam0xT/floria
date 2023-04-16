@@ -60,7 +60,7 @@ function applyCollisions(players, mobs, chunks) {
 							}
 						}
 					} else if ( entityInfoB.type == 'petal' ) {
-						if ( entityInfoB.id.playerID != entityInfoA.id ) {
+						if ( entityInfoB.id.playerID != entityInfoA.id && !players[entityInfoB.id.playerID].inCooldown[entityInfoB.id.petalID] ) {
 							const petal = players[entityInfoB.id.playerID].petals[entityInfoB.id.petalID];
 							if ( player.distanceTo(petal) <= PetalAttributes[petal.type].RADIUS + EntityAttributes.PLAYER.RADIUS ) {
 								if ( player.hurtTime == -1 ) {
@@ -106,52 +106,56 @@ function applyCollisions(players, mobs, chunks) {
 							}
 						}
 					} else if ( entityInfoB.type == 'petal' ) {
-						const petal = players[entityInfoB.id.playerID].petals[entityInfoB.id.petalID];
-						if ( mob.value.distanceTo(petal) <= EntityAttributes[mob.type].RADIUS + PetalAttributes[petal.type].RADIUS ) {
-							if ( mob.value.hurtTime == -1 ) {
-								hurtMobs.push({
-									entityID: entityInfoA.id,
-									sourceInfo: entityInfoB,
-									knockbackDirection: Math.atan2(mob.value.x - petal.x, petal.y - mob.value.y),
-								});
-							}
-							if ( petal.hurtTime == -1 ) {
-								if ( !hurtPetals[petal.parent] ) {
-									hurtPetals[petal.parent] = [];
+						if ( !players[entityInfoB.id.playerID].inCooldown[entityInfoB.id.petalID] ) {
+							const petal = players[entityInfoB.id.playerID].petals[entityInfoB.id.petalID];
+							if ( mob.value.distanceTo(petal) <= EntityAttributes[mob.type].RADIUS + PetalAttributes[petal.type].RADIUS ) {
+								if ( mob.value.hurtTime == -1 ) {
+									hurtMobs.push({
+										entityID: entityInfoA.id,
+										sourceInfo: entityInfoB,
+										knockbackDirection: Math.atan2(mob.value.x - petal.x, petal.y - mob.value.y),
+									});
 								}
-								hurtPetals[petal.parent].push({
-									petalID: petal.id,
-									sourceInfo: entityInfoA,
-									knockbackDirection: Math.atan2(petal.x - mob.value.x, mob.value.y - petal.y),
-								});
-							}
-						}
-					}
-				} else if ( entityInfoA.type == 'petal' ) {
-					const petal = players[entityInfoA.id.playerID].petals[entityInfoA.id.petalID];
-					if ( entityInfoB.type == 'petal' ) {
-						if ( entityInfoB.id.playerID != entityInfoA.id.playerID ) {
-							const petalB = players[entityInfoB.id.playerID].petals[entityInfoB.id.petalID];
-							if ( petal.distanceTo(petalB) <= PetalAttributes[petal.type].RADIUS + PetalAttributes[petalB.type].RADIUS ) {
 								if ( petal.hurtTime == -1 ) {
 									if ( !hurtPetals[petal.parent] ) {
 										hurtPetals[petal.parent] = [];
 									}
 									hurtPetals[petal.parent].push({
 										petalID: petal.id,
-										sourceInfo: entityInfoB,
-										knockbackDirection: Math.atan2(petal.x - petalB.x, petalB.y - petal.y),
+										sourceInfo: entityInfoA,
+										knockbackDirection: Math.atan2(petal.x - mob.value.x, mob.value.y - petal.y),
 									});
 								}
-								if ( petalB.hurtTime == -1 ) {
-									if ( !hurtPetals[petalB.parent] ) {
-										hurtPetals[petalB.parent] = [];
+							}
+						}
+					}
+				} else if ( entityInfoA.type == 'petal' ) {
+					if ( !players[entityInfoA.id.playerID].inCooldown[entityInfoA.id.petalID] ) {
+						const petal = players[entityInfoA.id.playerID].petals[entityInfoA.id.petalID];
+						if ( entityInfoB.type == 'petal' ) {
+							if ( entityInfoB.id.playerID != entityInfoA.id.playerID && !players[entityInfoB.id.playerID].inCooldown[entityInfoB.id.petalID] ) {
+								const petalB = players[entityInfoB.id.playerID].petals[entityInfoB.id.petalID];
+								if ( petal.distanceTo(petalB) <= PetalAttributes[petal.type].RADIUS + PetalAttributes[petalB.type].RADIUS ) {
+									if ( petal.hurtTime == -1 ) {
+										if ( !hurtPetals[petal.parent] ) {
+											hurtPetals[petal.parent] = [];
+										}
+										hurtPetals[petal.parent].push({
+											petalID: petal.id,
+											sourceInfo: entityInfoB,
+											knockbackDirection: Math.atan2(petal.x - petalB.x, petalB.y - petal.y),
+										});
 									}
-									hurtPetals[petalB.parent].push({
-										petalID: petalB.id,
-										sourceInfo: entityInfoA,
-										knockbackDirection: Math.atan2(petalB.x - petal.x, petal.y - petalB.y),
-									});
+									if ( petalB.hurtTime == -1 ) {
+										if ( !hurtPetals[petalB.parent] ) {
+											hurtPetals[petalB.parent] = [];
+										}
+										hurtPetals[petalB.parent].push({
+											petalID: petalB.id,
+											sourceInfo: entityInfoA,
+											knockbackDirection: Math.atan2(petalB.x - petal.x, petal.y - petalB.y),
+										});
+									}
 								}
 							}
 						}
