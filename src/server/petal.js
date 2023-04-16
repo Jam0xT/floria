@@ -47,16 +47,16 @@ class Petal extends Entity {
 		}
 
 		if ( this.radius < targetRadius ) {
-			if ( this.radius + 10 >= targetRadius ) {
+			if ( this.radius + 25 >= targetRadius ) {
 				this.radius = targetRadius;
 			} else {
-				this.radius += 10;
+				this.radius += 25;
 			}
 		} else if ( this.radius > targetRadius ) {
-			if ( this.radius - 10 <= targetRadius ) {
+			if ( this.radius - 25 <= targetRadius ) {
 				this.radius = targetRadius;
 			} else {
-				this.radius -= 10;
+				this.radius -= 25;
 			}
 		}
 

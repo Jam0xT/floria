@@ -4,7 +4,7 @@ module.exports = Object.freeze({
 	SPEED_ATTENUATION_COEFFICIENT: 0.75,
 	SPEED_ATTENUATION_BIAS: 5,
 
-	HURT_INTERVAL: 2, // tick
+	HURT_INTERVAL: 0, // tick
 
 	MSG_TYPES: {
 		JOIN_GAME: 'join_game',
@@ -33,7 +33,7 @@ module.exports = Object.freeze({
 
 	SCORE_LOOTING_COEFFICIENT: 0.5,
 
-	PETAL_ROTATION_SPEED_BASE: 7.5,
+	PETAL_ROTATION_SPEED_BASE: 2.5,
 
 	SLOT_COUNT_BASE: 5,
 

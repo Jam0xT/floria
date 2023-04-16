@@ -4,7 +4,7 @@ module.exports = Object.freeze({
 		MASS: 5,
 		SPEED: 225,
 		RADIUS: 22.5,
-		MAX_HP_BASE: 1500,
+		MAX_HP_BASE: 150,
 		DAMAGE: 25,
 		COLLISION_KNOCKBACK: 400,
 		VALUE: 100,
