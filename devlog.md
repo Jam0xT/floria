@@ -117,7 +117,16 @@
  $(+)petalFollowSpeed = 5.0$
  $(+)petalSpeedLimit = 15$
  # $20230411$ $v0.5.2$
- - 花瓣的总主动速度有一个上限$petalSpeedLimit$
+ - 花瓣的总主动速度有一个上限$petalSpeedLimit$。
  - 把玩家处理主动速度的方法和属性全都从$Entity$类中删去。
+ - 完成了对花瓣碰撞的判定。
+ - 服务器每秒游戏刻数调整为25，且现在每游戏刻都会向客户端发送一次数据（原来每秒游戏刻数为60，且每2游戏刻向客户端发送一次数据）。
+ - 现在花瓣属性中的$TYPE$为大写花瓣名。
+ - 完成了花瓣碰撞。
  - 常数修改/添加。
+ $tickPerSecond = 25$
  $(+)petalSpeedLimit = 15$
+ $petalFollowSpeed = 20.0$
+ $mapWidth = 3000$
+ $mapHeight = 3000$
+ $scoreLootingCoefficient = 0.5$

@@ -15,18 +15,21 @@ class Player extends Entity {
 		this.level = 1;
 		this.currentExpForLevel = this.getExpForLevel(this.level);
 		this.slotCount = Constants.SLOT_COUNT_BASE;
-		this.petalCount = 5; // petalCount doesn't always equal to slotCount because some petals have more than one object
+		this.petalCount = Constants.SLOT_COUNT_BASE; // petalCount <= slotCount
+		this.petalObjectCount = 5; // petalObjectCount doesn't always equal to petalCount because some petals have more than one object
 		this.rotationSpeed = Constants.PETAL_ROTATION_SPEED_BASE;
 		this.firstPetalDirection = 0;
 		this.rotateClockwise = 1; // 1 for clockwise, -1 for counter-clockwise
-		this.petalExpandRadius = 100;
+		this.petalExpandRadius = 75;
 		this.petals = [
-			new PetalBasic(0, x, y, {x: this.x, y: this.y}, id),
-			new PetalBasic(1, x, y, {x: this.x, y: this.y}, id),
-			new PetalBasic(2, x, y, {x: this.x, y: this.y}, id),
-			new PetalBasic(3, x, y, {x: this.x, y: this.y}, id),
-			new PetalBasic(4, x, y, {x: this.x, y: this.y}, id),
+			new PetalBasic(0, x, y, {x: x, y: y}, id),
+			new PetalBasic(1, x, y, {x: x, y: y}, id),
+			new PetalBasic(2, x, y, {x: x, y: y}, id),
+			new PetalBasic(3, x, y, {x: x, y: y}, id),
+			new PetalBasic(4, x, y, {x: x, y: y}, id),
 		];
+		this.petalType = ['BASIC', 'BASIC', 'BASIC', 'BASIC', 'BASIC',]
+		this.inCooldown = [false, false, false, false, false,];
 		this.activeDirection = 0;
 		this.activeMotionMagnitude = {
 			x: 0,
@@ -50,10 +53,27 @@ class Player extends Entity {
 		if ( this.firstPetalDirection < - 2 * Math.PI ) {
 			this.firstPetalDirection += 2 * Math.PI;
 		}
-		this.petals.forEach(petal => {
-			petal.rotateAndFollow(this.petalExpandRadius, this.firstPetalDirection + 2 * Math.PI * petal.id / this.petalCount, {x: this.x, y: this.y});
-			petal.update(deltaT);
-		});
+		const petalsChunks = [];
+		for ( var petalID = 0; petalID < this.slotCount; petalID ++ ) {
+			if ( !this.inCooldown[petalID] ) {
+				const petal = this.petals[petalID];
+				petal.rotateAndFollow(this.petalExpandRadius, this.firstPetalDirection + 2 * Math.PI * petal.id / this.petalObjectCount, {x: this.x, y: this.y});
+				petalsChunks.push({chunks: petal.update(deltaT), petalID: petal.id});
+			} else {
+				this.petals[petalID] -= deltaT;
+				if ( this.petals[petalID] <= 0 ) {
+					this.inCooldown[petalID] = false;
+					this.petals[petalID] = this.newPetal(this.petalType[petalID], petalID);
+				}
+			}
+		}
+		return petalsChunks;
+	}
+
+	newPetal(type, petalID) {
+		if ( type == 'BASIC' ) {
+			return new PetalBasic(petalID, this.x, this.y, {x: this.x, y:this.y}, this.id);
+		}
 	}
 
 	getAccelerationMagnitude(magnitude, magnitudeCoe) { // calculate the accelertion magnitude in this.handleActiveMotion
@@ -113,8 +133,13 @@ class Player extends Entity {
  
 	update(deltaT) { // updates every tick
 		this.updateActiveMovement(deltaT);
-		this.updatePetals(deltaT);
-		return super.update(deltaT, Attribute);
+		const petalsChunks = this.updatePetals(deltaT);
+		const playerChunks = super.update(deltaT, Attribute);
+		return {playerChunks: playerChunks, petalsChunks: petalsChunks};
+	}
+
+	reload(petalID) {
+		this.petals[petalID] = this.petals[petalID].attributes.RELOAD;
 	}
 
 	getExpForLevel(level) {
@@ -136,9 +161,11 @@ class Player extends Entity {
 
 	getPetalsForUpdate() {
 		var petalsForUpdate = [];
-		this.petals.forEach(petal => {
-			petalsForUpdate.push(petal.serializeForUpdate());
-		});
+		for ( var petalID = 0; petalID < this.slotCount; petalID ++ ) {
+			if ( !this.inCooldown[petalID] ) {
+				petalsForUpdate.push(this.petals[petalID].serializeForUpdate());
+			}
+		}
 		return petalsForUpdate;
 	}
 
