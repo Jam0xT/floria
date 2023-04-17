@@ -1,13 +1,25 @@
 module.exports = Object.freeze({
 	BASIC: {
-		RADIUS: 10,
+		RADIUS: 8,
 		RELOAD: 2.5,
-		DAMAGE: 5,
-		MAX_HP: 5,
+		DAMAGE: 10,
+		MAX_HP: 10,
 		MASS: 1,
-		COLLISION_KNOCKBACK: 50,
+		COLLISION_KNOCKBACK: 10,
 		TYPE: 'BASIC',
 		ATTRIBUTES: {},
+	},
+	TWIN: {
+		RADIUS: 5,
+		RELOAD: 1,
+		DAMAGE: 8,
+		MAX_HP: 5,
+		MASS: 1,
+		COLLISION_KNOCKBACK: 10,
+		TYPE: 'TWIN',
+		ATTRIBUTES: {
+			multiple_object: 2,
+		}
 	}
 });
 // all petal attributes are here
@@ -21,6 +33,7 @@ PETAL_NAME: {
 	COLLISION_KNOCKBACK: knockback, // 击退
 	TYPE: type, //花瓣名称
 	ATTRIBUTES: { // 特殊属性
+		multiple_object: //多子
 	},
 }
 */

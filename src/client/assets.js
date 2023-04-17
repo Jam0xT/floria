@@ -2,6 +2,7 @@ const ASSET_NAMES = [
 	'player.svg',
 	'mobs/bubble.svg',
 	'petals/basic.svg',
+	'petals/twin.svg',
 ];
 
 const assets = {};
