@@ -82,13 +82,13 @@ class Entity {
 			this.velocity.x += velocity.x;
 			this.velocity.y += velocity.y;
 		});
+		
+		this.x += deltaT * this.velocity.x;
+		this.y -= deltaT * this.velocity.y;
 
 		if ( this.noBorderCollision == false ) {
 			this.handleBorder(attribute.RADIUS);
 		}
-		
-		this.x += deltaT * this.velocity.x;
-		this.y -= deltaT * this.velocity.y;
 
 		this.velocity = {
 			x: 0,
