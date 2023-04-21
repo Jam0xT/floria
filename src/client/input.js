@@ -27,7 +27,7 @@ function handleInput(x, y) {
 	const speedRatio = Math.min(100, distanceMouseCenter) / 100;
 	const input = {
 		direction: direction,
-		magnitude: speedRatio * EntityAttributes.PLAYER.SPEED,
+		magnitude: speedRatio,
 	}
 	sendInput(input);
 }
@@ -57,7 +57,7 @@ function handleKeyDownInput(e) {
 			currentDirection = Math.atan2(directionX, directionY);
 			sendInput({
 				direction: currentDirection,
-				magnitude: EntityAttributes.PLAYER.SPEED,
+				magnitude: 1,
 			});
 		}
 	}
@@ -88,7 +88,7 @@ function handleKeyUpInput(e) {
 			currentDirection = Math.atan2(directionX, directionY);
 			sendInput({
 				direction: currentDirection,
-				magnitude: EntityAttributes.PLAYER.SPEED,
+				magnitude: 1,
 			});
 		}
 	}

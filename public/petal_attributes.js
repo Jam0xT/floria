@@ -3,7 +3,7 @@ module.exports = Object.freeze({
 		RADIUS: 8,
 		RELOAD: 2.5,
 		DAMAGE: 10,
-		MAX_HP: 10,
+		MAX_HP: 1000,
 		MASS: 1,
 		COLLISION_KNOCKBACK: 10,
 		TYPE: 'BASIC',

@@ -43,6 +43,7 @@ class Player extends Entity {
 			x: 0,
 			y: 0,
 		};
+		this.attributes = Attribute;
 	}
 	
 	updatePetals(deltaT) {

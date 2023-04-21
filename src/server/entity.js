@@ -10,10 +10,13 @@ class Entity {
 		this.type = type;
 		this.hp = hp;
 		this.maxHp = maxHp;
-		this.hurtTime = -1;
 		this.hurtByInfo = {
 			type: -1,
 			id: -1,
+		};
+		this.v = {
+			x: 0,
+			y: 0,
 		};
 		this.velocity = {
 			x: 0,
@@ -49,15 +52,6 @@ class Entity {
 	}
 
 	update(deltaT, attribute) { // called every tick in game.js
-
-		if ( this.hurtTime > -1 ) { // handle hurt interval
-			if ( this.hurtTime >= Constants.HURT_INTERVAL ) {
-				this.hurtTime = -1;
-			} else {
-				this.hurtTime += (deltaT / (1 / Constants.TICK_PER_SECOND) );
-			}
-		}
-
 		for( let i = 0; i < this.passiveVelocity.length; i ++) {
 			const velocity = this.passiveVelocity[i];
 			const velocityX = velocity.x;
@@ -90,6 +84,8 @@ class Entity {
 			this.handleBorder(attribute.RADIUS);
 		}
 
+		this.v = this.velocity;
+		
 		this.velocity = {
 			x: 0,
 			y: 0,
@@ -213,7 +209,6 @@ class Entity {
 			id: this.id,
 			x: this.x,
 			y: this.y,
-			hurtTime: this.hurtTime,
 			chunks: this.getChunksForUpdate(),
 			hp: this.hp,
 		};

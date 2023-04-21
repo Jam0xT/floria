@@ -130,3 +130,5 @@
  $mapWidth = 3000$
  $mapHeight = 3000$
  $scoreLootingCoefficient = 0.5$
+ # $20230421$ $v0.5.3$
+ - 重写了实体碰撞。
