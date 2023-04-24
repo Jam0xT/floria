@@ -16,7 +16,7 @@ class Player extends Entity {
 		this.currentExpForLevel = this.getExpForLevel(this.level);
 		this.slotCount = Constants.SLOT_COUNT_BASE;
 		this.petalCount = Constants.SLOT_COUNT_BASE; // petalCount <= slotCount
-		this.petalObjectCount = 5; // petalObjectCount doesn't always equal to petalCount because some petals have more than one object
+		this.petalObjectCount = Constants.SLOT_COUNT_BASE; // petalObjectCount doesn't always equal to petalCount because some petals have more than one object
 		this.rotationSpeed = Constants.PETAL_ROTATION_SPEED_BASE;
 		this.firstPetalDirection = 0;
 		this.rotateClockwise = 1; // 1 for clockwise, -1 for counter-clockwise
@@ -47,7 +47,7 @@ class Player extends Entity {
 	}
 	
 	updatePetals(deltaT) {
-		this.firstPetalDirection += this.rotateClockwise * this.rotationSpeed * deltaT;
+		this.firstPetalDirection -= this.rotateClockwise * this.rotationSpeed * deltaT;
 		if ( this.firstPetalDirection > 2 * Math.PI ) {
 			this.firstPetalDirection -= 2 * Math.PI;
 		}
@@ -137,6 +137,16 @@ class Player extends Entity {
 		const petalsChunks = this.updatePetals(deltaT);
 		const playerChunks = super.update(deltaT, Attribute);
 		return {playerChunks: playerChunks, petalsChunks: petalsChunks};
+	}
+
+	applyVelocity(deltaT) {
+		super.applyVelocity(deltaT, this.attributes.RADIUS);
+		for ( var petalID = 0; petalID < this.slotCount; petalID ++ ) {
+			if ( !this.inCooldown[petalID] ) {
+				const petal = this.petals[petalID];
+				petal.applyVelocity(deltaT, petal.attributes.RADIUS);
+			}
+		}
 	}
 
 	reload(petalID) {

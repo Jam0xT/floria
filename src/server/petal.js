@@ -30,8 +30,8 @@ class Petal extends Entity {
 		if ( activeVelocity.magnitude > Constants.PETAL_SPEED_LIMIT ) {
 			activeVelocity.magnitude = Constants.PETAL_SPEED_LIMIT;
 		}
-		this.x += activeVelocity.magnitude * Math.sin(activeVelocity.direction);
-		this.y += activeVelocity.magnitude * Math.cos(activeVelocity.direction);
+		this.velocity.x += ( activeVelocity.magnitude * Math.sin(activeVelocity.direction) ) / deltaT;
+		this.velocity.y -= ( activeVelocity.magnitude * Math.cos(activeVelocity.direction) ) / deltaT;
 		return super.update(deltaT, this.attributes);
 	}
 

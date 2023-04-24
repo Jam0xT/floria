@@ -238,7 +238,6 @@ class Game {
 						this.chunks[this.getChunkID(chunk)] = new Array({type: 'player', id: playerID});
 					}
 				});
-				// console.log(this.chunks);
 			}
 			if ( petalsChunks ) {
 				petalsChunks.forEach(petalChunks => {
@@ -299,6 +298,15 @@ class Game {
 		});
 	}
 
+	applyVelocity(deltaT) {
+		Object.values(this.mobs).forEach(mob => {
+			mob.value.applyVelocity(deltaT);
+		});
+		Object.keys(this.sockets).forEach(playerID => {
+			this.players[playerID].applyVelocity(deltaT);
+		})
+	}
+
 	rnd(x, y) {
 		return ((Math.random() * y) + x);
 	}
@@ -346,9 +354,6 @@ class Game {
 				for (let j = i + 1; j < entityCount; j++) {
 					const entityInfoA = entitiesInChunk[i];
 					const entityInfoB = entitiesInChunk[j];
-					// if ( entityInfoA.type == 'player' || entityInfoB.type == 'player' ) {
-					// 	console.log('check1');
-					// }
 					var entityA, entityB;
 					if ( entityInfoA.type == 'player' ) {
 						entityA = this.players[entityInfoA.id];
@@ -361,9 +366,6 @@ class Game {
 							continue;
 						entityA = this.players[entityInfoA.id.playerID].petals[entityInfoA.id.petalID];
 					}
-					// if ( entityInfoA.type == 'player' || entityInfoB.type == 'player' ) {
-					// 	console.log('check2');
-					// }
 					if ( entityInfoB.type == 'player' ) {
 						entityB = this.players[entityInfoB.id];
 					} else if ( entityInfoB.type == 'mob' ) {
@@ -375,23 +377,55 @@ class Game {
 							continue;
 						entityB = this.players[entityInfoB.id.playerID].petals[entityInfoB.id.petalID];
 					}
-					// if ( entityInfoA.type == 'player' || entityInfoB.type == 'player' ) {
-					// 	console.log('check3');
-					// 	console.log(entityA.team, entityB.team);
-					// }
 					if ( entityA.team != entityB.team ) {
-						// if ( entityA.type == 'PLAYER' || entityB.type == 'PLAYER' )
-							// console.log(entityA.distanceTo(entityB), entityA.attributes.RADIUS + entityB.attributes.RADIUS);
 						if ( entityA.distanceTo(entityB) <= entityA.attributes.RADIUS + entityB.attributes.RADIUS) {
-							// if ( entityA.type == 'BASIC' || entityB.type == 'BASIC' )
-								// console.log(entityA.distanceTo(entityB));
 							const v1 = entityA.v, v2 = entityB.v;
 							const theta2 = Math.atan2(entityA.x - entityB.x, entityB.y - entityA.y);
 							const theta1 = theta2 - Math.PI;
 							const gamma1 = Math.atan2(v1.x, v1.y), gamma2 = Math.atan2(v2.x, v2.y);
-							const v3M = Math.sqrt(v1.x ** 2 + v1.y ** 2) * Math.cos(gamma1 - theta1);
-							const v4M = Math.sqrt(v2.x ** 2 + v2.y ** 2) * Math.cos(gamma2 - theta2);
+							var v3M = Math.sqrt(v1.x ** 2 + v1.y ** 2) * Math.cos(gamma1 - theta1);
+							var v4M = Math.sqrt(v2.x ** 2 + v2.y ** 2) * Math.cos(gamma2 - theta2);
+							var v3 = {
+								x: v3M * Math.sin(theta1),
+								y: v3M * Math.cos(theta1),
+							}, v4 = {
+								x: v4M * Math.sin(theta2),
+								y: v4M * Math.cos(theta2),
+							}
 							const m1 = entityA.attributes.MASS, m2 = entityB.attributes.MASS;
+							if ( v3M <= 0 && v4M <= 0 ) {
+								continue;
+							} else if ( v3M <= 0 ) {
+								if ( v4M > -v3M ) {
+									v4M += v3M;
+									v3M = 0;
+									v4 = {
+										x: v4M * Math.sin(theta2),
+										y: v4M * Math.cos(theta2),
+									};
+									v3 = {
+										x: 0,
+										y: 0,
+									};
+								} else {
+									continue;
+								}
+							} else if ( v4M <= 0 ) {
+								if ( v3M > -v4M ) {
+									v3M += v4M;
+									v4M = 0;
+									v3 = {
+										x: v3M * Math.sin(theta1),
+										y: v3M * Math.cos(theta1),
+									};
+									v4 = {
+										x: 0,
+										y: 0,
+									};
+								} else {
+									continue;
+								}
+							}
 							const e1 = m1 * v3M * v3M, e2 = m2 * v4M * v4M;
 							var direction, magnitude;
 							if ( e1 >= e2 ) {
@@ -403,11 +437,11 @@ class Game {
 							const vTot = {
 								x: magnitude * Math.sin(direction),
 								y: magnitude * Math.cos(direction),
-							}
-							entityA.velocity.x += vTot.x - v1.x;
-							entityA.velocity.y += vTot.y - v1.y;
-							entityB.velocity.x += vTot.x - v2.x;
-							entityB.velocity.y += vTot.y - v2.y;
+							};
+							entityA.velocity.x += vTot.x - v3.x;
+							entityA.velocity.y += vTot.y - v3.y;
+							entityB.velocity.x += vTot.x - v4.x;
+							entityB.velocity.y += vTot.y - v4.y;
 							entityA.hp -= entityB.attributes.DAMAGE;
 							entityB.hp -= entityA.attributes.DAMAGE;
 							entityA.hurtByInfo = entityInfoB;
@@ -429,13 +463,15 @@ class Game {
 
 		this.updateMobs(deltaT);
 
-		this.mobSpawn();
-
 		this.handleCollisions();
+
+		this.applyVelocity(deltaT);
 
 		this.handleMobDeaths();
 
 		this.handlePlayerDeaths();
+
+		this.mobSpawn();
 
 		this.sendUpdate();
 	}

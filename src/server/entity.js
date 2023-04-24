@@ -76,20 +76,8 @@ class Entity {
 			this.velocity.x += velocity.x;
 			this.velocity.y += velocity.y;
 		});
-		
-		this.x += deltaT * this.velocity.x;
-		this.y -= deltaT * this.velocity.y;
-
-		if ( this.noBorderCollision == false ) {
-			this.handleBorder(attribute.RADIUS);
-		}
 
 		this.v = this.velocity;
-		
-		this.velocity = {
-			x: 0,
-			y: 0,
-		};
 
 		const chunksNew = [];
 
@@ -177,6 +165,20 @@ class Entity {
 				chunksNew: chunksNew,
 			};
 		}
+	}
+
+	applyVelocity(deltaT, radius) {		
+		this.x += deltaT * this.velocity.x;
+		this.y -= deltaT * this.velocity.y;
+
+		if ( this.noBorderCollision == false ) {
+			this.handleBorder(radius);
+		}
+		
+		this.velocity = {
+			x: 0,
+			y: 0,
+		};
 	}
 
 	isSameArray(array1, array2) {
