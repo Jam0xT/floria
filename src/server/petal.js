@@ -3,8 +3,8 @@ const Entity = require('./entity');
 const PetalAttributes = require('../../public/petal_attributes');
 
 class Petal extends Entity {
-	constructor(id, x, y, absoluteCenter, parent, type, noBorderCollision) {
-		super(id, x, y, parent, 'petal', type, PetalAttributes[type].MAX_HP, PetalAttributes[type].MAX_HP, noBorderCollision);
+	constructor(id, x, y, absoluteCenter, parent, type, noBorderCollision, friendlyCollisions) {
+		super(id, x, y, parent, 'petal', type, PetalAttributes[type].MAX_HP, PetalAttributes[type].MAX_HP, noBorderCollision, friendlyCollisions);
 		this.parent = parent;
 		this.rotationVelocity = {
 			x: 0,
@@ -32,7 +32,7 @@ class Petal extends Entity {
 		}
 		this.velocity.x += ( activeVelocity.magnitude * Math.sin(activeVelocity.direction) ) / deltaT;
 		this.velocity.y -= ( activeVelocity.magnitude * Math.cos(activeVelocity.direction) ) / deltaT;
-		return super.update(deltaT, this.attributes);
+		return super.update(this.attributes);
 	}
 
 	rotateAndFollow(targetRadius, targetDirection, parentCenter) {

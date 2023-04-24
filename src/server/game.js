@@ -221,14 +221,13 @@ class Game {
 			if ( playerChunks ) {
 				const chunksOld = playerChunks.chunksOld;
 				const chunksNew = playerChunks.chunksNew;
+				console.log(chunksOld, chunksNew);
 				chunksOld.forEach(chunk => {
 					if ( this.chunks[this.getChunkID(chunk)] ) {
-						this.chunks[this.getChunkID(chunk)].splice(
-							this.chunks[this.getChunkID(chunk)].findIndex((entityInChunk) => {
-								return entityInChunk.type == 'player' && entityInChunk.id == playerID;
-							}),
-							1
-						);
+						const idx = this.chunks[this.getChunkID(chunk)].findIndex((entityInChunk) => {
+							return ( entityInChunk.type == 'player' ) && ( entityInChunk.id == playerID );
+						});
+						this.chunks[this.getChunkID(chunk)].splice(idx, 1);
 					}
 				});
 				chunksNew.forEach(chunk => {
@@ -248,12 +247,10 @@ class Game {
 						if ( !player.inCooldown[petalID] ) {
 							chunksOld.forEach(chunk => {
 								if ( this.chunks[this.getChunkID(chunk)] ) {
-									this.chunks[this.getChunkID(chunk)].splice(
-										this.chunks[this.getChunkID(chunk)].findIndex((entityInChunk) => {
-											return entityInChunk.type == 'petal' && entityInChunk.id.playerID == playerID && entityInChunk.id.petalID == petalID
-										}),
-										1
-									);
+									const idx = this.chunks[this.getChunkID(chunk)].findIndex((entityInChunk) => {
+										return ( entityInChunk.type == 'petal' ) && ( entityInChunk.id.playerID == playerID ) && ( entityInChunk.id.petalID == petalID );
+									});
+									this.chunks[this.getChunkID(chunk)].splice(idx, 1);
 								}
 							});
 							chunksNew.forEach(chunk => {
@@ -267,24 +264,23 @@ class Game {
 					}
 				});
 			}
-			// console.log(this.chunks);
 		});
 	}
 
-	updateMobs(deltaT) {
+	updateMobs() {
 		Object.values(this.mobs).forEach(mob => {
-			const chunks = mob.value.update(deltaT, EntityAttributes[mob.type]);
+			const chunks = mob.value.update(mob.value.attributes);
 			if ( chunks ) {
 				const chunksOld = chunks.chunksOld;
 				const chunksNew = chunks.chunksNew;
+				console.log(chunksOld, chunksNew, mob.value.id);
 				chunksOld.forEach(chunk => {
 					if( this.chunks[this.getChunkID(chunk)] ) {
-						this.chunks[this.getChunkID(chunk)].splice(
-							this.chunks[this.getChunkID(chunk)].findIndex((entityInChunk) => {
-								return entityInChunk.type == 'mob' && entityInChunk.id == mob.value.id;
-							}),
-							1
-						);
+						const idx = this.chunks[this.getChunkID(chunk)].findIndex((entityInChunk) => {
+							return ( entityInChunk.type == 'mob' ) && ( entityInChunk.id == mob.value.id );
+						});
+						if ( idx != -1 )
+							this.chunks[this.getChunkID(chunk)].splice(idx, 1);
 					}
 				});
 				chunksNew.forEach(chunk => {
@@ -295,6 +291,7 @@ class Game {
 					}
 				});
 			}
+			console.log(this.chunks, 4);
 		});
 	}
 
@@ -377,9 +374,15 @@ class Game {
 							continue;
 						entityB = this.players[entityInfoB.id.playerID].petals[entityInfoB.id.petalID];
 					}
-					if ( entityA.team != entityB.team ) {
+					if ( entityA.team != entityB.team || ( entityA.friendlyCollisions && entityB.friendlyCollisions ) ) {
+						if ( entityA.type == 'PLAYER' || entityB.type == 'PLAYER' ) {
+							console.log('check');
+						}
 						if ( entityA.distanceTo(entityB) <= entityA.attributes.RADIUS + entityB.attributes.RADIUS) {
 							const v1 = entityA.v, v2 = entityB.v;
+							if ( entityA.type == 'PLAYER' || entityB.type == 'PLAYER' ) {
+								console.log(v1,v2);
+							}
 							const theta2 = Math.atan2(entityA.x - entityB.x, entityB.y - entityA.y);
 							const theta1 = theta2 - Math.PI;
 							const gamma1 = Math.atan2(v1.x, v1.y), gamma2 = Math.atan2(v2.x, v2.y);
@@ -461,7 +464,9 @@ class Game {
 
 		this.updatePlayers(deltaT);
 
-		this.updateMobs(deltaT);
+		this.updateMobs();
+
+		// console.log(this.chunks, 6);
 
 		this.handleCollisions();
 
@@ -474,6 +479,7 @@ class Game {
 		this.mobSpawn();
 
 		this.sendUpdate();
+
 	}
 
 	sendUpdate() {

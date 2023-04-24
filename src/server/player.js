@@ -6,7 +6,7 @@ const PetalBasic = require('./petal/basic');
 
 class Player extends Entity {
 	constructor(id, username, x, y) {
-		super(id, x, y, id, 'mob', 'PLAYER', EntityAttributes.PLAYER.MAX_HP_BASE, EntityAttributes.PLAYER.MAX_HP_BASE, false);
+		super(id, x, y, id, 'mob', 'PLAYER', EntityAttributes.PLAYER.MAX_HP_BASE, EntityAttributes.PLAYER.MAX_HP_BASE, false, true);
 		// a player's team equals to his id
 		this.username = username;
 		this.score = 1;
@@ -135,7 +135,7 @@ class Player extends Entity {
 	update(deltaT) { // updates every tick
 		this.updateActiveMovement(deltaT);
 		const petalsChunks = this.updatePetals(deltaT);
-		const playerChunks = super.update(deltaT, Attribute);
+		const playerChunks = super.update(Attribute);
 		return {playerChunks: playerChunks, petalsChunks: petalsChunks};
 	}
 

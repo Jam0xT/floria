@@ -1,7 +1,7 @@
 const Constants = require('../shared/constants');
 
 class Entity {
-	constructor(id, x, y, team, generalType, type, hp, maxHp, noBorderCollision) {
+	constructor(id, x, y, team, generalType, type, hp, maxHp, noBorderCollision, friendlyCollisions) {
 		this.id = id;
 		this.x = x;
 		this.y = y;
@@ -25,6 +25,7 @@ class Entity {
 		this.passiveVelocity = [];
 		this.chunks = [];
 		this.noBorderCollision = noBorderCollision;
+		this.friendlyCollisions = friendlyCollisions;
 	}
 
 	distanceTo(object) {
@@ -51,7 +52,7 @@ class Entity {
 		}
 	}
 
-	update(deltaT, attribute) { // called every tick in game.js
+	update(attribute) { // called every tick in game.js
 		for( let i = 0; i < this.passiveVelocity.length; i ++) {
 			const velocity = this.passiveVelocity[i];
 			const velocityX = velocity.x;
