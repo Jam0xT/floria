@@ -7,10 +7,6 @@ class Mob extends Entity {
 		this.attributes = EntityAttributes[type];
 	}
 
-	applyVelocity(deltaT) {
-		super.applyVelocity(deltaT, this.attributes.RADIUS);
-	}
-
 	serializeForUpdate() {
 		return {
 			...(super.serializeForUpdate()),

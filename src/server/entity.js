@@ -34,25 +34,25 @@ class Entity {
 		return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 	}
 	
-	handleBorder(objectRadius) {
+	handleBorder(deltaT, objectRadius) {
 		if ( this.x < objectRadius ){ // hit left border
+			this.velocity.x += (objectRadius - this.x) / deltaT;
 			this.x = objectRadius;
-			this.velocity.x = 0;
 		} else if ( this.x > Constants.MAP_WIDTH - objectRadius ) { // hit right border
+			this.velocity.x -= (this.x + objectRadius - Constants.MAP_WIDTH) / deltaT;
 			this.x = Constants.MAP_WIDTH - objectRadius;
-			this.velocity.x = 0;
 		}
 
 		if ( this.y < objectRadius ){ // hit top border
-			this.y = objectRadius
-			this.velocity.y = 0;
+			this.velocity.y -= (objectRadius - this.y) / deltaT;
+			this.y = objectRadius;
 		} else if ( this.y > Constants.MAP_HEIGHT - objectRadius ) { // hit bottom border
-			this.y = Constants.MAP_HEIGHT - objectRadius;
-			this.velocity.y = 0;
+			this.velocity.y += (this.y + objectRadius - Constants.MAP_HEIGHT) / deltaT;
+			this.y = Constants.MAP_WIDTH - objectRadius;
 		}
 	}
 
-	update(attribute) { // called every tick in game.js
+	update(deltaT, attribute) { // called every tick in game.js
 		for( let i = 0; i < this.passiveVelocity.length; i ++) {
 			const velocity = this.passiveVelocity[i];
 			const velocityX = velocity.x;
@@ -72,11 +72,14 @@ class Entity {
 			}
 		}
 
-
 		this.passiveVelocity.forEach(velocity => {
 			this.velocity.x += velocity.x;
 			this.velocity.y += velocity.y;
 		});
+
+		if ( this.noBorderCollision == false ) {
+			this.handleBorder(deltaT, attribute.RADIUS);
+		}
 
 		this.v = this.velocity;
 
@@ -168,13 +171,9 @@ class Entity {
 		}
 	}
 
-	applyVelocity(deltaT, radius) {		
+	applyVelocity(deltaT) {		
 		this.x += deltaT * this.velocity.x;
 		this.y -= deltaT * this.velocity.y;
-
-		if ( this.noBorderCollision == false ) {
-			this.handleBorder(radius);
-		}
 		
 		this.velocity = {
 			x: 0,

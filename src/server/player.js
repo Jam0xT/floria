@@ -135,16 +135,16 @@ class Player extends Entity {
 	update(deltaT) { // updates every tick
 		this.updateActiveMovement(deltaT);
 		const petalsChunks = this.updatePetals(deltaT);
-		const playerChunks = super.update(Attribute);
+		const playerChunks = super.update(deltaT, Attribute);
 		return {playerChunks: playerChunks, petalsChunks: petalsChunks};
 	}
 
 	applyVelocity(deltaT) {
-		super.applyVelocity(deltaT, this.attributes.RADIUS);
+		super.applyVelocity(deltaT);
 		for ( var petalID = 0; petalID < this.slotCount; petalID ++ ) {
 			if ( !this.inCooldown[petalID] ) {
 				const petal = this.petals[petalID];
-				petal.applyVelocity(deltaT, petal.attributes.RADIUS);
+				petal.applyVelocity(deltaT);
 			}
 		}
 	}

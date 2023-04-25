@@ -14,7 +14,7 @@ module.exports = Object.freeze({
 		TYPE: 'PLAYER',
 	},
 	BUBBLE: {
-		MASS: 200,
+		MASS: 1000,
 		SPEED: 0,
 		RADIUS: 120,
 		MAX_HP: 50000,
