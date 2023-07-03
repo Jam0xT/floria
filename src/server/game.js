@@ -474,8 +474,6 @@ class Game {
 		this.mobSpawn();
 
 		this.sendUpdate();
-
-		console.log(this.chunks);
 	}
 
 	sendUpdate() {

@@ -42,7 +42,6 @@ class Entity {
 			this.velocity.x -= (this.x + objectRadius - Constants.MAP_WIDTH) / deltaT;
 			this.x = Constants.MAP_WIDTH - objectRadius;
 		}
-
 		if ( this.y < objectRadius ){ // hit top border
 			this.velocity.y -= (objectRadius - this.y) / deltaT;
 			this.y = objectRadius;
