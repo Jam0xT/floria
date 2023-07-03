@@ -1,7 +1,7 @@
 const Constants = require('../shared/constants');
 
 class Entity {
-	constructor(id, x, y, team, generalType, type, hp, maxHp, noBorderCollision) {
+	constructor(id, x, y, team, generalType, type, hp, maxHp, noBorderCollision, friendlyCollisions) {
 		this.id = id;
 		this.x = x;
 		this.y = y;
@@ -10,10 +10,13 @@ class Entity {
 		this.type = type;
 		this.hp = hp;
 		this.maxHp = maxHp;
-		this.hurtTime = -1;
 		this.hurtByInfo = {
 			type: -1,
 			id: -1,
+		};
+		this.v = {
+			x: 0,
+			y: 0,
 		};
 		this.velocity = {
 			x: 0,
@@ -22,6 +25,7 @@ class Entity {
 		this.passiveVelocity = [];
 		this.chunks = [];
 		this.noBorderCollision = noBorderCollision;
+		this.friendlyCollisions = friendlyCollisions;
 	}
 
 	distanceTo(object) {
@@ -30,34 +34,24 @@ class Entity {
 		return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 	}
 	
-	handleBorder(objectRadius) {
+	handleBorder(deltaT, objectRadius) {
 		if ( this.x < objectRadius ){ // hit left border
+			this.velocity.x += (objectRadius - this.x) / deltaT;
 			this.x = objectRadius;
-			this.velocity.x = 0;
 		} else if ( this.x > Constants.MAP_WIDTH - objectRadius ) { // hit right border
+			this.velocity.x -= (this.x + objectRadius - Constants.MAP_WIDTH) / deltaT;
 			this.x = Constants.MAP_WIDTH - objectRadius;
-			this.velocity.x = 0;
 		}
-
 		if ( this.y < objectRadius ){ // hit top border
-			this.y = objectRadius
-			this.velocity.y = 0;
+			this.velocity.y -= (objectRadius - this.y) / deltaT;
+			this.y = objectRadius;
 		} else if ( this.y > Constants.MAP_HEIGHT - objectRadius ) { // hit bottom border
-			this.y = Constants.MAP_HEIGHT - objectRadius;
-			this.velocity.y = 0;
+			this.velocity.y += (this.y + objectRadius - Constants.MAP_HEIGHT) / deltaT;
+			this.y = Constants.MAP_WIDTH - objectRadius;
 		}
 	}
 
 	update(deltaT, attribute) { // called every tick in game.js
-
-		if ( this.hurtTime > -1 ) { // handle hurt interval
-			if ( this.hurtTime >= Constants.HURT_INTERVAL ) {
-				this.hurtTime = -1;
-			} else {
-				this.hurtTime += (deltaT / (1 / Constants.TICK_PER_SECOND) );
-			}
-		}
-
 		for( let i = 0; i < this.passiveVelocity.length; i ++) {
 			const velocity = this.passiveVelocity[i];
 			const velocityX = velocity.x;
@@ -77,23 +71,16 @@ class Entity {
 			}
 		}
 
-
 		this.passiveVelocity.forEach(velocity => {
 			this.velocity.x += velocity.x;
 			this.velocity.y += velocity.y;
 		});
-		
-		this.x += deltaT * this.velocity.x;
-		this.y -= deltaT * this.velocity.y;
 
 		if ( this.noBorderCollision == false ) {
-			this.handleBorder(attribute.RADIUS);
+			this.handleBorder(deltaT, attribute.RADIUS);
 		}
 
-		this.velocity = {
-			x: 0,
-			y: 0,
-		};
+		this.v = this.velocity;
 
 		const chunksNew = [];
 
@@ -183,6 +170,16 @@ class Entity {
 		}
 	}
 
+	applyVelocity(deltaT) {		
+		this.x += deltaT * this.velocity.x;
+		this.y -= deltaT * this.velocity.y;
+		
+		this.velocity = {
+			x: 0,
+			y: 0,
+		};
+	}
+
 	isSameArray(array1, array2) {
 		if ( array1.length != array2.length ) {
 			return false;
@@ -213,7 +210,6 @@ class Entity {
 			id: this.id,
 			x: this.x,
 			y: this.y,
-			hurtTime: this.hurtTime,
 			chunks: this.getChunksForUpdate(),
 			hp: this.hp,
 		};

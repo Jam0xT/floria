@@ -2,7 +2,6 @@ const Constants = require('../shared/constants');
 const EntityAttributes = require('../../public/entity_attributes');
 const PetalAttributes = require('../../public/petal_attributes');
 const Player = require('./player');
-const applyCollisions = require('./collisions');
 const Bubble = require('./entity/bubble');
 
 var TOTAL_SPAWN_WEIGHT = 0; // this is a constant
@@ -76,7 +75,10 @@ class Game {
 
 	handleInput(socket, input) { // handle input from a player
 		if ( this.players[socket.id] ) {
-			this.players[socket.id].handleActiveMotion(input);
+			this.players[socket.id].handleActiveMotion({
+				direction: input.direction,
+				magnitude: input.magnitude * EntityAttributes.PLAYER.SPEED,
+			});
 		}
 	}
 
@@ -213,7 +215,6 @@ class Game {
 	}
 
 	updatePlayers(deltaT) {
-		// console.log(this.chunks);
 		Object.keys(this.sockets).forEach(playerID => { // updates the movement of each player
 			const player = this.players[playerID];
 			const {playerChunks, petalsChunks} = player.update(deltaT);
@@ -222,12 +223,10 @@ class Game {
 				const chunksNew = playerChunks.chunksNew;
 				chunksOld.forEach(chunk => {
 					if ( this.chunks[this.getChunkID(chunk)] ) {
-						this.chunks[this.getChunkID(chunk)].splice(
-							this.chunks[this.getChunkID(chunk)].findIndex((entityInChunk) => {
-								return entityInChunk.type == 'player' && entityInChunk.id == playerID;
-							}),
-							1
-						);
+						const idx = this.chunks[this.getChunkID(chunk)].findIndex((entityInChunk) => {
+							return ( entityInChunk.type == 'player' ) && ( entityInChunk.id == playerID );
+						});
+						this.chunks[this.getChunkID(chunk)].splice(idx, 1);
 					}
 				});
 				chunksNew.forEach(chunk => {
@@ -247,12 +246,10 @@ class Game {
 						if ( !player.inCooldown[petalID] ) {
 							chunksOld.forEach(chunk => {
 								if ( this.chunks[this.getChunkID(chunk)] ) {
-									this.chunks[this.getChunkID(chunk)].splice(
-										this.chunks[this.getChunkID(chunk)].findIndex((entityInChunk) => {
-											return entityInChunk.type == 'petal' && entityInChunk.id == {playerID: playerID, petalID: petalID};
-										}),
-										1
-									);
+									const idx = this.chunks[this.getChunkID(chunk)].findIndex((entityInChunk) => {
+										return ( entityInChunk.type == 'petal' ) && ( entityInChunk.id.playerID == playerID ) && ( entityInChunk.id.petalID == petalID );
+									});
+									this.chunks[this.getChunkID(chunk)].splice(idx, 1);
 								}
 							});
 							chunksNew.forEach(chunk => {
@@ -271,18 +268,17 @@ class Game {
 
 	updateMobs(deltaT) {
 		Object.values(this.mobs).forEach(mob => {
-			const chunks = mob.value.update(deltaT, EntityAttributes[mob.type]);
+			const chunks = mob.value.update(deltaT, mob.value.attributes);
 			if ( chunks ) {
 				const chunksOld = chunks.chunksOld;
 				const chunksNew = chunks.chunksNew;
 				chunksOld.forEach(chunk => {
 					if( this.chunks[this.getChunkID(chunk)] ) {
-						this.chunks[this.getChunkID(chunk)].splice(
-							this.chunks[this.getChunkID(chunk)].findIndex((entityInChunk) => {
-								return entityInChunk.type == 'mob' && entityInChunk.id == mob.value.id;
-							}),
-							1
-						);
+						const idx = this.chunks[this.getChunkID(chunk)].findIndex((entityInChunk) => {
+							return ( entityInChunk.type == 'mob' ) && ( entityInChunk.id == mob.value.id );
+						});
+						if ( idx != -1 )
+							this.chunks[this.getChunkID(chunk)].splice(idx, 1);
 					}
 				});
 				chunksNew.forEach(chunk => {
@@ -294,6 +290,15 @@ class Game {
 				});
 			}
 		});
+	}
+
+	applyVelocity(deltaT) {
+		Object.values(this.mobs).forEach(mob => {
+			mob.value.applyVelocity(deltaT);
+		});
+		Object.keys(this.sockets).forEach(playerID => {
+			this.players[playerID].applyVelocity(deltaT);
+		})
 	}
 
 	rnd(x, y) {
@@ -333,92 +338,140 @@ class Game {
 		}
 	}
 
-	handleCollisions() {
-		const {hurtPlayers, hurtMobs, hurtPetals} = applyCollisions(this.players, this.mobs, this.chunks);
-		// applyCollisions: check collisions and return involved players and mobs
-
-		hurtPlayers.forEach(element => {
-			const {entityID, sourceInfo, knockbackDirection} = element;
-			const player = this.players[entityID];
-			player.hurtTime = 0;
-			player.hurtByInfo = sourceInfo;
-			var sourceAttribute;
-			if ( sourceInfo.type == 'player' ) {
-				sourceAttribute = EntityAttributes['PLAYER'];
-			} else if ( sourceInfo.type == 'mob' ) {
-				sourceAttribute = EntityAttributes[this.mobs[sourceInfo.id].type];
-			} else if ( sourceInfo.type == 'petal' ) {
-				sourceAttribute = PetalAttributes[this.players[sourceInfo.id.playerID].petals[sourceInfo.id.petalID].type];
+	handleCollisions(deltaT) {
+		Object.values(this.chunks).forEach(entitiesInChunk => {
+			const entityCount = entitiesInChunk.length;
+			if ( entityCount <= 1 ) {
+				return ;
 			}
-			player.hp -= sourceAttribute.DAMAGE;
-			const knockbackMagnitude = sourceAttribute.COLLISION_KNOCKBACK;
-			player.handlePassiveMotion({
-				direction: knockbackDirection,
-				magnitude: knockbackMagnitude,
-			});
-		});
-
-		hurtMobs.forEach(element => {
-			const {entityID, sourceInfo, knockbackDirection} = element;
-			const entity = this.mobs[entityID];
-			entity.value.hurtTime = 0;
-			entity.value.hurtByInfo = sourceInfo;
-			var sourceAttribute;
-			if ( sourceInfo.type == 'player' ) {
-				sourceAttribute = EntityAttributes['PLAYER'];
-			} else if ( sourceInfo.type == 'mob' ) {
-				sourceAttribute = EntityAttributes[this.mobs[sourceInfo.id].type];
-			} else if ( sourceInfo.type == 'petal' ) {
-				sourceAttribute = PetalAttributes[this.players[sourceInfo.id.playerID].petals[sourceInfo.id.petalID].type];
-			}
-			entity.value.hp -= sourceAttribute.DAMAGE;
-			const knockbackMagnitude = sourceAttribute.COLLISION_KNOCKBACK;
-			entity.value.handlePassiveMotion({
-				direction: knockbackDirection,
-				magnitude: knockbackMagnitude,
-			});
-		});
-
-		Object.keys(hurtPetals).forEach(parentID => {
-			hurtPetals[parentID].forEach(element => {
-				const {petalID, sourceInfo, knockbackDirection} = element;
-				const petal = this.players[parentID].petals[petalID];
-				petal.hurtTime = 0;
-				petal.hurtByInfo = sourceInfo;
-				var sourceAttribute;
-				if ( sourceInfo.type == 'player' ) {
-					sourceAttribute = EntityAttributes['PLAYER'];
-				} else if ( sourceInfo.type == 'mob' ) {
-					sourceAttribute = EntityAttributes[this.mobs[sourceInfo.id].type];
-				} else if ( sourceInfo.type == 'petal' ) {
-					sourceAttribute = PetalAttributes[this.players[sourceInfo.id.playerID].petals[sourceInfo.id.petalID].type];
+			for (let i = 0; i < entityCount - 1; i++) {
+				for (let j = i + 1; j < entityCount; j++) {
+					const entityInfoA = entitiesInChunk[i];
+					const entityInfoB = entitiesInChunk[j];
+					var entityA, entityB;
+					if ( entityInfoA.type == 'player' ) {
+						entityA = this.players[entityInfoA.id];
+					} else if ( entityInfoA.type == 'mob' ) {
+						entityA = this.mobs[entityInfoB.id].value;
+					} else if ( entityInfoA.type == 'petal' ) {
+						if ( !this.players[entityInfoA.id.playerID] )
+							continue;
+						if ( this.players[entityInfoA.id.playerID].inCooldown[entityInfoA.id.petalID] )
+							continue;
+						entityA = this.players[entityInfoA.id.playerID].petals[entityInfoA.id.petalID];
+					}
+					if ( entityInfoB.type == 'player' ) {
+						entityB = this.players[entityInfoB.id];
+					} else if ( entityInfoB.type == 'mob' ) {
+						entityB = this.mobs[entityInfoB.id].value;
+					} else if ( entityInfoB.type == 'petal' ) {
+						if ( !this.players[entityInfoB.id.playerID] )
+							continue;
+						if ( this.players[entityInfoB.id.playerID].inCooldown[entityInfoB.id.petalID] )
+							continue;
+						entityB = this.players[entityInfoB.id.playerID].petals[entityInfoB.id.petalID];
+					}
+					if ( ( entityA.team != entityB.team ) || ( entityA.friendlyCollisions && entityB.friendlyCollisions ) ) {
+						const distance = entityA.distanceTo(entityB);
+						const r1 = entityA.attributes.RADIUS, r2 = entityB.attributes.RADIUS;
+						if ( distance <= r1 + r2 ) {
+							const v1 = entityA.v, v2 = entityB.v;
+							const theta2 = Math.atan2(entityA.x - entityB.x, entityB.y - entityA.y);
+							const theta1 = theta2 - Math.PI;
+							const gamma1 = Math.atan2(v1.x, v1.y), gamma2 = Math.atan2(v2.x, v2.y);
+							var v3M = Math.sqrt(v1.x ** 2 + v1.y ** 2) * Math.cos(gamma1 - theta1);
+							var v4M = Math.sqrt(v2.x ** 2 + v2.y ** 2) * Math.cos(gamma2 - theta2);
+							var v3 = {
+								x: v3M * Math.sin(theta1),
+								y: v3M * Math.cos(theta1),
+							}, v4 = {
+								x: v4M * Math.sin(theta2),
+								y: v4M * Math.cos(theta2),
+							}
+							const m1 = entityA.attributes.MASS, m2 = entityB.attributes.MASS;
+							if ( v3M <= 0 && v4M <= 0 ) {
+								continue;
+							} else if ( v3M <= 0 ) {
+								if ( v4M > -v3M ) {
+									v4M += v3M;
+									v3M = 0;
+									v4 = {
+										x: v4M * Math.sin(theta2),
+										y: v4M * Math.cos(theta2),
+									};
+									v3 = {
+										x: 0,
+										y: 0,
+									};
+								} else {
+									continue;
+								}
+							} else if ( v4M <= 0 ) {
+								if ( v3M > -v4M ) {
+									v3M += v4M;
+									v4M = 0;
+									v3 = {
+										x: v3M * Math.sin(theta1),
+										y: v3M * Math.cos(theta1),
+									};
+									v4 = {
+										x: 0,
+										y: 0,
+									};
+								} else {
+									continue;
+								}
+							}
+							const e1 = m1 * v3M * v3M, e2 = m2 * v4M * v4M;
+							var direction, magnitude;
+							if ( e1 >= e2 ) {
+								direction = theta1;
+							} else {
+								direction = theta2;
+							}
+							magnitude = Math.sqrt(Math.abs(e1 - e2) / (m1 + m2));
+							const vTot = {
+								x: magnitude * Math.sin(direction),
+								y: magnitude * Math.cos(direction),
+							};
+							entityA.velocity.x += vTot.x - v3.x;
+							entityA.velocity.y += vTot.y - v3.y;
+							entityB.velocity.x += vTot.x - v4.x;
+							entityB.velocity.y += vTot.y - v4.y;
+							const deltaD = r1 + r2 - distance;
+							// console.log(deltaD);
+							entityA.velocity.x += deltaD * Math.sin(theta2) / deltaT;
+							entityA.velocity.y += deltaD * Math.cos(theta2) / deltaT;
+							entityA.hp -= entityB.attributes.DAMAGE;
+							entityB.hp -= entityA.attributes.DAMAGE;
+							entityA.hurtByInfo = entityInfoB;
+							entityB.hurtByInfo = entityInfoA;
+						}
+					}
 				}
-				petal.hp -= sourceAttribute.DAMAGE;
-				const knockbackMagnitude = sourceAttribute.COLLISION_KNOCKBACK;
-				petal.handlePassiveMotion({
-					direction: knockbackDirection,
-					magnitude: knockbackMagnitude,
-				});
-			});
-		})
+			}
+		});
 	}
 
 	update() { // called every tick
 		const now = Date.now();
 		const deltaT = (now - this.lastUpdateTime) / 1000; // the length of the last tick
+
 		this.lastUpdateTime = now;
 
 		this.updatePlayers(deltaT);
 
 		this.updateMobs(deltaT);
 
-		this.mobSpawn();
+		this.handleCollisions(deltaT);
 
-		this.handleCollisions();
+		this.applyVelocity(deltaT);
 
 		this.handleMobDeaths();
 
 		this.handlePlayerDeaths();
+
+		this.mobSpawn();
 
 		this.sendUpdate();
 	}

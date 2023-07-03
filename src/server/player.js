@@ -6,7 +6,7 @@ const PetalBasic = require('./petal/basic');
 
 class Player extends Entity {
 	constructor(id, username, x, y) {
-		super(id, x, y, id, 'mob', 'PLAYER', EntityAttributes.PLAYER.MAX_HP_BASE, EntityAttributes.PLAYER.MAX_HP_BASE, false);
+		super(id, x, y, id, 'mob', 'PLAYER', EntityAttributes.PLAYER.MAX_HP_BASE, EntityAttributes.PLAYER.MAX_HP_BASE, false, true);
 		// a player's team equals to his id
 		this.username = username;
 		this.score = 1;
@@ -16,7 +16,7 @@ class Player extends Entity {
 		this.currentExpForLevel = this.getExpForLevel(this.level);
 		this.slotCount = Constants.SLOT_COUNT_BASE;
 		this.petalCount = Constants.SLOT_COUNT_BASE; // petalCount <= slotCount
-		this.petalObjectCount = 5; // petalObjectCount doesn't always equal to petalCount because some petals have more than one object
+		this.petalObjectCount = Constants.SLOT_COUNT_BASE; // petalObjectCount doesn't always equal to petalCount because some petals have more than one object
 		this.rotationSpeed = Constants.PETAL_ROTATION_SPEED_BASE;
 		this.firstPetalDirection = 0;
 		this.rotateClockwise = 1; // 1 for clockwise, -1 for counter-clockwise
@@ -43,10 +43,11 @@ class Player extends Entity {
 			x: 0,
 			y: 0,
 		};
+		this.attributes = Attribute;
 	}
 	
 	updatePetals(deltaT) {
-		this.firstPetalDirection += this.rotateClockwise * this.rotationSpeed * deltaT;
+		this.firstPetalDirection -= this.rotateClockwise * this.rotationSpeed * deltaT;
 		if ( this.firstPetalDirection > 2 * Math.PI ) {
 			this.firstPetalDirection -= 2 * Math.PI;
 		}
@@ -136,6 +137,16 @@ class Player extends Entity {
 		const petalsChunks = this.updatePetals(deltaT);
 		const playerChunks = super.update(deltaT, Attribute);
 		return {playerChunks: playerChunks, petalsChunks: petalsChunks};
+	}
+
+	applyVelocity(deltaT) {
+		super.applyVelocity(deltaT);
+		for ( var petalID = 0; petalID < this.slotCount; petalID ++ ) {
+			if ( !this.inCooldown[petalID] ) {
+				const petal = this.petals[petalID];
+				petal.applyVelocity(deltaT);
+			}
+		}
 	}
 
 	reload(petalID) {
