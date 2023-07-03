@@ -216,11 +216,13 @@ class Entity {
 	}
 
 	getChunksForUpdate() {
-		var chunksForUpdate = '[';
+		var chunksForUpdate = [];
 		this.chunks.forEach(chunk => {
-			chunksForUpdate += `{x: ${chunk.x}, y: ${chunk.y}},`
+			chunksForUpdate.push({
+				x: chunk.x,
+				y: chunk.y,
+			});
 		});
-		chunksForUpdate += ']';
 		return chunksForUpdate;
 	}
 }
