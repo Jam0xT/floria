@@ -116,7 +116,7 @@ class Game {
 		this.leaderboard.splice(playerRank, 0, {score: playerScore, id: player.id, username: player.username});
 	}
 
-	handlePlayerDeath(player) {
+	handlePlayerDeath(player) { // handles a single player death
 		// called when a player dies, adding score to 'killedBy' and remove the dead player from leaderboard
 		// this function will not remove the player itself
 		const killedByInfo = player.hurtByInfo;
@@ -139,7 +139,7 @@ class Game {
 		console.log(`${player.username} is dead!`);
 	}
 
-	handlePetalDeaths(player) {
+	handlePetalDeaths(player) { // make dead petals in cooldown
 		player.petals.forEach(petal => {
 			if ( petal.hp <= 0 ) {
 				player.inCooldown[petal.id] = true;
@@ -158,7 +158,7 @@ class Game {
 		});
 	}
 
-	handlePlayerDeaths() {
+	handlePlayerDeaths() { // handle mutiple player death
 		Object.keys(this.sockets).forEach(playerID => { // handle player deaths
 			const player = this.players[playerID];
 			this.handlePetalDeaths(player);
@@ -177,7 +177,7 @@ class Game {
 		})
 	}
 
-	handleMobDeaths() {
+	handleMobDeaths() { // remove dead mobs
 		Object.keys(this.mobs).forEach(mobID => {
 			const mob = this.mobs[mobID];
 			if ( mob.value.hp <= 0 ) {
@@ -210,15 +210,15 @@ class Game {
 		});
 	}
 
-	getChunkID(chunk) {
+	getChunkID(chunk) { // gets the ID of the chunk
 		return chunk.x * Constants.CHUNK_ID_CONSTANT + chunk.y;
 	}
 
-	updatePlayers(deltaT) {
-		Object.keys(this.sockets).forEach(playerID => { // updates the movement of each player
+	updatePlayers(deltaT) { // update players, their petals and the chunks they are in
+		Object.keys(this.sockets).forEach(playerID => {
 			const player = this.players[playerID];
-			const {playerChunks, petalsChunks} = player.update(deltaT);
-			if ( playerChunks ) {
+			const {playerChunks, petalsChunks} = player.update(deltaT); // update player ( and the player's petals )
+			if ( playerChunks ) { // update the players chunks
 				const chunksOld = playerChunks.chunksOld;
 				const chunksNew = playerChunks.chunksNew;
 				chunksOld.forEach(chunk => {
@@ -237,7 +237,7 @@ class Game {
 					}
 				});
 			}
-			if ( petalsChunks ) {
+			if ( petalsChunks ) { // update the player's petals' chunks
 				petalsChunks.forEach(petalChunks => {
 					if ( petalChunks.chunks ) {
 						const chunksOld = petalChunks.chunks.chunksOld;
@@ -266,7 +266,7 @@ class Game {
 		});
 	}
 
-	updateMobs(deltaT) {
+	updateMobs(deltaT) { // update mobs and chunks they are in
 		Object.values(this.mobs).forEach(mob => {
 			const chunks = mob.value.update(deltaT, mob.value.attributes);
 			if ( chunks ) {
@@ -292,7 +292,7 @@ class Game {
 		});
 	}
 
-	applyVelocity(deltaT) {
+	applyVelocity(deltaT) { // apply velocity to each entity
 		Object.values(this.mobs).forEach(mob => {
 			mob.value.applyVelocity(deltaT);
 		});
@@ -301,16 +301,16 @@ class Game {
 		})
 	}
 
-	rnd(x, y) {
+	rnd(x, y) { // returns a random number in range [x, y]
 		return ((Math.random() * y) + x);
 	}
 
-	getNewMobID() {
+	getNewMobID() { // get a new mob ID when a mob spawns
 		this.mobID ++;
 		return `mob-${this.mobID}`;
 	}
 
-	mobSpawn() {
+	mobSpawn() { // spawns mobs
 		if ( this.mobSpawnTimer >= Constants.MOB_SPAWN_INTERVAL ) {
 			this.mobSpawnTimer = 0;
 			while ( this.volumeTaken < Constants.MOB_VOLUME_LIMIT ) {
@@ -338,7 +338,7 @@ class Game {
 		}
 	}
 
-	handleCollisions(deltaT) {
+	handleCollisions(deltaT) { // handle collisions
 		Object.values(this.chunks).forEach(entitiesInChunk => {
 			const entityCount = entitiesInChunk.length;
 			if ( entityCount <= 1 ) {
@@ -453,7 +453,7 @@ class Game {
 		});
 	}
 
-	update() { // called every tick
+	update() { // updates the game every tick
 		const now = Date.now();
 		const deltaT = (now - this.lastUpdateTime) / 1000; // the length of the last tick
 
@@ -474,10 +474,11 @@ class Game {
 		this.mobSpawn();
 
 		this.sendUpdate();
+		
+		// console.log(`mspt: ${Date.now() - now}`); logs mspt to console
 	}
 
-	sendUpdate() {
-		// send updates to client
+	sendUpdate() { // send update to each client
 		Object.keys(this.sockets).forEach(playerID => {
 			const socket = this.sockets[playerID];
 			const player = this.players[playerID];
@@ -485,7 +486,7 @@ class Game {
 		});
 	}
 
-	createUpdate(player) { // send update to client
+	createUpdate(player) { // create the update and return to sendUpdate()
 		const nearbyPlayers = Object.values(this.players).filter(
 			p => {
 				return p !== player && p.distanceTo(player) <= Constants.NEARBY_DISTANCE;

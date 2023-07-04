@@ -18,7 +18,7 @@ module.exports = Object.freeze({
 		COLLISION_KNOCKBACK: 10,
 		TYPE: 'TWIN',
 		ATTRIBUTES: {
-			multiple_object: 2,
+			subpetals: 2,
 		}
 	}
 });
