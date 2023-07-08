@@ -6,6 +6,14 @@ class Mob extends Entity {
 		super(id, x, y, team, 'mob', type, EntityAttributes[type].MAX_HP, EntityAttributes[type].MAX_HP, noBorderCollision, friendlyCollisions)
 		this.attributes = EntityAttributes[type];
 	}
+	
+	updateChunks() {
+		return super.updateChunks(this.attributes);
+	}
+	
+	handleBorder(deltaT) {
+		super.handleBorder(deltaT, this.attributes.RADIUS);
+	}
 
 	serializeForUpdate() {
 		return {

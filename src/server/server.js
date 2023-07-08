@@ -17,7 +17,7 @@ if (process.env.NODE_ENV == "development") {
 	app.use(express.static('dist'));
 }
 
-const port = process.env.PORT || 2147;
+const port = process.env.PORT || 25565;
 const server = app.listen(port);
 console.log(`Server listening on port ${port}`);
 
@@ -34,8 +34,10 @@ io.on('connection', socket => {
 const game = new Game();
 
 function joinGame(username) {
-	console.log(`Player Joined Game with Username: ${username}`);
-	game.addPlayer(this, username);
+	if ( username.length <= 20 ) {
+		console.log(`Player Joined Game with Username: ${username}`);
+		game.addPlayer(this, username);
+	}
 }
 
 function handleInput(input) {
