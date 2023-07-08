@@ -31,18 +31,6 @@ class Player extends Entity {
 		this.petalType = ['BASIC', 'BASIC', 'BASIC', 'BASIC', 'BASIC',];
 		this.inCooldown = [false, false, false, false, false,];
 		this.activeDirection = 0;
-		this.activeMotionMagnitude = {
-			x: 0,
-			y: 0,
-		};
-		this.activeVelocity = {
-			x: 0,
-			y: 0,
-		};
-		this.activeAcceleration = {
-			x: 0,
-			y: 0,
-		};
 		this.attributes = Attribute;
 	}
 	
@@ -81,55 +69,14 @@ class Player extends Entity {
 		}
 	}
 
-	// getAccelerationMagnitude(magnitude, magnitudeCoe) { // calculate the accelertion magnitude in this.handleActiveMotion
-	// 	const accelerationMagnitude = magnitude * magnitudeCoe;
-	// 	return accelerationMagnitude;
-	// }
-
 	handleActiveMovement(activeMovement) { // handles active motion
 		this.movement = activeMovement;
+		this.activeDirection = activeMovement.direction;
 	}
 
-	handleBorder(deltaT) {
-		super.handleBorder(deltaT, this.attributes.RADIUS);
+	handleBorder() {
+		super.handleBorder(this.attributes.RADIUS);
 	}
-
-	// applyForces(deltaT) {
-	// 	// super.applyForces(deltaT, this.attributes.MASS);
-	// }
-
-	// applyMovement(deltaT) {
-	// 	// does nothing currently
-	// }
-
-	// updateActiveMovement(deltaT) {
-	// 	this.activeVelocity.x += this.activeAcceleration.x * deltaT;
-	// 	this.activeVelocity.y += this.activeAcceleration.y * deltaT;
-
-	// 	var activeVelocityX = this.activeVelocity.x;
-	// 	var activeVelocityY = this.activeVelocity.y;
-
-	// 	if ( Math.abs(activeVelocityX) > Math.abs(this.activeMotionMagnitude.x) ) {
-	// 		if ( Math.abs(activeVelocityX) * Constants.SPEED_ATTENUATION_COEFFICIENT <= Math.abs(this.activeMotionMagnitude.x) ) {
-	// 			activeVelocityX = this.activeMotionMagnitude.x;
-	// 		} else {
-	// 			activeVelocityX *= Constants.SPEED_ATTENUATION_COEFFICIENT;
-	// 		}
-	// 		this.activeVelocity.x = activeVelocityX;
-	// 	}
-
-	// 	if ( Math.abs(activeVelocityY) > Math.abs(this.activeMotionMagnitude.y) ) {
-	// 		if ( Math.abs(activeVelocityY) * Constants.SPEED_ATTENUATION_COEFFICIENT <= Math.abs(this.activeMotionMagnitude.y) ) {
-	// 			activeVelocityY = this.activeMotionMagnitude.y;
-	// 		} else {
-	// 			activeVelocityY *= Constants.SPEED_ATTENUATION_COEFFICIENT;
-	// 		}
-	// 		this.activeVelocity.y = activeVelocityY;
-	// 	}
-
-	// 	this.velocity.x += this.activeVelocity.x;
-	// 	this.velocity.y += this.activeVelocity.y;
-	// }
 
 	updateChunks() {
 		return super.updateChunks(this.attributes);
@@ -138,13 +85,6 @@ class Player extends Entity {
 	updateMovement(deltaT) {
 		this.updatePetalMovement(deltaT);
 	}
-
-	// update(deltaT) { // updates every tick
-	// 	this.updateActiveMovement(deltaT);
-	// 	const petalsChunks = this.updatePetals(deltaT);
-	// 	const playerChunks = super.update(deltaT, Attribute);
-	// 	return {playerChunks: playerChunks, petalsChunks: petalsChunks};
-	// }
 
 	applyVelocity(deltaT) {
 		super.applyVelocity(deltaT);

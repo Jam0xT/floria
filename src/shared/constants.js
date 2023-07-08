@@ -25,8 +25,8 @@ module.exports = Object.freeze({
 
 	LEADERBOARD_LENGTH: 10, // the leaderboard will display you and the top X players
 
-	MOB_VOLUME_LIMIT: 10000, // mobs won't spawn if the sum of volumes of all mobs alive >= X
-	MOB_SPAWN_INTERVAL: 60, // try to spawn mobs every X ticks
+	MOB_VOLUME_LIMIT: 1000, // mobs won't spawn if the sum of volumes of all mobs alive >= X
+	MOB_SPAWN_INTERVAL: 10, // try to spawn mobs every X ticks
 
 	CHUNK_SIZE: 200, // the size of each chunk
 	CHUNK_ID_CONSTANT: 114514, // help get the id of each chunk

@@ -18,6 +18,10 @@ class Entity {
 			x: 0,
 			y: 0,
 		};
+		this.constraintVelocity = {
+			x: 0,
+			y: 0,
+		}
 		this.chunks = [];
 		this.noBorderCollision = noBorderCollision;
 		this.friendlyCollisions = friendlyCollisions;
@@ -33,19 +37,19 @@ class Entity {
 		return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 	}
 	
-	handleBorder(deltaT, objectRadius) {
+	handleBorder(objectRadius) {
 		if ( this.x < objectRadius ){ // hit left border
-			this.velocity.x += (objectRadius - this.x) * Constants.PENETRATION_DEPTH_WEIGHT_IN_COLLISION / deltaT;
+			this.velocity.x = 0;
 			this.x = objectRadius;
 		} else if ( this.x > Constants.MAP_WIDTH - objectRadius ) { // hit right border
-			this.velocity.x -= (this.x + objectRadius - Constants.MAP_WIDTH) * Constants.PENETRATION_DEPTH_WEIGHT_IN_COLLISION / deltaT;
+			this.velocity.x = 0;
 			this.x = Constants.MAP_WIDTH - objectRadius;
 		}
 		if ( this.y < objectRadius ){ // hit top border
-			this.velocity.y -= (objectRadius - this.y) * Constants.PENETRATION_DEPTH_WEIGHT_IN_COLLISION / deltaT;
+			this.velocity.y = 0;
 			this.y = objectRadius;
 		} else if ( this.y > Constants.MAP_HEIGHT - objectRadius ) { // hit bottom border
-			this.velocity.y += (this.y + objectRadius - Constants.MAP_HEIGHT) * Constants.PENETRATION_DEPTH_WEIGHT_IN_COLLISION / deltaT;
+			this.velocity.y = 0;
 			this.y = Constants.MAP_HEIGHT - objectRadius;
 		}
 	}
@@ -62,6 +66,17 @@ class Entity {
 	applyVelocity(deltaT) {		
 		this.x += deltaT * this.velocity.x;
 		this.y -= deltaT * this.velocity.y;
+	}
+
+	applyConstraintVelocity(deltaT) {
+		this.x += this.constraintVelocity.x * deltaT;
+		this.y -= this.constraintVelocity.y * deltaT;
+		this.velocity.x += this.constraintVelocity.x;
+		this.velocity.y += this.constraintVelocity.y;
+		this.constraintVelocity = {
+			x: 0,
+			y: 0,
+		};
 	}
 
 	updateChunks(attribute) {

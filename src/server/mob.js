@@ -11,8 +11,8 @@ class Mob extends Entity {
 		return super.updateChunks(this.attributes);
 	}
 	
-	handleBorder(deltaT) {
-		super.handleBorder(deltaT, this.attributes.RADIUS);
+	handleBorder() {
+		super.handleBorder(this.attributes.RADIUS);
 	}
 
 	serializeForUpdate() {
