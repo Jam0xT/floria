@@ -75,9 +75,9 @@ class Game {
 
 	handleInput(socket, input) { // handle input from a player
 		if ( this.players[socket.id] ) {
-			this.players[socket.id].handleActiveMotion({
+			this.players[socket.id].handleActiveMovement({
 				direction: input.direction,
-				magnitude: input.magnitude * EntityAttributes.PLAYER.SPEED,
+				speed: input.magnitude * EntityAttributes.PLAYER.SPEED,
 			});
 		}
 	}
@@ -116,7 +116,7 @@ class Game {
 		this.leaderboard.splice(playerRank, 0, {score: playerScore, id: player.id, username: player.username});
 	}
 
-	handlePlayerDeath(player) {
+	handlePlayerDeath(player) { // handles a single player death
 		// called when a player dies, adding score to 'killedBy' and remove the dead player from leaderboard
 		// this function will not remove the player itself
 		const killedByInfo = player.hurtByInfo;
@@ -139,7 +139,7 @@ class Game {
 		console.log(`${player.username} is dead!`);
 	}
 
-	handlePetalDeaths(player) {
+	handlePetalDeaths(player) { // make dead petals in cooldown
 		player.petals.forEach(petal => {
 			if ( petal.hp <= 0 ) {
 				player.inCooldown[petal.id] = true;
@@ -158,7 +158,7 @@ class Game {
 		});
 	}
 
-	handlePlayerDeaths() {
+	handlePlayerDeaths() { // handle mutiple player death
 		Object.keys(this.sockets).forEach(playerID => { // handle player deaths
 			const player = this.players[playerID];
 			this.handlePetalDeaths(player);
@@ -177,7 +177,7 @@ class Game {
 		})
 	}
 
-	handleMobDeaths() {
+	handleMobDeaths() { // remove dead mobs
 		Object.keys(this.mobs).forEach(mobID => {
 			const mob = this.mobs[mobID];
 			if ( mob.value.hp <= 0 ) {
@@ -210,15 +210,278 @@ class Game {
 		});
 	}
 
-	getChunkID(chunk) {
+	getChunkID(chunk) { // gets the ID of the chunk
 		return chunk.x * Constants.CHUNK_ID_CONSTANT + chunk.y;
 	}
 
-	updatePlayers(deltaT) {
-		Object.keys(this.sockets).forEach(playerID => { // updates the movement of each player
+	applyForces(deltaT) {
+		Object.keys(this.sockets).forEach(playerID => {
 			const player = this.players[playerID];
-			const {playerChunks, petalsChunks} = player.update(deltaT);
-			if ( playerChunks ) {
+			player.applyForces(deltaT);
+		});
+		Object.values(this.mobs).forEach(mob => {
+			mob.value.applyForces(deltaT);
+		});
+	}
+
+	// updatePlayers(deltaT) { // update players, their petals and the chunks they are in
+	// 	Object.keys(this.sockets).forEach(playerID => {
+	// 		const player = this.players[playerID];
+	// 		const {playerChunks, petalsChunks} = player.update(deltaT); // update player ( and the player's petals )
+	// 		if ( playerChunks ) { // update the players chunks
+	// 			const chunksOld = playerChunks.chunksOld;
+	// 			const chunksNew = playerChunks.chunksNew;
+	// 			chunksOld.forEach(chunk => {
+	// 				if ( this.chunks[this.getChunkID(chunk)] ) {
+	// 					const idx = this.chunks[this.getChunkID(chunk)].findIndex((entityInChunk) => {
+	// 						return ( entityInChunk.type == 'player' ) && ( entityInChunk.id == playerID );
+	// 					});
+	// 					this.chunks[this.getChunkID(chunk)].splice(idx, 1);
+	// 				}
+	// 			});
+	// 			chunksNew.forEach(chunk => {
+	// 				if ( this.chunks[this.getChunkID(chunk)] ) {
+	// 					this.chunks[this.getChunkID(chunk)].push({type: 'player', id: playerID});
+	// 				} else {
+	// 					this.chunks[this.getChunkID(chunk)] = new Array({type: 'player', id: playerID});
+	// 				}
+	// 			});
+	// 		}
+	// 		if ( petalsChunks ) { // update the player's petals' chunks
+	// 			petalsChunks.forEach(petalChunks => {
+	// 				if ( petalChunks.chunks ) {
+	// 					const chunksOld = petalChunks.chunks.chunksOld;
+	// 					const chunksNew = petalChunks.chunks.chunksNew;
+	// 					const petalID = petalChunks.petalID;
+	// 					if ( !player.inCooldown[petalID] ) {
+	// 						chunksOld.forEach(chunk => {
+	// 							if ( this.chunks[this.getChunkID(chunk)] ) {
+	// 								const idx = this.chunks[this.getChunkID(chunk)].findIndex((entityInChunk) => {
+	// 									return ( entityInChunk.type == 'petal' ) && ( entityInChunk.id.playerID == playerID ) && ( entityInChunk.id.petalID == petalID );
+	// 								});
+	// 								this.chunks[this.getChunkID(chunk)].splice(idx, 1);
+	// 							}
+	// 						});
+	// 						chunksNew.forEach(chunk => {
+	// 							if ( this.chunks[this.getChunkID(chunk)] ) {
+	// 								this.chunks[this.getChunkID(chunk)].push({type: 'petal', id: {playerID: playerID, petalID: petalID}});
+	// 							} else {
+	// 								this.chunks[this.getChunkID(chunk)] = new Array({type: 'petal', id: {playerID: playerID, petalID: petalID}});
+	// 							}
+	// 						});
+	// 					}
+	// 				}
+	// 			});
+	// 		}
+	// 	});
+	// }
+
+	updateMovement() {
+		Object.values(this.mobs).forEach(mob => {
+			mob.value.updateMovement();
+		});
+	}
+
+	updateVelocity(deltaT) {
+		Object.keys(this.sockets).forEach(playerID => {
+			const player = this.players[playerID];
+			player.updateVelocity(deltaT);
+		});
+		Object.values(this.mobs).forEach(mob => {
+			mob.value.updateVelocity(deltaT);
+		});
+	}
+
+	applyVelocity(deltaT) { // apply velocity for each entity
+		Object.values(this.mobs).forEach(mob => {
+			mob.value.applyVelocity(deltaT);
+		});
+		Object.keys(this.sockets).forEach(playerID => {
+			this.players[playerID].applyVelocity(deltaT);
+		});
+	}
+
+	applyConstraintVelocity(deltaT) {
+		Object.values(this.mobs).forEach(mob => {
+			mob.value.applyConstraintVelocity(deltaT);
+		});
+		Object.keys(this.sockets).forEach(playerID => {
+			this.players[playerID].applyConstraintVelocity(deltaT);
+		})
+	}
+
+	rnd(x, y) { // returns a random number in range [x, y]
+		return ((Math.random() * y) + x);
+	}
+
+	getNewMobID() { // get a new mob ID when a mob spawns
+		this.mobID ++;
+		return `mob-${this.mobID}`;
+	}
+
+	mobSpawn() { // spawns mobs
+		if ( this.mobSpawnTimer <= 0 ) {
+			this.mobSpawnTimer = Constants.MOB_SPAWN_INTERVAL;
+			while ( this.volumeTaken < Constants.MOB_VOLUME_LIMIT ) {
+				const mobNumber = this.rnd(1, TOTAL_SPAWN_WEIGHT);
+				const currentMobNumber = 0;
+				Object.values(EntityAttributes).forEach(attribute => {
+					const weight = attribute.SPAWN_WEIGHT;
+					const volume = attribute.VOLUME;
+					if ( currentMobNumber < mobNumber && currentMobNumber + weight >= mobNumber ) {
+						this.volumeTaken += volume;
+						const spawnX = this.rnd(0, Constants.MAP_WIDTH);
+						const spawnY = this.rnd(0, Constants.MAP_HEIGHT);
+						if ( attribute.TYPE == 'BUBBLE' ) {
+							const newMobID = this.getNewMobID();
+							this.mobs[newMobID] = {
+								type: attribute.TYPE,
+								value: new Bubble(newMobID, spawnX, spawnY, 'mob-hostile'),
+							};
+						}
+					}
+				});
+			}
+		} else {
+			this.mobSpawnTimer --;
+		}
+	}
+
+	solveCollisions(deltaT) { // handle collisions
+		let collisions = [];
+		Object.values(this.chunks).forEach(entitiesInChunk => {
+			const entityCount = entitiesInChunk.length;
+			if ( entityCount <= 1 ) {
+				return ;
+			}
+			for (let i = 0; i < entityCount - 1; i++) {
+				for (let j = i + 1; j < entityCount; j++) {
+					const entityInfoA = entitiesInChunk[i];
+					const entityInfoB = entitiesInChunk[j];
+					let entityA, entityB;
+					if ( entityInfoA.type == 'player' ) {
+						entityA = this.players[entityInfoA.id];
+					} else if ( entityInfoA.type == 'mob' ) {
+						entityA = this.mobs[entityInfoA.id].value;
+					} else if ( entityInfoA.type == 'petal' ) {
+						if ( !this.players[entityInfoA.id.playerID] )
+							continue;
+						if ( this.players[entityInfoA.id.playerID].inCooldown[entityInfoA.id.petalID] )
+							continue;
+						entityA = this.players[entityInfoA.id.playerID].petals[entityInfoA.id.petalID];
+					}
+					if ( entityInfoB.type == 'player' ) {
+						entityB = this.players[entityInfoB.id];
+					} else if ( entityInfoB.type == 'mob' ) {
+						entityB = this.mobs[entityInfoB.id].value;
+					} else if ( entityInfoB.type == 'petal' ) {
+						if ( !this.players[entityInfoB.id.playerID] )
+							continue;
+						if ( this.players[entityInfoB.id.playerID].inCooldown[entityInfoB.id.petalID] )
+							continue;
+						entityB = this.players[entityInfoB.id.playerID].petals[entityInfoB.id.petalID];
+					}
+					if ( ( entityA.team != entityB.team ) || ( entityA.friendlyCollisions && entityB.friendlyCollisions ) ) {
+						const distance = entityA.distanceTo(entityB);
+						const r1 = entityA.attributes.RADIUS, r2 = entityB.attributes.RADIUS;
+						if ( distance < r1 + r2) {
+							collisions.push({
+								infoA: entityInfoA,
+								infoB: entityInfoB,
+							});
+						}
+					}
+				}
+			}
+		});
+		collisions = collisions.reduce((accumulator, cur) => {
+			if ( !accumulator.find((item) => {
+				return item.infoA.type == cur.infoA.type &&
+				item.infoA.id == cur.infoA.id &&
+				item.infoB.type == cur.infoB.type &&
+				item.infoB.id == cur.infoB.id
+			}) ) {
+				accumulator.push(cur);
+			}
+			return accumulator;
+		}, []);
+		for (let i = 0; i < collisions.length; i ++ ) {
+			const collision = collisions[i];
+			const entityInfoA = collision.infoA, entityInfoB = collision.infoB;
+			let entityA, entityB;
+			if ( entityInfoA.type == 'player' ) {
+				entityA = this.players[entityInfoA.id];
+			} else if ( entityInfoA.type == 'mob' ) {
+				entityA = this.mobs[entityInfoA.id].value;
+			} else if ( entityInfoA.type == 'petal' ) {
+				if ( !this.players[entityInfoA.id.playerID] )
+					continue;
+				if ( this.players[entityInfoA.id.playerID].inCooldown[entityInfoA.id.petalID] )
+					continue;
+				entityA = this.players[entityInfoA.id.playerID].petals[entityInfoA.id.petalID];
+			}
+			if ( entityInfoB.type == 'player' ) {
+				entityB = this.players[entityInfoB.id];
+			} else if ( entityInfoB.type == 'mob' ) {
+				entityB = this.mobs[entityInfoB.id].value;
+			} else if ( entityInfoB.type == 'petal' ) {
+				if ( !this.players[entityInfoB.id.playerID] )
+					continue;
+				if ( this.players[entityInfoB.id.playerID].inCooldown[entityInfoB.id.petalID] )
+					continue;
+				entityB = this.players[entityInfoB.id.playerID].petals[entityInfoB.id.petalID];
+			}
+			const distance = entityA.distanceTo(entityB);
+			const r1 = entityA.attributes.RADIUS, r2 = entityB.attributes.RADIUS;
+			const depth = r1 + r2 - distance;
+			const mA = entityA.attributes.MASS, mB = entityB.attributes.MASS;
+			const theta2 = Math.atan2(entityA.x - entityB.x, entityB.y - entityA.y); // orientation of A relative to B
+			const theta1 = theta2 - Math.PI; // orientation of B relative to A
+			const vA = {
+				direction: Math.atan2(entityA.velocity.x, entityA.velocity.y),
+				magnitude: Math.sqrt(entityA.velocity.x ** 2, entityA.velocity.y ** 2),
+			};
+			const vB = {
+				direction: Math.atan2(entityB.velocity.x, entityB.velocity.y),
+				magnitude: Math.sqrt(entityB.velocity.x ** 2, entityB.velocity.y ** 2),
+			};
+			const va = vA.magnitude * Math.cos(theta1 - vA.direction);
+			const vb = vB.magnitude * Math.cos(theta2 - vB.direction);
+			const velocityWeightInCollision = Constants.VELOCITY_WEIGHT_IN_COLLISION;
+			const penetrationDepthWeightInCollision = Constants.PENETRATION_DEPTH_WEIGHT_IN_COLLISION;
+			const baseKnockback = Constants.BASE_KNOCKBACK;
+			if ( va > 0 ) {
+				entityA.constraintVelocity.x += va * Math.sin(theta2) * velocityWeightInCollision;
+				entityA.constraintVelocity.y += va * Math.cos(theta2) * velocityWeightInCollision;
+			}
+			if ( vb > 0 ) {
+				entityB.constraintVelocity.x += vb * Math.sin(theta1) * velocityWeightInCollision;
+				entityB.constraintVelocity.y += vb * Math.cos(theta1) * velocityWeightInCollision;
+			}
+			const velA = depth * penetrationDepthWeightInCollision * mB / (mA + mB);
+			const velB = depth * penetrationDepthWeightInCollision * mA / (mA + mB);
+			entityA.constraintVelocity.x += velA * Math.sin(theta2) / deltaT;
+			entityA.constraintVelocity.y += velA * Math.cos(theta2) / deltaT;
+			entityB.constraintVelocity.x += velB * Math.sin(theta1) / deltaT;
+			entityB.constraintVelocity.y += velB * Math.cos(theta1) / deltaT;
+			const knockbackA = baseKnockback * mB / (mA + mB) + entityB.attributes.EXTRA_KNOCKBACK / mA;
+			const knockbackB = baseKnockback * mA / (mA + mB) + entityA.attributes.EXTRA_KNOCKBACK / mB;
+			entityA.constraintVelocity.x += knockbackA * Math.sin(theta2);
+			entityA.constraintVelocity.y += knockbackA * Math.cos(theta2);
+			entityB.constraintVelocity.x += knockbackB * Math.sin(theta1);
+			entityB.constraintVelocity.y += knockbackB * Math.cos(theta1);
+			entityA.hp -= entityB.attributes.DAMAGE;
+			entityB.hp -= entityA.attributes.DAMAGE;
+			entityA.hurtByInfo = entityInfoB;
+			entityB.hurtByInfo = entityInfoA;
+		}
+	}
+
+	updateChunks() {
+		Object.keys(this.sockets).forEach(playerID => {
+			const player = this.players[playerID];
+			const playerChunks = player.updateChunks(); // update player ( and the player's petals )
+			if ( playerChunks ) { // update the players chunks
 				const chunksOld = playerChunks.chunksOld;
 				const chunksNew = playerChunks.chunksNew;
 				chunksOld.forEach(chunk => {
@@ -237,38 +500,9 @@ class Game {
 					}
 				});
 			}
-			if ( petalsChunks ) {
-				petalsChunks.forEach(petalChunks => {
-					if ( petalChunks.chunks ) {
-						const chunksOld = petalChunks.chunks.chunksOld;
-						const chunksNew = petalChunks.chunks.chunksNew;
-						const petalID = petalChunks.petalID;
-						if ( !player.inCooldown[petalID] ) {
-							chunksOld.forEach(chunk => {
-								if ( this.chunks[this.getChunkID(chunk)] ) {
-									const idx = this.chunks[this.getChunkID(chunk)].findIndex((entityInChunk) => {
-										return ( entityInChunk.type == 'petal' ) && ( entityInChunk.id.playerID == playerID ) && ( entityInChunk.id.petalID == petalID );
-									});
-									this.chunks[this.getChunkID(chunk)].splice(idx, 1);
-								}
-							});
-							chunksNew.forEach(chunk => {
-								if ( this.chunks[this.getChunkID(chunk)] ) {
-									this.chunks[this.getChunkID(chunk)].push({type: 'petal', id: {playerID: playerID, petalID: petalID}});
-								} else {
-									this.chunks[this.getChunkID(chunk)] = new Array({type: 'petal', id: {playerID: playerID, petalID: petalID}});
-								}
-							});
-						}
-					}
-				});
-			}
 		});
-	}
-
-	updateMobs(deltaT) {
 		Object.values(this.mobs).forEach(mob => {
-			const chunks = mob.value.update(deltaT, mob.value.attributes);
+			const chunks = mob.value.updateChunks();
 			if ( chunks ) {
 				const chunksOld = chunks.chunksOld;
 				const chunksNew = chunks.chunksNew;
@@ -292,180 +526,35 @@ class Game {
 		});
 	}
 
-	applyVelocity(deltaT) {
-		Object.values(this.mobs).forEach(mob => {
-			mob.value.applyVelocity(deltaT);
-		});
+	handleBorder(deltaT) {
 		Object.keys(this.sockets).forEach(playerID => {
-			this.players[playerID].applyVelocity(deltaT);
-		})
-	}
-
-	rnd(x, y) {
-		return ((Math.random() * y) + x);
-	}
-
-	getNewMobID() {
-		this.mobID ++;
-		return `mob-${this.mobID}`;
-	}
-
-	mobSpawn() {
-		if ( this.mobSpawnTimer >= Constants.MOB_SPAWN_INTERVAL ) {
-			this.mobSpawnTimer = 0;
-			while ( this.volumeTaken < Constants.MOB_VOLUME_LIMIT ) {
-				const mobNumber = this.rnd(1, TOTAL_SPAWN_WEIGHT);
-				const currentMobNumber = 0;
-				Object.values(EntityAttributes).forEach(attribute => {
-					const weight = attribute.SPAWN_WEIGHT;
-					const volume = attribute.VOLUME;
-					if ( currentMobNumber < mobNumber && currentMobNumber + weight >= mobNumber ) {
-						this.volumeTaken += volume;
-						const spawnX = this.rnd(0, Constants.MAP_WIDTH);
-						const spawnY = this.rnd(0, Constants.MAP_HEIGHT);
-						if ( attribute.TYPE == 'BUBBLE' ) {
-							const newMobID = this.getNewMobID();
-							this.mobs[newMobID] = {
-								type: attribute.TYPE,
-								value: new Bubble(newMobID, spawnX, spawnY, 'mob-hostile'),
-							};
-						}
-					}
-				});
-			}
-		} else {
-			this.mobSpawnTimer ++;
-		}
-	}
-
-	handleCollisions(deltaT) {
-		Object.values(this.chunks).forEach(entitiesInChunk => {
-			const entityCount = entitiesInChunk.length;
-			if ( entityCount <= 1 ) {
-				return ;
-			}
-			for (let i = 0; i < entityCount - 1; i++) {
-				for (let j = i + 1; j < entityCount; j++) {
-					const entityInfoA = entitiesInChunk[i];
-					const entityInfoB = entitiesInChunk[j];
-					var entityA, entityB;
-					if ( entityInfoA.type == 'player' ) {
-						entityA = this.players[entityInfoA.id];
-					} else if ( entityInfoA.type == 'mob' ) {
-						entityA = this.mobs[entityInfoB.id].value;
-					} else if ( entityInfoA.type == 'petal' ) {
-						if ( !this.players[entityInfoA.id.playerID] )
-							continue;
-						if ( this.players[entityInfoA.id.playerID].inCooldown[entityInfoA.id.petalID] )
-							continue;
-						entityA = this.players[entityInfoA.id.playerID].petals[entityInfoA.id.petalID];
-					}
-					if ( entityInfoB.type == 'player' ) {
-						entityB = this.players[entityInfoB.id];
-					} else if ( entityInfoB.type == 'mob' ) {
-						entityB = this.mobs[entityInfoB.id].value;
-					} else if ( entityInfoB.type == 'petal' ) {
-						if ( !this.players[entityInfoB.id.playerID] )
-							continue;
-						if ( this.players[entityInfoB.id.playerID].inCooldown[entityInfoB.id.petalID] )
-							continue;
-						entityB = this.players[entityInfoB.id.playerID].petals[entityInfoB.id.petalID];
-					}
-					if ( ( entityA.team != entityB.team ) || ( entityA.friendlyCollisions && entityB.friendlyCollisions ) ) {
-						const distance = entityA.distanceTo(entityB);
-						const r1 = entityA.attributes.RADIUS, r2 = entityB.attributes.RADIUS;
-						if ( distance <= r1 + r2 ) {
-							const v1 = entityA.v, v2 = entityB.v;
-							const theta2 = Math.atan2(entityA.x - entityB.x, entityB.y - entityA.y);
-							const theta1 = theta2 - Math.PI;
-							const gamma1 = Math.atan2(v1.x, v1.y), gamma2 = Math.atan2(v2.x, v2.y);
-							var v3M = Math.sqrt(v1.x ** 2 + v1.y ** 2) * Math.cos(gamma1 - theta1);
-							var v4M = Math.sqrt(v2.x ** 2 + v2.y ** 2) * Math.cos(gamma2 - theta2);
-							var v3 = {
-								x: v3M * Math.sin(theta1),
-								y: v3M * Math.cos(theta1),
-							}, v4 = {
-								x: v4M * Math.sin(theta2),
-								y: v4M * Math.cos(theta2),
-							}
-							const m1 = entityA.attributes.MASS, m2 = entityB.attributes.MASS;
-							if ( v3M <= 0 && v4M <= 0 ) {
-								continue;
-							} else if ( v3M <= 0 ) {
-								if ( v4M > -v3M ) {
-									v4M += v3M;
-									v3M = 0;
-									v4 = {
-										x: v4M * Math.sin(theta2),
-										y: v4M * Math.cos(theta2),
-									};
-									v3 = {
-										x: 0,
-										y: 0,
-									};
-								} else {
-									continue;
-								}
-							} else if ( v4M <= 0 ) {
-								if ( v3M > -v4M ) {
-									v3M += v4M;
-									v4M = 0;
-									v3 = {
-										x: v3M * Math.sin(theta1),
-										y: v3M * Math.cos(theta1),
-									};
-									v4 = {
-										x: 0,
-										y: 0,
-									};
-								} else {
-									continue;
-								}
-							}
-							const e1 = m1 * v3M * v3M, e2 = m2 * v4M * v4M;
-							var direction, magnitude;
-							if ( e1 >= e2 ) {
-								direction = theta1;
-							} else {
-								direction = theta2;
-							}
-							magnitude = Math.sqrt(Math.abs(e1 - e2) / (m1 + m2));
-							const vTot = {
-								x: magnitude * Math.sin(direction),
-								y: magnitude * Math.cos(direction),
-							};
-							entityA.velocity.x += vTot.x - v3.x;
-							entityA.velocity.y += vTot.y - v3.y;
-							entityB.velocity.x += vTot.x - v4.x;
-							entityB.velocity.y += vTot.y - v4.y;
-							const deltaD = r1 + r2 - distance;
-							// console.log(deltaD);
-							entityA.velocity.x += deltaD * Math.sin(theta2) / deltaT;
-							entityA.velocity.y += deltaD * Math.cos(theta2) / deltaT;
-							entityA.hp -= entityB.attributes.DAMAGE;
-							entityB.hp -= entityA.attributes.DAMAGE;
-							entityA.hurtByInfo = entityInfoB;
-							entityB.hurtByInfo = entityInfoA;
-						}
-					}
-				}
-			}
+			const player = this.players[playerID];
+			player.handleBorder();
+		});
+		Object.values(this.mobs).forEach(mob => {
+			mob.value.handleBorder();
 		});
 	}
 
-	update() { // called every tick
+	update() { // updates the game every tick
 		const now = Date.now();
 		const deltaT = (now - this.lastUpdateTime) / 1000; // the length of the last tick
 
 		this.lastUpdateTime = now;
 
-		this.updatePlayers(deltaT);
+		this.updateMovement();
 
-		this.updateMobs(deltaT);
-
-		this.handleCollisions(deltaT);
+		this.updateVelocity(deltaT);
 
 		this.applyVelocity(deltaT);
+
+		this.updateChunks();
+
+		this.solveCollisions(deltaT);
+
+		this.applyConstraintVelocity(deltaT);
+
+		this.handleBorder();
 
 		this.handleMobDeaths();
 
@@ -474,10 +563,13 @@ class Game {
 		this.mobSpawn();
 
 		this.sendUpdate();
+
+		// console.log(Object.values(this.players));
+		
+		// console.log(`mspt: ${Date.now() - now}`);
 	}
 
-	sendUpdate() {
-		// send updates to client
+	sendUpdate() { // send update to each client
 		Object.keys(this.sockets).forEach(playerID => {
 			const socket = this.sockets[playerID];
 			const player = this.players[playerID];
@@ -485,7 +577,7 @@ class Game {
 		});
 	}
 
-	createUpdate(player) { // send update to client
+	createUpdate(player) { // create the update and return to sendUpdate()
 		const nearbyPlayers = Object.values(this.players).filter(
 			p => {
 				return p !== player && p.distanceTo(player) <= Constants.NEARBY_DISTANCE;

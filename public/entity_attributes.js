@@ -1,12 +1,12 @@
 module.exports = Object.freeze({
 	// an entity with bigger mass will receive less knockback
 	PLAYER: {
-		MASS: 500,
-		SPEED: 225,
+		MASS: 100,
+		SPEED: 100,
 		RADIUS: 22.5,
-		MAX_HP_BASE: 15000,
+		MAX_HP_BASE: 150,
 		DAMAGE: 25,
-		COLLISION_KNOCKBACK: 0,
+		EXTRA_KNOCKBACK: 0,
 		VALUE: 100,
 		EXPERIENCE: 10,
 		SPAWN_WEIGHT: 0,
@@ -14,12 +14,12 @@ module.exports = Object.freeze({
 		TYPE: 'PLAYER',
 	},
 	BUBBLE: {
-		MASS: 1000,
+		MASS: 10000,
 		SPEED: 0,
-		RADIUS: 120,
-		MAX_HP: 50000,
+		RADIUS: 100,
+		MAX_HP: 200,
 		DAMAGE: 5,
-		COLLISION_KNOCKBACK: 0,
+		EXTRA_KNOCKBACK: 0,
 		VALUE: 10,
 		EXPERIENCE: 10,
 		SPAWN_WEIGHT: 100,

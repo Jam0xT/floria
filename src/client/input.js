@@ -1,5 +1,4 @@
 import { sendInput } from './networking';
-const EntityAttributes = require('../../public/entity_attributes');
 
 var keyDown = {
 	'w': false,

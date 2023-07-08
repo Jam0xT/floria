@@ -28,47 +28,39 @@ class Player extends Entity {
 			new PetalBasic(3, x, y, {x: x, y: y}, id),
 			new PetalBasic(4, x, y, {x: x, y: y}, id),
 		];
-		this.petalType = ['BASIC', 'BASIC', 'BASIC', 'BASIC', 'BASIC',]
+		this.petalType = ['BASIC', 'BASIC', 'BASIC', 'BASIC', 'BASIC',];
 		this.inCooldown = [false, false, false, false, false,];
 		this.activeDirection = 0;
-		this.activeMotionMagnitude = {
-			x: 0,
-			y: 0,
-		};
-		this.activeVelocity = {
-			x: 0,
-			y: 0,
-		};
-		this.activeAcceleration = {
-			x: 0,
-			y: 0,
-		};
 		this.attributes = Attribute;
 	}
 	
-	updatePetals(deltaT) {
-		this.firstPetalDirection -= this.rotateClockwise * this.rotationSpeed * deltaT;
-		if ( this.firstPetalDirection > 2 * Math.PI ) {
-			this.firstPetalDirection -= 2 * Math.PI;
-		}
-		if ( this.firstPetalDirection < - 2 * Math.PI ) {
-			this.firstPetalDirection += 2 * Math.PI;
-		}
-		const petalsChunks = [];
-		for ( var petalID = 0; petalID < this.slotCount; petalID ++ ) {
-			if ( !this.inCooldown[petalID] ) {
-				const petal = this.petals[petalID];
-				petal.rotateAndFollow(this.petalExpandRadius, this.firstPetalDirection + 2 * Math.PI * petal.id / this.petalObjectCount, {x: this.x, y: this.y});
-				petalsChunks.push({chunks: petal.update(deltaT), petalID: petal.id});
-			} else {
-				this.petals[petalID] -= deltaT;
-				if ( this.petals[petalID] <= 0 ) {
-					this.inCooldown[petalID] = false;
-					this.petals[petalID] = this.newPetal(this.petalType[petalID], petalID);
-				}
-			}
-		}
-		return petalsChunks;
+	// updatePetals(deltaT) {
+	// 	this.firstPetalDirection -= this.rotateClockwise * this.rotationSpeed * deltaT;
+	// 	if ( this.firstPetalDirection > 2 * Math.PI ) {
+	// 		this.firstPetalDirection -= 2 * Math.PI;
+	// 	}
+	// 	if ( this.firstPetalDirection < - 2 * Math.PI ) {
+	// 		this.firstPetalDirection += 2 * Math.PI;
+	// 	}
+	// 	const petalsChunks = [];
+	// 	for ( var petalID = 0; petalID < this.slotCount; petalID ++ ) {
+	// 		if ( !this.inCooldown[petalID] ) {
+	// 			const petal = this.petals[petalID];
+	// 			petal.rotateAndFollow(this.petalExpandRadius, this.firstPetalDirection + 2 * Math.PI * petal.id / this.petalObjectCount, {x: this.x, y: this.y});
+	// 			petalsChunks.push({chunks: petal.update(deltaT), petalID: petal.id});
+	// 		} else {
+	// 			this.petals[petalID] -= deltaT;
+	// 			if ( this.petals[petalID] <= 0 ) {
+	// 				this.inCooldown[petalID] = false;
+	// 				this.petals[petalID] = this.newPetal(this.petalType[petalID], petalID);
+	// 			}
+	// 		}
+	// 	}
+	// 	return petalsChunks;
+	// }
+
+	updatePetalMovement(deltaT) {
+		
 	}
 
 	newPetal(type, petalID) {
@@ -77,66 +69,21 @@ class Player extends Entity {
 		}
 	}
 
-	getAccelerationMagnitude(magnitude, magnitudeCoe) { // calculate the accelertion magnitude in this.handleActiveMotion
-		const accelerationMagnitude = magnitude * magnitudeCoe;
-		return accelerationMagnitude;
+	handleActiveMovement(activeMovement) { // handles active motion
+		this.movement = activeMovement;
+		this.activeDirection = activeMovement.direction;
 	}
 
-	handleActiveMotion(activeMotion) { // handles active motion
-		const direction = activeMotion.direction;
-		const magnitude = activeMotion.magnitude;
-
-		this.activeMotionMagnitude = {
-			x: magnitude * Math.sin(direction),
-			y: magnitude * Math.cos(direction),
-		};
-		this.activeDirection = direction;
-
-		const accelerationMagnitude = this.getAccelerationMagnitude(magnitude, 5);
-
-		const accelerationMagnitudeX = accelerationMagnitude * Math.sin(direction);
-		const accelerationMagnitudeY = accelerationMagnitude * Math.cos(direction);
-
-		this.activeAcceleration = {
-			x: accelerationMagnitudeX,
-			y: accelerationMagnitudeY,
-		}
+	handleBorder() {
+		super.handleBorder(this.attributes.RADIUS);
 	}
 
-	updateActiveMovement(deltaT) {
-		this.activeVelocity.x += this.activeAcceleration.x * deltaT;
-		this.activeVelocity.y += this.activeAcceleration.y * deltaT;
-
-		var activeVelocityX = this.activeVelocity.x;
-		var activeVelocityY = this.activeVelocity.y;
-
-		if ( Math.abs(activeVelocityX) > Math.abs(this.activeMotionMagnitude.x) ) {
-			if ( Math.abs(activeVelocityX) * Constants.SPEED_ATTENUATION_COEFFICIENT <= Math.abs(this.activeMotionMagnitude.x) ) {
-				activeVelocityX = this.activeMotionMagnitude.x;
-			} else {
-				activeVelocityX *= Constants.SPEED_ATTENUATION_COEFFICIENT;
-			}
-			this.activeVelocity.x = activeVelocityX;
-		}
-
-		if ( Math.abs(activeVelocityY) > Math.abs(this.activeMotionMagnitude.y) ) {
-			if ( Math.abs(activeVelocityY) * Constants.SPEED_ATTENUATION_COEFFICIENT <= Math.abs(this.activeMotionMagnitude.y) ) {
-				activeVelocityY = this.activeMotionMagnitude.y;
-			} else {
-				activeVelocityY *= Constants.SPEED_ATTENUATION_COEFFICIENT;
-			}
-			this.activeVelocity.y = activeVelocityY;
-		}
-
-		this.velocity.x += this.activeVelocity.x;
-		this.velocity.y += this.activeVelocity.y;
+	updateChunks() {
+		return super.updateChunks(this.attributes);
 	}
  
-	update(deltaT) { // updates every tick
-		this.updateActiveMovement(deltaT);
-		const petalsChunks = this.updatePetals(deltaT);
-		const playerChunks = super.update(deltaT, Attribute);
-		return {playerChunks: playerChunks, petalsChunks: petalsChunks};
+	updateMovement(deltaT) {
+		this.updatePetalMovement(deltaT);
 	}
 
 	applyVelocity(deltaT) {

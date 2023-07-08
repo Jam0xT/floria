@@ -14,18 +14,21 @@ class Entity {
 			type: -1,
 			id: -1,
 		};
-		this.v = {
-			x: 0,
-			y: 0,
-		};
 		this.velocity = {
 			x: 0,
 			y: 0,
 		};
-		this.passiveVelocity = [];
+		this.constraintVelocity = {
+			x: 0,
+			y: 0,
+		}
 		this.chunks = [];
 		this.noBorderCollision = noBorderCollision;
 		this.friendlyCollisions = friendlyCollisions;
+		this.movement = {
+			direction: 0,
+			speed: 0,
+		};
 	}
 
 	distanceTo(object) {
@@ -34,54 +37,49 @@ class Entity {
 		return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 	}
 	
-	handleBorder(deltaT, objectRadius) {
+	handleBorder(objectRadius) {
 		if ( this.x < objectRadius ){ // hit left border
-			this.velocity.x += (objectRadius - this.x) / deltaT;
+			this.velocity.x = 0;
 			this.x = objectRadius;
 		} else if ( this.x > Constants.MAP_WIDTH - objectRadius ) { // hit right border
-			this.velocity.x -= (this.x + objectRadius - Constants.MAP_WIDTH) / deltaT;
+			this.velocity.x = 0;
 			this.x = Constants.MAP_WIDTH - objectRadius;
 		}
 		if ( this.y < objectRadius ){ // hit top border
-			this.velocity.y -= (objectRadius - this.y) / deltaT;
+			this.velocity.y = 0;
 			this.y = objectRadius;
 		} else if ( this.y > Constants.MAP_HEIGHT - objectRadius ) { // hit bottom border
-			this.velocity.y += (this.y + objectRadius - Constants.MAP_HEIGHT) / deltaT;
-			this.y = Constants.MAP_WIDTH - objectRadius;
+			this.velocity.y = 0;
+			this.y = Constants.MAP_HEIGHT - objectRadius;
 		}
 	}
 
-	update(deltaT, attribute) { // called every tick in game.js
-		for( let i = 0; i < this.passiveVelocity.length; i ++) {
-			const velocity = this.passiveVelocity[i];
-			const velocityX = velocity.x;
-			const velocityY = velocity.y;
-			var magnitude = Math.sqrt(velocityX * velocityX + velocityY * velocityY);
-			const direction = Math.atan2(velocityX, velocityY);
+	updateVelocity(deltaT) {
+		this.velocity.x *= Constants.SPEED_ATTENUATION_COEFFICIENT;
+		this.velocity.y *= Constants.SPEED_ATTENUATION_COEFFICIENT;
+		const speedX = this.movement.speed * deltaT * 20 * Math.sin(this.movement.direction);
+		const speedY = this.movement.speed * deltaT * 20 * Math.cos(this.movement.direction);
+		this.velocity.x += speedX;
+		this.velocity.y += speedY;
+	}
 
-			if ( magnitude * Constants.SPEED_ATTENUATION_COEFFICIENT <= Constants.SPEED_ATTENUATION_BIAS) {
-				this.passiveVelocity.splice(i, 1);
-				i --;
-			} else {
-				magnitude *= Constants.SPEED_ATTENUATION_COEFFICIENT;
-				this.passiveVelocity[i] = {
-					x: magnitude * Math.sin(direction),
-					y: magnitude * Math.cos(direction),
-				};
-			}
-		}
+	applyVelocity(deltaT) {		
+		this.x += deltaT * this.velocity.x;
+		this.y -= deltaT * this.velocity.y;
+	}
 
-		this.passiveVelocity.forEach(velocity => {
-			this.velocity.x += velocity.x;
-			this.velocity.y += velocity.y;
-		});
+	applyConstraintVelocity(deltaT) {
+		this.x += this.constraintVelocity.x * deltaT;
+		this.y -= this.constraintVelocity.y * deltaT;
+		this.velocity.x += this.constraintVelocity.x;
+		this.velocity.y += this.constraintVelocity.y;
+		this.constraintVelocity = {
+			x: 0,
+			y: 0,
+		};
+	}
 
-		if ( this.noBorderCollision == false ) {
-			this.handleBorder(deltaT, attribute.RADIUS);
-		}
-
-		this.v = this.velocity;
-
+	updateChunks(attribute) {
 		const chunksNew = [];
 
 		const chunkRadius = Math.ceil(attribute.RADIUS / Constants.CHUNK_SIZE + 1);
@@ -170,16 +168,6 @@ class Entity {
 		}
 	}
 
-	applyVelocity(deltaT) {		
-		this.x += deltaT * this.velocity.x;
-		this.y -= deltaT * this.velocity.y;
-		
-		this.velocity = {
-			x: 0,
-			y: 0,
-		};
-	}
-
 	isSameArray(array1, array2) {
 		if ( array1.length != array2.length ) {
 			return false;
@@ -192,18 +180,18 @@ class Entity {
 		}
 	}
 	
-	handlePassiveMotion(passiveMotion) { // handls passive motion
-		const direction = passiveMotion.direction;
-		const magnitude = passiveMotion.magnitude;
+	// handlePassiveMotion(passiveMotion) { // handls passive motion
+	// 	const direction = passiveMotion.direction;
+	// 	const magnitude = passiveMotion.magnitude;
 		
-		const magnitudeX = magnitude * Math.sin(direction);
-		const magnitudeY = magnitude * Math.cos(direction);
+	// 	const magnitudeX = magnitude * Math.sin(direction);
+	// 	const magnitudeY = magnitude * Math.cos(direction);
 
-		this.passiveVelocity.push({
-			x: magnitudeX,
-			y: magnitudeY,
-		});
-	}
+	// 	this.passiveVelocity.push({
+	// 		x: magnitudeX,
+	// 		y: magnitudeY,
+	// 	});
+	// }
 
 	serializeForUpdate() { // get necessary data and send to client
 		return {
@@ -216,11 +204,13 @@ class Entity {
 	}
 
 	getChunksForUpdate() {
-		var chunksForUpdate = '[';
+		var chunksForUpdate = [];
 		this.chunks.forEach(chunk => {
-			chunksForUpdate += `{x: ${chunk.x}, y: ${chunk.y}},`
+			chunksForUpdate.push({
+				x: chunk.x,
+				y: chunk.y,
+			});
 		});
-		chunksForUpdate += ']';
 		return chunksForUpdate;
 	}
 }

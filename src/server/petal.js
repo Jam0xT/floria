@@ -20,63 +20,67 @@ class Petal extends Entity {
 		this.attributes = PetalAttributes[type];
 	}
 
-	update(deltaT) {
-		const activeVelocityX = this.rotationVelocity.x + this.followVelocity.x * deltaT;
-		const activeVelocityY = this.rotationVelocity.y + this.followVelocity.y * deltaT;
-		var activeVelocity = {
-			magnitude: Math.sqrt(activeVelocityX ** 2 + activeVelocityY ** 2),
-			direction: Math.atan2(activeVelocityX, activeVelocityY),
-		}
-		if ( activeVelocity.magnitude > Constants.PETAL_SPEED_LIMIT ) {
-			activeVelocity.magnitude = Constants.PETAL_SPEED_LIMIT;
-		}
-		this.velocity.x += ( activeVelocity.magnitude * Math.sin(activeVelocity.direction) ) / deltaT;
-		this.velocity.y -= ( activeVelocity.magnitude * Math.cos(activeVelocity.direction) ) / deltaT;
-		return super.update(deltaT, this.attributes);
+	updateMovement(deltaT) {
+
 	}
 
-	rotateAndFollow(targetRadius, targetDirection, parentCenter) {
-		const position = {
-			x: this.radius * Math.sin(this.direction),
-			y: this.radius * Math.cos(this.direction),
-		};
+	// update(deltaT) {
+	// 	const activeVelocityX = this.rotationVelocity.x + this.followVelocity.x * deltaT;
+	// 	const activeVelocityY = this.rotationVelocity.y + this.followVelocity.y * deltaT;
+	// 	var activeVelocity = {
+	// 		magnitude: Math.sqrt(activeVelocityX ** 2 + activeVelocityY ** 2),
+	// 		direction: Math.atan2(activeVelocityX, activeVelocityY),
+	// 	}
+	// 	if ( activeVelocity.magnitude > Constants.PETAL_SPEED_LIMIT ) {
+	// 		activeVelocity.magnitude = Constants.PETAL_SPEED_LIMIT;
+	// 	}
+	// 	this.velocity.x += ( activeVelocity.magnitude * Math.sin(activeVelocity.direction) ) / deltaT;
+	// 	this.velocity.y -= ( activeVelocity.magnitude * Math.cos(activeVelocity.direction) ) / deltaT;
+	// 	return super.update(deltaT, this.attributes);
+	// }
 
-		this.absoluteCenter = {
-			x: this.x - position.x,
-			y: this.y - position.y,
-		}
+	// rotateAndFollow(targetRadius, targetDirection, parentCenter) {
+	// 	const position = {
+	// 		x: this.radius * Math.sin(this.direction),
+	// 		y: this.radius * Math.cos(this.direction),
+	// 	};
 
-		if ( this.radius < targetRadius ) {
-			if ( this.radius + 25 >= targetRadius ) {
-				this.radius = targetRadius;
-			} else {
-				this.radius += 25;
-			}
-		} else if ( this.radius > targetRadius ) {
-			if ( this.radius - 25 <= targetRadius ) {
-				this.radius = targetRadius;
-			} else {
-				this.radius -= 25;
-			}
-		}
+	// 	this.absoluteCenter = {
+	// 		x: this.x - position.x,
+	// 		y: this.y - position.y,
+	// 	}
 
-		const targetPosition = {
-			x: this.radius * Math.sin(targetDirection),
-			y: this.radius * Math.cos(targetDirection),
-		};
+	// 	if ( this.radius < targetRadius ) {
+	// 		if ( this.radius + 25 >= targetRadius ) {
+	// 			this.radius = targetRadius;
+	// 		} else {
+	// 			this.radius += 25;
+	// 		}
+	// 	} else if ( this.radius > targetRadius ) {
+	// 		if ( this.radius - 25 <= targetRadius ) {
+	// 			this.radius = targetRadius;
+	// 		} else {
+	// 			this.radius -= 25;
+	// 		}
+	// 	}
 
-		this.direction = targetDirection;
+	// 	const targetPosition = {
+	// 		x: this.radius * Math.sin(targetDirection),
+	// 		y: this.radius * Math.cos(targetDirection),
+	// 	};
 
-		this.rotationVelocity = {
-			x: targetPosition.x - position.x,
-			y: targetPosition.y - position.y,
-		};
+	// 	this.direction = targetDirection;
 
-		this.followVelocity = {
-			x: Constants.PETAL_FOLLOW_SPEED * (parentCenter.x - this.absoluteCenter.x),
-			y: Constants.PETAL_FOLLOW_SPEED * (parentCenter.y - this.absoluteCenter.y),
-		};
-	}
+	// 	this.rotationVelocity = {
+	// 		x: targetPosition.x - position.x,
+	// 		y: targetPosition.y - position.y,
+	// 	};
+
+	// 	this.followVelocity = {
+	// 		x: Constants.PETAL_FOLLOW_SPEED * (parentCenter.x - this.absoluteCenter.x),
+	// 		y: Constants.PETAL_FOLLOW_SPEED * (parentCenter.y - this.absoluteCenter.y),
+	// 	};
+	// }
 
 	serializeForUpdate() {
 		return {
