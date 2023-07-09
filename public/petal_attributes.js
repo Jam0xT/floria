@@ -5,7 +5,7 @@ module.exports = Object.freeze({
 		DAMAGE: 10,
 		MAX_HP: 10,
 		MASS: 1,
-		COLLISION_KNOCKBACK: 10,
+		EXTRA_KNOCKBACK: 0,
 		TYPE: 'BASIC',
 		ATTRIBUTES: {},
 	},
@@ -15,7 +15,7 @@ module.exports = Object.freeze({
 		DAMAGE: 8,
 		MAX_HP: 5,
 		MASS: 1,
-		COLLISION_KNOCKBACK: 10,
+		EXTRA_KNOCKBACK: 0,
 		TYPE: 'TWIN',
 		ATTRIBUTES: {
 			subpetals: 2,
@@ -30,7 +30,7 @@ PETAL_NAME: {
 	DAMAGE: dmg, // 物理伤害
 	MAX_HP: max_hp, // 自生血量
 	MASS: mass, // 击退抗性
-	COLLISION_KNOCKBACK: knockback, // 击退
+	EXTRA_KNOCKBACK: knockback, // 击退
 	TYPE: type, //花瓣名称
 	ATTRIBUTES: { // 特殊属性
 		multiple_object: //多子

@@ -21,11 +21,11 @@ module.exports = Object.freeze({
 	RATED_WIDTH: 1920, // rated rendering size on client
 	RATED_HEIGHT: 1080,
 
-	NEARBY_DISTANCE: 1500, // an entity will not be loaded on the client if its distance from the player >= X
+	NEARBY_DISTANCE: 2500, // an entity will not be loaded on the client if its distance from the player >= X
 
 	LEADERBOARD_LENGTH: 10, // the leaderboard will display you and the top X players
 
-	MOB_VOLUME_LIMIT: 1000, // mobs won't spawn if the sum of volumes of all mobs alive >= X
+	MOB_VOLUME_LIMIT: 10000, // mobs won't spawn if the sum of volumes of all mobs alive >= X
 	MOB_SPAWN_INTERVAL: 10, // try to spawn mobs every X ticks
 
 	CHUNK_SIZE: 200, // the size of each chunk
@@ -35,13 +35,11 @@ module.exports = Object.freeze({
 
 	PETAL_ROTATION_SPEED_BASE: 2.5, // default player petal rotation speed
 
+	PETAL_FOLLOW_SPEED: 8, // how fast petals follow players
+
 	SLOT_COUNT_BASE: 5, // default player slot count
 
-	PETAL_FOLLOW_SPEED: 20.0, // how fast does petals follow players
-
-	PETAL_SPEED_LIMIT: 36, // the speed limit of petals
-
-	PENETRATION_DEPTH_WEIGHT_IN_COLLISION: 1.2, // decides how much penetration depth will effect collision knockback
+	PENETRATION_DEPTH_WEIGHT_IN_COLLISION: 1, // decides how much penetration depth will effect collision knockback
 
 	VELOCITY_WEIGHT_IN_COLLISION: 2, // decides how much velocity will effect collision knockback
 

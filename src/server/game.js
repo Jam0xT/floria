@@ -224,61 +224,12 @@ class Game {
 		});
 	}
 
-	// updatePlayers(deltaT) { // update players, their petals and the chunks they are in
-	// 	Object.keys(this.sockets).forEach(playerID => {
-	// 		const player = this.players[playerID];
-	// 		const {playerChunks, petalsChunks} = player.update(deltaT); // update player ( and the player's petals )
-	// 		if ( playerChunks ) { // update the players chunks
-	// 			const chunksOld = playerChunks.chunksOld;
-	// 			const chunksNew = playerChunks.chunksNew;
-	// 			chunksOld.forEach(chunk => {
-	// 				if ( this.chunks[this.getChunkID(chunk)] ) {
-	// 					const idx = this.chunks[this.getChunkID(chunk)].findIndex((entityInChunk) => {
-	// 						return ( entityInChunk.type == 'player' ) && ( entityInChunk.id == playerID );
-	// 					});
-	// 					this.chunks[this.getChunkID(chunk)].splice(idx, 1);
-	// 				}
-	// 			});
-	// 			chunksNew.forEach(chunk => {
-	// 				if ( this.chunks[this.getChunkID(chunk)] ) {
-	// 					this.chunks[this.getChunkID(chunk)].push({type: 'player', id: playerID});
-	// 				} else {
-	// 					this.chunks[this.getChunkID(chunk)] = new Array({type: 'player', id: playerID});
-	// 				}
-	// 			});
-	// 		}
-	// 		if ( petalsChunks ) { // update the player's petals' chunks
-	// 			petalsChunks.forEach(petalChunks => {
-	// 				if ( petalChunks.chunks ) {
-	// 					const chunksOld = petalChunks.chunks.chunksOld;
-	// 					const chunksNew = petalChunks.chunks.chunksNew;
-	// 					const petalID = petalChunks.petalID;
-	// 					if ( !player.inCooldown[petalID] ) {
-	// 						chunksOld.forEach(chunk => {
-	// 							if ( this.chunks[this.getChunkID(chunk)] ) {
-	// 								const idx = this.chunks[this.getChunkID(chunk)].findIndex((entityInChunk) => {
-	// 									return ( entityInChunk.type == 'petal' ) && ( entityInChunk.id.playerID == playerID ) && ( entityInChunk.id.petalID == petalID );
-	// 								});
-	// 								this.chunks[this.getChunkID(chunk)].splice(idx, 1);
-	// 							}
-	// 						});
-	// 						chunksNew.forEach(chunk => {
-	// 							if ( this.chunks[this.getChunkID(chunk)] ) {
-	// 								this.chunks[this.getChunkID(chunk)].push({type: 'petal', id: {playerID: playerID, petalID: petalID}});
-	// 							} else {
-	// 								this.chunks[this.getChunkID(chunk)] = new Array({type: 'petal', id: {playerID: playerID, petalID: petalID}});
-	// 							}
-	// 						});
-	// 					}
-	// 				}
-	// 			});
-	// 		}
-	// 	});
-	// }
-
-	updateMovement() {
+	updateMovement(deltaT) {
+		Object.values(this.players).forEach(player => {
+			player.updateMovement(deltaT);
+		});
 		Object.values(this.mobs).forEach(mob => {
-			mob.value.updateMovement();
+			mob.value.updateMovement(deltaT);
 		});
 	}
 
@@ -500,6 +451,32 @@ class Game {
 					}
 				});
 			}
+			const petals = player.petals;
+			for ( let petalID = 0; petalID < player.slotCount; petalID ++ ) {
+				if ( !player.inCooldown[petalID] ) {
+					const petal = petals[petalID];
+					const petalChunks = petal.updateChunks(petal.attributes.RADIUS);
+					if ( petalChunks ) { // update the players chunks
+						const chunksOld = petalChunks.chunksOld;
+						const chunksNew = petalChunks.chunksNew;
+						chunksOld.forEach(chunk => {
+							if ( this.chunks[this.getChunkID(chunk)] ) {
+								const idx = this.chunks[this.getChunkID(chunk)].findIndex((entityInChunk) => {
+									return ( entityInChunk.type == 'petal' ) && ( entityInChunk.id.playerID == playerID ) && ( entityInChunk.id.petalID == petalID );
+								});
+								this.chunks[this.getChunkID(chunk)].splice(idx, 1);
+							}
+						});
+						chunksNew.forEach(chunk => {
+							if ( this.chunks[this.getChunkID(chunk)] ) {
+								this.chunks[this.getChunkID(chunk)].push({type: 'petal', id: {playerID: playerID, petalID: petalID}});
+							} else {
+								this.chunks[this.getChunkID(chunk)] = new Array({type: 'petal', id: {playerID: playerID, petalID: petalID}});
+							}
+						});
+					}
+				}
+			}
 		});
 		Object.values(this.mobs).forEach(mob => {
 			const chunks = mob.value.updateChunks();
@@ -526,7 +503,7 @@ class Game {
 		});
 	}
 
-	handleBorder(deltaT) {
+	handleBorder() {
 		Object.keys(this.sockets).forEach(playerID => {
 			const player = this.players[playerID];
 			player.handleBorder();
@@ -542,7 +519,7 @@ class Game {
 
 		this.lastUpdateTime = now;
 
-		this.updateMovement();
+		this.updateMovement(deltaT);
 
 		this.updateVelocity(deltaT);
 

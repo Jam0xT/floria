@@ -8,7 +8,7 @@ class Mob extends Entity {
 	}
 	
 	updateChunks() {
-		return super.updateChunks(this.attributes);
+		return super.updateChunks(this.attributes.RADIUS);
 	}
 	
 	handleBorder() {

@@ -14,16 +14,16 @@ module.exports = Object.freeze({
 		TYPE: 'PLAYER',
 	},
 	BUBBLE: {
-		MASS: 10000,
+		MASS: 5000,
 		SPEED: 0,
-		RADIUS: 100,
-		MAX_HP: 200,
+		RADIUS: 120,
+		MAX_HP: 100,
 		DAMAGE: 5,
 		EXTRA_KNOCKBACK: 0,
 		VALUE: 10,
 		EXPERIENCE: 10,
 		SPAWN_WEIGHT: 100,
-		VOLUME: 100,
+		VOLUME: 200,
 		TYPE: 'BUBBLE',
 	}
 });

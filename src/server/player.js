@@ -20,52 +20,54 @@ class Player extends Entity {
 		this.rotationSpeed = Constants.PETAL_ROTATION_SPEED_BASE;
 		this.firstPetalDirection = 0;
 		this.rotateClockwise = 1; // 1 for clockwise, -1 for counter-clockwise
-		this.petalExpandRadius = 75;
+		this.petalExpandRadius = 60;
+		// this.petalExpandRadius = 120;
 		this.petals = [
-			new PetalBasic(0, x, y, {x: x, y: y}, id),
-			new PetalBasic(1, x, y, {x: x, y: y}, id),
-			new PetalBasic(2, x, y, {x: x, y: y}, id),
-			new PetalBasic(3, x, y, {x: x, y: y}, id),
-			new PetalBasic(4, x, y, {x: x, y: y}, id),
+			new PetalBasic(0, x, y, id),
+			new PetalBasic(1, x, y, id),
+			new PetalBasic(2, x, y, id),
+			new PetalBasic(3, x, y, id),
+			new PetalBasic(4, x, y, id),
 		];
 		this.petalType = ['BASIC', 'BASIC', 'BASIC', 'BASIC', 'BASIC',];
 		this.inCooldown = [false, false, false, false, false,];
 		this.activeDirection = 0;
 		this.attributes = Attribute;
 	}
-	
-	// updatePetals(deltaT) {
-	// 	this.firstPetalDirection -= this.rotateClockwise * this.rotationSpeed * deltaT;
-	// 	if ( this.firstPetalDirection > 2 * Math.PI ) {
-	// 		this.firstPetalDirection -= 2 * Math.PI;
-	// 	}
-	// 	if ( this.firstPetalDirection < - 2 * Math.PI ) {
-	// 		this.firstPetalDirection += 2 * Math.PI;
-	// 	}
-	// 	const petalsChunks = [];
-	// 	for ( var petalID = 0; petalID < this.slotCount; petalID ++ ) {
-	// 		if ( !this.inCooldown[petalID] ) {
-	// 			const petal = this.petals[petalID];
-	// 			petal.rotateAndFollow(this.petalExpandRadius, this.firstPetalDirection + 2 * Math.PI * petal.id / this.petalObjectCount, {x: this.x, y: this.y});
-	// 			petalsChunks.push({chunks: petal.update(deltaT), petalID: petal.id});
-	// 		} else {
-	// 			this.petals[petalID] -= deltaT;
-	// 			if ( this.petals[petalID] <= 0 ) {
-	// 				this.inCooldown[petalID] = false;
-	// 				this.petals[petalID] = this.newPetal(this.petalType[petalID], petalID);
-	// 			}
-	// 		}
-	// 	}
-	// 	return petalsChunks;
-	// }
 
 	updatePetalMovement(deltaT) {
-		
+		this.firstPetalDirection -= this.rotateClockwise * this.rotationSpeed * deltaT;
+		if ( this.firstPetalDirection > 2 * Math.PI ) {
+			this.firstPetalDirection -= 2 * Math.PI;
+		}
+		if ( this.firstPetalDirection < - 2 * Math.PI ) {
+			this.firstPetalDirection += 2 * Math.PI;
+		}
+		for (let petalID = 0; petalID < this.slotCount; petalID ++ ) {
+			if ( !this.inCooldown[petalID] ) {
+				const petal = this.petals[petalID];
+				const theta = this.firstPetalDirection + 2 * Math.PI * petal.id / this.petalObjectCount;
+				const goalPos = {
+					x: this.x + this.petalExpandRadius * Math.sin(theta),
+					y: this.y + this.petalExpandRadius * Math.cos(theta),
+				}
+				petal.movement = {
+					direction: Math.atan2(goalPos.x - petal.x, petal.y - goalPos.y),
+					speed: Math.sqrt((goalPos.x - petal.x) ** 2 + (goalPos.y - petal.y) ** 2) * Constants.PETAL_FOLLOW_SPEED,
+				}
+			} else {
+				this.petals[petalID] -= deltaT;
+				if ( this.petals[petalID] <= 0 ) {
+					this.inCooldown[petalID] = false;
+					this.petals[petalID] = this.newPetal(this.petalType[petalID], petalID);
+				}
+			}
+		}
 	}
 
 	newPetal(type, petalID) {
 		if ( type == 'BASIC' ) {
-			return new PetalBasic(petalID, this.x, this.y, {x: this.x, y:this.y}, this.id);
+			return new PetalBasic(petalID, this.x, this.y, this.id);
 		}
 	}
 
@@ -74,24 +76,50 @@ class Player extends Entity {
 		this.activeDirection = activeMovement.direction;
 	}
 
-	handleBorder() {
-		super.handleBorder(this.attributes.RADIUS);
-	}
-
 	updateChunks() {
-		return super.updateChunks(this.attributes);
+		return super.updateChunks(this.attributes.RADIUS);
 	}
  
 	updateMovement(deltaT) {
 		this.updatePetalMovement(deltaT);
 	}
 
+	updateVelocity(deltaT) {
+		super.updateVelocity(deltaT);
+		for (let petalID = 0; petalID < this.slotCount; petalID ++ ) {
+			if ( !this.inCooldown[petalID] ) {
+				const petal = this.petals[petalID];
+				petal.updateVelocity(deltaT);
+			}
+		}
+	}
+
 	applyVelocity(deltaT) {
 		super.applyVelocity(deltaT);
-		for ( var petalID = 0; petalID < this.slotCount; petalID ++ ) {
+		for (let petalID = 0; petalID < this.slotCount; petalID ++ ) {
 			if ( !this.inCooldown[petalID] ) {
 				const petal = this.petals[petalID];
 				petal.applyVelocity(deltaT);
+			}
+		}
+	}
+	
+	applyConstraintVelocity(deltaT) {
+		super.applyConstraintVelocity(deltaT);
+		for (let petalID = 0; petalID < this.slotCount; petalID ++ ) {
+			if ( !this.inCooldown[petalID] ) {
+				const petal = this.petals[petalID];
+				petal.applyConstraintVelocity(deltaT);
+			}
+		}
+	}
+
+	handleBorder() {
+		super.handleBorder(this.attributes.RADIUS);
+		for (let petalID = 0; petalID < this.slotCount; petalID ++ ) {
+			if ( !this.inCooldown[petalID] ) {
+				const petal = this.petals[petalID];
+				petal.handleBorder(petal.attributes.RADIUS);
 			}
 		}
 	}

@@ -111,7 +111,6 @@ function renderPlayer(me, player) {
 	renderText(player.username, 0, -35, 20, 'center');
 	renderText(Math.floor(Math.sqrt((player.x - me.x) * (player.x - me.x) + (player.y - me.y) * (player.y - me.y))), 0, -60);
 	renderText(`(${Math.floor(player.x)} , ${Math.floor(player.y)})`, 0, -85);
-	renderText(`${player.chunks}`, 0, -110);
 	renderText(`${Math.floor(player.hp)}`, 0, 65);
 
 	const healthBarBaseWidth = 10;

@@ -38,19 +38,21 @@ class Entity {
 	}
 	
 	handleBorder(objectRadius) {
-		if ( this.x < objectRadius ){ // hit left border
-			this.velocity.x = 0;
-			this.x = objectRadius;
-		} else if ( this.x > Constants.MAP_WIDTH - objectRadius ) { // hit right border
-			this.velocity.x = 0;
-			this.x = Constants.MAP_WIDTH - objectRadius;
-		}
-		if ( this.y < objectRadius ){ // hit top border
-			this.velocity.y = 0;
-			this.y = objectRadius;
-		} else if ( this.y > Constants.MAP_HEIGHT - objectRadius ) { // hit bottom border
-			this.velocity.y = 0;
-			this.y = Constants.MAP_HEIGHT - objectRadius;
+		if ( !this.noBorderCollision ) {
+			if ( this.x < objectRadius ){ // hit left border
+				this.velocity.x = 0;
+				this.x = objectRadius;
+			} else if ( this.x > Constants.MAP_WIDTH - objectRadius ) { // hit right border
+				this.velocity.x = 0;
+				this.x = Constants.MAP_WIDTH - objectRadius;
+			}
+			if ( this.y < objectRadius ){ // hit top border
+				this.velocity.y = 0;
+				this.y = objectRadius;
+			} else if ( this.y > Constants.MAP_HEIGHT - objectRadius ) { // hit bottom border
+				this.velocity.y = 0;
+				this.y = Constants.MAP_HEIGHT - objectRadius;
+			}
 		}
 	}
 
@@ -79,10 +81,10 @@ class Entity {
 		};
 	}
 
-	updateChunks(attribute) {
+	updateChunks(radius) {
 		const chunksNew = [];
 
-		const chunkRadius = Math.ceil(attribute.RADIUS / Constants.CHUNK_SIZE + 1);
+		const chunkRadius = Math.ceil(radius / Constants.CHUNK_SIZE + 1);
 
 		const baseChunk = {
 			x: Math.floor(this.x / Constants.CHUNK_SIZE),
@@ -104,21 +106,21 @@ class Entity {
 				continue;
 			if ( chunkX == baseChunk.x ) {
 				if ( chunkY > baseChunk.y ) {
-					if ( chunkY * Constants.CHUNK_SIZE <= this.y + attribute.RADIUS ) {
+					if ( chunkY * Constants.CHUNK_SIZE <= this.y + radius ) {
 						chunksNew.push({x: chunkX, y: chunkY});
 					}
 				} else {
-					if ( (chunkY + 1) * Constants.CHUNK_SIZE >= this.y - attribute.RADIUS ) {
+					if ( (chunkY + 1) * Constants.CHUNK_SIZE >= this.y - radius ) {
 						chunksNew.push({x: chunkX, y: chunkY});
 					}
 				}
 			} else if ( chunkY == baseChunk.y ) {
 				if ( chunkX > baseChunk.x ) {
-					if ( chunkX * Constants.CHUNK_SIZE <= this.x + attribute.RADIUS ) {
+					if ( chunkX * Constants.CHUNK_SIZE <= this.x + radius ) {
 						chunksNew.push({x: chunkX, y: chunkY});
 					}
 				} else if ( chunkX < baseChunk.x ){
-					if ( (chunkX + 1) * Constants.CHUNK_SIZE >= this.x - attribute.RADIUS ) {
+					if ( (chunkX + 1) * Constants.CHUNK_SIZE >= this.x - radius ) {
 						chunksNew.push({x: chunkX, y: chunkY});
 					}
 				}
@@ -126,92 +128,51 @@ class Entity {
 				if ( chunkX > baseChunk.x && chunkY > baseChunk.y ) {
 					const deltaX = chunkX * Constants.CHUNK_SIZE - this.x;
 					const deltaY = chunkY * Constants.CHUNK_SIZE - this.y;
-					if ( Math.sqrt(deltaX * deltaX + deltaY * deltaY) <= attribute.RADIUS ) {
+					if ( Math.sqrt(deltaX * deltaX + deltaY * deltaY) <= radius ) {
 						chunksNew.push({x: chunkX, y: chunkY});
 					}
 				} else if ( chunkX > baseChunk.x && chunkY < baseChunk.y ) {
 					const deltaX = chunkX * Constants.CHUNK_SIZE - this.x;
 					const deltaY = (chunkY + 1) * Constants.CHUNK_SIZE - this.y;
-					if ( Math.sqrt(deltaX * deltaX + deltaY * deltaY) <= attribute.RADIUS ) {
+					if ( Math.sqrt(deltaX * deltaX + deltaY * deltaY) <= radius ) {
 						chunksNew.push({x: chunkX, y: chunkY});
 					}
 				} else if ( chunkX < baseChunk.x && chunkY > baseChunk.y ) {
 					const deltaX = (chunkX + 1) * Constants.CHUNK_SIZE - this.x;
 					const deltaY = chunkY * Constants.CHUNK_SIZE - this.y;
-					if ( Math.sqrt(deltaX * deltaX + deltaY * deltaY) <= attribute.RADIUS ) {
+					if ( Math.sqrt(deltaX * deltaX + deltaY * deltaY) <= radius ) {
 						chunksNew.push({x: chunkX, y: chunkY});
 					}
 				} else {
 					const deltaX = (chunkX + 1) * Constants.CHUNK_SIZE - this.x;
 					const deltaY = (chunkY + 1) * Constants.CHUNK_SIZE - this.y;
-					if ( Math.sqrt(deltaX * deltaX + deltaY * deltaY) <= attribute.RADIUS ) {
+					if ( Math.sqrt(deltaX * deltaX + deltaY * deltaY) <= radius ) {
 						chunksNew.push({x: chunkX, y: chunkY});
 					}
 				}
 			}
 		}
-		if ( this.isSameArray(chunksNew, this.chunks) ) {
-			return false;
-		} else {
-			const chunksOld = [];
-			this.chunks.forEach(chunkOld => {
-				chunksOld.push(chunkOld);
-			});
-			this.chunks = [];
-			chunksNew.forEach(chunkNew => {
-				this.chunks.push(chunkNew);
-			});
-			return {
-				chunksOld: chunksOld, 
-				chunksNew: chunksNew,
-			};
-		}
+		const chunksOld = [];
+		this.chunks.forEach(chunkOld => {
+			chunksOld.push(chunkOld);
+		});
+		this.chunks = [];
+		chunksNew.forEach(chunkNew => {
+			this.chunks.push(chunkNew);
+		});
+		return {
+			chunksOld: chunksOld, 
+			chunksNew: chunksNew,
+		};
 	}
-
-	isSameArray(array1, array2) {
-		if ( array1.length != array2.length ) {
-			return false;
-		} else {
-			for (let i = 0; i < array1.length; i++) {
-				if ( array1[i] != array2[i] )
-					return false;
-			}
-			return true;
-		}
-	}
-	
-	// handlePassiveMotion(passiveMotion) { // handls passive motion
-	// 	const direction = passiveMotion.direction;
-	// 	const magnitude = passiveMotion.magnitude;
-		
-	// 	const magnitudeX = magnitude * Math.sin(direction);
-	// 	const magnitudeY = magnitude * Math.cos(direction);
-
-	// 	this.passiveVelocity.push({
-	// 		x: magnitudeX,
-	// 		y: magnitudeY,
-	// 	});
-	// }
 
 	serializeForUpdate() { // get necessary data and send to client
 		return {
 			id: this.id,
 			x: this.x,
 			y: this.y,
-			chunks: this.getChunksForUpdate(),
 			hp: this.hp,
 		};
-	}
-
-	getChunksForUpdate() {
-		var chunksForUpdate = [];
-		this.chunks.forEach(chunk => {
-			chunksForUpdate.push({
-				x: chunk.x,
-				y: chunk.y,
-			});
-		});
-		return chunksForUpdate;
 	}
 }
 
