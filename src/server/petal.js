@@ -7,6 +7,7 @@ class Petal extends Entity {
 		super(id, x, y, parent, 'petal', type, PetalAttributes[type].MAX_HP, PetalAttributes[type].MAX_HP, noBorderCollision, friendlyCollisions);
 		this.parent = parent;
 		this.attributes = PetalAttributes[type];
+		this.cooldown = 0;
 	}
 
 	serializeForUpdate() {

@@ -2,6 +2,10 @@ const ASSET_NAMES = [
 	'player.svg',
 	'mobs/bubble.svg',
 	'petals/basic.svg',
+	'petals/bubble.svg',
+	'petals/dandelion.svg',
+	'petals/rose.svg',
+	'petals/stinger.svg',
 	'petals/twin.svg',
 ];
 
@@ -13,7 +17,7 @@ function downloadAsset(assetName) {
 	return new Promise(resolve => {
 		const asset = new Image();
 		asset.onload = () => {
-			console.log(`Downloaded ${assetName}`);
+			// console.log(`Downloaded ${assetName}`);
 			assets[assetName] = asset;
 			resolve();
 		};

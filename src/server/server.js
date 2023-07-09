@@ -27,7 +27,9 @@ io.on('connection', socket => {
 	console.log('Player connected! ID: ', socket.id);
 
 	socket.on(Constants.MSG_TYPES.JOIN_GAME, joinGame);
-	socket.on(Constants.MSG_TYPES.INPUT, handleInput);
+	socket.on(Constants.MSG_TYPES.MOVEMENT, handleMovement);
+	socket.on(Constants.MSG_TYPES.MOUSE_DOWN, handleMouseDown);
+	socket.on(Constants.MSG_TYPES.MOUSE_UP, handleMouseUp);
 	socket.on('disconnect', onDisconnect);
 })
 
@@ -40,8 +42,16 @@ function joinGame(username) {
 	}
 }
 
-function handleInput(input) {
-	game.handleInput(this, input);
+function handleMovement(movement) {
+	game.handleMovement(this, movement);
+}
+
+function handleMouseDown(mouseDownEvent) {
+	game.handleMouseDown(this, mouseDownEvent);
+}
+
+function handleMouseUp(mouseUpEvent) {
+	game.handleMouseUp(this, mouseUpEvent);
 }
 
 function onDisconnect() {

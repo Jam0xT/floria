@@ -2,7 +2,7 @@ const Entity = require('./entity');
 const Constants = require('../shared/constants');
 const EntityAttributes = require('../../public/entity_attributes');
 const Attribute = EntityAttributes.PLAYER;
-const PetalBasic = require('./petal/basic');
+const Petal = require('./petal');
 
 class Player extends Entity {
 	constructor(id, username, x, y) {
@@ -20,19 +20,18 @@ class Player extends Entity {
 		this.rotationSpeed = Constants.PETAL_ROTATION_SPEED_BASE;
 		this.firstPetalDirection = 0;
 		this.rotateClockwise = 1; // 1 for clockwise, -1 for counter-clockwise
-		this.petalExpandRadius = 60;
-		// this.petalExpandRadius = 120;
+		this.petalExpandRadius = Constants.PETAL_EXPAND_RADIUS_NORMAL;
 		this.petals = [
-			new PetalBasic(0, x, y, id),
-			new PetalBasic(1, x, y, id),
-			new PetalBasic(2, x, y, id),
-			new PetalBasic(3, x, y, id),
-			new PetalBasic(4, x, y, id),
+			new Petal(0, x, y, id, 'ROSE', true, false),
+			new Petal(1, x, y, id, 'STINGER', true, false),
+			new Petal(2, x, y, id, 'STINGER', true, false),
+			new Petal(3, x, y, id, 'STINGER', true, false),
+			new Petal(4, x, y, id, 'BUBBLE', true, false),
 		];
-		this.petalType = ['BASIC', 'BASIC', 'BASIC', 'BASIC', 'BASIC',];
-		this.inCooldown = [false, false, false, false, false,];
 		this.activeDirection = 0;
 		this.attributes = Attribute;
+		this.attack = false;
+		this.defend = false;
 	}
 
 	updatePetalMovement(deltaT) {
@@ -44,36 +43,87 @@ class Player extends Entity {
 			this.firstPetalDirection += 2 * Math.PI;
 		}
 		for (let petalID = 0; petalID < this.slotCount; petalID ++ ) {
-			if ( !this.inCooldown[petalID] ) {
-				const petal = this.petals[petalID];
+			const petal = this.petals[petalID];
+			if ( !petal.inCooldown ) {
 				const theta = this.firstPetalDirection + 2 * Math.PI * petal.id / this.petalObjectCount;
+				let expandRadius = this.petalExpandRadius;
+				if ( !petal.attributes.EXPANDABLE ) {
+					expandRadius = Math.min(expandRadius, Constants.PETAL_EXPAND_RADIUS_NORMAL);
+				}
 				const goalPos = {
-					x: this.x + this.petalExpandRadius * Math.sin(theta),
-					y: this.y + this.petalExpandRadius * Math.cos(theta),
+					x: this.x + expandRadius * Math.sin(theta),
+					y: this.y + expandRadius * Math.cos(theta),
 				}
 				petal.movement = {
 					direction: Math.atan2(goalPos.x - petal.x, petal.y - goalPos.y),
 					speed: Math.sqrt((goalPos.x - petal.x) ** 2 + (goalPos.y - petal.y) ** 2) * Constants.PETAL_FOLLOW_SPEED,
 				}
 			} else {
-				this.petals[petalID] -= deltaT;
-				if ( this.petals[petalID] <= 0 ) {
-					this.inCooldown[petalID] = false;
-					this.petals[petalID] = this.newPetal(this.petalType[petalID], petalID);
+				petal.cooldown -= deltaT;
+				if ( petal.cooldown <= 0 ) {
+					petal.inCooldown = false;
+					this.petals[petalID] = this.newPetal(this.petals[petalID].type, petalID);
 				}
 			}
 		}
 	}
 
 	newPetal(type, petalID) {
-		if ( type == 'BASIC' ) {
-			return new PetalBasic(petalID, this.x, this.y, this.id);
-		}
+		return new Petal(petalID, this.x, this.y, this.id, type, true, false);
 	}
 
 	handleActiveMovement(activeMovement) { // handles active motion
 		this.movement = activeMovement;
 		this.activeDirection = activeMovement.direction;
+	}
+
+	update(deltaT) {
+		if ( this.hp < this.maxHp ) {
+			this.hp += ((this.maxHp / 240) * deltaT);
+			this.hp = Math.min(this.hp, this.maxHp);
+		}
+
+		if ( this.hp < this.maxHp ) {
+			for (let petalID = 0; petalID < this.slotCount; petalID ++ ) {
+				const petal = this.petals[petalID];
+				if ( !petal.inCooldown ) {
+					if ( petal.attributes.TRIGGERS.HEAL ) { // trigger healing petals like rose, dahlia etc.
+						petal.hp = -1;
+						this.hp += petal.attributes.TRIGGERS.HEAL;
+						this.hp = Math.min(this.hp, this.maxHp);
+					}
+				}
+			}
+		}
+
+		if ( this.defend ) { // defend trigger
+			for (let petalID = 0; petalID < this.slotCount; petalID ++ ) {
+				const petal = this.petals[petalID];
+				if ( !petal.inCooldown ) {
+					if ( petal.attributes.TRIGGERS.BUBBLE_PUSH ) { // trigger bubble
+						petal.hp = -1;
+						const dir = this.firstPetalDirection + 2 * Math.PI * petal.id / this.petalObjectCount;
+						const push = petal.attributes.TRIGGERS.BUBBLE_PUSH;
+						this.velocity.x -= push * Math.sin(dir);
+						this.velocity.y += push * Math.cos(dir);
+					}
+				}
+			}
+		}
+
+		// if ( this.attack ) {
+		// 	for (let petalID = 0; petalID < this.slotCount; petalID ++ ) {
+		// 		const petal = this.petals[petalID];
+		// 		if ( !petal.inCooldown ) {
+		// 			if ( petal.attributes.TRIGGERS.SHOOT ) { // trigger shootable petals like missile, dandelion etc.
+		// 				const dir = this.firstPetalDirection + 2 * Math.PI * petal.id / this.petalObjectCount;
+		// 				const push = petal.attributes.TRIGGERS.BUBBLE_PUSH;
+		// 				this.velocity.x -= push * Math.sin(dir);
+		// 				this.velocity.y += push * Math.cos(dir);
+		// 			}
+		// 		}
+		// 	}
+		// }
 	}
 
 	updateChunks() {
@@ -87,8 +137,8 @@ class Player extends Entity {
 	updateVelocity(deltaT) {
 		super.updateVelocity(deltaT);
 		for (let petalID = 0; petalID < this.slotCount; petalID ++ ) {
-			if ( !this.inCooldown[petalID] ) {
-				const petal = this.petals[petalID];
+			const petal = this.petals[petalID];
+			if ( !petal.inCooldown ) {
 				petal.updateVelocity(deltaT);
 			}
 		}
@@ -97,8 +147,8 @@ class Player extends Entity {
 	applyVelocity(deltaT) {
 		super.applyVelocity(deltaT);
 		for (let petalID = 0; petalID < this.slotCount; petalID ++ ) {
-			if ( !this.inCooldown[petalID] ) {
-				const petal = this.petals[petalID];
+			const petal = this.petals[petalID];
+			if ( !petal.inCooldown ) {
 				petal.applyVelocity(deltaT);
 			}
 		}
@@ -107,8 +157,8 @@ class Player extends Entity {
 	applyConstraintVelocity(deltaT) {
 		super.applyConstraintVelocity(deltaT);
 		for (let petalID = 0; petalID < this.slotCount; petalID ++ ) {
-			if ( !this.inCooldown[petalID] ) {
-				const petal = this.petals[petalID];
+			const petal = this.petals[petalID];
+			if ( !petal.inCooldown ) {
 				petal.applyConstraintVelocity(deltaT);
 			}
 		}
@@ -117,15 +167,16 @@ class Player extends Entity {
 	handleBorder() {
 		super.handleBorder(this.attributes.RADIUS);
 		for (let petalID = 0; petalID < this.slotCount; petalID ++ ) {
-			if ( !this.inCooldown[petalID] ) {
-				const petal = this.petals[petalID];
+			const petal = this.petals[petalID];
+			if ( !petal.inCooldown ) {
 				petal.handleBorder(petal.attributes.RADIUS);
 			}
 		}
 	}
 
 	reload(petalID) {
-		this.petals[petalID] = this.petals[petalID].attributes.RELOAD;
+		const petal = this.petals[petalID];
+		petal.cooldown = this.petals[petalID].attributes.RELOAD;
 	}
 
 	getExpForLevel(level) {
@@ -148,8 +199,9 @@ class Player extends Entity {
 	getPetalsForUpdate() {
 		var petalsForUpdate = [];
 		for ( var petalID = 0; petalID < this.slotCount; petalID ++ ) {
-			if ( !this.inCooldown[petalID] ) {
-				petalsForUpdate.push(this.petals[petalID].serializeForUpdate());
+			const petal = this.petals[petalID];
+			if ( !petal.inCooldown ) {
+				petalsForUpdate.push(petal.serializeForUpdate());
 			}
 		}
 		return petalsForUpdate;

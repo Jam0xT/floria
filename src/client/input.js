@@ -1,4 +1,4 @@
-import { sendInput } from './networking';
+import { sendMovement, sendMouseDownEvent, sendMouseUpEvent } from './networking';
 
 var keyDown = {
 	'w': false,
@@ -9,16 +9,26 @@ var keyDown = {
 
 var currentDirection;
 
-function onMouseInput(e) {
-	handleInput(e.clientX, e.clientY);
+document.addEventListener('contextmenu', event => event.preventDefault()); // prevent right-clicks
+
+function onMouseMove(e) {
+	handleMovement(e.clientX, e.clientY);
 }
 
-function onTouchInput(e) {
-	const touch = e.touches[0];
-	handleInput(touch.clientx, touch.clientY)
+function onMouseDown(e) {
+	sendMouseDownEvent(e.buttons);
 }
 
-function handleInput(x, y) {
+function onMouseUp(e) {
+	sendMouseUpEvent(e.buttons);
+}
+
+// function onTouchInput(e) {
+// 	const touch = e.touches[0];
+// 	handleMovement(touch.clientx, touch.clientY)
+// }
+
+function handleMovement(x, y) {
 	const direction = Math.atan2(x - window.innerWidth / 2, window.innerHeight / 2 - y);
 	const dx = x - window.innerWidth / 2;
 	const dy = y - window.innerHeight / 2;
@@ -28,7 +38,7 @@ function handleInput(x, y) {
 		direction: direction,
 		magnitude: speedRatio,
 	}
-	sendInput(input);
+	sendMovement(input);
 }
 
 function handleKeyDownInput(e) {
@@ -48,13 +58,13 @@ function handleKeyDownInput(e) {
 			directionX ++;
 		
 		if ( directionX == 0 && directionY == 0 ) {
-			sendInput({
+			sendMovement({
 				direction: currentDirection,
 				magnitude: 0,
 			});
 		} else {
 			currentDirection = Math.atan2(directionX, directionY);
-			sendInput({
+			sendMovement({
 				direction: currentDirection,
 				magnitude: 1,
 			});
@@ -79,13 +89,13 @@ function handleKeyUpInput(e) {
 			directionX ++;
 
 		if ( directionX == 0 && directionY == 0 ) {
-			sendInput({
+			sendMovement({
 				direction: currentDirection,
 				magnitude: 0,
 			});
 		} else {
 			currentDirection = Math.atan2(directionX, directionY);
-			sendInput({
+			sendMovement({
 				direction: currentDirection,
 				magnitude: 1,
 			});
@@ -95,10 +105,11 @@ function handleKeyUpInput(e) {
 
 export function startCapturingInput(isKeyboardInput) {
 	if ( !isKeyboardInput ) {
-		window.addEventListener('mousemove', onMouseInput);
-		window.addEventListener('click', onMouseInput);
-		window.addEventListener('touchstart', onTouchInput);
-		window.addEventListener('touchmove', onTouchInput);
+		window.addEventListener('mousemove', onMouseMove);
+		window.addEventListener('mousedown', onMouseDown);
+		window.addEventListener('mouseup', onMouseUp);
+		// window.addEventListener('touchstart', onTouchInput);
+		// window.addEventListener('touchmove', onTouchInput);
 	} else {
 		window.onkeydown = handleKeyDownInput;
 		window.onkeyup = handleKeyUpInput;
@@ -107,9 +118,9 @@ export function startCapturingInput(isKeyboardInput) {
 
 export function stopCapturingInput(isKeyboardInput) {
 	if ( !isKeyboardInput ) {
-		window.removeEventListener('mousemove', onMouseInput);
-		window.removeEventListener('click', onMouseInput);
-		window.removeEventListener('touchstart', onTouchInput);
-		window.removeEventListener('touchmove', onTouchInput);
+		window.removeEventListener('mousemove', onMouseMove);
+		window.removeEventListener('click', onClick);
+		// window.removeEventListener('touchstart', onTouchInput);
+		// window.removeEventListener('touchmove', onTouchInput);
 	}
 }

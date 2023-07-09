@@ -30,6 +30,14 @@ export const play = username => {
 	socket.emit(Constants.MSG_TYPES.JOIN_GAME, username);
 };
 
-export const sendInput = (input) => {
-	socket.emit(Constants.MSG_TYPES.INPUT, input);
+export const sendMovement = (movement) => {
+	socket.emit(Constants.MSG_TYPES.MOVEMENT, movement);
 };
+
+export const sendMouseDownEvent = (mouseDownEvent) => {
+	socket.emit(Constants.MSG_TYPES.MOUSE_DOWN, mouseDownEvent);
+}
+
+export const sendMouseUpEvent = (mouseUpEvent) => {
+	socket.emit(Constants.MSG_TYPES.MOUSE_UP, mouseUpEvent);
+}
