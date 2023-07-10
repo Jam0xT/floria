@@ -31,7 +31,7 @@ module.exports = Object.freeze({
 	},
 	STINGER: {
 		TYPE: 'STINGER',
-		RADIUS: 8,
+		RADIUS: 5,
 		RELOAD: 4,
 		DAMAGE: 35,
 		MAX_HP: 8,

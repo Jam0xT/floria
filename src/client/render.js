@@ -153,14 +153,20 @@ function renderPlayer(me, player) {
 		context.translate(petal.x - player.x, petal.y - player.y);
 
 		const renderRadius = PetalAttributes[petal.type].RADIUS + 2;
-	
-		context.drawImage(
-			getAsset(`petals/${petal.type.toLowerCase()}.svg`),
-			- renderRadius,
-			- renderRadius,
-			renderRadius * 2,
-			renderRadius * 2,
-		);
+
+		const asset = getAsset(`petals/${petal.type.toLowerCase()}.svg`);
+
+		const width = asset.naturalWidth, height = asset.naturalHeight;
+
+		if ( width <= height ) {
+			context.drawImage(
+				asset,
+				- renderRadius,
+				- renderRadius / width * height,
+				renderRadius * 2,
+				renderRadius / width * height * 2,
+			);
+		}
 	
 		renderText(petal.id, 0, -35, 20, 'center');
 	
