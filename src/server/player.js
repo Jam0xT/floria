@@ -104,8 +104,8 @@ class Player extends Entity {
 	update(deltaT) {
 		this.noHeal = Math.max(0, this.noHeal - deltaT);
 		this.poisonTime = Math.max(0, this.poisonTime - deltaT);
-		this.hp -= this.poison * deltaT;
-
+		if ( this.poisonTime > 0 )
+			this.hp -= this.poison * deltaT;
 		if ( this.hp < this.maxHp && (!this.noHeal) ) {
 			this.hp += ((this.maxHp / 240) * deltaT);
 			this.hp = Math.min(this.hp, this.maxHp);

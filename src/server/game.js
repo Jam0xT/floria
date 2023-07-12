@@ -171,12 +171,14 @@ class Game {
 			} else if ( killedByInfo.type == 'petal' ) {
 				killedBy = this.players[killedByInfo.id.playerID];
 			}
-			killedBy.score += Math.floor(EntityAttributes.PLAYER.VALUE + player.score * Constants.SCORE_LOOTING_COEFFICIENT);
-			if ( this.getRankOnLeaderboard(killedBy.id) > 0 ) {
-				// avoid crashing when two players kill each other at the exact same time
-				// it will crash because the player who killed you is not on the leaderboard anymore
-				// (the player who killed you is dead, and he has already been removed from leaderboard)
-				this.updateLeaderboard(killedBy);
+			if ( killedBy ) {
+				killedBy.score += Math.floor(EntityAttributes.PLAYER.VALUE + player.score * Constants.SCORE_LOOTING_COEFFICIENT);
+				if ( this.getRankOnLeaderboard(killedBy.id) > 0 ) {
+					// avoid crashing when two players kill each other at the exact same time
+					// it will crash because the player who killed you is not on the leaderboard anymore
+					// (the player who killed you is dead, and he has already been removed from leaderboard)
+					this.updateLeaderboard(killedBy);
+				}
 			}
 		}
 		this.removeFromLeaderboard(player);
