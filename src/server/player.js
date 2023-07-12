@@ -143,6 +143,10 @@ class Player extends Entity {
 						if ( !petal.action ) {
 							if ( this.attack ) {
 								petal.action = true;
+								petal.velocity = {
+									x: petal.attributes.TRIGGERS.PROJECTILE / Constants.SPEED_ATTENUATION_COEFFICIENT * Math.sin(petal.direction),
+									y: petal.attributes.TRIGGERS.PROJECTILE / Constants.SPEED_ATTENUATION_COEFFICIENT * Math.cos(petal.direction),
+								};
 							}
 						} else {
 							petal.actionTime += deltaT;

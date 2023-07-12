@@ -85,7 +85,7 @@ module.exports = Object.freeze({
 		CLUSTER: false,
 		COUNT: 1,
 		TRIGGERS: {
-			PROJECTILE: 500,
+			PROJECTILE: 300,
 			ACTION_TIME: 1.5,
 			ACTION_COOLDOWN: 0.5,
 			NO_HEAL: 10,
