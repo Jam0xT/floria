@@ -568,7 +568,7 @@ class Game {
 								entityB.poisonTime = entityA.attributes.TRIGGERS.POISON / entityA.attributes.TRIGGERS.TOXICITY;
 							}
 						}
-						this.players[entityA.parent].hp -= entityA.attributes.DAMAGE * entitB.damageReflect;
+						this.players[entityA.parent].hp -= entityA.attributes.DAMAGE * entityB.damageReflect;
 					} else if ( entityInfoA.type == 'player' ) {
 						if ( entityA.bodyToxicity > 0 ) {
 							if ( entityB.poison * entityB.poisonTime < entityA.bodyPoison ) {
