@@ -508,27 +508,27 @@ class Game {
 			const mA = entityA.attributes.MASS, mB = entityB.attributes.MASS;
 			const theta2 = Math.atan2(entityA.x - entityB.x, entityB.y - entityA.y); // orientation of A relative to B
 			const theta1 = theta2 - Math.PI; // orientation of B relative to A
-			const vA = {
-				direction: Math.atan2(entityA.velocity.x, entityA.velocity.y),
-				magnitude: Math.sqrt(entityA.velocity.x ** 2, entityA.velocity.y ** 2),
-			};
-			const vB = {
-				direction: Math.atan2(entityB.velocity.x, entityB.velocity.y),
-				magnitude: Math.sqrt(entityB.velocity.x ** 2, entityB.velocity.y ** 2),
-			};
-			const va = vA.magnitude * Math.cos(theta1 - vA.direction);
-			const vb = vB.magnitude * Math.cos(theta2 - vB.direction);
-			const velocityWeightInCollision = Constants.VELOCITY_WEIGHT_IN_COLLISION;
+			// const vA = {
+			// 	direction: Math.atan2(entityA.velocity.x, entityA.velocity.y),
+			// 	magnitude: Math.sqrt(entityA.velocity.x ** 2, entityA.velocity.y ** 2),
+			// };
+			// const vB = {
+			// 	direction: Math.atan2(entityB.velocity.x, entityB.velocity.y),
+			// 	magnitude: Math.sqrt(entityB.velocity.x ** 2, entityB.velocity.y ** 2),
+			// };
+			// const va = vA.magnitude * Math.cos(theta1 - vA.direction);
+			// const vb = vB.magnitude * Math.cos(theta2 - vB.direction);
+			// const velocityWeightInCollision = Constants.VELOCITY_WEIGHT_IN_COLLISION;
 			const penetrationDepthWeightInCollision = Constants.PENETRATION_DEPTH_WEIGHT_IN_COLLISION;
 			const baseKnockback = Constants.BASE_KNOCKBACK;
-			if ( va > 0 ) {
-				entityA.constraintVelocity.x += va * Math.sin(theta2) * velocityWeightInCollision;
-				entityA.constraintVelocity.y += va * Math.cos(theta2) * velocityWeightInCollision;
-			}
-			if ( vb > 0 ) {
-				entityB.constraintVelocity.x += vb * Math.sin(theta1) * velocityWeightInCollision;
-				entityB.constraintVelocity.y += vb * Math.cos(theta1) * velocityWeightInCollision;
-			}
+			// if ( va > 0 ) {
+			// 	entityA.constraintVelocity.x += va * Math.sin(theta2) * velocityWeightInCollision;
+			// 	entityA.constraintVelocity.y += va * Math.cos(theta2) * velocityWeightInCollision;
+			// }
+			// if ( vb > 0 ) {
+			// 	entityB.constraintVelocity.x += vb * Math.sin(theta1) * velocityWeightInCollision;
+			// 	entityB.constraintVelocity.y += vb * Math.cos(theta1) * velocityWeightInCollision;
+			// }
 			const velA = depth * penetrationDepthWeightInCollision * mB / (mA + mB);
 			const velB = depth * penetrationDepthWeightInCollision * mA / (mA + mB);
 			entityA.constraintVelocity.x += velA * Math.sin(theta2) / deltaT;

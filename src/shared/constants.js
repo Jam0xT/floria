@@ -38,7 +38,7 @@ module.exports = Object.freeze({
 	SLOT_COUNT_BASE: 5, // default player slot count
 
 	PENETRATION_DEPTH_WEIGHT_IN_COLLISION: 1, // decides how much penetration depth will effect collision knockback
-	VELOCITY_WEIGHT_IN_COLLISION: 2, // decides how much velocity will effect collision knockback
+	// VELOCITY_WEIGHT_IN_COLLISION: 2, // decides how much velocity will effect collision knockback
 
 	BASE_KNOCKBACK: 300, // base knockback when colliding
 

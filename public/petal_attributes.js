@@ -44,6 +44,21 @@ module.exports = Object.freeze({
 		TRIGGERS: {
 		},
 	},
+	ROCK: {
+		TYPE: 'ROCK',
+		RADIUS: 8,
+		RELOAD: 10,
+		DAMAGE: 10,
+		MAX_HP: 90,
+		MASS: 1,
+		EXPANDABLE: true,
+		EXTRA_KNOCKBACK: 0,
+		MULTIPLE: false,
+		CLUSTER: false,
+		COUNT: 1,
+		TRIGGERS: {
+		},
+	},
 	ROSE: {
 		TYPE: 'ROSE',
 		RADIUS: 8,
