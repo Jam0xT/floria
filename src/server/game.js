@@ -405,7 +405,7 @@ class Game {
 							const newMobID = this.getNewMobID();
 							this.mobs[newMobID] = {
 								type: attribute.TYPE,
-								value: new Bubble(newMobID, spawnX, spawnY, 'mob-hostile'),
+								value: new Bubble(newMobID, spawnX, spawnY, 'mobTeam'),
 							};
 						}
 					}
@@ -452,15 +452,15 @@ class Game {
 							continue;
 						entityB = this.players[entityInfoB.id.playerID].petals[entityInfoB.id.petalID];
 					}
-					if ( ( entityA.team != entityB.team ) || ( entityA.friendlyCollisions && entityB.friendlyCollisions ) ) {
-						const distance = entityA.distanceTo(entityB);
-						const r1 = entityA.attributes.RADIUS, r2 = entityB.attributes.RADIUS;
-						if ( distance < r1 + r2) {
-							collisions.push({
-								infoA: entityInfoA,
-								infoB: entityInfoB,
-							});
-						}
+					if ( ( entityA.team == entityB.team ) && ( entityInfoA.type == 'petal' || entityInfoB.type == 'petal' ) ) // petals do not collide with anything of the same team
+						continue;
+					const distance = entityA.distanceTo(entityB);
+					const r1 = entityA.attributes.RADIUS, r2 = entityB.attributes.RADIUS;
+					if ( distance < r1 + r2) {
+						collisions.push({
+							infoA: entityInfoA,
+							infoB: entityInfoB,
+						});
 					}
 				}
 			}
@@ -503,48 +503,92 @@ class Game {
 				entityB = this.players[entityInfoB.id.playerID].petals[entityInfoB.id.petalID];
 			}
 			const distance = entityA.distanceTo(entityB);
+			if ( entityInfoA.type == 'player' && entityInfoB.type == 'player' )
+				console.log(distance);
 			const r1 = entityA.attributes.RADIUS, r2 = entityB.attributes.RADIUS;
 			const depth = r1 + r2 - distance;
 			const mA = entityA.attributes.MASS, mB = entityB.attributes.MASS;
 			const theta2 = Math.atan2(entityA.x - entityB.x, entityB.y - entityA.y); // orientation of A relative to B
 			const theta1 = theta2 - Math.PI; // orientation of B relative to A
-			// const vA = {
-			// 	direction: Math.atan2(entityA.velocity.x, entityA.velocity.y),
-			// 	magnitude: Math.sqrt(entityA.velocity.x ** 2, entityA.velocity.y ** 2),
-			// };
-			// const vB = {
-			// 	direction: Math.atan2(entityB.velocity.x, entityB.velocity.y),
-			// 	magnitude: Math.sqrt(entityB.velocity.x ** 2, entityB.velocity.y ** 2),
-			// };
-			// const va = vA.magnitude * Math.cos(theta1 - vA.direction);
-			// const vb = vB.magnitude * Math.cos(theta2 - vB.direction);
-			// const velocityWeightInCollision = Constants.VELOCITY_WEIGHT_IN_COLLISION;
 			const penetrationDepthWeightInCollision = Constants.PENETRATION_DEPTH_WEIGHT_IN_COLLISION;
-			const baseKnockback = Constants.BASE_KNOCKBACK;
-			// if ( va > 0 ) {
-			// 	entityA.constraintVelocity.x += va * Math.sin(theta2) * velocityWeightInCollision;
-			// 	entityA.constraintVelocity.y += va * Math.cos(theta2) * velocityWeightInCollision;
-			// }
-			// if ( vb > 0 ) {
-			// 	entityB.constraintVelocity.x += vb * Math.sin(theta1) * velocityWeightInCollision;
-			// 	entityB.constraintVelocity.y += vb * Math.cos(theta1) * velocityWeightInCollision;
-			// }
 			const velA = depth * penetrationDepthWeightInCollision * mB / (mA + mB);
 			const velB = depth * penetrationDepthWeightInCollision * mA / (mA + mB);
 			entityA.constraintVelocity.x += velA * Math.sin(theta2) / deltaT;
 			entityA.constraintVelocity.y += velA * Math.cos(theta2) / deltaT;
 			entityB.constraintVelocity.x += velB * Math.sin(theta1) / deltaT;
 			entityB.constraintVelocity.y += velB * Math.cos(theta1) / deltaT;
-			const knockbackA = baseKnockback * mB / (mA + mB) + entityB.attributes.EXTRA_KNOCKBACK / mA;
-			const knockbackB = baseKnockback * mA / (mA + mB) + entityA.attributes.EXTRA_KNOCKBACK / mB;
-			entityA.constraintVelocity.x += knockbackA * Math.sin(theta2);
-			entityA.constraintVelocity.y += knockbackA * Math.cos(theta2);
-			entityB.constraintVelocity.x += knockbackB * Math.sin(theta1);
-			entityB.constraintVelocity.y += knockbackB * Math.cos(theta1);
-			entityA.hp -= entityB.attributes.DAMAGE;
-			entityB.hp -= entityA.attributes.DAMAGE;
-			entityA.hurtByInfo = entityInfoB;
-			entityB.hurtByInfo = entityInfoA;
+			if ( entityA.team != entityB.team ) {
+				if ( entityInfoA.type == 'player' ) {
+					entityA.velocity.x += velA * Math.sin(theta2) / deltaT;
+					entityA.velocity.y += velA * Math.cos(theta2) / deltaT;
+					const baseKnockback = Constants.BASE_KNOCKBACK;
+					const knockbackA = baseKnockback * mB / (mA + mB);
+					entityA.velocity.x += knockbackA * Math.sin(theta2);
+					entityA.velocity.y += knockbackA * Math.cos(theta2);
+					if ( entityInfoB.type == 'petal' ) {
+						if ( entityB.attributes.TRIGGERS.NO_HEAL ) {
+							entityA.noHeal = entityB.attributes.TRIGGERS.NO_HEAL;
+						}
+						if ( entityB.attributes.TRIGGERS.POISON ) {
+							if ( entityA.poison * entityA.poisonTime < entityB.attributes.TRIGGERS.POISON ) {
+								entityA.poison = entityB.attributes.TRIGGERS.TOXICITY;
+								entityA.poisonTime = entityB.attributes.TRIGGERS.POISON / entityB.attributes.TRIGGERS.TOXICITY;
+							}
+						}
+						this.players[entityB.parent].hp -= entityB.attributes.DAMAGE * entityA.damageReflect;
+					} else if ( entityInfoB.type == 'player' ) {
+						if ( entityA.bodyToxicity > 0 ) {
+							if ( entityB.poison * entityB.poisonTime < entityA.bodyPoison ) {
+								entityB.poison = entityA.bodyToxicity;
+								entityB.poisonTime = entityA.bodyPoison / entityA.bodyToxicity;
+							}
+						}
+						if ( entityB.bodyToxicity > 0 ) {
+							if ( entityA.poison * entityA.poisonTime < entityB.bodyPoison ) {
+								entityA.poison = entityB.bodyToxicity;
+								entityA.poisonTime = entityB.bodyPoison / entityB.bodyToxicity;
+							}
+						}
+					}
+				}
+				if ( entityInfoB.type == 'player' ) {
+					entityB.velocity.x += velB * Math.sin(theta1) / deltaT;
+					entityB.velocity.y += velB * Math.cos(theta1) / deltaT;
+					const baseKnockback = Constants.BASE_KNOCKBACK;
+					const knockbackB = baseKnockback * mA / (mA + mB);
+					entityB.velocity.x += knockbackB * Math.sin(theta1);
+					entityB.velocity.y += knockbackB * Math.cos(theta1);
+					if ( entityInfoA.type == 'petal' ) {
+						if ( entityA.attributes.TRIGGERS.NO_HEAL ) {
+							entityB.noHeal = entityA.attributes.TRIGGERS.NO_HEAL;
+						}
+						if ( entityA.attributes.TRIGGERS.POISON ) {
+							if ( entityB.poison * entityB.poisonTime < entityA.attributes.TRIGGERS.POISON ) {
+								entityB.poison = entityA.attributes.TRIGGERS.TOXICITY;
+								entityB.poisonTime = entityA.attributes.TRIGGERS.POISON / entityA.attributes.TRIGGERS.TOXICITY;
+							}
+						}
+						this.players[entityA.parent].hp -= entityA.attributes.DAMAGE * entitB.damageReflect;
+					} else if ( entityInfoA.type == 'player' ) {
+						if ( entityA.bodyToxicity > 0 ) {
+							if ( entityB.poison * entityB.poisonTime < entityA.bodyPoison ) {
+								entityB.poison = entityA.bodyToxicity;
+								entityB.poisonTime = entityA.bodyPoison / entityA.bodyToxicity;
+							}
+						}
+						if ( entityB.bodyToxicity > 0 ) {
+							if ( entityA.poison * entityA.poisonTime < entityB.bodyPoison ) {
+								entityA.poison = entityB.bodyToxicity;
+								entityA.poisonTime = entityB.bodyPoison / entityB.bodyToxicity;
+							}
+						}
+					}
+				}
+				entityA.hp -= entityB.attributes.DAMAGE;
+				entityB.hp -= entityA.attributes.DAMAGE;
+				entityA.hurtByInfo = entityInfoB;
+				entityB.hurtByInfo = entityInfoA;
+			}
 		}
 	}
 
@@ -594,6 +638,8 @@ class Game {
 
 		this.updateChunks();
 
+		this.handleBorder();
+
 		this.solveCollisions(deltaT);
 
 		this.applyConstraintVelocity(deltaT);
@@ -610,7 +656,7 @@ class Game {
 
 		// console.log(Object.values(this.players));
 		
-		console.log(`mspt: ${Date.now() - now}`);
+		// console.log(`mspt: ${Date.now() - now}`);
 	}
 
 	// send update

@@ -35,16 +35,16 @@ module.exports = Object.freeze({
 	PETAL_ROTATION_SPEED_BASE: 2.5, // default player petal rotation speed
 	PETAL_FOLLOW_SPEED: 8, // how fast petals follow players
 
-	SLOT_COUNT_BASE: 5, // default player slot count
+	SLOT_COUNT_BASE: 8, // default player slot count
 
 	PENETRATION_DEPTH_WEIGHT_IN_COLLISION: 1, // decides how much penetration depth will effect collision knockback
 	// VELOCITY_WEIGHT_IN_COLLISION: 2, // decides how much velocity will effect collision knockback
 
-	BASE_KNOCKBACK: 300, // base knockback when colliding
+	BASE_KNOCKBACK: 500, // base knockback when colliding
 
-	PETAL_EXPAND_RADIUS_NORMAL: 60, // petal expand radius
-	PETAL_EXPAND_RADIUS_ATTACK: 120,
-	PETAL_EXPAND_RADIUS_DEFEND: 30, 
+	PETAL_EXPAND_RADIUS_NORMAL: 35, // petal expand radius
+	PETAL_EXPAND_RADIUS_ATTACK: 100,
+	PETAL_EXPAND_RADIUS_DEFEND: 10, 
 
 	BUBBLE_ATTENUATION_COEFFICIENT: 0.8, // bubble velocity *= X every tick
 });

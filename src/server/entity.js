@@ -1,7 +1,7 @@
 const Constants = require('../shared/constants');
 
 class Entity {
-	constructor(id, x, y, team, generalType, type, hp, maxHp, noBorderCollision, friendlyCollisions) {
+	constructor(id, x, y, team, generalType, type, hp, maxHp, noBorderCollision) {
 		this.id = id;
 		this.x = x;
 		this.y = y;
@@ -24,7 +24,6 @@ class Entity {
 		}
 		this.chunks = [];
 		this.noBorderCollision = noBorderCollision;
-		this.friendlyCollisions = friendlyCollisions;
 		this.movement = {
 			direction: 0,
 			speed: 0,
@@ -65,7 +64,7 @@ class Entity {
 		this.velocity.y += speedY;
 	}
 
-	applyVelocity(deltaT) {		
+	applyVelocity(deltaT) {
 		this.x += deltaT * this.velocity.x;
 		this.y -= deltaT * this.velocity.y;
 	}
@@ -73,8 +72,6 @@ class Entity {
 	applyConstraintVelocity(deltaT) {
 		this.x += this.constraintVelocity.x * deltaT;
 		this.y -= this.constraintVelocity.y * deltaT;
-		this.velocity.x += this.constraintVelocity.x;
-		this.velocity.y += this.constraintVelocity.y;
 		this.constraintVelocity = {
 			x: 0,
 			y: 0,

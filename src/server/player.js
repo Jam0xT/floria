@@ -6,7 +6,7 @@ const Petal = require('./petal');
 
 class Player extends Entity {
 	constructor(id, username, x, y) {
-		super(id, x, y, id, 'mob', 'PLAYER', EntityAttributes.PLAYER.MAX_HP_BASE, EntityAttributes.PLAYER.MAX_HP_BASE, false, true);
+		super(id, x, y, id, 'mob', 'PLAYER', EntityAttributes.PLAYER.MAX_HP_BASE, EntityAttributes.PLAYER.MAX_HP_BASE, false);
 		// a player's team equals to his id
 		this.username = username;
 		this.score = 1;
@@ -22,11 +22,14 @@ class Player extends Entity {
 		this.rotateClockwise = 1; // 1 for clockwise, -1 for counter-clockwise
 		this.petalExpandRadius = Constants.PETAL_EXPAND_RADIUS_NORMAL;
 		this.petals = [
-			new Petal(0, x, y, id, 'ROSE', true, false),
-			new Petal(1, x, y, id, 'STINGER', true, false),
-			new Petal(2, x, y, id, 'STINGER', true, false),
-			new Petal(3, x, y, id, 'STINGER', true, false),
-			new Petal(4, x, y, id, 'BUBBLE', true, false),
+			new Petal(0, x, y, id, 'BUBBLE', true),
+			new Petal(1, x, y, id, 'CACTUS_TOXIC', true),
+			new Petal(2, x, y, id, 'ROSE_ADVANCED', true),
+			new Petal(3, x, y, id, 'SALT', true),
+			new Petal(4, x, y, id, 'DANDELION', true),
+			new Petal(5, x, y, id, 'STINGER', true),
+			new Petal(6, x, y, id, 'IRIS', true),
+			new Petal(7, x, y, id, 'STINGER', true),
 		];
 		this.activeDirection = 0;
 		this.attributes = Attribute;
@@ -36,6 +39,12 @@ class Player extends Entity {
 			x: 0,
 			y: 0,
 		};
+		this.noHeal = 0; // 剩余禁用回血时间
+		this.poison = 0; // 中毒每秒毒伤
+		this.poisonTime = 0; // 剩余中毒时间
+		this.bodyToxicity = 8; // 碰撞毒秒伤
+		this.bodyPoison = 40; // 碰撞毒总伤
+		this.damageReflect = 0.25; // 反伤
 	}
 
 	updatePetalMovement(deltaT) {
@@ -49,18 +58,29 @@ class Player extends Entity {
 		for (let petalID = 0; petalID < this.slotCount; petalID ++ ) {
 			const petal = this.petals[petalID];
 			if ( !petal.inCooldown ) {
-				const theta = this.firstPetalDirection + 2 * Math.PI * petal.id / this.petalObjectCount;
-				let expandRadius = this.petalExpandRadius;
-				if ( !petal.attributes.EXPANDABLE ) {
-					expandRadius = Math.min(expandRadius, Constants.PETAL_EXPAND_RADIUS_NORMAL);
-				}
-				const goalPos = {
-					x: this.x + expandRadius * Math.sin(theta),
-					y: this.y + expandRadius * Math.cos(theta),
-				}
-				petal.movement = {
-					direction: Math.atan2(goalPos.x - petal.x, petal.y - goalPos.y),
-					speed: Math.sqrt((goalPos.x - petal.x) ** 2 + (goalPos.y - petal.y) ** 2) * Constants.PETAL_FOLLOW_SPEED,
+				if ( petal.attributes.TRIGGERS.PROJECTILE && petal.action ) {
+					petal.movement = {
+						direction: petal.direction,
+						speed: petal.attributes.TRIGGERS.PROJECTILE,
+					};
+				} else {
+					petal.direction = Math.atan2(petal.x - this.x, this.y - petal.y);
+					const theta = this.firstPetalDirection + 2 * Math.PI * petal.id / this.petalObjectCount;
+					let expandRadius = this.petalExpandRadius + this.attributes.RADIUS;
+					if ( !petal.attributes.EXPANDABLE ) {
+						expandRadius = Math.min(expandRadius, Constants.PETAL_EXPAND_RADIUS_NORMAL + this.attributes.RADIUS);
+					}
+					if ( petal.action ) {
+						expandRadius = Math.min(expandRadius, this.attributes.RADIUS + petal.attributes.RADIUS);
+					}
+					const goalPos = {
+						x: this.x + expandRadius * Math.sin(theta),
+						y: this.y + expandRadius * Math.cos(theta),
+					};
+					petal.movement = {
+						direction: Math.atan2(goalPos.x - petal.x, petal.y - goalPos.y),
+						speed: Math.sqrt((goalPos.x - petal.x) ** 2 + (goalPos.y - petal.y) ** 2) * Constants.PETAL_FOLLOW_SPEED,
+					};
 				}
 			} else {
 				petal.cooldown -= deltaT;
@@ -73,7 +93,7 @@ class Player extends Entity {
 	}
 
 	newPetal(type, petalID) {
-		return new Petal(petalID, this.x, this.y, this.id, type, true, false);
+		return new Petal(petalID, this.x, this.y, this.id, type, true);
 	}
 
 	handleActiveMovement(activeMovement) { // handles active motion
@@ -82,28 +102,57 @@ class Player extends Entity {
 	}
 
 	update(deltaT) {
-		if ( this.hp < this.maxHp ) {
+		this.noHeal = Math.max(0, this.noHeal - deltaT);
+		this.poisonTime = Math.max(0, this.poisonTime - deltaT);
+		this.hp -= this.poison * deltaT;
+
+		if ( this.hp < this.maxHp && (!this.noHeal) ) {
 			this.hp += ((this.maxHp / 240) * deltaT);
 			this.hp = Math.min(this.hp, this.maxHp);
 		}
 
-		if ( this.hp < this.maxHp ) {
-			for (let petalID = 0; petalID < this.slotCount; petalID ++ ) {
-				const petal = this.petals[petalID];
-				if ( !petal.inCooldown ) {
-					if ( petal.attributes.TRIGGERS.HEAL ) { // trigger healing petals like rose, dahlia etc.
-						petal.hp = -1;
-						this.hp += petal.attributes.TRIGGERS.HEAL;
-						this.hp = Math.min(this.hp, this.maxHp);
+		for (let petalID = 0; petalID < this.slotCount; petalID ++ ) {
+			const petal = this.petals[petalID];
+			if ( !petal.inCooldown ) {
+				if ( petal.attributes.TRIGGERS.HEAL ) { // trigger healing petals like rose, dahlia etc.
+					if ( this.hp < this.maxHp && (!this.noHeal) ) {
+						if ( petal.actionCooldown > 0 ) {
+							petal.actionCooldown -= deltaT;
+						} else {
+							if ( !petal.action ) {
+								petal.action = true;
+							} else {
+								if ( petal.actionTime >= petal.attributes.TRIGGERS.ACTION_TIME ) {
+									petal.hp = -1;
+									this.hp += petal.attributes.TRIGGERS.HEAL;
+									this.hp = Math.min(this.hp, this.maxHp);
+								} else {
+									petal.actionTime += deltaT;
+								}
+							}
+						}
+					} else {
+						petal.action = false;
+						petal.actionTime = 0;
 					}
 				}
-			}
-		}
-
-		if ( this.defend ) { // defend trigger
-			for (let petalID = 0; petalID < this.slotCount; petalID ++ ) {
-				const petal = this.petals[petalID];
-				if ( !petal.inCooldown ) {
+				if ( petal.attributes.TRIGGERS.PROJECTILE ) { // trigger projectile petals like missile, dandelion etc.
+					if ( petal.actionCooldown > 0 ) {
+						petal.actionCooldown -= deltaT;
+					} else {
+						if ( !petal.action ) {
+							if ( this.attack ) {
+								petal.action = true;
+							}
+						} else {
+							petal.actionTime += deltaT;
+							if ( petal.actionTime >= petal.attributes.TRIGGERS.ACTION_TIME ) {
+								petal.hp = -1;
+							}
+						}
+					}
+				}
+				if ( this.defend ) { // defend trigger
 					if ( petal.attributes.TRIGGERS.BUBBLE_PUSH ) { // trigger bubble
 						petal.hp = -1;
 						const dir = this.firstPetalDirection + 2 * Math.PI * petal.id / this.petalObjectCount;
@@ -115,19 +164,6 @@ class Player extends Entity {
 			}
 		}
 
-		// if ( this.attack ) {
-		// 	for (let petalID = 0; petalID < this.slotCount; petalID ++ ) {
-		// 		const petal = this.petals[petalID];
-		// 		if ( !petal.inCooldown ) {
-		// 			if ( petal.attributes.TRIGGERS.SHOOT ) { // trigger shootable petals like missile, dandelion etc.
-		// 				const dir = this.firstPetalDirection + 2 * Math.PI * petal.id / this.petalObjectCount;
-		// 				const push = petal.attributes.TRIGGERS.BUBBLE_PUSH;
-		// 				this.velocity.x -= push * Math.sin(dir);
-		// 				this.velocity.y += push * Math.cos(dir);
-		// 			}
-		// 		}
-		// 	}
-		// }
 	}
 
 	updateChunks() {
