@@ -32,6 +32,10 @@ class Player extends Entity {
 		this.attributes = Attribute;
 		this.attack = false;
 		this.defend = false;
+		this.bubbleVelocity = {
+			x: 0,
+			y: 0,
+		};
 	}
 
 	updatePetalMovement(deltaT) {
@@ -104,8 +108,8 @@ class Player extends Entity {
 						petal.hp = -1;
 						const dir = this.firstPetalDirection + 2 * Math.PI * petal.id / this.petalObjectCount;
 						const push = petal.attributes.TRIGGERS.BUBBLE_PUSH;
-						this.velocity.x -= push * Math.sin(dir);
-						this.velocity.y += push * Math.cos(dir);
+						this.bubbleVelocity.x -= push * Math.sin(dir);
+						this.bubbleVelocity.y += push * Math.cos(dir);
 					}
 				}
 			}
@@ -136,6 +140,8 @@ class Player extends Entity {
 
 	updateVelocity(deltaT) {
 		super.updateVelocity(deltaT);
+		this.bubbleVelocity.x *= Constants.BUBBLE_ATTENUATION_COEFFICIENT;
+		this.bubbleVelocity.y *= Constants.BUBBLE_ATTENUATION_COEFFICIENT;
 		for (let petalID = 0; petalID < this.slotCount; petalID ++ ) {
 			const petal = this.petals[petalID];
 			if ( !petal.inCooldown ) {
@@ -146,6 +152,8 @@ class Player extends Entity {
 
 	applyVelocity(deltaT) {
 		super.applyVelocity(deltaT);
+		this.x += deltaT * this.bubbleVelocity.x;
+		this.y -= deltaT * this.bubbleVelocity.y;
 		for (let petalID = 0; petalID < this.slotCount; petalID ++ ) {
 			const petal = this.petals[petalID];
 			if ( !petal.inCooldown ) {

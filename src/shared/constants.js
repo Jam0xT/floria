@@ -1,7 +1,7 @@
 module.exports = Object.freeze({
 	TICK_PER_SECOND: 25, // server runs X updates per second
 
-	SPEED_ATTENUATION_COEFFICIENT: 0.7, // velocity *= X every tick if it isn't constant
+	SPEED_ATTENUATION_COEFFICIENT: 0.7, // velocity *= X every tick
 
 	MSG_TYPES: { // socket.io communication
 		JOIN_GAME: 'join_game',
@@ -45,4 +45,6 @@ module.exports = Object.freeze({
 	PETAL_EXPAND_RADIUS_NORMAL: 60, // petal expand radius
 	PETAL_EXPAND_RADIUS_ATTACK: 120,
 	PETAL_EXPAND_RADIUS_DEFEND: 30, 
+
+	BUBBLE_ATTENUATION_COEFFICIENT: 0.8, // bubble velocity *= X every tick
 });

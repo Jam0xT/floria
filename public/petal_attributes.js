@@ -26,7 +26,7 @@ module.exports = Object.freeze({
 		CLUSTER: false,
 		COUNT: 1,
 		TRIGGERS: {
-			BUBBLE_PUSH: 1500,
+			BUBBLE_PUSH: 1000,
 		},
 	},
 	STINGER: {
