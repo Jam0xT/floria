@@ -121,7 +121,7 @@ function renderPlayer(me, player) {
 	const healthBarWidth = healthBarBaseWidth - healthBarOutline;
 	const healthBarStyleNormal = 'rgb(117, 221, 52)';
 	const healthBarStyleHurt = 'rgb(221, 52, 52)';
-	const healthBarLength = healthBarBaseLength * player.hp / EntityAttributes.PLAYER.MAX_HP_BASE;
+	const healthBarLength = healthBarBaseLength * player.hp / player.maxHp;
 
 	context.save();
 

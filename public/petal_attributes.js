@@ -104,7 +104,7 @@ module.exports = Object.freeze({
 		COUNT: 1,
 		TRIGGERS: {
 			PROJECTILE: 500,
-			ACTION_TIME: 2,
+			ACTION_TIME: 1.5,
 			ACTION_COOLDOWN: 0.5,
 		},
 	},
@@ -152,9 +152,9 @@ module.exports = Object.freeze({
 		COUNT: 1,
 		TRIGGERS: {
 			BODY_POISON: 40,
-			BODY_TOXICITY: 8,
+			BODY_TOXICITY: 5,
 			POISON: 6,
-			TOXICITY: 8, 
+			TOXICITY: 5, 
 		},
 	},
 	IRIS: {
@@ -170,7 +170,7 @@ module.exports = Object.freeze({
 		COUNT: 1,
 		TRIGGERS: {
 			POISON: 60,
-			TOXICITY: 8,
+			TOXICITY: 5,
 		},
 	},
 });

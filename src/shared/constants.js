@@ -33,7 +33,7 @@ module.exports = Object.freeze({
 	SCORE_LOOTING_COEFFICIENT: 0.5, // your score will increase by X*S when you kill a player whose score is S
 
 	PETAL_ROTATION_SPEED_BASE: 2.5, // default player petal rotation speed
-	PETAL_FOLLOW_SPEED: 8, // how fast petals follow players
+	PETAL_FOLLOW_SPEED: 7, // how fast petals follow players
 
 	SLOT_COUNT_BASE: 8, // default player slot count
 
@@ -43,8 +43,8 @@ module.exports = Object.freeze({
 	BASE_KNOCKBACK: 500, // base knockback when colliding
 
 	PETAL_EXPAND_RADIUS_NORMAL: 35, // petal expand radius
-	PETAL_EXPAND_RADIUS_ATTACK: 100,
-	PETAL_EXPAND_RADIUS_DEFEND: 10, 
+	PETAL_EXPAND_RADIUS_ATTACK: 94.5,
+	PETAL_EXPAND_RADIUS_DEFEND: 13.5, 
 
 	BUBBLE_ATTENUATION_COEFFICIENT: 0.8, // bubble velocity *= X every tick
 });

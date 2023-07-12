@@ -42,9 +42,11 @@ class Player extends Entity {
 		this.noHeal = 0; // 剩余禁用回血时间
 		this.poison = 0; // 中毒每秒毒伤
 		this.poisonTime = 0; // 剩余中毒时间
-		this.bodyToxicity = 8; // 碰撞毒秒伤
+		this.bodyToxicity = 5; // 碰撞毒秒伤
 		this.bodyPoison = 40; // 碰撞毒总伤
 		this.damageReflect = 0.25; // 反伤
+		this.maxHp += 20;
+		this.hp = this.maxHp;
 	}
 
 	updatePetalMovement(deltaT) {
@@ -261,6 +263,7 @@ class Player extends Entity {
 			score: this.score,
 			activeDirection: this.activeDirection, // the direction of input, not in use at the moment
 			hp: this.hp,
+			maxHp: this.maxHp,
 			username: this.username,
 			petals: this.getPetalsForUpdate(),
 		};
