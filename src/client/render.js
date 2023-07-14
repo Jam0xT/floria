@@ -52,7 +52,7 @@ function renderBackground(x, y) {
 	context.fillStyle = "#1EA761";
 	context.fillRect(canvas.width / 2 - x, canvas.height / 2 - y, MAP_WIDTH, MAP_HEIGHT);
 
-	const gridInterval = 45;
+	const gridInterval = 50;
 
 	const startX = ( canvas.width / 2 - x ) % gridInterval;
 	const startY = ( canvas.height / 2 - y ) % gridInterval;
@@ -121,7 +121,7 @@ function renderPlayer(me, player) {
 	const healthBarWidth = healthBarBaseWidth - healthBarOutline;
 	const healthBarStyleNormal = 'rgb(117, 221, 52)';
 	const healthBarStyleHurt = 'rgb(221, 52, 52)';
-	const healthBarLength = healthBarBaseLength * player.hp / player.maxHp;
+	const healthBarLength = healthBarBaseLength * player.hp / player.maxHp ;
 
 	context.save();
 
@@ -154,7 +154,7 @@ function renderPlayer(me, player) {
 
 		context.rotate(petal.dir);
 
-		const renderRadius = PetalAttributes[petal.type].RADIUS + 2;
+		const renderRadius = (PetalAttributes[petal.type].RADIUS + 2);
 
 		const asset = getAsset(`petals/${petal.type.toLowerCase()}.svg`);
 

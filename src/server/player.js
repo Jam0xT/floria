@@ -184,6 +184,12 @@ class Player extends Entity {
 		super.updateVelocity(deltaT);
 		this.bubbleVelocity.x *= Constants.BUBBLE_ATTENUATION_COEFFICIENT;
 		this.bubbleVelocity.y *= Constants.BUBBLE_ATTENUATION_COEFFICIENT;
+		if ( Math.sqrt(this.bubbleVelocity.x ** 2 + this.bubbleVelocity.y ** 2) <= 50 ) {
+			this.bubbleVelocity = {
+				x: 0,
+				y: 0,
+			};
+		}
 		for (let petalID = 0; petalID < this.slotCount; petalID ++ ) {
 			const petal = this.petals[petalID];
 			if ( !petal.inCooldown ) {

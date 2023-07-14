@@ -469,10 +469,18 @@ class Game {
 		});
 		collisions = collisions.reduce((accumulator, cur) => {
 			if ( !accumulator.find((item) => {
-				return item.infoA.type == cur.infoA.type &&
-				item.infoA.id == cur.infoA.id &&
-				item.infoB.type == cur.infoB.type &&
-				item.infoB.id == cur.infoB.id
+				let sameA = false, sameB = false;
+				if ( item.infoA.type != 'petal' ) {
+					sameA = ( (item.infoA.type == cur.infoA.type) && (item.infoA.id == cur.infoA.id) );
+				} else {
+					sameA = ( (item.infoA.id.playerID == cur.infoA.id.playerID) && (item.infoA.id.petalID == cur.infoA.id.petalID) )
+				}
+				if ( item.infoB.type != 'petal' ) {
+					sameB = ( (item.infoB.type == cur.infoB.type) && (item.infoB.id == cur.infoB.id) );
+				} else {
+					sameB = ( (item.infoB.id.playerID == cur.infoB.id.playerID) && (item.infoB.id.petalID == cur.infoB.id.petalID) )
+				}
+				return sameA && sameB;
 			}) ) {
 				accumulator.push(cur);
 			}
@@ -539,6 +547,8 @@ class Game {
 						}
 						this.players[entityB.parent].hp -= entityB.attributes.DAMAGE * entityA.damageReflect;
 					} else if ( entityInfoB.type == 'player' ) {
+						entityA.hp -= entityA.attributes.DAMAGE * entityB.damageReflect;
+						entityB.hp -= entityB.attributes.DAMAGE * entityA.damageReflect;
 						if ( entityA.bodyToxicity > 0 ) {
 							if ( entityB.poison * entityB.poisonTime < entityA.bodyPoison ) {
 								entityB.poison = entityA.bodyToxicity;
@@ -571,19 +581,6 @@ class Game {
 							}
 						}
 						this.players[entityA.parent].hp -= entityA.attributes.DAMAGE * entityB.damageReflect;
-					} else if ( entityInfoA.type == 'player' ) {
-						if ( entityA.bodyToxicity > 0 ) {
-							if ( entityB.poison * entityB.poisonTime < entityA.bodyPoison ) {
-								entityB.poison = entityA.bodyToxicity;
-								entityB.poisonTime = entityA.bodyPoison / entityA.bodyToxicity;
-							}
-						}
-						if ( entityB.bodyToxicity > 0 ) {
-							if ( entityA.poison * entityA.poisonTime < entityB.bodyPoison ) {
-								entityA.poison = entityB.bodyToxicity;
-								entityA.poisonTime = entityB.bodyPoison / entityB.bodyToxicity;
-							}
-						}
 					}
 				}
 				entityA.hp -= entityB.attributes.DAMAGE;
