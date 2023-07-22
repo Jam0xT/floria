@@ -29,8 +29,8 @@ class Game {
 	addPlayer(socket, username) { // add a player
 		this.sockets[socket.id] = socket;
 
-		const x = Constants.MAP_WIDTH * (0.25 + Math.random() * 0.5);
-		const y = Constants.MAP_HEIGHT * (0.25 + Math.random() * 0.5);
+		const x = Constants.MAP_WIDTH * rnd(0.1, 0.9);
+		const y = Constants.MAP_HEIGHT * rnd(0.1, 0.9);
 
 		this.players[socket.id] = new Player(socket.id, username, x, y);
 
@@ -178,6 +178,7 @@ class Game {
 					// it will crash because the player who killed you is not on the leaderboard anymore
 					// (the player who killed you is dead, and he has already been removed from leaderboard)
 					this.updateLeaderboard(killedBy);
+					killedBy.maxHp += 10;
 				}
 			}
 		}
@@ -690,6 +691,7 @@ class Game {
 			playerCount: Object.keys(this.players).length, // the number of players online
 			mobs: nearbyMobs.map(e => e.value.serializeForUpdate()),
 		}
+	
 	}
 }
 

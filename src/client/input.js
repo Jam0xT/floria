@@ -117,10 +117,10 @@ export function startCapturingInput(isKeyboardInput) {
 }
 
 export function stopCapturingInput(isKeyboardInput) {
-	if ( !isKeyboardInput ) {
+	if ( !isKeyboardInput ) { 
 		window.removeEventListener('mousemove', onMouseMove);
 		window.removeEventListener('click', onClick);
-		// window.removeEventListener('touchstart', onTouchInput);
+		// window.removeEventListener('touchstart', onTouchInput );
 		// window.removeEventListener('touchmove', onTouchInput);
 	}
 }

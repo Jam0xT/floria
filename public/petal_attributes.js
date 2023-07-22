@@ -85,7 +85,7 @@ module.exports = Object.freeze({
 		CLUSTER: false,
 		COUNT: 1,
 		TRIGGERS: {
-			PROJECTILE: 300,
+			PROJECTILE: 250,
 			ACTION_TIME: 1.5,
 			ACTION_COOLDOWN: 0.5,
 			NO_HEAL: 10,
@@ -93,7 +93,7 @@ module.exports = Object.freeze({
 	},
 	MISSILE: {
 		TYPE: 'MISSILE',
-		RADIUS: 5,
+		RADIUS: 6,
 		RELOAD: 3,
 		DAMAGE: 35,
 		MAX_HP: 10,
@@ -171,6 +171,34 @@ module.exports = Object.freeze({
 		TRIGGERS: {
 			POISON: 60,
 			TOXICITY: 5,
+		},
+	},
+	RICE: {
+		TYPE: 'RICE',
+		RADIUS: 5,
+		RELOAD: 0.04,
+		DAMAGE: 5,
+		MAX_HP: 5,
+		MASS: 1,
+		EXPANDABLE: true,
+		MULTIPLE: false,
+		CLUSTER: false,
+		COUNT: 1,
+		TRIGGERS: {
+		},
+	},
+	LIGHTNING: {
+		TYPE: 'LIGHTNING',
+		RADIUS: 8,
+		RELOAD: 3,
+		DAMAGE: 5,
+		MAX_HP: 5,
+		MASS: 1,
+		EXPANDABLE: true,
+		MULTIPLE: false,
+		CLUSTER: false,
+		COUNT: 1,
+		TRIGGERS: {
 		},
 	},
 });

@@ -12,8 +12,8 @@ module.exports = Object.freeze({
 		GAME_OVER: 'dead',
 	},
 
-	MAP_WIDTH: 3000, // width of the map
-	MAP_HEIGHT: 3000, // height of the map
+	MAP_WIDTH: 4000, // width of the map
+	MAP_HEIGHT: 4000, // height of the map
 
 	RENDER_DELAY: 100, // render delay to make the animation smooth
 

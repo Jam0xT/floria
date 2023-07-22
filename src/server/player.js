@@ -22,14 +22,14 @@ class Player extends Entity {
 		this.rotateClockwise = 1; // 1 for clockwise, -1 for counter-clockwise
 		this.petalExpandRadius = Constants.PETAL_EXPAND_RADIUS_NORMAL;
 		this.petals = [
-			new Petal(0, x, y, id, 'BUBBLE', true),
-			new Petal(1, x, y, id, 'CACTUS_TOXIC', true),
-			new Petal(2, x, y, id, 'ROSE_ADVANCED', true),
-			new Petal(3, x, y, id, 'SALT', true),
-			new Petal(4, x, y, id, 'DANDELION', true),
-			new Petal(5, x, y, id, 'STINGER', true),
-			new Petal(6, x, y, id, 'IRIS', true),
-			new Petal(7, x, y, id, 'STINGER', true),
+			new Petal(0, x, y, id, 'LIGHTNING', true),
+			new Petal(1, x, y, id, 'LIGHTNING', true),
+			new Petal(2, x, y, id, 'LIGHTNING', true),
+			new Petal(3, x, y, id, 'LIGHTNING', true),
+			new Petal(4, x, y, id, 'LIGHTNING', true),
+			new Petal(5, x, y, id, 'LIGHTNING', true),
+			new Petal(6, x, y, id, 'LIGHTNING', true),
+			new Petal(7, x, y, id, 'LIGHTNING', true),
 		];
 		this.activeDirection = 0;
 		this.attributes = Attribute;
