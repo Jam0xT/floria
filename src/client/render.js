@@ -114,6 +114,7 @@ function renderGame() {
 		});
 		renderText(UILayer, 0.7, "florr.cn", W - hpx * 80, H - hpx * 20, hpx * 40, 'center');
 		renderLeaderboard(leaderboard, playerCount, me, rankOnLeaderboard);
+		renderUI(me);
 	}
 	
 	if ( gameRadiusOnEnter < hpx * 1800 ) {
@@ -136,6 +137,53 @@ function renderGame() {
 		ctx.stroke();
 	}
 	render(renderGame);
+}
+
+function renderUI(me) {
+	ctx = getCtx(UILayer);
+	ctx.globalAlpha = 0.85;
+
+	const expBarYPos = hpx * 860;
+	const expBarBaseLength = hpx * 300;
+	const expBarBaseWidth = hpx * 45;
+	const expBarBaseStyle = 'rgb(51, 51, 51)';
+	const expBarLength = expBarBaseLength * me.exp / me.currentExpForLevel;
+	const expBarWidth = expBarBaseWidth - hpx * 5;
+	const expBarStyle = 'rgb(255, 255, 110)'
+	
+	ctx.beginPath();
+	ctx.moveTo(0, expBarYPos);
+	ctx.lineTo(expBarBaseLength, expBarYPos);
+	ctx.lineWidth = expBarBaseWidth;
+	ctx.strokeStyle = expBarBaseStyle;
+	ctx.lineCap = 'round';
+	ctx.stroke();
+	ctx.closePath();
+
+	ctx.globalCompositeOperation = 'desitination-out'; // clip
+	ctx.beginPath();
+	ctx.moveTo(0, expBarYPos);
+	ctx.lineTo(expBarLength, expBarYPos);
+	ctx.lineWidth = expBarWidth;
+	ctx.strokeStyle = 'rgb(0, 0, 0)';
+	ctx.lineCap = 'round';
+	ctx.stroke();
+	ctx.closePath();
+
+	ctx.beginPath();
+	ctx.moveTo(0, expBarYPos);
+	ctx.lineTo(expBarLength, expBarYPos);
+	ctx.lineWidth = expBarWidth;
+	ctx.strokeStyle = expBarStyle;
+	ctx.lineCap = 'round';
+	ctx.stroke();
+	ctx.closePath();
+
+	ctx.globalCompositeOperation = 'source-over';
+
+	ctx.globalAlpha = 1;
+	renderText(UILayer, 1, `Lvl ${Math.floor(me.level)} flower`, hpx * 100, expBarYPos + hpx * 5, hpx * 18, 'left');
+	renderText(UILayer, 0.9, me.username, hpx * 150, expBarYPos - hpx * 40, hpx * 30, 'center');
 }
 
 function renderBackground(x, y) {

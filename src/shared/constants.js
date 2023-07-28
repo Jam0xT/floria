@@ -31,6 +31,7 @@ module.exports = Object.freeze({
 	CHUNK_ID_CONSTANT: 114514, // help get the id of each chunk
 
 	SCORE_LOOTING_COEFFICIENT: 0.5, // your score will increase by X*S when you kill a player whose score is S
+	EXP_LOOTING_COEFFICIENT: 0.2, // your exp will increase by X*E when you kill a player whose exp is E
 
 	PETAL_ROTATION_SPEED_BASE: 2.5, // default player petal rotation speed
 	PETAL_FOLLOW_SPEED: 7, // how fast petals follow players

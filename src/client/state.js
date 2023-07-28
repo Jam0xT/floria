@@ -61,6 +61,8 @@ export function getCurrentState() {
 	}
 }
 
+let valueKeys = ['x', 'y', 'hp', 'score', 'maxHp', 'exp', 'level', 'currentExpForLevel'];
+
 function interpolateObject(object1, object2, ratio) {
 	if ( !object2 ) {
 		return object1;
@@ -70,7 +72,7 @@ function interpolateObject(object1, object2, ratio) {
 	Object.keys(object1).forEach(key => {
 		if ( key === 'activeDirection' || key === 'dir' ) {
 			interpolated[key] = interpolateDirection(object1[key], object2[key], ratio);
-		} else if ( key === 'x' || key === 'y' || key === 'hp' || key === 'score' || key === 'maxHp' ) {
+		} else if ( valueKeys.includes(key) ) {
 			interpolated[key] = object1[key] + (object2[key] - object1[key]) * ratio;
 		} else if ( key == 'petals' ) {
 			interpolated[key] = interpolateObjectArray(object1[key], object2[key], ratio);

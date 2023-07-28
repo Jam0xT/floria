@@ -12,6 +12,7 @@ class Player extends Entity {
 		this.score = 1;
 		this.haveRankOnLeaderboard = false;
 		this.exp = 0;
+		this.totalExp = 0;
 		this.level = 1;
 		this.currentExpForLevel = this.getExpForLevel(this.level);
 		this.slotCount = Constants.SLOT_COUNT_BASE;
@@ -240,6 +241,7 @@ class Player extends Entity {
 
 	addExp(exp) {
 		this.exp += exp;
+		this.totalExp += exp;
 		while ( this.exp >= this.currentExpForLevel ) {
 			this.level ++;
 			this.exp -= this.currentExpForLevel;
@@ -258,16 +260,29 @@ class Player extends Entity {
 		return petalsForUpdate;
 	}
 
-	serializeForUpdate() { // get neccesary data and send to client
-		return {
-			...(super.serializeForUpdate()),
-			score: this.score,
-			activeDirection: this.activeDirection, // the direction of input, not in use at the moment
-			hp: this.hp,
-			maxHp: this.maxHp,
-			username: this.username,
-			petals: this.getPetalsForUpdate(),
-		};
+	serializeForUpdate(self) { // get neccesary data and send to client
+		if ( self ) {
+			return {
+				...(super.serializeForUpdate()),
+				score: this.score,
+				hp: this.hp,
+				maxHp: this.maxHp,
+				currentExpForLevel: this.currentExpForLevel,
+				level: this.level,
+				exp: this.exp,
+				username: this.username,
+				petals: this.getPetalsForUpdate(),
+			};
+		} else {
+			return {
+				...(super.serializeForUpdate()),
+				score: this.score,
+				hp: this.hp,
+				maxHp: this.maxHp,
+				username: this.username,
+				petals: this.getPetalsForUpdate(),
+			};
+		}
 	}
 }
 

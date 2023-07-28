@@ -173,6 +173,7 @@ class Game {
 			}
 			if ( killedBy ) {
 				killedBy.score += Math.floor(EntityAttributes.PLAYER.VALUE + player.score * Constants.SCORE_LOOTING_COEFFICIENT);
+				killedBy.addExp(EntityAttributes.PLAYER.EXPERIENCE + player.totalExp * Constants.EXP_LOOTING_COEFFICIENT);
 				if ( this.getRankOnLeaderboard(killedBy.id) > 0 ) {
 					// avoid crashing when two players kill each other at the exact same time
 					// it will crash because the player who killed you is not on the leaderboard anymore
@@ -239,6 +240,7 @@ class Game {
 						killedBy = this.players[killedByInfo.id.playerID];
 					}
 					killedBy.score += Math.floor(EntityAttributes[mob.type].VALUE);
+					killedBy.addExp(EntityAttributes[mob.type].EXPERIENCE);
 					if ( this.getRankOnLeaderboard(killedBy.id) > 0 ) {
 						this.updateLeaderboard(killedBy);
 					}
@@ -686,8 +688,8 @@ class Game {
 			t: Date.now(), // current time
 			leaderboard: this.leaderboard.slice(0, Constants.LEADERBOARD_LENGTH + 1), // leaderboard
 			rankOnLeaderboard: this.getRankOnLeaderboard(player.id), // this player's rank on leaderboard
-			me: player.serializeForUpdate(), // this player
-			others: nearbyPlayers.map(p => p.serializeForUpdate()), // nearby players
+			me: player.serializeForUpdate(true), // this player
+			others: nearbyPlayers.map(p => p.serializeForUpdate(false)), // nearby players
 			playerCount: Object.keys(this.players).length, // the number of players online
 			mobs: nearbyMobs.map(e => e.value.serializeForUpdate()),
 		}
