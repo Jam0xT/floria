@@ -22,14 +22,11 @@ class Player extends Entity {
 		this.rotateClockwise = 1; // 1 for clockwise, -1 for counter-clockwise
 		this.petalExpandRadius = Constants.PETAL_EXPAND_RADIUS_NORMAL;
 		this.petals = [
-			new Petal(0, x, y, id, 'LIGHTNING', true),
-			new Petal(1, x, y, id, 'LIGHTNING', true),
-			new Petal(2, x, y, id, 'LIGHTNING', true),
-			new Petal(3, x, y, id, 'LIGHTNING', true),
-			new Petal(4, x, y, id, 'LIGHTNING', true),
-			new Petal(5, x, y, id, 'LIGHTNING', true),
-			new Petal(6, x, y, id, 'LIGHTNING', true),
-			new Petal(7, x, y, id, 'LIGHTNING', true),
+			new Petal(0, x, y, id, 'BASIC', true),
+			new Petal(1, x, y, id, 'BASIC', true),
+			new Petal(2, x, y, id, 'BASIC', true),
+			new Petal(3, x, y, id, 'BASIC', true),
+			new Petal(4, x, y, id, 'BASIC', true),
 		];
 		this.activeDirection = 0;
 		this.attributes = Attribute;
@@ -42,11 +39,9 @@ class Player extends Entity {
 		this.noHeal = 0; // 剩余禁用回血时间
 		this.poison = 0; // 中毒每秒毒伤
 		this.poisonTime = 0; // 剩余中毒时间
-		this.bodyToxicity = 5; // 碰撞毒秒伤
-		this.bodyPoison = 40; // 碰撞毒总伤
-		this.damageReflect = 0.25; // 反伤
-		this.maxHp += 20;
-		this.hp = this.maxHp;
+		this.bodyToxicity = 0; // 碰撞毒秒伤
+		this.bodyPoison = 0; // 碰撞毒总伤
+		this.damageReflect = 0.000; // 反伤
 	}
 
 	updatePetalMovement(deltaT) {

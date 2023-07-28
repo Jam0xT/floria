@@ -35,7 +35,7 @@ module.exports = Object.freeze({
 	PETAL_ROTATION_SPEED_BASE: 2.5, // default player petal rotation speed
 	PETAL_FOLLOW_SPEED: 7, // how fast petals follow players
 
-	SLOT_COUNT_BASE: 8, // default player slot count
+	SLOT_COUNT_BASE: 5, // default player slot count
 
 	PENETRATION_DEPTH_WEIGHT_IN_COLLISION: 1, // decides how much penetration depth will effect collision knockback
 	// VELOCITY_WEIGHT_IN_COLLISION: 2, // decides how much velocity will effect collision knockback

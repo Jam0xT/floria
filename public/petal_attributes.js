@@ -2,6 +2,7 @@ module.exports = Object.freeze({
 	BASIC: {
 		TYPE: 'BASIC',
 		RADIUS: 8,
+		RENDER_RADIUS: 10,
 		RELOAD: 2.5,
 		DAMAGE: 10,
 		MAX_HP: 10,
@@ -16,6 +17,7 @@ module.exports = Object.freeze({
 	BUBBLE: {
 		TYPE: 'BUBBLE',
 		RADIUS: 8,
+		RENDER_RADIUS: 8,
 		RELOAD: 3.5,
 		DAMAGE: 0,
 		MAX_HP: 1,
@@ -31,6 +33,7 @@ module.exports = Object.freeze({
 	STINGER: {
 		TYPE: 'STINGER',
 		RADIUS: 5,
+		RENDER_RADIUS: 5,
 		RELOAD: 4,
 		DAMAGE: 35,
 		MAX_HP: 8,
@@ -45,6 +48,7 @@ module.exports = Object.freeze({
 	ROCK: {
 		TYPE: 'ROCK',
 		RADIUS: 8,
+		RENDER_RADIUS: 8,
 		RELOAD: 10,
 		DAMAGE: 10,
 		MAX_HP: 90,
@@ -59,6 +63,7 @@ module.exports = Object.freeze({
 	ROSE: {
 		TYPE: 'ROSE',
 		RADIUS: 8,
+		RENDER_RADIUS: 8,
 		RELOAD: 3.5,
 		DAMAGE: 5,
 		MAX_HP: 5,
@@ -76,6 +81,7 @@ module.exports = Object.freeze({
 	DANDELION: {
 		TYPE: 'DANDELION',
 		RADIUS: 8,
+		RENDER_RADIUS: 8,
 		RELOAD: 2,
 		DAMAGE: 5,
 		MAX_HP: 10,
@@ -94,6 +100,7 @@ module.exports = Object.freeze({
 	MISSILE: {
 		TYPE: 'MISSILE',
 		RADIUS: 6,
+		RENDER_RADIUS: 6,
 		RELOAD: 3,
 		DAMAGE: 35,
 		MAX_HP: 10,
@@ -111,6 +118,7 @@ module.exports = Object.freeze({
 	ROSE_ADVANCED: {
 		TYPE: "ROSE_ADVANCED",
 		RADIUS: 8,
+		RENDER_RADIUS: 8,
 		RELOAD: 3.5,
 		DAMAGE: 5,
 		MAX_HP: 5,
@@ -128,6 +136,7 @@ module.exports = Object.freeze({
 	SALT: {
 		TYPE: 'SALT',
 		RADIUS: 8,
+		RENDER_RADIUS: 8,
 		RELOAD: 4,
 		DAMAGE: 10,
 		MAX_HP: 10,
@@ -142,6 +151,7 @@ module.exports = Object.freeze({
 	CACTUS_TOXIC: {
 		TYPE: 'CACTUS_TOXIC',
 		RADIUS: 10,
+		RENDER_RADIUS: 10,
 		RELOAD: 1,
 		DAMAGE: 5,
 		MAX_HP: 15,
@@ -160,6 +170,7 @@ module.exports = Object.freeze({
 	IRIS: {
 		TYPE: 'IRIS',
 		RADIUS: 5,
+		RENDER_RADIUS: 5,
 		RELOAD: 6,
 		DAMAGE: 5,
 		MAX_HP: 5,
@@ -176,6 +187,7 @@ module.exports = Object.freeze({
 	RICE: {
 		TYPE: 'RICE',
 		RADIUS: 5,
+		RENDER_RADIUS: 5,
 		RELOAD: 0.04,
 		DAMAGE: 5,
 		MAX_HP: 5,
@@ -190,6 +202,7 @@ module.exports = Object.freeze({
 	LIGHTNING: {
 		TYPE: 'LIGHTNING',
 		RADIUS: 8,
+		RENDER_RADIUS: 8,
 		RELOAD: 3,
 		DAMAGE: 5,
 		MAX_HP: 5,

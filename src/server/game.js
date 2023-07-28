@@ -29,8 +29,8 @@ class Game {
 	addPlayer(socket, username) { // add a player
 		this.sockets[socket.id] = socket;
 
-		const x = Constants.MAP_WIDTH * rnd(0.1, 0.9);
-		const y = Constants.MAP_HEIGHT * rnd(0.1, 0.9);
+		const x = Constants.MAP_WIDTH * this.rnd(0.1, 0.9);
+		const y = Constants.MAP_HEIGHT * this.rnd(0.1, 0.9);
 
 		this.players[socket.id] = new Player(socket.id, username, x, y);
 

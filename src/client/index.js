@@ -1,52 +1,62 @@
 import { connect, play } from './networking';
-import { startRenderingMainMenu, startRenderingGame } from './render';
+import { startRenderingMenu, startRenderGameEnter, renderConnected, renderInit, renderStartup } from './render';
 import { startCapturingInput, stopCapturingInput } from './input';
 import { downloadAssets } from './assets';
 import { initState } from './state';
 
 import './css/main.css';
 
-const usernameInput = document.getElementById('username-input');
 var isKeyboardInput = false;
 var inGame = false;
+var needMenu = true;
 
-Promise.all([
-	connect(onGameOver),
-	downloadAssets(),
-]).then(() => {
-	startRenderingMainMenu();
-	usernameInput.classList.remove('hidden');
-	usernameInput.value = window.localStorage.getItem('username') || '';
-	usernameInput.focus();
-	window.onkeyup = e => {
-		if ( e.keyCode == 16 && e.location == KeyboardEvent.DOM_KEY_LOCATION_RIGHT ) {
-			isKeyboardInput = false;
-		}
+window.onload = () => {
+	document.body.style.cursor = "default";
+	document.onselectstart = (event) => {
+		event.preventDefault();
 	}
-	window.onkeydown = e => {
-		if ( e.keyCode == 16 && e.location == KeyboardEvent.DOM_KEY_LOCATION_RIGHT ) {
-			isKeyboardInput = true;
-		}
-		if ( e.keyCode == 13) {
-			if ( inGame == false ) {
-				if( usernameInput.value == '' ) {
-					play('Random Flower');
-				} else {
-					play(usernameInput.value);
-				}
-				inGame = true;
-				usernameInput.classList.add('hidden');
-				window.localStorage.setItem('username', usernameInput.value);
-				initState();
-				startRenderingGame();
-				startCapturingInput(isKeyboardInput);
-			}
-		}
-	}
-}).catch(console.error);
+	document.getElementById('username-input').value = window.localStorage.getItem('username') || '';
+	renderStartup();
+	Promise.all([downloadAssets(),]).then(() => {
+		loadMenu();
+	});
+}
 
 function onGameOver() {
 	stopCapturingInput(isKeyboardInput);
 	inGame = false;
-	window.location.reload();
+	needMenu = true;
+	loadMenu();
+}
+
+function loadMenu() {
+	if ( needMenu ) {
+		needMenu = false;
+		renderInit();
+		startRenderingMenu();
+		Promise.all([
+			connect(onGameOver),
+		]).then(() => {
+			renderConnected();
+			window.onkeydown = e => {
+				if ( e.key == 'Enter' ) {
+					if ( inGame == false ) {
+						let username = document.getElementById('username-input').value;
+						window.localStorage.setItem('username', username);
+						if ( username != '' )
+							play(username);
+						else
+							play('Random Flower');
+						inGame = true;
+						initState();
+						startRenderGameEnter();
+						startCapturingInput(isKeyboardInput);
+					}
+				}
+			}
+		}).catch(() => {
+			console.log('Connect failed.');
+			window.setTimeout(loadMenu, 1000);
+		});
+	}
 }
