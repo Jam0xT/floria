@@ -119,7 +119,8 @@ export function startCapturingInput(isKeyboardInput) {
 export function stopCapturingInput(isKeyboardInput) {
 	if ( !isKeyboardInput ) { 
 		window.removeEventListener('mousemove', onMouseMove);
-		window.removeEventListener('click', onClick);
+		window.removeEventListener('mousedown', onMouseDown);
+		window.removeEventListener('mouseup', onMouseUp);
 		// window.removeEventListener('touchstart', onTouchInput );
 		// window.removeEventListener('touchmove', onTouchInput);
 	}

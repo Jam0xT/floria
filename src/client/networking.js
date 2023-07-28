@@ -21,9 +21,9 @@ export const connect = onGameOver => {
 		socket.on(Constants.MSG_TYPES.GAME_OVER, onGameOver);
 		socket.on('disconnect', () => {
 			console.log('Disconnected from server.');
-			window.location.reload();
+			onGameOver();
 		});
-	})
+	});
 };
 
 export const play = username => {
