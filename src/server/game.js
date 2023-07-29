@@ -304,8 +304,8 @@ class Game {
 	updateChunks() {
 		Object.keys(this.sockets).forEach(playerID => {
 			const player = this.players[playerID];
-			const playerChunks = player.updateChunks(); // update player ( and the player's petals )
-			if ( playerChunks ) { // update the players chunks
+			const playerChunks = player.updateChunks(); // update player
+			if ( playerChunks ) { // update the player's chunks
 				const chunksOld = playerChunks.chunksOld;
 				const chunksNew = playerChunks.chunksNew;
 				chunksOld.forEach(chunk => {
@@ -313,7 +313,8 @@ class Game {
 						const idx = this.chunks[this.getChunkID(chunk)].findIndex((entityInChunk) => {
 							return ( entityInChunk.type == 'player' ) && ( entityInChunk.id == playerID );
 						});
-						this.chunks[this.getChunkID(chunk)].splice(idx, 1);
+						if ( idx != -1 )
+							this.chunks[this.getChunkID(chunk)].splice(idx, 1);
 					}
 				});
 				chunksNew.forEach(chunk => {
@@ -324,12 +325,12 @@ class Game {
 					}
 				});
 			}
-			const petals = player.petals;
+			const petals = player.petals; // update the player's petals
 			for ( let petalID = 0; petalID < player.slotCount; petalID ++ ) {
 				const petal = petals[petalID];
 				if ( !petal.inCooldown ) {
 					const petalChunks = petal.updateChunks(petal.attributes.RADIUS);
-					if ( petalChunks ) { // update the players chunks
+					if ( petalChunks ) { // update the petals' chunks
 						const chunksOld = petalChunks.chunksOld;
 						const chunksNew = petalChunks.chunksNew;
 						chunksOld.forEach(chunk => {
@@ -337,7 +338,8 @@ class Game {
 								const idx = this.chunks[this.getChunkID(chunk)].findIndex((entityInChunk) => {
 									return ( entityInChunk.type == 'petal' ) && ( entityInChunk.id.playerID == playerID ) && ( entityInChunk.id.petalID == petalID );
 								});
-								this.chunks[this.getChunkID(chunk)].splice(idx, 1);
+								if ( idx != -1 )
+									this.chunks[this.getChunkID(chunk)].splice(idx, 1);
 							}
 						});
 						chunksNew.forEach(chunk => {
@@ -516,8 +518,6 @@ class Game {
 				entityB = this.players[entityInfoB.id.playerID].petals[entityInfoB.id.petalID];
 			}
 			const distance = entityA.distanceTo(entityB);
-			if ( entityInfoA.type == 'player' && entityInfoB.type == 'player' )
-				console.log(distance);
 			const r1 = entityA.attributes.RADIUS, r2 = entityB.attributes.RADIUS;
 			const depth = r1 + r2 - distance;
 			const mA = entityA.attributes.MASS, mB = entityB.attributes.MASS;

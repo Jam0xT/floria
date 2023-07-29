@@ -14,10 +14,10 @@ module.exports = Object.freeze({
 		TYPE: 'PLAYER',
 	},
 	BUBBLE: {
-		MASS: 5000,
+		MASS: 10,
 		SPEED: 0,
 		RADIUS: 120,
-		RENDER_RADIUS: 121,
+		RENDER_RADIUS: 128,
 		MAX_HP: 10,
 		DAMAGE: 5,
 		VALUE: 10,

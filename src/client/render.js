@@ -143,7 +143,7 @@ function renderUI(me) {
 	ctx = getCtx(UILayer);
 	ctx.globalAlpha = 0.85;
 
-	const expBarYPos = hpx * 860;
+	const expBarYPos = hpx * 900;
 	const expBarBaseLength = hpx * 300;
 	const expBarBaseWidth = hpx * 45;
 	const expBarBaseStyle = 'rgb(51, 51, 51)';
@@ -248,9 +248,8 @@ function renderPlayer(me, player) {
 		);
 	}
 
-	// render username and hp
+	// render username
 	renderText(backgroundLayer, 1, player.username, canvasX, canvasY - 35, hpx * 20, 'center');
-	// renderText(backgroundLayer, 1, `${Math.floor(player.hp)}`, canvasX, canvasY + 65, hpx * 18, 'center');
 
 	// render health bar
 	ctx = getCtx(backgroundLayer);
