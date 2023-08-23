@@ -30,6 +30,8 @@ io.on('connection', socket => {
 	socket.on(Constants.MSG_TYPES.MOVEMENT, handleMovement);
 	socket.on(Constants.MSG_TYPES.MOUSE_DOWN, handleMouseDown);
 	socket.on(Constants.MSG_TYPES.MOUSE_UP, handleMouseUp);
+	socket.on(Constants.MSG_TYPES.PETAL_SWITCH, handlePetalSwitch);
+	socket.on(Constants.MSG_TYPES.PETAL_DISABLE, handlePetalDisable);
 	socket.on('disconnect', onDisconnect);
 })
 
@@ -52,6 +54,14 @@ function handleMouseDown(mouseDownEvent) {
 
 function handleMouseUp(mouseUpEvent) {
 	game.handleMouseUp(this, mouseUpEvent);
+}
+
+function handlePetalSwitch(petalA, petalB, implement) {
+	game.handlePetalSwitch(this, petalA, petalB, implement);
+}
+
+function handlePetalDisable(petal) {
+	game.handlePetalDisable(this, petal);
 }
 
 function onDisconnect() {

@@ -10,6 +10,8 @@ module.exports = Object.freeze({
 		MOUSE_DOWN: 'mouse_down',
 		MOUSE_UP: 'mouse_up',
 		GAME_OVER: 'dead',
+		PETAL_SWITCH: 'petal_switch',
+		PETAL_DISABLE: 'petal_disable',
 	},
 
 	MAP_WIDTH: 4000, // width of the map
@@ -36,7 +38,8 @@ module.exports = Object.freeze({
 	PETAL_ROTATION_SPEED_BASE: 2.5, // default player petal rotation speed
 	PETAL_FOLLOW_SPEED: 7, // how fast petals follow players
 
-	SLOT_COUNT_BASE: 5, // default player slot count
+	PRIMARY_SLOT_COUNT_BASE: 5, // default player slot count
+	SECONDARY_SLOT_COUNT_BASE: 5,
 
 	PENETRATION_DEPTH_WEIGHT_IN_COLLISION: 1, // decides how much penetration depth will effect collision knockback
 	// VELOCITY_WEIGHT_IN_COLLISION: 2, // decides how much velocity will effect collision knockback
@@ -48,4 +51,28 @@ module.exports = Object.freeze({
 	PETAL_EXPAND_RADIUS_DEFEND: 13.5, 
 
 	BUBBLE_ATTENUATION_COEFFICIENT: 0.8, // bubble velocity *= X every tick
+
+	FIRST_PETAL_ID: 100,
+
+	RARITY_COLOR: [ // rarity color
+		'rgb(126, 239, 109)', // common
+		'rgb(255, 230, 93)', // unusual
+		'rgb(77, 82, 227)', // rare
+		'rgb(134, 31, 222)', // epic
+		'rgb(222, 31, 31)', // legendary
+		'rgb(31, 219, 222)', // mythic
+		'rgb(255, 43, 117)', // unique
+	],
+
+	RARITY_COLOR_DARKEN: [ // darken rarity color
+		'rgb(102, 194, 88)',
+		'rgb(207, 186, 75)',
+		'rgb(62, 66, 184)',
+		'rgb(109, 25, 180)',
+		'rgb(180, 25, 25)',
+		'rgb(25, 177, 180)',
+		'rgb(207, 35, 95)',
+	],
+
+	PETAL_OUTLINE_WIDTH_PERCENTAGE: 0.05,
 });

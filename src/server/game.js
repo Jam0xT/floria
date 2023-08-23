@@ -56,7 +56,7 @@ class Game {
 				);
 			}
 		});
-		for ( let petalID = 0; petalID < this.players[playerID].slotCount; petalID ++ ) {
+		for ( let petalID = 0; petalID < this.players[playerID].petals.length; petalID ++ ) {
 			let petal = this.players[playerID].petals[petalID];
 			if ( !petal.inCooldown ) {
 				petal.chunks.forEach(chunk => {
@@ -110,6 +110,16 @@ class Game {
 				player.defend = false;
 			}
 		}
+	}
+
+	handlePetalSwitch(socket, petalA, petalB, implement) {
+		const player = this.players[socket.id];
+		player.switchPetals(petalA, petalB, implement);
+	}
+
+	handlePetalDisable(socket, petal) {
+		const player = this.players[socket.id];
+		player.disablePetal(petal);
 	}
 
 	handleMovement(socket, movement) { // handle input from a player
@@ -191,7 +201,6 @@ class Game {
 		player.petals.forEach(petal => {
 			if ( !petal.inCooldown ) {
 				if ( petal.hp <= 0 ) {
-					petal.inCooldown = true;
 					petal.chunks.forEach(chunk => {
 						if ( this.chunks[this.getChunkID(chunk)] ) {
 							this.chunks[this.getChunkID(chunk)].splice(
@@ -202,7 +211,10 @@ class Game {
 							);
 						}
 					});
-					player.reload(petal.id);
+					if ( petal.placeHolder != -1 ) {
+						petal.inCooldown = true;
+						player.reload(petal.placeHolder);
+					}
 				}
 			}
 		});
@@ -326,7 +338,7 @@ class Game {
 				});
 			}
 			const petals = player.petals; // update the player's petals
-			for ( let petalID = 0; petalID < player.slotCount; petalID ++ ) {
+			for ( let petalID = 0; petalID < player.petals.length; petalID ++ ) {
 				const petal = petals[petalID];
 				if ( !petal.inCooldown ) {
 					const petalChunks = petal.updateChunks(petal.attributes.RADIUS);
