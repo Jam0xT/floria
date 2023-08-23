@@ -6,7 +6,6 @@ import { initState } from './state';
 
 import './css/main.css';
 
-var isKeyboardInput = false;
 var inGame = false;
 var needMenu = true;
 
@@ -23,7 +22,7 @@ window.onload = () => {
 }
 
 function onGameOver() {
-	stopCapturingInput(isKeyboardInput);
+	stopCapturingInput();
 	inGame = false;
 	needMenu = true;
 	loadMenu();
@@ -50,7 +49,6 @@ function loadMenu() {
 						inGame = true;
 						initState();
 						startRenderGameEnter();
-						startCapturingInput(isKeyboardInput);
 					}
 				}
 			}

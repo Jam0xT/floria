@@ -1,5 +1,6 @@
 import { getAsset } from './assets';
 import { getCurrentState } from './state';
+import { startCapturingInput, updateSlotsData, switchInput } from './input';
 const Constants = require('../shared/constants');
 const { MAP_WIDTH, MAP_HEIGHT, RATED_WIDTH, RATED_HEIGHT } = Constants;
 const EntityAttributes = require('../../public/entity_attributes');
@@ -12,13 +13,315 @@ let W, H, wpx, hpx;
 let alphaConnecting = 0;
 let alphaInputBox = 0;
 let alphaBlack = 1;
+
 let textConnectingPos = 0, textConnectingVelocity = 0;
+
 let inputBoxPos = 600, inputBoxVelocity = 65;
+
 let connected = false;
+
 let startup = true;
+
 let gameRadiusOnEnter = 0;
 let deltaGameRadiusOnEnter = 5;
+
 let backgroundLayer = 1, playerLayer = 3, petalLayer = 2, shadeLayer = 4, mobLayer = 2, UILayer = 5;
+
+let primarySlotDisplayLength = 60, primarySlotHitboxLength = 92, primarySlotCenterY = 850;
+let secondarySlotDisplayLength = 45, secondarySlotHitboxLength = 70, secondarySlotCenterY = 930;
+let primarySlotCount = Constants.PRIMARY_SLOT_COUNT_BASE;
+let secondarySlotCount = Constants.SECONDARY_SLOT_COUNT_BASE;
+let selectedSize = 1.2;
+
+let petalSwing = Math.PI * 0.03;
+let selectedPetal = undefined, targetedPetal = undefined;
+
+let keyboardMovement = false;
+export function toggleKeyboardMovement(isKeyboardMovement) {
+	keyboardMovement = isKeyboardMovement;
+}
+
+class Petal { // the petal item which you can operate on
+	constructor(x, y, type) {
+		this.x = x;
+		this.y = y;
+		this.dir = 0;
+		this.swing = false;
+		this.size = 1;
+		this.targetX = x;
+		this.targetY = y;
+		this.defaultX = x;
+		this.defaultY = y;
+		this.targetSize = 1;
+		this.type = type;
+		this.animating = false;
+	}
+
+	setTargetPos(x, y) {
+		this.targetX = x;
+		this.targetY = y;
+	}
+
+	setTargetSize(size) {
+		this.targetSize = size;
+	}
+	
+	setType(type) {
+		this.type = type;
+	}
+
+	render(length) {
+		if ( this.type != 'NONE' ) {
+			this.x += (this.targetX - this.x) * 0.15;
+			if ( Math.abs(this.targetX - this.x) < 0.5 ) {
+				this.x = this.targetX;
+			}
+
+			this.y += (this.targetY - this.y) * 0.15;
+			if ( Math.abs(this.targetY - this.y) < 0.5 ) {
+				this.y = this.targetY;
+			}
+			
+			if ( this.animating ) {
+				if ( this.x == this.targetX && this.x == this.defaultX && this.y == this.targetY && this.y == this.defaultY && (!this.swing) && this.dir == 0 ){
+					this.animating = false;
+				}
+			}
+
+			this.size += (this.targetSize - this.size) * 0.3;
+			if ( Math.abs(this.targetSize - this.size) < 0.02 ) {
+				this.size = this.targetSize;
+			}
+
+			if ( this.swing ) {
+				if ( petalSwing > this.dir ) {
+					this.dir += Math.min(0.015, Math.min(petalSwing - this.dir, this.dir + petalSwing) * 0.25);
+				} else {
+					this.dir += Math.max(-0.015, Math.max(petalSwing - this.dir, this.dir + petalSwing) * 0.25);
+
+				}
+				if ( Math.abs(petalSwing - this.dir) < 0.01) {
+					petalSwing = -petalSwing;
+				}
+			} else {
+				this.dir -= this.dir * 0.1;
+				if ( Math.abs(this.dir) < 0.001 ) {
+					this.dir = 0;
+				}
+			}
+			
+			let petalAlpha = 0.88;
+			ctx.translate(this.x, this.y);
+			ctx.rotate(this.dir);
+			ctx.globalAlpha = petalAlpha;
+
+			let displayLength = length * this.size;
+			let outlineWidth = displayLength * Constants.PETAL_OUTLINE_WIDTH_PERCENTAGE;
+			renderRoundRect(UILayer, - displayLength / 2 - outlineWidth, - displayLength / 2 - outlineWidth, 
+			displayLength + outlineWidth * 2, displayLength + outlineWidth * 2, hpx * 1, true, true, true, true);
+			ctx.strokeStyle = Constants.RARITY_COLOR_DARKEN[PetalAttributes[this.type].RARITY];
+			ctx.lineWidth = outlineWidth * 2;
+
+			ctx.globalCompositeOperation = 'destination-out';
+			ctx.stroke();
+
+			ctx.globalCompositeOperation = 'source-over';
+			ctx.stroke();
+
+			ctx.globalCompositeOperation = 'destination-out';
+			ctx.fillRect(- displayLength / 2, - displayLength / 2, displayLength, displayLength);
+
+			ctx.globalCompositeOperation = 'source-over';
+			ctx.fillStyle = Constants.RARITY_COLOR[PetalAttributes[this.type].RARITY];
+			ctx.fillRect(- displayLength / 2, - displayLength / 2, displayLength, displayLength);
+
+			ctx.globalCompositeOperation = 'destination-out';
+			
+			const renderRadius = displayLength * 0.2;
+			const asset = getAsset(`petals/${this.type.toLowerCase()}.svg`);
+			const width = asset.naturalWidth, height = asset.naturalHeight;
+			const offset = displayLength * 0.08;
+
+			if ( width <= height ) {
+				ctx.drawImage(
+					asset,
+					- renderRadius,
+					- renderRadius / width * height - offset,
+					renderRadius * 2,
+					renderRadius / width * height * 2,
+				);
+				
+				ctx.globalCompositeOperation = 'source-over';
+				ctx.drawImage(
+					asset,
+					- renderRadius,
+					- renderRadius / width * height - offset,
+					renderRadius * 2,
+					renderRadius / width * height * 2,
+				);
+			} else {
+				ctx.drawImage(
+					asset,
+					- renderRadius / height * width,
+					- renderRadius - offset,
+					renderRadius / height * width * 2,
+					renderRadius * 2,
+				);
+			
+				ctx.globalCompositeOperation = 'source-over';
+				ctx.drawImage(
+					asset,
+					- renderRadius / height * width,
+					- renderRadius - offset,
+					renderRadius / height * width * 2,
+					renderRadius * 2,
+				);
+			}
+
+			let name = this.type.toLowerCase();
+			let textOffset = displayLength * 0.35;
+			let textFont = displayLength * 0.25;
+			
+			ctx.globalCompositeOperation = 'destination-out';
+			renderText(UILayer, petalAlpha, name.charAt(0).toUpperCase() + name.slice(1), 0, textOffset, textFont, 'center');
+
+			ctx.globalCompositeOperation = 'source-over';
+			renderText(UILayer, petalAlpha, name.charAt(0).toUpperCase() + name.slice(1), 0, textOffset, textFont, 'center');
+
+			ctx.rotate(-this.dir);
+			ctx.translate(-this.x, -this.y);
+			ctx.globalAlpha = 1;
+		}
+	}
+}
+
+let primaryPetals = [];
+let secondaryPetals = [];
+
+export function select(isPrimary, slot, x, y) {
+	let petal;
+	if ( isPrimary ) {
+		petal = primaryPetals[slot];
+	} else {
+		petal = secondaryPetals[slot];
+	}
+	petal.animating = true;
+	petal.swing = true;
+	petal.setTargetPos(x, y);
+	petal.setTargetSize(selectedSize);
+}
+
+export function deSelect(isPrimary, slot) {
+	let petal;
+	let slotHitboxLength, slotCount, slotCenterY;
+
+	if ( isPrimary ) {
+		petal = primaryPetals[slot];
+		slotHitboxLength = primarySlotHitboxLength;
+		slotCount = primarySlotCount;
+		slotCenterY = primarySlotCenterY;
+	} else {
+		petal = secondaryPetals[slot];
+		slotHitboxLength = secondarySlotHitboxLength;
+		slotCount = secondarySlotCount;
+		slotCenterY = secondarySlotCenterY;
+	}
+
+	petal.swing = false;
+	petal.setTargetPos(W / 2 - slotHitboxLength * hpx * (slotCount / 2 - 0.5) + slot * slotHitboxLength * hpx, slotCenterY * hpx);
+	petal.setTargetSize(1);
+}
+
+export function target(isPrimary, slot, targetIsPrimary, targetSlot) {
+	let petal;
+	let slotHitboxLength, slotCount, slotCenterY;
+	let defaultSize, targetSize;
+
+	if ( isPrimary ) {
+		petal = primaryPetals[slot];
+		defaultSize = primarySlotDisplayLength;
+	} else {
+		petal = secondaryPetals[slot];
+		defaultSize = secondarySlotDisplayLength;
+	}
+
+	if ( targetIsPrimary ) {
+		slotHitboxLength = primarySlotHitboxLength;
+		slotCount = primarySlotCount;
+		slotCenterY = primarySlotCenterY;
+		targetSize = primarySlotDisplayLength;
+	} else {
+		slotHitboxLength = secondarySlotHitboxLength;
+		slotCount = secondarySlotCount;
+		slotCenterY = secondarySlotCenterY;
+		targetSize = secondarySlotDisplayLength;
+	}
+
+	petal.swing = false;
+	petal.setTargetPos(W / 2 - slotHitboxLength * hpx * (slotCount / 2 - 0.5) + targetSlot * slotHitboxLength * hpx, slotCenterY * hpx);
+	petal.setTargetSize(targetSize / defaultSize);
+}
+
+export function drag(isPrimary, slot, x, y) {
+	let petal;
+	if ( isPrimary ) {
+		petal = primaryPetals[slot];
+	} else {
+		petal = secondaryPetals[slot];
+	}
+	petal.setTargetPos(x, y);
+	if ( !petal.swing ) {
+		petal.swing = true;
+		petal.setTargetSize(selectedSize);
+	}
+}
+
+export function switchPetals(isPrimary, slot, targetIsPrimary, targetSlot) {
+	selectedPetal = {
+		isPrimary: isPrimary,
+		slot: slot,
+	};
+	targetedPetal = {
+		isPrimary: targetIsPrimary,
+		slot: targetSlot,
+	};
+
+	let petalA, petalB;
+
+	if ( isPrimary ) {
+		petalA = primaryPetals[slot];
+	} else {
+		petalA = secondaryPetals[slot];
+	}
+	
+	if ( targetIsPrimary ) {
+		petalB = primaryPetals[targetSlot];
+	} else {
+		petalB = secondaryPetals[targetSlot];
+	}
+
+	petalB.animating = true;
+
+	petalA.swing = false;
+	petalB.swing = false;
+
+	petalA.setTargetPos(petalA.defaultX, petalA.defaultY);
+	petalB.setTargetPos(petalB.defaultX, petalB.defaultY);
+
+	petalA.targetSize = 1;
+	petalB.targetSize = 1;
+
+	let tmp = petalA.type;
+	petalA.type = petalB.type;
+	petalB.type = tmp;
+
+	tmp = petalA.x;
+	petalA.x = petalB.x;
+	petalB.x = tmp;
+	tmp = petalA.y;
+	petalA.y = petalB.y;
+	petalB.y = tmp;
+}
 
 export function renderStartup () {
 	for (let i = 0; i < layerCount; i ++ ) {
@@ -63,6 +366,14 @@ export function renderInit() {
 		ctx = getCtx(i);
 		ctx.clearRect(0, 0, W, H);
 	}
+	primaryPetals = [];
+	secondaryPetals = [];
+	for (let i = 0; i < primarySlotCount; i ++ ) {
+		primaryPetals.push(new Petal(W / 2 - primarySlotHitboxLength * hpx * (primarySlotCount / 2 - 0.5) + i * primarySlotHitboxLength * hpx, primarySlotCenterY * hpx, 'NONE'));
+	}
+	for (let i = 0; i < secondarySlotCount; i ++ ) {
+		secondaryPetals.push(new Petal(W / 2 - secondarySlotHitboxLength * hpx * (secondarySlotCount / 2 - 0.5) + i * secondarySlotHitboxLength * hpx, secondarySlotCenterY * hpx, 'NONE'));
+	}
 }
 
 window.addEventListener('resize', setCanvasDimensions);
@@ -70,17 +381,8 @@ window.addEventListener('resize', setCanvasDimensions);
 let animationFrameRequestId;
 
 function setCanvasDimensions() {
-	const innerRatio = window.innerWidth / window.innerHeight;
-	const ratedWidth = RATED_WIDTH;
-	const ratedHeight = RATED_HEIGHT;
-	const ratedRatio = ratedWidth / ratedHeight;
-	if ( ratedRatio > innerRatio ) {
-		W = ratedHeight * innerRatio;
-		H = ratedHeight;
-	} else {
-		W = ratedWidth;
-		H =  ratedWidth / innerRatio;
-	}
+	W = window.innerWidth;
+	H = window.innerHeight;
 	wpx = W / 1000;
 	hpx = H / 1000;
 	for ( let i = 0; i < layerCount; i ++ ) {
@@ -101,10 +403,15 @@ function renderGame() {
 		renderText(0, 1, "Use Mouse or [W] [S] [A] [D] to move", W / 2, H / 2 + hpx * 140, hpx * 15, 'center');
 		renderText(0, 1, "Left click or [Space] to attack", W / 2, H / 2 + hpx * 165, hpx * 15, 'center');
 		renderText(0, 1, "Right click or [LShift] to defend", W / 2, H / 2 + hpx * 190, hpx * 15, 'center');
+		renderText(0, 1, "Press [K] to toggle keyboard movement", W / 2, H / 2 + hpx * 215, hpx * 15, 'center');
 		gameRadiusOnEnter += deltaGameRadiusOnEnter;
 		deltaGameRadiusOnEnter *= 1.05;
 	}
 	const { me, others, mobs, leaderboard, playerCount, rankOnLeaderboard } = getCurrentState();
+
+	updateSlotsData(W, hpx, primarySlotHitboxLength, primarySlotDisplayLength + 4 * primarySlotDisplayLength * Constants.PETAL_OUTLINE_WIDTH_PERCENTAGE, primarySlotCenterY, primarySlotCount,
+		secondarySlotHitboxLength, secondarySlotDisplayLength + 4 * secondarySlotDisplayLength * Constants.PETAL_OUTLINE_WIDTH_PERCENTAGE, secondarySlotCenterY, secondarySlotCount);
+
 	if ( me ) {
 		renderBackground(me.x, me.y);
 		renderPlayer(me, me);
@@ -139,17 +446,26 @@ function renderGame() {
 	render(renderGame);
 }
 
+let expBarLength = 0;
+
 function renderUI(me) {
 	ctx = getCtx(UILayer);
-	ctx.globalAlpha = 0.85;
+
+	// exp bar
+
+	// ctx.globalAlpha = 0.85;
 
 	const expBarYPos = hpx * 900;
 	const expBarBaseLength = hpx * 300;
 	const expBarBaseWidth = hpx * 45;
-	const expBarBaseStyle = 'rgb(51, 51, 51)';
-	const expBarLength = expBarBaseLength * me.exp / me.currentExpForLevel;
+	const expBarBaseStyle = 'rgba(51, 51, 51, 0.85)';
+	const expBarExpectedLength = expBarBaseLength * me.exp / me.currentExpForLevel;
+	expBarLength += (expBarExpectedLength - expBarLength) * 0.3;
+	if ( Math.abs(expBarExpectedLength - expBarLength) <= 1 ) {
+		expBarLength = expBarExpectedLength;
+	}
 	const expBarWidth = expBarBaseWidth - hpx * 5;
-	const expBarStyle = 'rgb(255, 255, 110)'
+	const expBarStyle = 'rgba(255, 255, 110, 0.95)'
 	
 	ctx.beginPath();
 	ctx.moveTo(0, expBarYPos);
@@ -184,6 +500,146 @@ function renderUI(me) {
 	ctx.globalAlpha = 1;
 	renderText(UILayer, 1, `Lvl ${Math.floor(me.level)} flower`, hpx * 100, expBarYPos + hpx * 5, hpx * 18, 'left');
 	renderText(UILayer, 0.9, me.username, hpx * 150, expBarYPos - hpx * 40, hpx * 30, 'center');
+
+	// movement helper
+
+	if ( !keyboardMovement ) {
+		// render movement helper
+	}
+
+	// petals
+
+	// primary slots
+
+	while ( primarySlotCount < me.primaryPetals.length ) {
+		primarySlotCount ++;
+		primaryPetals.push(new Petal(0, 0, 'NONE'));
+	}
+	let slotCount = primarySlotCount;
+	let slotDisplayLength = primarySlotDisplayLength * hpx;
+	let slotHitboxLength = primarySlotHitboxLength * hpx;
+	let centerY = primarySlotCenterY * hpx;
+	let petalOutlineWidth = slotDisplayLength * Constants.PETAL_OUTLINE_WIDTH_PERCENTAGE;
+	for (let i = 0; i < slotCount; i ++ ) {
+		let centerX = W / 2 - slotHitboxLength * (slotCount / 2 - 0.5) + i * slotHitboxLength;
+		renderRoundRect(UILayer, centerX - slotDisplayLength / 2 - petalOutlineWidth, centerY - slotDisplayLength / 2 - petalOutlineWidth, 
+			slotDisplayLength + petalOutlineWidth * 2, slotDisplayLength + petalOutlineWidth * 2, hpx * 1, true, true, true, true);
+		ctx.strokeStyle = 'rgba(207, 207, 207, 0.7)';
+		ctx.lineWidth = petalOutlineWidth * 2;
+		ctx.stroke();
+
+		ctx.globalCompositeOperation = 'destination-out';
+		ctx.fillRect(centerX - slotDisplayLength / 2, centerY - slotDisplayLength / 2, slotDisplayLength, slotDisplayLength);
+
+		ctx.globalCompositeOperation = 'source-over';
+		ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+		ctx.fillRect(centerX - slotDisplayLength / 2, centerY - slotDisplayLength / 2, slotDisplayLength, slotDisplayLength);
+	}
+
+	// secondary slots
+
+	while ( secondarySlotCount < me.secondaryPetals.length) {
+		secondarySlotCount ++;
+		secondaryPetals.push(new Petal(0, 0, 'NONE'));
+	}
+	slotCount = secondarySlotCount;
+	slotDisplayLength = secondarySlotDisplayLength * hpx;
+	slotHitboxLength = secondarySlotHitboxLength * hpx;
+	centerY = secondarySlotCenterY * hpx;
+	petalOutlineWidth = slotDisplayLength * Constants.PETAL_OUTLINE_WIDTH_PERCENTAGE;
+	for (let i = 0; i < slotCount; i ++ ) {
+		let centerX = W / 2 - slotHitboxLength * (slotCount / 2 - 0.5) + i * slotHitboxLength;
+		renderRoundRect(UILayer, centerX - slotDisplayLength / 2 - petalOutlineWidth, centerY - slotDisplayLength / 2 - petalOutlineWidth, 
+			slotDisplayLength + petalOutlineWidth * 2, slotDisplayLength + petalOutlineWidth * 2, hpx * 1, true, true, true, true);
+		ctx.strokeStyle = 'rgba(207, 207, 207, 0.7)';
+		ctx.lineWidth = petalOutlineWidth * 2;
+		ctx.stroke();
+
+		ctx.globalCompositeOperation = 'destination-out';
+		ctx.fillRect(centerX - slotDisplayLength / 2, centerY - slotDisplayLength / 2, slotDisplayLength, slotDisplayLength);
+
+		ctx.globalCompositeOperation = 'source-over';
+		ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+		ctx.fillRect(centerX - slotDisplayLength / 2, centerY - slotDisplayLength / 2, slotDisplayLength, slotDisplayLength);
+	}
+
+	// petals
+
+	// for (let i = 0; i < primarySlotCount; i ++ ) {
+	// 	if ( primaryPetals[i].type != me.primaryPetals[i] && (!primaryPetals[i].animating) ) {
+	// 		primaryPetals[i].type = me.primaryPetals[i];
+	// 		primaryPetals[i].setTargetPos(W / 2 - primarySlotHitboxLength * hpx * (primarySlotCount / 2 - 0.5) + i * primarySlotHitboxLength * hpx, primarySlotCenterY * hpx);
+	// 	}
+	// }
+	
+	// for (let i = 0; i < secondarySlotCount; i ++ ) {
+	// 	if ( secondaryPetals[i].type != me.secondaryPetals[i] && (!secondaryPetals[i].animating) ) {
+	// 		secondaryPetals[i].type = me.secondaryPetals[i];
+	// 		secondaryPetals[i].setTargetPos(W / 2 - secondarySlotHitboxLength * hpx * (secondarySlotCount / 2 - 0.5) + i * secondarySlotHitboxLength * hpx, secondarySlotCenterY * hpx);
+	// 	}
+	// }
+
+	// primary
+
+	slotCount = primarySlotCount;
+	slotDisplayLength = primarySlotDisplayLength * hpx;
+	slotHitboxLength = primarySlotHitboxLength * hpx;
+	centerY = primarySlotCenterY * hpx;
+	for (let i = 0; i < slotCount; i ++ ) {
+		let centerX = W / 2 - slotHitboxLength * (slotCount / 2 - 0.5) + i * slotHitboxLength;
+		if ( !primaryPetals[i].animating ) {
+			primaryPetals[i].setTargetPos(centerX, centerY);
+			primaryPetals[i].setTargetSize(1);
+			primaryPetals[i].setType(me.primaryPetals[i]);
+			primaryPetals[i].render(slotDisplayLength);
+		}
+	}
+
+	for (let i = 0; i < slotCount; i ++ ) {
+		if ( primaryPetals[i].animating ) {
+			primaryPetals[i].render(slotDisplayLength);
+		}
+	}
+
+	// secondary
+
+	slotCount = secondarySlotCount;
+	slotDisplayLength = secondarySlotDisplayLength * hpx;
+	slotHitboxLength = secondarySlotHitboxLength * hpx;
+	centerY = secondarySlotCenterY * hpx;
+	for (let i = 0; i < slotCount; i ++ ) {
+		let centerX = W / 2 - slotHitboxLength * (slotCount / 2 - 0.5) + i * slotHitboxLength;
+		if ( !secondaryPetals[i].animating ) {
+			secondaryPetals[i].setTargetPos(centerX, centerY);
+			secondaryPetals[i].setTargetSize(1);
+			secondaryPetals[i].setType(me.secondaryPetals[i]);
+			secondaryPetals[i].render(slotDisplayLength);
+		}
+	}
+	for (let i = 0; i < slotCount; i ++ ) {
+		if ( secondaryPetals[i].animating ) {
+			secondaryPetals[i].render(slotDisplayLength);
+		}
+	}
+
+	if ( selectedPetal && targetedPetal ) {
+		let petalA, petalB;
+		if ( selectedPetal.isPrimary ) {
+			petalA = primaryPetals[selectedPetal.slot];
+		} else {
+			petalA = secondaryPetals[selectedPetal.slot];
+		}
+		if ( targetedPetal.isPrimary ) {
+			petalB = primaryPetals[targetedPetal.slot];
+		} else {
+			petalB = secondaryPetals[targetedPetal.slot];
+		}
+		if ( (!petalA.animating) && (!petalB.animating) ) {
+			switchInput(selectedPetal, targetedPetal, true);
+			selectedPetal = undefined;
+			targetedPetal = undefined;
+		}
+	}
 }
 
 function renderBackground(x, y) {
@@ -345,8 +801,8 @@ function renderMob(me, mob) {
 	// ctx.rotate(-mob.dir);
 	ctx.translate(-canvasX, -canvasY);
 
-	renderText(UILayer, 1, mob.id, canvasX, canvasY - hpx * 35, hpx * 20, 'center');
-	renderText(UILayer, 1, `hp:${mob.hp}`, canvasX, canvasY + hpx * 65, hpx * 18, 'center');
+	renderText(mobLayer, 1, mob.id, canvasX, canvasY - hpx * 35, hpx * 20, 'center');
+	renderText(mobLayer, 1, `hp:${mob.hp}`, canvasX, canvasY + hpx * 65, hpx * 18, 'center');
 }
 
 function renderLeaderboardRank(rank, leaderboardRankBaseLength, leaderboardRankOutlineWidth, leaderboardRankBaseWidth, rankTopScore,
@@ -412,7 +868,7 @@ function renderLeaderboard(leaderboard, playerCount, me, rankOnLeaderboard) {
 	ctx.fillRect(position.x + leaderboardOutlineWidth / 2, position.y + leaderboardOutlineWidth / 2,
 	leaderboardWidth - leaderboardOutlineWidth / 2, leaderboardHeight - leaderboardOutlineWidth / 2);
 	
-	renderRoundRect(UILayer, position.x, position.y, leaderboardWidth, leaderboardHeight, leaderboardRoundCornerRadius, hpx * 1, hpx * 1, hpx * 1, hpx * 1);
+	renderRoundRect(UILayer, position.x, position.y, leaderboardWidth, leaderboardHeight, leaderboardRoundCornerRadius, true, true, true, true);
 	ctx.lineWidth = leaderboardOutlineWidth;
 	ctx.strokeStyle = "rgb(69, 69, 69)";
 	ctx.stroke();
@@ -421,7 +877,7 @@ function renderLeaderboard(leaderboard, playerCount, me, rankOnLeaderboard) {
 	ctx.fillRect(position.x + leaderboardOutlineWidth / 2, position.y + leaderboardOutlineWidth / 2, 
 	leaderboardWidth - leaderboardOutlineWidth / 2, leaderboardHeadHeight - leaderboardOutlineWidth / 2);
 	
-	renderRoundRect(UILayer, position.x, position.y, leaderboardWidth, leaderboardHeadHeight, leaderboardRoundCornerRadius, hpx * 1, hpx * 1, hpx * 0, hpx * 0);
+	renderRoundRect(UILayer, position.x, position.y, leaderboardWidth, leaderboardHeadHeight, leaderboardRoundCornerRadius, true, true, false, false);
 	ctx.lineWidth = leaderboardOutlineWidth;
 	ctx.strokeStyle = "rgb(69, 151, 69)";
 	ctx.stroke();
@@ -489,6 +945,7 @@ function renderMainMenu() {
 	renderText(0, 1, "Use Mouse or [W] [S] [A] [D] to move", W / 2, H / 2 + hpx * 140, hpx * 15, 'center');
 	renderText(0, 1, "Left click or [Space] to attack", W / 2, H / 2 + hpx * 165, hpx * 15, 'center');
 	renderText(0, 1, "Right click or [LShift] to defend", W / 2, H / 2 + hpx * 190, hpx * 15, 'center');
+	renderText(0, 1, "Press [K] to toggle keyboard movement", W / 2, H / 2 + hpx * 215, hpx * 15, 'center');
 	
 	if ( textConnectingPos >= -1000 ) { // connecting... text animation
 		if ( connected ) {
@@ -536,6 +993,7 @@ function renderGameEnter() {
 	renderText(0, 1, "Use Mouse or [W] [S] [A] [D] to move", W / 2, H / 2 + hpx * 140, hpx * 15, 'center');
 	renderText(0, 1, "Left click or [Space] to attack", W / 2, H / 2 + hpx * 165, hpx * 15, 'center');
 	renderText(0, 1, "Right click or [LShift] to defend", W / 2, H / 2 + hpx * 190, hpx * 15, 'center');
+	renderText(0, 1, "Press [K] to toggle keyboard movement", W / 2, H / 2 + hpx * 215, hpx * 15, 'center');
 
 	if ( textConnectingPos >= -1000 ) {
 		if ( connected ) {
@@ -571,6 +1029,7 @@ function renderGameEnter() {
 			ctx.globalAlpha = 1;
 		}
 		render(renderGame);
+		startCapturingInput();
 	} else {
 		render(renderGameEnter);
 	}
@@ -640,7 +1099,7 @@ function renderRoundRect(layer, x, y, w, h, r, r4, r1, r2, r3) { // r1 -> r4 clo
 function renderText(layer, alpha, text, x, y, fontSize, textAlign) {
 	ctx = getCtx(layer);
 	if ( fontSize ) {
-		ctx.lineWidth = Math.max(fontSize * 0.125, hpx * 2.5);
+		ctx.lineWidth = fontSize * 0.125;
 		ctx.font = `${fontSize}px Ubuntu`;
 
 		ctx.textAlign = textAlign;

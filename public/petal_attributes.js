@@ -3,6 +3,7 @@ module.exports = Object.freeze({
 		TYPE: 'BASIC',
 		RADIUS: 8,
 		RENDER_RADIUS: 10,
+		RARITY: 0,
 		RELOAD: 2.5,
 		DAMAGE: 10,
 		MAX_HP: 10,
@@ -17,8 +18,10 @@ module.exports = Object.freeze({
 	BUBBLE: {
 		TYPE: 'BUBBLE',
 		RADIUS: 8,
-		RENDER_RADIUS: 8,
-		RELOAD: 3.5,
+		RENDER_RADIUS: 10,
+		RARITY: 6,
+		// RELOAD: 3.5,
+		RELOAD: 0.1,
 		DAMAGE: 0,
 		MAX_HP: 1,
 		MASS: 1,
@@ -32,8 +35,9 @@ module.exports = Object.freeze({
 	},
 	STINGER: {
 		TYPE: 'STINGER',
-		RADIUS: 5,
-		RENDER_RADIUS: 5,
+		RADIUS: 6,
+		RENDER_RADIUS: 6,
+		RARITY: 1,
 		RELOAD: 4,
 		DAMAGE: 35,
 		MAX_HP: 8,
@@ -49,6 +53,7 @@ module.exports = Object.freeze({
 		TYPE: 'ROCK',
 		RADIUS: 8,
 		RENDER_RADIUS: 8,
+		RARITY: 2,
 		RELOAD: 10,
 		DAMAGE: 10,
 		MAX_HP: 90,
@@ -64,6 +69,7 @@ module.exports = Object.freeze({
 		TYPE: 'ROSE',
 		RADIUS: 8,
 		RENDER_RADIUS: 8,
+		RARITY: 1,
 		RELOAD: 3.5,
 		DAMAGE: 5,
 		MAX_HP: 5,
@@ -82,6 +88,7 @@ module.exports = Object.freeze({
 		TYPE: 'DANDELION',
 		RADIUS: 8,
 		RENDER_RADIUS: 8,
+		RARITY: 2,
 		RELOAD: 2,
 		DAMAGE: 5,
 		MAX_HP: 10,
@@ -101,6 +108,7 @@ module.exports = Object.freeze({
 		TYPE: 'MISSILE',
 		RADIUS: 6,
 		RENDER_RADIUS: 6,
+		RARITY: 2,
 		RELOAD: 3,
 		DAMAGE: 35,
 		MAX_HP: 10,
@@ -119,6 +127,7 @@ module.exports = Object.freeze({
 		TYPE: "ROSE_ADVANCED",
 		RADIUS: 8,
 		RENDER_RADIUS: 8,
+		RARITY: 3,
 		RELOAD: 3.5,
 		DAMAGE: 5,
 		MAX_HP: 5,
@@ -137,6 +146,7 @@ module.exports = Object.freeze({
 		TYPE: 'SALT',
 		RADIUS: 8,
 		RENDER_RADIUS: 8,
+		RARITY: 2,
 		RELOAD: 4,
 		DAMAGE: 10,
 		MAX_HP: 10,
@@ -152,6 +162,7 @@ module.exports = Object.freeze({
 		TYPE: 'CACTUS_TOXIC',
 		RADIUS: 10,
 		RENDER_RADIUS: 10,
+		RARITY: 3,
 		RELOAD: 1,
 		DAMAGE: 5,
 		MAX_HP: 15,
@@ -171,6 +182,7 @@ module.exports = Object.freeze({
 		TYPE: 'IRIS',
 		RADIUS: 5,
 		RENDER_RADIUS: 5,
+		RARITY: 1,
 		RELOAD: 6,
 		DAMAGE: 5,
 		MAX_HP: 5,
@@ -187,7 +199,8 @@ module.exports = Object.freeze({
 	RICE: {
 		TYPE: 'RICE',
 		RADIUS: 5,
-		RENDER_RADIUS: 5,
+		RENDER_RADIUS: 8,
+		RARITY: 3,
 		RELOAD: 0.04,
 		DAMAGE: 5,
 		MAX_HP: 5,
@@ -203,6 +216,7 @@ module.exports = Object.freeze({
 		TYPE: 'LIGHTNING',
 		RADIUS: 8,
 		RENDER_RADIUS: 8,
+		RARITY: 5,
 		RELOAD: 3,
 		DAMAGE: 5,
 		MAX_HP: 5,
@@ -220,6 +234,8 @@ module.exports = Object.freeze({
 PETAL_NAME: {
 	TYPE: type, //花瓣名称
 	RADIUS: radius, // 碰撞箱半径
+	RENDER_RADIUS: radius, // 渲染半径
+	RARITY: rarity, // 稀有度
 	RELOAD: reload, // 单位为秒，刷新时间
 	DAMAGE: dmg, // 物理伤害
 	MAX_HP: max_hp, // 自生血量
