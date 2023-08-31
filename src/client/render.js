@@ -648,12 +648,12 @@ function renderBackground(x, y) {
 	ctx.fillRect(0, 0, W, H);
 
 	ctx.fillStyle = 'rgb(30, 167, 97)';
-	ctx.fillRect(W / 2 - x, H / 2 - y, MAP_WIDTH, MAP_HEIGHT);
+	ctx.fillRect(W / 2 - x * hpx, H / 2 - y * hpx, MAP_WIDTH, MAP_HEIGHT);
 
 	const gridInterval = hpx * 50;
 
-	const startX = ( W / 2 - x ) % gridInterval;
-	const startY = ( H / 2 - y ) % gridInterval;
+	const startX = ( W / 2 - x * hpx ) % gridInterval;
+	const startY = ( H / 2 - y * hpx ) % gridInterval;
 
 	const gridLineWidth = hpx * 0.5;
 	const gridLineStyle = 'rgb(23, 128, 74)';
@@ -683,9 +683,9 @@ function renderPlayer(me, player) {
 	// render player itself
 	ctx = getCtx(playerLayer);
 	const { x, y } = player;
-	const canvasX = W / 2 + x - me.x;
-	const canvasY = H / 2 + y - me.y;
-	const renderRadius = EntityAttributes.PLAYER.RENDER_RADIUS;
+	const canvasX = W / 2 + (x - me.x) * hpx;
+	const canvasY = H / 2 + (y - me.y) * hpx;
+	const renderRadius = EntityAttributes.PLAYER.RENDER_RADIUS * hpx;
 	if ( player.username == "Pop!" ) {
 		ctx.drawImage(
 			getAsset('mobs/bubble.svg'),
@@ -712,7 +712,7 @@ function renderPlayer(me, player) {
 
 	const healthBarBaseWidth = hpx * 10;
 	const healthBarBaseStyle = 'rgb(51, 51, 51)';
-	const healthBarBaseLength = EntityAttributes.PLAYER.RADIUS * 2 + hpx * 20;
+	const healthBarBaseLength = renderRadius * 2 + hpx * 20;
 
 	const healthBarOutline = hpx * 3;
 	const healthBarWidth = healthBarBaseWidth - healthBarOutline;

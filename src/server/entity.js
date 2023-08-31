@@ -58,8 +58,8 @@ class Entity {
 	updateVelocity(deltaT) {
 		this.velocity.x *= Constants.SPEED_ATTENUATION_COEFFICIENT;
 		this.velocity.y *= Constants.SPEED_ATTENUATION_COEFFICIENT;
-		const speedX = this.movement.speed * deltaT * 20 * Math.sin(this.movement.direction);
-		const speedY = this.movement.speed * deltaT * 20 * Math.cos(this.movement.direction);
+		const speedX = this.movement.speed * Math.sin(this.movement.direction);
+		const speedY = this.movement.speed * Math.cos(this.movement.direction);
 		this.velocity.x += speedX;
 		this.velocity.y += speedY;
 	}

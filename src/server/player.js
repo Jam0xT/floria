@@ -141,8 +141,9 @@ class Player extends Entity {
 					};
 					petal.movement = {
 						direction: Math.atan2(goalPos.x - petal.x, petal.y - goalPos.y),
-						speed: Math.sqrt((goalPos.x - petal.x) ** 2 + (goalPos.y - petal.y) ** 2) * Constants.PETAL_FOLLOW_SPEED,
+						speed: Math.sqrt((goalPos.x - petal.x) ** 2 + (goalPos.y - petal.y) ** 2) * (1 - Constants.SPEED_ATTENUATION_COEFFICIENT) / deltaT,
 					};
+					// console.log(petal.velocity);
 				}
 			} else {
 				if ( !petal.disabled ) {
