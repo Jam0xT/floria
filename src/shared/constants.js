@@ -36,7 +36,6 @@ module.exports = Object.freeze({
 	EXP_LOOTING_COEFFICIENT: 0.2, // your exp will increase by X*E when you kill a player whose exp is E
 
 	PETAL_ROTATION_SPEED_BASE: 2.5, // default player petal rotation speed
-	PETAL_FOLLOW_SPEED: 7, // how fast petals follow players
 
 	PRIMARY_SLOT_COUNT_BASE: 5, // default player slot count
 	SECONDARY_SLOT_COUNT_BASE: 5,
