@@ -237,7 +237,6 @@ class Player extends Entity {
 				}
 			}
 		}
-
 	}
 
 	updateChunks() {

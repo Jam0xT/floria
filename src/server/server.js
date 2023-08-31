@@ -33,7 +33,7 @@ io.on('connection', socket => {
 	socket.on(Constants.MSG_TYPES.PETAL_SWITCH, handlePetalSwitch);
 	socket.on(Constants.MSG_TYPES.PETAL_DISABLE, handlePetalDisable);
 	socket.on('disconnect', onDisconnect);
-})
+});
 
 const game = new Game();
 

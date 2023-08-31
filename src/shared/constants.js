@@ -17,7 +17,7 @@ module.exports = Object.freeze({
 	MAP_WIDTH: 4000, // width of the map
 	MAP_HEIGHT: 4000, // height of the map
 
-	RENDER_DELAY: 100, // render delay to make the animation smooth
+	RENDER_DELAY: 200, // render delay to make the animation smooth
 
 	RATED_WIDTH: 1920, // rated rendering size on client
 	RATED_HEIGHT: 1080,
