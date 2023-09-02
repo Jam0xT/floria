@@ -398,7 +398,7 @@ function renderGame() {
 	}
 	if ( gameRadiusOnEnter < hpx * 1800 ) {
 		fillBackground(0, "#1EA761");
-		renderText(0, 1, "florr.cn", W / 2, H / 2 - hpx * 220, hpx * 85, 'center');
+		renderText(0, 1, "floria.io", W / 2, H / 2 - hpx * 220, hpx * 85, 'center');
 		renderText(0, 1, "How to play", W / 2, H / 2 + hpx * 100, hpx * 30, 'center');
 		renderText(0, 1, "Use Mouse or [W] [S] [A] [D] to move", W / 2, H / 2 + hpx * 140, hpx * 15, 'center');
 		renderText(0, 1, "Left click or [Space] to attack", W / 2, H / 2 + hpx * 165, hpx * 15, 'center');
@@ -419,7 +419,7 @@ function renderGame() {
 		mobs.forEach(mob => {
 			renderMob(me, mob);
 		});
-		renderText(UILayer, 0.7, "florr.cn", W - hpx * 80, H - hpx * 20, hpx * 40, 'center');
+		renderText(UILayer, 0.7, "floria.io", W - hpx * 80, H - hpx * 20, hpx * 40, 'center');
 		renderLeaderboard(leaderboard, playerCount, me, rankOnLeaderboard);
 		renderUI(me);
 	}
@@ -940,7 +940,7 @@ function renderMainMenu() {
 	}
 
 	fillBackground(0, "#1EA761");
-	renderText(0, 1, "florr.cn", W / 2, H / 2 - hpx * 220, hpx * 85, 'center');
+	renderText(0, 1, "floria.io", W / 2, H / 2 - hpx * 220, hpx * 85, 'center');
 	renderText(0, 1, "How to play", W / 2, H / 2 + hpx * 100, hpx * 30, 'center');
 	renderText(0, 1, "Use Mouse or [W] [S] [A] [D] to move", W / 2, H / 2 + hpx * 140, hpx * 15, 'center');
 	renderText(0, 1, "Left click or [Space] to attack", W / 2, H / 2 + hpx * 165, hpx * 15, 'center');
@@ -988,7 +988,7 @@ function renderGameEnter() {
 	}
 	
 	fillBackground(0, "#1EA761");
-	renderText(0, 1, "florr.cn", W / 2, H / 2 - hpx * 220, hpx * 85, 'center');
+	renderText(0, 1, "floria.io", W / 2, H / 2 - hpx * 220, hpx * 85, 'center');
 	renderText(0, 1, "How to play", W / 2, H / 2 + hpx * 100, hpx * 30, 'center');
 	renderText(0, 1, "Use Mouse or [W] [S] [A] [D] to move", W / 2, H / 2 + hpx * 140, hpx * 15, 'center');
 	renderText(0, 1, "Left click or [Space] to attack", W / 2, H / 2 + hpx * 165, hpx * 15, 'center');
