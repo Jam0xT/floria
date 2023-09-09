@@ -17,6 +17,7 @@ var hpx;
 var primarySlotHitboxLength, primarySlotDisplayLength, primarySlotCenterY, primarySlotCount;
 var secondarySlotHitboxLength, secondarySlotDisplayLength, secondarySlotCenterY, secondarySlotCount;
 var selectedSlot = undefined, targetSlot = undefined;
+var disabled = [];
 
 document.addEventListener('contextmenu', event => event.preventDefault()); // prevent right-clicks
 
@@ -156,12 +157,18 @@ function onMouseUp(e) {
 		if ( selectedSlot && targetSlot ) {
 			switchPetals(selectedSlot.isPrimary, selectedSlot.slot, targetSlot.isPrimary, targetSlot.slot);
 			if ( selectedSlot.isPrimary ) {
-				disable(selectedSlot.slot);
+				if ( !disabled[selectedSlot.slot] ) {
+					disable(selectedSlot.slot);
+					disabled[selectedSlot.slot] = true;
+				}
 			}
 			if ( targetSlot.isPrimary ) {
-				disable(targetSlot.slot);
+				if ( !disabled[targetSlot.slot] ) {
+					disable(targetSlot.slot);
+					disabled[targetSlot.slot] = true;
+				}
 			}
-			switchInput(selectedSlot, targetSlot, false);
+			// switchInput(selectedSlot, targetSlot, false);
 			selectedSlot = undefined;
 		} else if ( selectedSlot ) {
 			deSelect(selectedSlot.isPrimary, selectedSlot.slot);
@@ -240,8 +247,11 @@ function handleKeyDownInput(e) {
 			slot = 9;
 		if ( slot >= 0 && slot < primarySlotCount) {
 			switchPetals(true, slot, false, slot);
-			disable(slot);
-			switchInput({isPrimary: true, slot: slot}, {isPrimary: false, slot: slot}, false);
+			if ( !disabled[slot] ) {
+				disable(slot);
+				disabled[slot] = true;
+			}
+			// switchInput({isPrimary: true, slot: slot}, {isPrimary: false, slot: slot}, false);
 			selectedSlot = undefined;
 			targetSlot = undefined;
 		}
@@ -326,4 +336,11 @@ export function updateSlotsData(W_, hpx_, primarySlotHitboxLength_, primarySlotD
 	secondarySlotDisplayLength = secondarySlotDisplayLength_;
 	secondarySlotCenterY = secondarySlotCenterY_;
 	secondarySlotCount = secondarySlotCount_;
+	while ( disabled.length < primarySlotCount ) {
+		disabled.push(false);
+	}
+}
+
+export function enable(slot) {
+	disabled[slot] = false;
 }
