@@ -1,5 +1,5 @@
 {
-  "name": "floria",
+  "name": "florrcn",
   "version": "0.7.1",
   "author": {
     "name": "NetheriteJam",
@@ -17,6 +17,7 @@
     "lodash": "^4.17.21",
     "socket.io": "^4.6.1",
     "socket.io-client": "^4.6.1",
+    "util": "^0.12.5",
     "webpack-dev-middleware": "^6.0.1"
   },
   "devDependencies": {

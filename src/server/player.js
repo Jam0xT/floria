@@ -30,11 +30,11 @@ class Player extends Entity {
 		for ( let i = 0; i < Constants.SECONDARY_SLOT_COUNT_BASE; i ++ ) {
 			this.secondaryPetals.push('NONE');
 		}
-		this.secondaryPetals[0] = 'STINGER';
-		this.secondaryPetals[1] = 'RICE';
-		this.secondaryPetals[2] = 'BUBBLE';
-		this.secondaryPetals[3] = 'MISSILE';
-		this.secondaryPetals[4] = 'ROSE_ADVANCED';
+		this.secondaryPetals[0] = 'LIGHTNING';
+		this.secondaryPetals[1] = 'LIGHTNING';
+		this.secondaryPetals[2] = 'LIGHTNING';
+		this.secondaryPetals[3] = 'LIGHTNING';
+		this.secondaryPetals[4] = 'LIGHTNING';
 		this.petals = [
 			new Petal(0, 0, 0, x, y, id, 'BASIC', true),
 			new Petal(1, 1, 1, x, y, id, 'BASIC', true),
@@ -63,6 +63,7 @@ class Player extends Entity {
 		let petal = this.petals[slot];
 		petal.disabled = true;
 		petal.inCooldown = true;
+		//console.log(petal)
 		petal.cooldown = petal.attributes.RELOAD;
 	}
 
@@ -103,9 +104,29 @@ class Player extends Entity {
 				this.secondaryPetals[slot2.slot] = tmp;
 			}
 		}
+		
+		//检测是否有空花瓣&更新最大花瓣位置
+		/*
+		this.placeHolder = 0;
+		this.petals.forEach((petal,index) => {
+			petal.placeHolder = index;
+		})
+		this.petals.forEach((petal,index) => {
+			console.log(petal)
+			if (petal.type === `NONE`) {
+				for (let i = index; i < this.petals.length; ++i) {
+					this.petals[i].placeHolder--;
+				}
+				//console.log(index)
+				return;
+			};
+			this.placeHolder++;
+		})
+		*/
 	}
 
 	updatePetalMovement(deltaT) {
+		//console.log(this.petals[0])
 		this.firstPetalDirection -= this.rotateClockwise * this.rotationSpeed * deltaT;
 		if ( this.firstPetalDirection > 2 * Math.PI ) {
 			this.firstPetalDirection -= 2 * Math.PI;
@@ -113,8 +134,9 @@ class Player extends Entity {
 		if ( this.firstPetalDirection < - 2 * Math.PI ) {
 			this.firstPetalDirection += 2 * Math.PI;
 		}
-		for (let petalIDX = 0; petalIDX < this.petals.length; petalIDX ++ ) {
-			const petal = this.petals[petalIDX];
+		
+		this.petals.forEach((petal,index) => {
+			if (petal.type === `NONE`) return;
 			if ( !petal.inCooldown ) {
 				if ( petal.attributes.TRIGGERS.PROJECTILE && petal.action ) {
 					petal.movement = {
@@ -123,6 +145,7 @@ class Player extends Entity {
 					};
 				} else {
 					petal.direction = Math.atan2(petal.x - this.x, this.y - petal.y);
+					//console.log(petal.placeHolder)
 					const theta = this.firstPetalDirection + 2 * Math.PI * petal.placeHolder / this.placeHolder;
 					let expandRadius = this.petalExpandRadius + this.attributes.RADIUS;
 					if ( !petal.attributes.EXPANDABLE ) {
@@ -131,25 +154,43 @@ class Player extends Entity {
 					if ( petal.action ) {
 						expandRadius = Math.min(expandRadius, this.attributes.RADIUS + petal.attributes.RADIUS);
 					}
+			
+					if (petal.attributes.TRIGGERS.FLOAT) {
+						if (this.attack) {
+							petal.floatDirection += deltaT * petal.attributes.TRIGGERS.FLOAT / Constants.PETAL_FLOAT_SPEED;
+							petal.floatRadius += deltaT * Math.cos(Math.PI / 2 + petal.floatDirection / petal.attributes.TRIGGERS.FLOAT * Math.PI) * petal.attributes.TRIGGERS.FLOAT / Constants.PETAL_FLOAT_SPEED;
+							if (petal.floatDirection >= petal.attributes.TRIGGERS.FLOAT * 2) {
+								petal.floatDirection = 0;
+								petal.floatRadius = 0;
+							}
+							expandRadius += -petal.floatRadius// + Math.cos(petal.floatDirection / (petal.attributes.TRIGGERS.FLOAT * 2) * Math.PI) * (Constants.PETAL_EXPAND_RADIUS_ATTACK / 2);
+						} else{
+							petal.floatRadius = 0;
+							petal.floatDirection = 0;
+						}
+					}
 					const goalPos = {
 						x: this.x + expandRadius * Math.sin(theta),
 						y: this.y + expandRadius * Math.cos(theta),
 					};
+					
+					let followSpeed = 7.5 + this.rotationSpeed * expandRadius / 2 * deltaT;
 					petal.movement = {
 						direction: Math.atan2(goalPos.x - petal.x, petal.y - goalPos.y),
-						speed: Math.sqrt((goalPos.x - petal.x) ** 2 + (goalPos.y - petal.y) ** 2) * (1 - Constants.SPEED_ATTENUATION_COEFFICIENT) / deltaT,
+						speed: Math.sqrt((goalPos.x - petal.x) ** 2 + (goalPos.y - petal.y) ** 2) * followSpeed,
 					};
+					// * (1 - Constants.SPEED_ATTENUATION_COEFFICIENT) / deltaT
 					// console.log(petal.velocity);
 				}
 			} else {
 				if ( !petal.disabled ) {
 					petal.cooldown -= deltaT;
 					if ( petal.cooldown <= 0 ) {
-						this.petals[petalIDX] = this.newPetal(petal.attributes.TYPE, this.getNewPetalID(), petal.idx, petal.placeHolder);
+						this.petals[index] = this.newPetal(petal.attributes.TYPE, this.getNewPetalID(), petal.idx, petal.placeHolder);
 					}
 				}
 			}
-		}
+		})
 	}
 
 	newPetal(type, petalID, petalIDX, placeHolder) {
@@ -163,6 +204,8 @@ class Player extends Entity {
 
 	update(deltaT) {
 		// console.log(this.primaryPetals, this.secondaryPetals);
+		this.rotationSpeed = Constants.PETAL_ROTATION_SPEED_BASE; //初始化旋转速度
+		this.rotateClockwise = 1; //初始化旋转方向
 		this.noHeal = Math.max(0, this.noHeal - deltaT);
 		this.poisonTime = Math.max(0, this.poisonTime - deltaT);
 		if ( this.poisonTime > 0 )
@@ -171,10 +214,35 @@ class Player extends Entity {
 			this.hp += ((this.maxHp / 240) * deltaT);
 			this.hp = Math.min(this.hp, this.maxHp);
 		}
-
+		
+		const isAllYinYang = this.petals.every(petal => petal.attributes && petal.attributes.TYPE === `YINYANG`); //判断是否所有花瓣都为阴阳
 		for (let petalID = 0; petalID < this.slotCount; petalID ++ ) {
 			const petal = this.petals[petalID];
+			if (!petal || !petal.attributes) continue;
+			
+			//阴阳控制旋转部分
+			if ( petal.attributes.TRIGGERS.ROTATION_SWITCH) {
+				if (isAllYinYang && this.slotCount >= 8) {
+					this.rotateClockwise = 5;
+				} else if (this.rotateClockwise == 1) {
+					this.rotateClockwise = -1;
+				} else if (this.rotateClockwise == -1) {
+					this.rotateClockwise = 0;
+				} else if (this.rotateClockwise == 0) {
+					this.rotateClockwise = 1;
+				}
+			}
+			
 			if ( !petal.inCooldown ) {
+				if ( petal.attributes.TRIGGERS.ROTATION_ACCELERATE ) {
+					this.rotationSpeed += petal.attributes.TRIGGERS.ROTATION_ACCELERATE;
+				}
+				if ( petal.attributes.TRIGGERS.HEAL_SUSTAIN ) {
+					if ( this.hp < this.maxHp && (!this.noHeal) ) {
+						this.hp += petal.attributes.TRIGGERS.HEAL_SUSTAIN * deltaT;
+						this.hp = Math.min(this.hp, this.maxHp);
+					}
+				}
 				if ( petal.attributes.TRIGGERS.HEAL ) { // trigger healing petals like rose, dahlia etc.
 					if ( this.hp < this.maxHp && (!this.noHeal) ) {
 						if ( petal.actionCooldown > 0 ) {
@@ -223,6 +291,7 @@ class Player extends Entity {
 						}
 					}
 				}
+				
 				if ( this.defend ) { // defend trigger
 					if ( petal.attributes.TRIGGERS.BUBBLE_PUSH ) { // trigger bubble
 						petal.hp = -1;
@@ -320,6 +389,11 @@ class Player extends Entity {
 			this.level ++;
 			this.exp -= this.currentExpForLevel;
 			this.currentExpForLevel = this.getExpForLevel(this.level);
+			
+			//更新槽位数量
+			if (this.slotCount < 8) {
+				this.slotCount = 5 + Math.floor(this.level / 15);
+			}
 		}
 	}
 

@@ -25,7 +25,33 @@ module.exports = Object.freeze({
 		SPAWN_WEIGHT: 100,
 		VOLUME: 1000,
 		TYPE: 'BUBBLE',
-	}
+	},
+	DARK_LADYBUG: {
+		MASS: 20,
+		SPEED: 80,
+		RADIUS: 15,
+		RENDER_RADIUS: 15,
+		MAX_HP: 25,
+		DAMAGE: 10,
+		VALUE: 10,
+		EXPERIENCE: 10,
+		SPAWN_WEIGHT: 100,
+		VOLUME: 200,
+		TYPE: 'DARK_LADYBUG',
+	},
+	HORNET: {
+		MASS: 20,
+		SPEED: 80,
+		RADIUS: 15,
+		RENDER_RADIUS: 15,
+		MAX_HP: 40,
+		DAMAGE: 50,
+		VALUE: 10,
+		EXPERIENCE: 10,
+		SPAWN_WEIGHT: 100,
+		VOLUME: 200,
+		TYPE: 'HORNET',
+	},
 });
 
 // all entity attributes are here

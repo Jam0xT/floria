@@ -21,6 +21,10 @@ class Petal extends Entity {
 			this.actionCooldown = -1;
 		}
 		this.direction = 0;
+		
+		//翅膀
+		this.floatRadius = 0;
+		this.floatDirection = 0;
 	}
 
 	updateAttributes() {

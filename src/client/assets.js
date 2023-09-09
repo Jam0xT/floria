@@ -1,6 +1,9 @@
 const ASSET_NAMES = [
 	'player.svg',
+	'glass_single.svg',
 	'mobs/bubble.svg',
+	'mobs/dark_ladybug.svg',
+	'mobs/hornet.svg',
 	'petals/basic.svg',
 	'petals/bubble.svg',
 	'petals/cactus.svg',
@@ -8,6 +11,7 @@ const ASSET_NAMES = [
 	'petals/dandelion.svg',
 	'petals/egg.svg',
 	'petals/faster.svg',
+	'petals/glass.svg',
 	'petals/heavy.svg',
 	'petals/honey.svg',
 	'petals/iris.svg',
@@ -25,6 +29,8 @@ const ASSET_NAMES = [
 	'petals/triplet.svg',
 	'petals/twin.svg',
 	'petals/web.svg',
+	'petals/wing.svg',
+	'petals/yinyang.svg',
 ];
 
 const assets = {};

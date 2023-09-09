@@ -57,6 +57,8 @@ export function getCurrentState() {
 			leaderboard: baseUpdate.leaderboard,
 			playerCount: baseUpdate.playerCount,
 			rankOnLeaderboard: baseUpdate.rankOnLeaderboard,
+			lightningPath: baseUpdate.lightningPath,
+			diedEntities: baseUpdate.diedEntities,
 		};
 	}
 }

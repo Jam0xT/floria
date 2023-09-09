@@ -3,6 +3,9 @@ const EntityAttributes = require('../../public/entity_attributes');
 const PetalAttributes = require('../../public/petal_attributes');
 const Player = require('./player');
 const Bubble = require('./entity/bubble');
+const Dark_ladybug = require('./entity/dark_ladybug');
+const Hornet = require(`./entity/hornet`);
+const { listen } = require('express/lib/application');
 
 var TOTAL_SPAWN_WEIGHT = 0; // this is a constant
 Object.values(EntityAttributes).forEach(attribute => {
@@ -21,6 +24,8 @@ class Game {
 		this.volumeTaken = 0;
 		// this.shouldSendUpdate = false;
 		this.mobID = 0;
+		this.lightningPath = [];
+		this.diedEntities = [];
 		setInterval(this.update.bind(this), 1000 / Constants.TICK_PER_SECOND); // update the game every tick
 	}
 
@@ -173,6 +178,13 @@ class Game {
 	handlePlayerDeath(player) { // handles a single player death
 		// called when a player dies, adding score to 'killedBy' and remove the dead player from leaderboard
 		// this function will not remove the player itself
+		this.diedEntities.push({
+			x: player.x,
+			y: player.y,
+			type: `player`,
+			movement: player.movement,
+			size: player.attributes.RENDER_RADIUS,
+		});
 		const killedByInfo = player.hurtByInfo;
 		if ( killedByInfo.type == 'player' || killedByInfo.type == 'petal' ) {
 			var killedBy;
@@ -201,6 +213,13 @@ class Game {
 		player.petals.forEach(petal => {
 			if ( !petal.inCooldown ) {
 				if ( petal.hp <= 0 ) {
+					this.diedEntities.push({
+						x: petal.x,
+						y: petal.y,
+						type: petal.type,
+						movement: petal.movement,
+						size: petal.attributes.RENDER_RADIUS,
+					});
 					petal.chunks.forEach(chunk => {
 						if ( this.chunks[this.getChunkID(chunk)] ) {
 							this.chunks[this.getChunkID(chunk)].splice(
@@ -268,9 +287,22 @@ class Game {
 					}
 				});
 				this.volumeTaken -= EntityAttributes[mob.type].VOLUME;
+				this.diedEntities.push({
+					x: this.mobs[mobID].value.x,
+					y: this.mobs[mobID].value.y,
+					type: this.mobs[mobID].type,
+					movement: this.mobs[mobID].value.movement,
+					size: this.mobs[mobID].value.attributes.RENDER_RADIUS,
+					isMob: true,
+				});
 				delete this.mobs[mobID];
 			}
 		});
+	}
+	
+	init(deltaT) {
+		this.lightningPath = [];
+		this.diedEntities = [];
 	}
 
 	// movement
@@ -290,6 +322,27 @@ class Game {
 			player.updateMovement(deltaT);
 		});
 		Object.values(this.mobs).forEach(mob => {
+			if (mob.value.sensitization) { //判断mob是否为主动型生物
+				if (!mob.value.target || !this.players[mob.value.target]) { //没有目标或者目标不存在
+					let distances = [],
+						ids = [];
+						
+					Object.entries(this.players).forEach(([id,player]) => {
+						let distance = Math.sqrt((mob.value.x - player.x) ** 2 + (mob.value.y - player.y) ** 2);
+						distances.push(distance);
+						ids.push(id);
+					});
+					
+					mob.value.target = ids[distances.indexOf(Math.min(distances))];
+				}
+			}
+			
+			if (mob.value.target) {
+				const target = this.players[mob.value.target];
+				mob.value.updateMovement(deltaT,target);
+				return;
+			}
+			
 			mob.value.updateMovement(deltaT);
 		});
 	}
@@ -427,6 +480,20 @@ class Game {
 								value: new Bubble(newMobID, spawnX, spawnY, 'mobTeam'),
 							};
 						}
+						else if ( attribute.TYPE == 'DARK_LADYBUG' ) {
+							const newMobID = this.getNewMobID();
+							this.mobs[newMobID] = {
+								type: attribute.TYPE,
+								value: new Dark_ladybug(newMobID, spawnX, spawnY, 'mobTeam'),
+							};
+						}
+						else if ( attribute.TYPE == 'HORNET' ) {
+							const newMobID = this.getNewMobID();
+							this.mobs[newMobID] = {
+								type: attribute.TYPE,
+								value: new Hornet(newMobID, spawnX, spawnY, 'mobTeam'),
+							};
+						}
 					}
 				});
 			}
@@ -551,19 +618,10 @@ class Game {
 					entityA.velocity.x += knockbackA * Math.sin(theta2);
 					entityA.velocity.y += knockbackA * Math.cos(theta2);
 					if ( entityInfoB.type == 'petal' ) {
-						if ( entityB.attributes.TRIGGERS.NO_HEAL ) {
-							entityA.noHeal = entityB.attributes.TRIGGERS.NO_HEAL;
-						}
-						if ( entityB.attributes.TRIGGERS.POISON ) {
-							if ( entityA.poison * entityA.poisonTime < entityB.attributes.TRIGGERS.POISON ) {
-								entityA.poison = entityB.attributes.TRIGGERS.TOXICITY;
-								entityA.poisonTime = entityB.attributes.TRIGGERS.POISON / entityB.attributes.TRIGGERS.TOXICITY;
-							}
-						}
-						this.players[entityB.parent].hp -= entityB.attributes.DAMAGE * entityA.damageReflect;
+						this.players[entityB.parent].hp -= entityB.attributes.DAMAGE * entityA.damageReflect * (1 + entityB.fragile);
 					} else if ( entityInfoB.type == 'player' ) {
-						entityA.hp -= entityA.attributes.DAMAGE * entityB.damageReflect;
-						entityB.hp -= entityB.attributes.DAMAGE * entityA.damageReflect;
+						entityA.hp -= entityA.attributes.DAMAGE * entityB.damageReflect * (1 + entityA.fragile);
+						entityB.hp -= entityB.attributes.DAMAGE * entityA.damageReflect * (1 + entityB.fragile);
 						if ( entityA.bodyToxicity > 0 ) {
 							if ( entityB.poison * entityB.poisonTime < entityA.bodyPoison ) {
 								entityB.poison = entityA.bodyToxicity;
@@ -586,20 +644,207 @@ class Game {
 					entityB.velocity.x += knockbackB * Math.sin(theta1);
 					entityB.velocity.y += knockbackB * Math.cos(theta1);
 					if ( entityInfoA.type == 'petal' ) {
-						if ( entityA.attributes.TRIGGERS.NO_HEAL ) {
-							entityB.noHeal = entityA.attributes.TRIGGERS.NO_HEAL;
-						}
-						if ( entityA.attributes.TRIGGERS.POISON ) {
-							if ( entityB.poison * entityB.poisonTime < entityA.attributes.TRIGGERS.POISON ) {
-								entityB.poison = entityA.attributes.TRIGGERS.TOXICITY;
-								entityB.poisonTime = entityA.attributes.TRIGGERS.POISON / entityA.attributes.TRIGGERS.TOXICITY;
-							}
-						}
-						this.players[entityA.parent].hp -= entityA.attributes.DAMAGE * entityB.damageReflect;
+						this.players[entityA.parent].hp -= entityA.attributes.DAMAGE * entityB.damageReflect * (1 + entityA.fragile);
 					}
 				}
-				entityA.hp -= entityB.attributes.DAMAGE;
-				entityB.hp -= entityA.attributes.DAMAGE;
+				entityA.hp -= entityB.attributes.DAMAGE * (1 + entityA.fragile);
+				entityB.hp -= entityA.attributes.DAMAGE * (1 + entityB.fragile);
+				
+				if (entityB.attributes.TRIGGERS) {
+					if ( entityB.attributes.TRIGGERS.NO_HEAL ) {
+						entityA.noHeal = entityB.attributes.TRIGGERS.NO_HEAL;
+					}
+					if ( entityB.attributes.TRIGGERS.POISON ) {
+						if ( entityA.poison * entityA.poisonTime < entityB.attributes.TRIGGERS.POISON ) {
+							entityA.poison = entityB.attributes.TRIGGERS.TOXICITY;
+							entityA.poisonTime = entityB.attributes.TRIGGERS.POISON / entityB.attributes.TRIGGERS.TOXICITY;
+						}
+					}
+					if ( entityB.attributes.TRIGGERS.PUNCTURE ) {
+						if ( entityA.puncture < entityB.attributes.TRIGGERS.PUNCTURE ) {
+							entityA.puncture = entityB.attributes.TRIGGERS.PUNCTURE;
+							entityA.fragile = entityB.attributes.TRIGGERS.PUNCTURE_DAMAGE;
+						}
+					}
+					if ( entityB.attributes.TRIGGERS.LIGHTNING ) {
+						let possibleEntityPositions = [];
+						let lightningPath = [];
+						
+						lightningPath.push({
+							x: entityB.x,
+							y: entityB.y,
+						});
+						lightningPath.push({
+							x: entityA.x,
+							y: entityA.y,
+						});
+						
+						Object.entries(this.players).forEach(([id,player]) => {
+							if (player.id == entityB.team) return;
+							if (Math.sqrt((player.x - entityA.x) ** 2 + (player.y - entityA.y) ** 2) <= Constants.LIGHTNING_LENGTH * entityB.attributes.TRIGGERS.LIGHTNING) {
+								possibleEntityPositions.push([player.x,player.y,id]);
+							}
+						})
+						Object.entries(this.mobs).forEach(([id,mob]) => {
+							if (Math.sqrt((mob.value.x - entityA.x) ** 2 + (mob.value.y - entityA.y) ** 2) <= Constants.LIGHTNING_LENGTH * entityB.attributes.TRIGGERS.LIGHTNING) {
+								possibleEntityPositions.push([mob.value.x,mob.value.y,id]);
+							}
+						})
+						
+						let nextTargetEntityPosition = {
+							x: entityA.x,
+							y: entityA.y,
+						}
+						let damagedEntity = [];
+						
+						for (let times = 0; times < entityB.attributes.TRIGGERS.LIGHTNING; times++) {
+							let distances = [],
+								ids = [];
+					
+							possibleEntityPositions.forEach(([entityX,entityY,id]) => {
+								if (damagedEntity.includes(id)) return;
+								let distance = Math.sqrt((entityX - nextTargetEntityPosition.x) ** 2 + (entityY - nextTargetEntityPosition.y) ** 2);
+								if (distance <= Constants.LIGHTNING_LENGTH) {
+									distances.push(distance);
+									ids.push(id);
+								}
+							})
+					
+							let nextTargetEntity = ids[distances.indexOf(Math.min(distances))];
+							if (!nextTargetEntity) continue;
+						
+							//判断连锁目标为玩家还是mob并且造成伤害
+							if (nextTargetEntity.charAt(0) == `m`) {
+								let mob = this.mobs[nextTargetEntity].value;
+								mob.hp -= entityB.attributes.DAMAGE * (1 + mob.fragile);
+								mob.hurtByInfo = entityInfoB;
+								nextTargetEntityPosition.x = mob.x;
+								nextTargetEntityPosition.y = mob.y;
+								lightningPath.push({
+									x: mob.x,
+									y: mob.y,
+								});
+							} else{
+								let player = this.players[nextTargetEntity];
+								player.hp -= entityB.attributes.DAMAGE * (1 + player.fragile);
+								player.hurtByInfo = entityInfoB;
+								nextTargetEntityPosition.x = player.x;
+								nextTargetEntityPosition.y = player.y;
+								lightningPath.push({
+									x: player.x,
+									y: player.y,
+								});
+							}
+							damagedEntity.push(nextTargetEntity);
+						}
+						this.lightningPath.push(lightningPath);
+					}
+				}
+				if (entityA.attributes.TRIGGERS) {
+					if ( entityA.attributes.TRIGGERS.NO_HEAL ) {
+						entityB.noHeal = entityA.attributes.TRIGGERS.NO_HEAL;
+					}
+					if ( entityA.attributes.TRIGGERS.POISON ) {
+						if ( entityB.poison * entityB.poisonTime < entityA.attributes.TRIGGERS.POISON ) {
+							entityB.poison = entityA.attributes.TRIGGERS.TOXICITY;
+							entityB.poisonTime = entityA.attributes.TRIGGERS.POISON / entityA.attributes.TRIGGERS.TOXICITY;
+						}
+					}
+					if ( entityA.attributes.TRIGGERS.PUNCTURE ) {
+						if ( entityB.puncture < entityA.attributes.TRIGGERS.PUNCTURE ) {
+							entityB.puncture = entityA.attributes.TRIGGERS.PUNCTURE;
+							entityB.fragile = entityA.attributes.TRIGGERS.PUNCTURE_DAMAGE;
+						}
+					}
+					if ( entityA.attributes.TRIGGERS.LIGHTNING ) {
+						let possibleEntityPositions = [];
+						let lightningPath = [];
+						
+						lightningPath.push({
+							x: entityA.x,
+							y: entityA.y,
+						});
+						lightningPath.push({
+							x: entityB.x,
+							y: entityB.y,
+						});
+						
+						Object.entries(this.players).forEach(([id,player]) => {
+							if (player.id == entityA.team) return;
+							if (Math.sqrt((player.x - entityB.x) ** 2 + (player.y - entityB.y) ** 2) <= Constants.LIGHTNING_LENGTH * entityA.attributes.TRIGGERS.LIGHTNING) {
+								possibleEntityPositions.push([player.x,player.y,id]);
+							}
+						})
+						Object.entries(this.mobs).forEach(([id,mob]) => {
+							if (Math.sqrt((mob.value.x - entityB.x) ** 2 + (mob.value.y - entityB.y) ** 2) <= Constants.LIGHTNING_LENGTH * entityA.attributes.TRIGGERS.LIGHTNING) {
+								possibleEntityPositions.push([mob.value.x,mob.value.y,id]);
+							}
+						})
+						
+						let nextTargetEntityPosition = {
+							x: entityB.x,
+							y: entityB.y,
+						}
+						let damagedEntity = [];
+						damagedEntity.push(entityB.id);
+						
+						for (let times = 0; times < entityA.attributes.TRIGGERS.LIGHTNING; times++) {
+							let distances = [],
+								ids = [];
+
+							possibleEntityPositions.forEach(([entityX,entityY,id]) => {
+								if (damagedEntity.includes(id)) return;
+								let distance = Math.sqrt((entityX - nextTargetEntityPosition.x) ** 2 + (entityY - nextTargetEntityPosition.y) ** 2);
+								if (distance <= Constants.LIGHTNING_LENGTH) {
+									distances.push(distance);
+									ids.push(id);
+								}
+							})
+
+							let nextTargetEntity = ids[distances.indexOf(Math.min(...distances))];
+							if (!nextTargetEntity) continue;
+							
+							//判断连锁目标为玩家还是mob并且造成伤害
+							if (nextTargetEntity.charAt(0) == `m`) {
+								let mob = this.mobs[nextTargetEntity].value;
+								mob.hp -= entityA.attributes.DAMAGE * (1 + mob.fragile);
+								mob.hurtByInfo = entityInfoA;
+								nextTargetEntityPosition.x = mob.x;
+								nextTargetEntityPosition.y = mob.y;
+								lightningPath.push({
+									x: mob.x,
+									y: mob.y,
+								});
+							} else{
+								let player = this.players[nextTargetEntity];
+								player.hp -= entityA.attributes.DAMAGE * (1 + player.fragile);
+								player.hurtByInfo = entityInfoA;
+								nextTargetEntityPosition.x = player.x;
+								nextTargetEntityPosition.y = player.y;
+								lightningPath.push({
+									x: player.x,
+									y: player.y,
+								});
+							}
+							damagedEntity.push(nextTargetEntity);
+						}
+						this.lightningPath.push(lightningPath);
+					}
+				}
+				
+				if (entityA.puncture > 0) {
+					entityA.puncture--;
+				}
+				if (entityA.puncture == 0) {
+					entityA.fragile = 0;
+				}
+				if (entityB.puncture > 0) {
+					entityB.puncture--;
+				}
+				if (entityB.puncture == 0) {
+					entityB.fragile = 0;
+				}
+
 				entityA.hurtByInfo = entityInfoB;
 				entityB.hurtByInfo = entityInfoA;
 			}
@@ -641,6 +886,8 @@ class Game {
 		const deltaT = (now - this.lastUpdateTime) / 1000; // the length of the last tick
 
 		this.lastUpdateTime = now;
+		
+		this.init(deltaT);
 
 		this.updatePlayers(deltaT);
 
@@ -704,6 +951,8 @@ class Game {
 			others: nearbyPlayers.map(p => p.serializeForUpdate(false)), // nearby players
 			playerCount: Object.keys(this.players).length, // the number of players online
 			mobs: nearbyMobs.map(e => e.value.serializeForUpdate()),
+			lightningPath: this.lightningPath,
+			diedEntities: this.diedEntities,
 		}
 	
 	}
