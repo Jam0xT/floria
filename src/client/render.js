@@ -1,6 +1,6 @@
 import { getAsset } from './assets';
 import { getCurrentState } from './state';
-import { startCapturingInput, updateSlotsData, switchInput } from './input';
+import { startCapturingInput, updateSlotsData, switchInput, enable } from './input';
 const Constants = require('../shared/constants');
 const { MAP_WIDTH, MAP_HEIGHT, RATED_WIDTH, RATED_HEIGHT } = Constants;
 const EntityAttributes = require('../../public/entity_attributes');
@@ -29,9 +29,11 @@ let backgroundLayer = 1, playerLayer = 3, petalLayer = 2, shadeLayer = 4, mobLay
 
 let primarySlotDisplayLength = 60, primarySlotHitboxLength = 92, primarySlotCenterY = 850;
 let secondarySlotDisplayLength = 45, secondarySlotHitboxLength = 70, secondarySlotCenterY = 930;
-let primarySlotCount = Constants.PRIMARY_SLOT_COUNT_BASE;
-let secondarySlotCount = Constants.SECONDARY_SLOT_COUNT_BASE;
+let primarySlotCount = 5;
+let secondarySlotCount = 5;
 let selectedSize = 1.2;
+
+let initPetals = false;
 
 let petalSwing = Math.PI * 0.03;
 let selectedPetal = undefined, targetedPetal = undefined;
@@ -511,10 +513,24 @@ function renderUI(me) {
 
 	// primary slots
 
-	while ( primarySlotCount < me.primaryPetals.length ) {
-		primarySlotCount ++;
-		primaryPetals.push(new Petal(0, 0, 'NONE'));
+	if ( !initPetals ) {
+		if ( !me.switched ) {
+			switchInput(-1, -1);
+		} else {
+			initPetals = true;
+		}
 	}
+
+	if ( me.switched ) {
+		if ( primarySlotCount < me.primaryPetals.length ) {
+			primarySlotCount = me.primaryPetals.length;
+		}
+		while ( primaryPetals.length < me.primaryPetals.length ) {
+			let p = new Petal(0, 0, me.primaryPetals[primaryPetals.length].type);
+			primaryPetals.push(p);
+		}
+	}
+
 	let slotCount = primarySlotCount;
 	let slotDisplayLength = primarySlotDisplayLength * hpx;
 	let slotHitboxLength = primarySlotHitboxLength * hpx;
@@ -538,10 +554,16 @@ function renderUI(me) {
 
 	// secondary slots
 
-	while ( secondarySlotCount < me.secondaryPetals.length) {
-		secondarySlotCount ++;
-		secondaryPetals.push(new Petal(0, 0, 'NONE'));
+	if ( me.switched ) {
+		if ( secondarySlotCount < me.secondaryPetals.length ) {
+			secondarySlotCount = me.secondaryPetals.length;
+		}
+		while ( secondaryPetals.length < me.secondaryPetals.length ) {
+			let p = new Petal(0, 0, me.secondaryPetals[secondaryPetals.length].type);
+			secondaryPetals.push(p);
+		}
 	}
+
 	slotCount = secondarySlotCount;
 	slotDisplayLength = secondarySlotDisplayLength * hpx;
 	slotHitboxLength = secondarySlotHitboxLength * hpx;
@@ -590,7 +612,9 @@ function renderUI(me) {
 		if ( !primaryPetals[i].animating ) {
 			primaryPetals[i].setTargetPos(centerX, centerY);
 			primaryPetals[i].setTargetSize(1);
-			primaryPetals[i].setType(me.primaryPetals[i]);
+			if ( me.switched ) {
+				primaryPetals[i].setType(me.primaryPetals[i]);
+			}
 			primaryPetals[i].render(slotDisplayLength);
 		}
 	}
@@ -612,7 +636,8 @@ function renderUI(me) {
 		if ( !secondaryPetals[i].animating ) {
 			secondaryPetals[i].setTargetPos(centerX, centerY);
 			secondaryPetals[i].setTargetSize(1);
-			secondaryPetals[i].setType(me.secondaryPetals[i]);
+			if ( me.switched )
+				secondaryPetals[i].setType(me.secondaryPetals[i]);
 			secondaryPetals[i].render(slotDisplayLength);
 		}
 	}
@@ -635,7 +660,13 @@ function renderUI(me) {
 			petalB = secondaryPetals[targetedPetal.slot];
 		}
 		if ( (!petalA.animating) && (!petalB.animating) ) {
-			switchInput(selectedPetal, targetedPetal, true);
+			switchInput(selectedPetal, targetedPetal);
+			if ( selectedPetal.isPrimary ) {
+				enable(selectedPetal.slot);
+			}
+			if ( targetedPetal.isPrimary ) {
+				enable(targetedPetal.slot);
+			}
 			selectedPetal = undefined;
 			targetedPetal = undefined;
 		}
