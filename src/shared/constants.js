@@ -12,6 +12,7 @@ module.exports = Object.freeze({
 		GAME_OVER: 'dead',
 		PETAL_SWITCH: 'petal_switch',
 		PETAL_DISABLE: 'petal_disable',
+		LIGHTNING_PATH: 'lightning_path',
 	},
 
 	MAP_WIDTH: 4000, // width of the map
@@ -36,6 +37,7 @@ module.exports = Object.freeze({
 	EXP_LOOTING_COEFFICIENT: 0.2, // your exp will increase by X*E when you kill a player whose exp is E
 
 	PETAL_ROTATION_SPEED_BASE: 2.5, // default player petal rotation speed
+	PETAL_FLOAT_SPEED: 1, //翅膀上下摆动的速度
 
 	PRIMARY_SLOT_COUNT_BASE: 5, // default player slot count
 	SECONDARY_SLOT_COUNT_BASE: 5,
@@ -45,9 +47,9 @@ module.exports = Object.freeze({
 
 	BASE_KNOCKBACK: 500, // base knockback when colliding
 
-	PETAL_EXPAND_RADIUS_NORMAL: 35, // petal expand radius
-	PETAL_EXPAND_RADIUS_ATTACK: 94.5,
-	PETAL_EXPAND_RADIUS_DEFEND: 13.5, 
+	PETAL_EXPAND_RADIUS_NORMAL: 25, // petal expand radius
+	PETAL_EXPAND_RADIUS_ATTACK: 70,
+	PETAL_EXPAND_RADIUS_DEFEND: 8, 
 
 	BUBBLE_ATTENUATION_COEFFICIENT: 0.8, // bubble velocity *= X every tick
 
@@ -74,4 +76,6 @@ module.exports = Object.freeze({
 	],
 
 	PETAL_OUTLINE_WIDTH_PERCENTAGE: 0.05,
+	
+	LIGHTNING_LENGTH: 250,
 });

@@ -28,6 +28,8 @@ class Entity {
 			direction: 0,
 			speed: 0,
 		};
+		this.puncture = 0;
+		this.fragile = 0;
 	}
 
 	distanceTo(object) {
