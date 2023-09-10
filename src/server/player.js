@@ -50,6 +50,7 @@ class Player extends Entity {
 			x: 0,
 			y: 0,
 		};
+		this.switched = true; // 这一刻是否进行交换操作
 		this.noHeal = 0; // 剩余禁用回血时间
 		this.poison = 0; // 中毒每秒毒伤
 		this.poisonTime = 0; // 剩余中毒时间
@@ -66,15 +67,20 @@ class Player extends Entity {
 		petal.cooldown = petal.attributes.RELOAD;
 	}
 
-	switchPetals(slot1, slot2, implement) {
+	switchPetals(slot1, slot2) {
 		let tmp;
-		if ( (!slot1.isPrimary) && slot2.isPrimary ) {
-			tmp = slot1;
-			slot1 = slot2;
-			slot2 = tmp;
-		}
-		if ( slot1.isPrimary && slot2.isPrimary ) {
-			if ( implement ) {
+		this.switched = true;
+		if ( slot1 != -1 ) {
+			// console.log('switch');
+			if ( (!slot1.isPrimary) && slot2.isPrimary ) {
+				tmp = slot1;
+				slot1 = slot2;
+				slot2 = tmp;
+			}
+			if ( slot1.isPrimary && slot2.isPrimary ) {
+				tmp = this.primaryPetals[slot1.slot];
+				this.primaryPetals[slot1.slot] = this.secondaryPetals[slot2.slot];
+				this.secondaryPetals[slot2.slot] = tmp;
 				let petalA = this.petals.find(ptl => (ptl.placeHolder == slot1.slot));
 				let petalB = this.petals.find(ptl => (ptl.placeHolder == slot2.slot));
 				petalA.disabled = false;
@@ -84,25 +90,15 @@ class Player extends Entity {
 				petalB.type = tmp;
 				petalA.updateAttributes();
 				petalB.updateAttributes();
-			} else {
+			} else if ( slot1.isPrimary && (!slot2.isPrimary) ) {
 				tmp = this.primaryPetals[slot1.slot];
-				this.primaryPetals[slot1.slot] = this.primaryPetals[slot2.slot];
-				this.primaryPetals[slot2.slot] = tmp;
-			}
-		}
-		else if ( slot1.isPrimary && (!slot2.isPrimary) ) {
-			if ( implement ) {
+				this.primaryPetals[slot1.slot] = this.secondaryPetals[slot2.slot];
+				this.secondaryPetals[slot2.slot] = tmp;
 				let petal = this.petals.find(ptl => (ptl.placeHolder == slot1.slot));
 				petal.disabled = false;
 				petal.type = this.primaryPetals[slot1.slot];
 				petal.updateAttributes();
 			} else {
-				tmp = this.primaryPetals[slot1.slot];
-				this.primaryPetals[slot1.slot] = this.secondaryPetals[slot2.slot];
-				this.secondaryPetals[slot2.slot] = tmp;
-			}
-		} else {
-			if ( !implement ) {
 				tmp = this.secondaryPetals[slot1.slot];
 				this.secondaryPetals[slot1.slot] = this.secondaryPetals[slot2.slot];
 				this.secondaryPetals[slot2.slot] = tmp;
@@ -414,19 +410,36 @@ class Player extends Entity {
 
 	serializeForUpdate(self) { // get neccesary data and send to client
 		if ( self ) {
-			return {
-				...(super.serializeForUpdate()),
-				score: this.score,
-				hp: this.hp,
-				maxHp: this.maxHp,
-				currentExpForLevel: this.currentExpForLevel,
-				level: this.level,
-				exp: this.exp,
-				username: this.username,
-				petals: this.getPetalsForUpdate(),
-				primaryPetals: this.primaryPetals,
-				secondaryPetals: this.secondaryPetals,
-			};
+			if ( this.switched ) {
+				this.switched = false;
+				return {
+					...(super.serializeForUpdate()),
+					score: this.score,
+					hp: this.hp,
+					maxHp: this.maxHp,
+					currentExpForLevel: this.currentExpForLevel,
+					level: this.level,
+					exp: this.exp,
+					username: this.username,
+					petals: this.getPetalsForUpdate(),
+					switched: true,
+					primaryPetals: this.primaryPetals,
+					secondaryPetals: this.secondaryPetals,
+				};
+			} else {
+				return {
+					...(super.serializeForUpdate()),
+					score: this.score,
+					hp: this.hp,
+					maxHp: this.maxHp,
+					currentExpForLevel: this.currentExpForLevel,
+					level: this.level,
+					exp: this.exp,
+					username: this.username,
+					petals: this.getPetalsForUpdate(),
+					switched: false,
+				};
+			}
 		} else {
 			return {
 				...(super.serializeForUpdate()),
