@@ -28,6 +28,11 @@ class Entity {
 			direction: 0,
 			speed: 0,
 		};
+		this.puncture = 0;
+		this.fragile = 0;
+		this.direction = 0;
+		this.skillCoolDown = 0;
+		this.skillCoolDownTimer = 0;
 	}
 
 	distanceTo(object) {
@@ -169,6 +174,7 @@ class Entity {
 			x: this.x,
 			y: this.y,
 			hp: this.hp,
+			dir: this.direction,
 		};
 	}
 }

@@ -37,6 +37,10 @@ let petalSwing = Math.PI * 0.03;
 let selectedPetal = undefined, targetedPetal = undefined;
 
 let keyboardMovement = false;
+
+let lightningPaths = [];
+let diedEntities = [];
+
 export function toggleKeyboardMovement(isKeyboardMovement) {
 	keyboardMovement = isKeyboardMovement;
 }
@@ -332,6 +336,16 @@ export function renderStartup () {
 		canvas[i].classList.add('canvas');
 		canvas[i].style['z-index'] = i + 2;
 	}
+	
+	//闪电路径图层
+	let newCanvas = document.createElement('canvas');
+	newCanvas.id = `canvas-SE`;
+	newCanvas.classList.add('canvas');
+	newCanvas.style['z-index'] = layerCount * 2 + 2;
+	newCanvas.width = window.innerWidth;
+	newCanvas.height = window.innerHeight;
+	document.body.append(newCanvas);
+	
 	setCanvasDimensions();
 	for (let i = 0; i < layerCount; i ++ ) {
 		ctx = canvas[i].getContext('2d');
@@ -348,7 +362,6 @@ export function renderStartup () {
 		}
 	});
 	alphaBlack = 1;
-	document.getElementById("text").classList.add('hidden');
 }
 
 export function renderInit() {
@@ -389,6 +402,9 @@ function setCanvasDimensions() {
 		canvas[i].width = W;
 		canvas[i].height = H;
 	}
+	let canvas_SE = document.getElementById('canvas-SE');
+	canvas_SE.width = W;
+	canvas_SE.height = H;
 }
 
 function renderGame() {
@@ -396,6 +412,10 @@ function renderGame() {
 		ctx = getCtx(i);
 		ctx.clearRect(0, 0, W, H);
 	}
+	let canvas_SE = document.getElementById('canvas-SE');
+	let ctx = canvas_SE.getContext(`2d`);
+	ctx.clearRect(0, 0, W, H);
+	
 	if ( gameRadiusOnEnter < hpx * 1800 ) {
 		fillBackground(0, "#1EA761");
 		renderText(0, 1, "florr.cn", W / 2, H / 2 - hpx * 220, hpx * 85, 'center');
@@ -407,8 +427,8 @@ function renderGame() {
 		gameRadiusOnEnter += deltaGameRadiusOnEnter;
 		deltaGameRadiusOnEnter *= 1.05;
 	}
-	const { me, others, mobs, leaderboard, playerCount, rankOnLeaderboard } = getCurrentState();
-
+	const { me, others, mobs, leaderboard, playerCount, rankOnLeaderboard, lightningPath, diedEntities } = getCurrentState();
+	
 	updateSlotsData(W, hpx, primarySlotHitboxLength, primarySlotDisplayLength + 4 * primarySlotDisplayLength * Constants.PETAL_OUTLINE_WIDTH_PERCENTAGE, primarySlotCenterY, primarySlotCount,
 		secondarySlotHitboxLength, secondarySlotDisplayLength + 4 * secondarySlotDisplayLength * Constants.PETAL_OUTLINE_WIDTH_PERCENTAGE, secondarySlotCenterY, secondarySlotCount);
 
@@ -419,6 +439,8 @@ function renderGame() {
 		mobs.forEach(mob => {
 			renderMob(me, mob);
 		});
+		renderLightningPath(lightningPath, me);
+		renderDiedEntities(diedEntities, me);
 		renderText(UILayer, 0.7, "florr.cn", W - hpx * 80, H - hpx * 20, hpx * 40, 'center');
 		renderLeaderboard(leaderboard, playerCount, me, rankOnLeaderboard);
 		renderUI(me);
@@ -775,12 +797,12 @@ function renderMob(me, mob) {
 	const {x, y} = mob;
 	const canvasX = W / 2 + x - me.x;
 	const canvasY = H / 2 + y - me.y;
-
+	ctx.save();
 	ctx.translate(canvasX, canvasY);
 	const renderRadius = EntityAttributes[mob.type].RENDER_RADIUS;
 	const asset = getAsset(`mobs/${mob.type.toLowerCase()}.svg`);
 	const width = asset.naturalWidth, height = asset.naturalHeight;
-	// ctx.rotate(mob.dir);
+	ctx.rotate(mob.dir);
 	if ( width <= height ) {
 		ctx.drawImage(
 			asset,
@@ -800,6 +822,7 @@ function renderMob(me, mob) {
 	}
 	// ctx.rotate(-mob.dir);
 	ctx.translate(-canvasX, -canvasY);
+	ctx.restore();
 
 	renderText(mobLayer, 1, mob.id, canvasX, canvasY - hpx * 35, hpx * 20, 'center');
 	renderText(mobLayer, 1, `hp:${mob.hp}`, canvasX, canvasY + hpx * 65, hpx * 18, 'center');
@@ -1147,4 +1170,83 @@ function render(renderFunction) {
 
 function getCtx(layer) {
 	return canvas[layer].getContext('2d');
+}
+
+function renderLightningPath(newPaths,me) {
+	newPaths.forEach((path) => {
+		lightningPaths.push([path,1]);
+	})
+	
+	let canvas = document.getElementById(`canvas-SE`);
+	let context = canvas.getContext('2d');
+
+	context.lineWidth = 1;
+	context.strokeStyle = `White`;
+	
+	lightningPaths.forEach(([path,alpha],index) => {
+		context.globalAlpha = alpha;
+		lightningPaths[index][1] -= 0.05;
+		if (lightningPaths[index][1] <= 0) {
+			lightningPaths.splice(index,1);
+			return;
+		}
+		
+		context.beginPath();
+		let oldx = canvas.width / 2 + path[0].x - me.x;
+		let oldy = canvas.height / 2 + path[0].y - me.y;
+		context.moveTo(oldx,oldy);
+		
+		path.forEach((position) => {
+			let x = canvas.width / 2 + position.x - me.x;
+			let y = canvas.height / 2 + position.y - me.y;
+			context.lineTo((oldx + x) / 2 + random(-70,70),(oldy + y) / 2 + random(-70,70));
+			context.lineTo(x,y);
+			oldx = canvas.width / 2 + position.y - me.y;
+			oldy = canvas.height / 2 + position.y - me.y;
+		})
+		context.stroke();
+	})
+}
+
+function renderDiedEntities(entities,me) {
+	entities.forEach((entity) => {
+		diedEntities.push([entity,1]);
+	})
+	
+	let canvas = document.getElementById(`canvas-SE`);
+	let context = canvas.getContext('2d');
+	
+	diedEntities.forEach(([entity,alpha],index) => {
+		context.globalAlpha = alpha;
+		diedEntities[index][1] -= 0.15;
+		if (diedEntities[index][1] <= 0) {
+			diedEntities.splice(index,0.7);
+			return;
+		}
+		
+		let x = canvas.width / 2 + entity.x - me.x;
+		let y = canvas.height / 2 + entity.y - me.y;
+		
+		let asset;
+		if (entity.type == `player`) {
+			asset = getAsset(`${entity.type.toLowerCase()}.svg`);
+			entity.size *= 0.25;
+			entity.x += entity.size;
+			entity.y += entity.size;
+		} else if (entity.isMob) {
+			asset = getAsset(`mobs/${entity.type.toLowerCase()}.svg`);
+		} else{
+			asset = getAsset(`petals/${entity.type.toLowerCase()}.svg`);
+		}
+		
+		context.drawImage(asset, x - entity.size, y - entity.size, entity.size * 2, entity.size * 2);
+
+		entity.x += Math.min(100,entity.movement.speed) * 0.025 * Math.sin(entity.movement.direction);
+		entity.y += Math.min(100,entity.movement.speed) * 0.025 * Math.cos(entity.movement.direction);
+		entity.size += entity.size * 0.009;
+	})
+}
+
+function random(min, max) {
+	return Math.floor(Math.random() * (max - min + 1)) + min;
 }
