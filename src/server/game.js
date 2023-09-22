@@ -416,6 +416,7 @@ class Game {
 			const target = this.players[mob.value.target] || (this.mobs[mob.value.target] && this.mobs[mob.value.target].value);
 			if (!target || Math.sqrt((mob.value.x - target.x) ** 2 + (mob.value.y - target.y) ** 2) > Constants.MOB_ATTACK_RADIUS) { 
 				mob.value.idle(deltaT,this.players[mob.value.team]);
+                                mob.value.target = 0;
 				return;
 			}
 			
