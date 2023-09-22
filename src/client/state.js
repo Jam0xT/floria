@@ -59,6 +59,7 @@ export function getCurrentState() {
 			rankOnLeaderboard: baseUpdate.rankOnLeaderboard,
 			lightningPath: baseUpdate.lightningPath,
 			diedEntities: baseUpdate.diedEntities,
+			drops: baseUpdate.drops,
 		};
 	}
 }
