@@ -25,7 +25,7 @@ let startup = true;
 let gameRadiusOnEnter = 0;
 let deltaGameRadiusOnEnter = 5;
 
-let backgroundLayer = 1, playerLayer = 3, petalLayer = 2, shadeLayer = 4, mobLayer = 2, UILayer = 5;
+let backgroundLayer = 1, playerLayer = 5, petalLayer = 3, shadeLayer = 7, mobLayer = 4, UILayer = 8, effectLayer = 6, dropLayer = 2;
 
 let primarySlotDisplayLength = 60, primarySlotHitboxLength = 92, primarySlotCenterY = 850;
 let secondarySlotDisplayLength = 45, secondarySlotHitboxLength = 70, secondarySlotCenterY = 930;
@@ -36,7 +36,7 @@ let selectedSize = 1.2;
 let initPetals = false;
 
 let petalSwing = Math.PI * 0.03;
-let selectedPetal = undefined, targetedPetal = undefined;
+let selectedPetal = [], targetedPetal = [];
 
 let keyboardMovement = false;
 
@@ -333,14 +333,14 @@ export function drag(isPrimary, slot, x, y) {
 }
 
 export function switchPetals(isPrimary, slot, targetIsPrimary, targetSlot) {
-	selectedPetal = {
+	selectedPetal.push({
 		isPrimary: isPrimary,
 		slot: slot,
-	};
-	targetedPetal = {
+	});
+	targetedPetal.push({
 		isPrimary: targetIsPrimary,
 		slot: targetSlot,
-	};
+	});
 
 	let petalA, petalB;
 
@@ -361,6 +361,7 @@ export function switchPetals(isPrimary, slot, targetIsPrimary, targetSlot) {
 	petalA.swing = false;
 	petalB.swing = false;
 
+	
 	petalA.setTargetPos(petalA.defaultX, petalA.defaultY);
 	petalB.setTargetPos(petalB.defaultX, petalB.defaultY);
 
@@ -390,13 +391,13 @@ export function renderStartup () {
 	}
 	
 	//闪电路径图层
-	let newCanvas = document.createElement('canvas');
-	newCanvas.id = `canvas-SE`;
-	newCanvas.classList.add('canvas');
-	newCanvas.style['z-index'] = layerCount * 2 + 2;
-	newCanvas.width = window.innerWidth;
-	newCanvas.height = window.innerHeight;
-	document.body.append(newCanvas);
+	// let newCanvas = document.createElement('canvas');
+	// newCanvas.id = `canvas-SE`;
+	// newCanvas.classList.add('canvas');
+	// newCanvas.style['z-index'] = layerCount * 2 + 2;
+	// newCanvas.width = window.innerWidth;
+	// newCanvas.height = window.innerHeight;
+	// document.body.append(newCanvas);
 	
 	setCanvasDimensions();
 	for (let i = 0; i < layerCount; i ++ ) {
@@ -454,9 +455,20 @@ function setCanvasDimensions() {
 		canvas[i].width = W;
 		canvas[i].height = H;
 	}
-	let canvas_SE = document.getElementById('canvas-SE');
-	canvas_SE.width = W;
-	canvas_SE.height = H;
+
+	// let canvas_SE = document.getElementById('canvas-SE');
+	// canvas_SE.width = W;
+	// canvas_SE.height = H;
+	if ( primaryPetals[0] ) {
+		for (let i = 0; i < primarySlotCount; i ++ ) {
+			primaryPetals[i].defaultX = W / 2 - primarySlotHitboxLength * hpx * (primarySlotCount / 2 - 0.5) + i * primarySlotHitboxLength * hpx;
+			primaryPetals[i].defaultY = primarySlotCenterY * hpx;
+		}
+		for (let i = 0; i < secondarySlotCount; i ++ ) {
+			secondaryPetals[i].defaultX = W / 2 - secondarySlotHitboxLength * hpx * (secondarySlotCount / 2 - 0.5) + i * secondarySlotHitboxLength * hpx;
+			secondaryPetals[i].defaultY = secondarySlotCenterY * hpx;
+		}
+	}
 }
 
 function renderGame() {
@@ -464,13 +476,13 @@ function renderGame() {
 		ctx = getCtx(i);
 		ctx.clearRect(0, 0, W, H);
 	}
-	let canvas_SE = document.getElementById('canvas-SE');
-	let ctx = canvas_SE.getContext(`2d`);
+	// let canvas_SE = document.getElementById('canvas-SE');
+	// let ctx = canvas_SE.getContext(`2d`);
 	ctx.clearRect(0, 0, W, H);
 	
 	if ( gameRadiusOnEnter < hpx * 1800 ) {
 		fillBackground(0, "#1EA761");
-		renderText(0, 1, "florr.cn", W / 2, H / 2 - hpx * 220, hpx * 85, 'center');
+		renderText(0, 1, "floria.io", W / 2, H / 2 - hpx * 220, hpx * 85, 'center');
 		renderText(0, 1, "How to play", W / 2, H / 2 + hpx * 100, hpx * 30, 'center');
 		renderText(0, 1, "Use Mouse or [W] [S] [A] [D] to move", W / 2, H / 2 + hpx * 140, hpx * 15, 'center');
 		renderText(0, 1, "Left click or [Space] to attack", W / 2, H / 2 + hpx * 165, hpx * 15, 'center');
@@ -494,7 +506,7 @@ function renderGame() {
 		renderDrops(drops, me);
 		renderLightningPath(lightningPath, me);
 		renderDiedEntities(diedEntities, me);
-		renderText(UILayer, 0.7, "florr.cn", W - hpx * 80, H - hpx * 20, hpx * 40, 'center');
+		renderText(UILayer, 0.7, "floria.io", W - hpx * 80, H - hpx * 20, hpx * 40, 'center');
 		renderLeaderboard(leaderboard, playerCount, me, rankOnLeaderboard);
 		renderUI(me);
 	}
@@ -658,22 +670,6 @@ function renderUI(me) {
 		ctx.fillRect(centerX - slotDisplayLength / 2, centerY - slotDisplayLength / 2, slotDisplayLength, slotDisplayLength);
 	}
 
-	// petals
-
-	// for (let i = 0; i < primarySlotCount; i ++ ) {
-	// 	if ( primaryPetals[i].type != me.primaryPetals[i] && (!primaryPetals[i].animating) ) {
-	// 		primaryPetals[i].type = me.primaryPetals[i];
-	// 		primaryPetals[i].setTargetPos(W / 2 - primarySlotHitboxLength * hpx * (primarySlotCount / 2 - 0.5) + i * primarySlotHitboxLength * hpx, primarySlotCenterY * hpx);
-	// 	}
-	// }
-	
-	// for (let i = 0; i < secondarySlotCount; i ++ ) {
-	// 	if ( secondaryPetals[i].type != me.secondaryPetals[i] && (!secondaryPetals[i].animating) ) {
-	// 		secondaryPetals[i].type = me.secondaryPetals[i];
-	// 		secondaryPetals[i].setTargetPos(W / 2 - secondarySlotHitboxLength * hpx * (secondarySlotCount / 2 - 0.5) + i * secondarySlotHitboxLength * hpx, secondarySlotCenterY * hpx);
-	// 	}
-	// }
-
 	// primary
 
 	slotCount = primarySlotCount;
@@ -720,28 +716,28 @@ function renderUI(me) {
 		}
 	}
 
-	if ( selectedPetal && targetedPetal ) {
+	if ( selectedPetal.length > 0 && targetedPetal.length > 0 ) {
 		let petalA, petalB;
-		if ( selectedPetal.isPrimary ) {
-			petalA = primaryPetals[selectedPetal.slot];
+		if ( selectedPetal[0].isPrimary ) {
+			petalA = primaryPetals[selectedPetal[0].slot];
 		} else {
-			petalA = secondaryPetals[selectedPetal.slot];
+			petalA = secondaryPetals[selectedPetal[0].slot];
 		}
-		if ( targetedPetal.isPrimary ) {
-			petalB = primaryPetals[targetedPetal.slot];
+		if ( targetedPetal[0].isPrimary ) {
+			petalB = primaryPetals[targetedPetal[0].slot];
 		} else {
-			petalB = secondaryPetals[targetedPetal.slot];
+			petalB = secondaryPetals[targetedPetal[0].slot];
 		}
 		if ( (!petalA.animating) && (!petalB.animating) ) {
-			switchInput(selectedPetal, targetedPetal);
-			if ( selectedPetal.isPrimary ) {
-				enable(selectedPetal.slot);
+			switchInput(selectedPetal[0], targetedPetal[0]);
+			if ( selectedPetal[0].isPrimary ) {
+				enable(selectedPetal[0].slot);
 			}
-			if ( targetedPetal.isPrimary ) {
-				enable(targetedPetal.slot);
+			if ( targetedPetal[0].isPrimary ) {
+				enable(targetedPetal[0].slot);
 			}
-			selectedPetal = undefined;
-			targetedPetal = undefined;
+			selectedPetal.shift();
+			targetedPetal.shift();
 		}
 	}
 }
@@ -752,7 +748,7 @@ function renderBackground(x, y) {
 	ctx.fillRect(0, 0, W, H);
 
 	ctx.fillStyle = 'rgb(30, 167, 97)';
-	ctx.fillRect(W / 2 - x * hpx, H / 2 - y * hpx, MAP_WIDTH, MAP_HEIGHT);
+	ctx.fillRect(W / 2 - x * hpx, H / 2 - y * hpx, MAP_WIDTH * hpx, MAP_HEIGHT * hpx);
 
 	const gridInterval = hpx * 50;
 
@@ -809,7 +805,7 @@ function renderPlayer(me, player) {
 	}
 
 	// render username
-	renderText(backgroundLayer, 1, player.username, canvasX, canvasY - 35, hpx * 20, 'center');
+	renderText(backgroundLayer, 1, player.username, canvasX, canvasY - hpx * 35, hpx * 20, 'center');
 
 	// render health bar
 	ctx = getCtx(backgroundLayer);
@@ -848,11 +844,11 @@ function renderPlayer(me, player) {
 	player.petals.forEach(petal => {
 		if (petal.isHide) return;
 		
-		const renderRadius = PetalAttributes[petal.type].RENDER_RADIUS;
+		const renderRadius = PetalAttributes[petal.type].RENDER_RADIUS * hpx;
 		const asset = getAsset(`petals/${petal.type.toLowerCase()}.svg`);
 		const width = asset.naturalWidth, height = asset.naturalHeight;
 
-		ctx.translate(canvasX + petal.x - player.x, canvasY + petal.y - player.y);
+		ctx.translate(canvasX + (petal.x - player.x) * hpx, canvasY + (petal.y - player.y) * hpx);
 		ctx.rotate(petal.dir);
 		if ( width <= height ) {
 			ctx.drawImage(
@@ -872,18 +868,18 @@ function renderPlayer(me, player) {
 			);
 		}
 		ctx.rotate(-petal.dir);
-		ctx.translate(-(canvasX + petal.x - player.x), -(canvasY + petal.y - player.y));
+		ctx.translate(-(canvasX + (petal.x - player.x) * hpx), -(canvasY + (petal.y - player.y) * hpx));
 	});
 }
 
 function renderMob(me, mob) {
 	ctx = getCtx(mobLayer);
 	const {x, y} = mob;
-	const canvasX = W / 2 + x - me.x;
-	const canvasY = H / 2 + y - me.y;
+	const canvasX = W / 2 + (x - me.x) * hpx;
+	const canvasY = H / 2 + (y - me.y) * hpx;
 	ctx.save();
 	ctx.translate(canvasX, canvasY);
-	const renderRadius = EntityAttributes[mob.type].RENDER_RADIUS;
+	const renderRadius = EntityAttributes[mob.type].RENDER_RADIUS * hpx;
 	const asset = getAsset(`mobs/${mob.type.toLowerCase()}.svg`);
 	const width = asset.naturalWidth, height = asset.naturalHeight;
 	ctx.rotate(mob.dir);
@@ -1047,7 +1043,7 @@ function renderMainMenu() {
 	}
 
 	fillBackground(0, "#1EA761");
-	renderText(0, 1, "florr.cn", W / 2, H / 2 - hpx * 220, hpx * 85, 'center');
+	renderText(0, 1, "floria.io", W / 2, H / 2 - hpx * 220, hpx * 85, 'center');
 	renderText(0, 1, "How to play", W / 2, H / 2 + hpx * 100, hpx * 30, 'center');
 	renderText(0, 1, "Use Mouse or [W] [S] [A] [D] to move", W / 2, H / 2 + hpx * 140, hpx * 15, 'center');
 	renderText(0, 1, "Left click or [Space] to attack", W / 2, H / 2 + hpx * 165, hpx * 15, 'center');
@@ -1095,7 +1091,7 @@ function renderGameEnter() {
 	}
 	
 	fillBackground(0, "#1EA761");
-	renderText(0, 1, "florr.cn", W / 2, H / 2 - hpx * 220, hpx * 85, 'center');
+	renderText(0, 1, "floria.io", W / 2, H / 2 - hpx * 220, hpx * 85, 'center');
 	renderText(0, 1, "How to play", W / 2, H / 2 + hpx * 100, hpx * 30, 'center');
 	renderText(0, 1, "Use Mouse or [W] [S] [A] [D] to move", W / 2, H / 2 + hpx * 140, hpx * 15, 'center');
 	renderText(0, 1, "Left click or [Space] to attack", W / 2, H / 2 + hpx * 165, hpx * 15, 'center');
@@ -1203,41 +1199,6 @@ function renderRoundRect(layer, x, y, w, h, r, r4, r1, r2, r3) { // r1 -> r4 clo
 	ctx.closePath();
 }
 
-function renderRoundRectSE(x, y, w, h, r, r4, r1, r2, r3) { // r1 -> r4 clockwise, r1: top right | NOTE: path ONLY, no STROKE
-	let canvas = document.getElementById(`canvas-SE`);
-	let ctx = canvas.getContext('2d');
-	ctx.globalAlpha = 0.88;
-	if ( w < 2 * r ) {
-		w = 2 * r;
-	}
-	if ( h < 2 * r ) {
-		h = 2 * r;
-	}
-	ctx.beginPath();
-	ctx.moveTo(x+r, y);
-	if ( r1 ) {
-	    ctx.arcTo(x+w, y, x+w, y+h, r);
-	} else {
-		ctx.lineTo(x+w, y);
-	}
-	if ( r2 ) {
-		ctx.arcTo(x+w, y+h, x, y+h, r);
-	} else {
-		ctx.lineTo(x+w, y+h);
-	}
-	if ( r3 ) {
-    	ctx.arcTo(x, y+h, x, y, r);
-	} else {
-		ctx.lineTo(x, y+h);
-	}
-	if ( r4 ) {
-    	ctx.arcTo(x, y, x+w, y, r);
-	} else {
-		ctx.lineTo(x, y);
-	}
-	ctx.stroke();
-}
-
 function renderText(layer, alpha, text, x, y, fontSize, textAlign) {
 	ctx = getCtx(layer);
 	if ( fontSize ) {
@@ -1263,35 +1224,6 @@ function renderText(layer, alpha, text, x, y, fontSize, textAlign) {
 
 	ctx.globalAlpha = alpha;
 	ctx.globalCompositeOperation = 'source-over';
-	ctx.fillStyle = "white";
-	ctx.fillText(text, x, y);
-
-	ctx.globalAlpha = 1;
-}
-
-function renderTextSE(alpha, text, x, y, fontSize, textAlign) {
-	let canvas = document.getElementById(`canvas-SE`);
-	let ctx = canvas.getContext('2d');
-	if ( fontSize ) {
-		ctx.lineWidth = fontSize * 0.125;
-		ctx.font = `${fontSize}px Ubuntu`;
-
-		ctx.textAlign = textAlign;
-	}
-
-	ctx.globalAlpha = alpha;
-	ctx.strokeStyle = "black";
-	ctx.strokeText(text, x, y);
-
-	if (alpha == 0) {
-		ctx.globalAlpha = alpha;
-	} else {
-		ctx.globalAlpha = 1;
-	}
-	ctx.fillStyle = "white";
-	ctx.fillText(text, x, y);
-
-	ctx.globalAlpha = alpha;
 	ctx.fillStyle = "white";
 	ctx.fillText(text, x, y);
 
@@ -1324,60 +1256,61 @@ function getCtx(layer) {
 	return canvas[layer].getContext('2d');
 }
 
-function renderLightningPath(newPaths,me) {
+function renderLightningPath(newPaths, me) {
 	newPaths.forEach((path) => {
-		lightningPaths.push([path,1]);
+		lightningPaths.push([path, 1]);
 	})
 	
-	let canvas = document.getElementById(`canvas-SE`);
-	let context = canvas.getContext('2d');
+	let ctx = getCtx(effectLayer);
 
-	context.lineWidth = 1;
-	context.strokeStyle = `White`;
+	ctx.lineWidth = 1 * hpx;
+	ctx.strokeStyle = `White`;
 	
-	lightningPaths.forEach(([path,alpha],index) => {
-		context.globalAlpha = alpha;
+	lightningPaths.forEach(([path,alpha], index) => {
+		ctx.globalAlpha = alpha;
 		lightningPaths[index][1] -= 0.05;
 		if (lightningPaths[index][1] <= 0) {
-			lightningPaths.splice(index,1);
+			lightningPaths.splice(index, 1);
 			return;
 		}
 		
-		context.beginPath();
-		let oldx = canvas.width / 2 + path[0].x - me.x;
-		let oldy = canvas.height / 2 + path[0].y - me.y;
-		context.moveTo(oldx,oldy);
+		ctx.beginPath();
+		let oldx = W / 2 + (path[0].x - me.x) * hpx;
+		let oldy = H / 2 + (path[0].y - me.y) * hpx;
+		ctx.moveTo(oldx,oldy);
 		
 		path.forEach((position) => {
-			let x = canvas.width / 2 + position.x - me.x;
-			let y = canvas.height / 2 + position.y - me.y;
-			context.lineTo((oldx + x) / 2 + random(-70,70),(oldy + y) / 2 + random(-70,70));
-			context.lineTo(x,y);
-			oldx = canvas.width / 2 + position.y - me.y;
-			oldy = canvas.height / 2 + position.y - me.y;
+			let x = W / 2 + (position.x - me.x) * hpx;
+			let y = H / 2 + (position.y - me.y) * hpx;
+			ctx.lineTo((oldx + x) / 2 + random(-70, 70) * hpx, (oldy + y) / 2 + random(-70, 70) * hpx);
+			ctx.lineTo(x,y);
+			oldx = W / 2 + (position.x - me.x) * hpx;
+			oldy = H / 2 + (position.y - me.y) * hpx;
 		})
-		context.stroke();
+
+		ctx.closePath();
+
+		ctx.stroke();
 	})
 }
 
-function renderDiedEntities(entities,me) {
+function renderDiedEntities(entities, me) {
 	entities.forEach((entity) => {
-		diedEntities.push([entity,1]);
+		diedEntities.push([entity, 1]);
 	})
 	
-	let canvas = document.getElementById(`canvas-SE`);
-	let context = canvas.getContext('2d');
+	let ctx = getCtx(mobLayer);
 	
-	diedEntities.forEach(([entity,alpha],index) => {
-		context.globalAlpha = alpha;
+	diedEntities.forEach(([entity, alpha], index) => {
+		ctx.globalAlpha = alpha;
 		diedEntities[index][1] -= diedEntities[index][1] * 0.25;
 		if (diedEntities[index][1] <= 0.1) {
 			diedEntities.splice(index,1);
 			return;
 		}
 		
-		let x = canvas.width / 2 + entity.x - me.x;
-		let y = canvas.height / 2 + entity.y - me.y;
+		let x = W / 2 + (entity.x - me.x) * hpx;
+		let y = H / 2 + (entity.y - me.y) * hpx;
 		
 		let asset;
 		if (entity.type == `player`) {
@@ -1391,70 +1324,69 @@ function renderDiedEntities(entities,me) {
 			asset = getAsset(`petals/${entity.type.toLowerCase()}.svg`);
 		}
 		
-		context.save()
-		context.translate(x, y);
-		context.rotate(entity.dir);
-		context.translate(-x, -y);
+		ctx.save()
+		ctx.translate(x, y);
+		ctx.rotate(entity.dir);
+		ctx.translate(-x, -y);
 		
 		const width = asset.naturalWidth, 
 			  height = asset.naturalHeight;
-		context.drawImage(asset, x - entity.size, y - entity.size / width * height, entity.size * 2, entity.size / width * height * 2);
+		ctx.drawImage(asset, x - entity.size, y - entity.size / width * height, entity.size * 2, entity.size / width * height * 2);
 		
-		context.restore();
+		ctx.restore();
 
-		entity.x += Math.min(100,entity.movement.speed) * 0.025 * Math.sin(entity.movement.direction);
-		entity.y += Math.min(100,entity.movement.speed) * 0.025 * Math.cos(entity.movement.direction);
+		entity.x += Math.min(100, entity.movement.speed) * 0.025 * Math.sin(entity.movement.direction);
+		entity.y += Math.min(100, entity.movement.speed) * 0.025 * Math.cos(entity.movement.direction);
 		entity.size += entity.size * 0.0125;
 	})
 }
 
 function renderDrops(drops,me) {
-	let canvas = document.getElementById(`canvas-SE`);
-	let context = canvas.getContext('2d');
+	let ctx = getCtx(dropLayer);
 	
 	drops.forEach((entity) => {
-		context.globalAlpha = 0.88;
+		ctx.globalAlpha = 0.88;
 		
-		let x = canvas.width / 2 + entity.x - me.x;
-		let y = canvas.height / 2 + entity.y - me.y;
+		let x = W / 2 + (entity.x - me.x) * hpx;
+		let y = H / 2 + (entity.y - me.y) * hpx;
 
 		let asset = getAsset(`petals/${entity.type.toLowerCase()}.svg`);
 		
 		const width = asset.naturalWidth,
 			  height = asset.naturalHeight,
-			  size = Constants.DROP_SIZE / 2.5,
-			  displayLength = Constants.DROP_SIZE / 2.5;
+			  size = Constants.DROP_SIZE / 2.5 * hpx,
+			  displayLength = Constants.DROP_SIZE / 2.5 * hpx;
 		
-		context.save()
-		context.translate(x, y);
-		context.rotate(entity.dir);
-		context.translate(-x, -y);
+		ctx.save()
+		ctx.translate(x, y);
+		ctx.rotate(entity.dir);
+		ctx.translate(-x, -y);
 		
 		let outlineWidth = displayLength * Constants.PETAL_OUTLINE_WIDTH_PERCENTAGE;
-		context.strokeStyle = Constants.RARITY_COLOR_DARKEN[PetalAttributes[entity.type].RARITY];
-		context.lineWidth = outlineWidth * 10;
-		renderRoundRectSE(x - (displayLength + outlineWidth * 50) / 2,y - (displayLength + outlineWidth * 50) / 2,
+		ctx.strokeStyle = Constants.RARITY_COLOR_DARKEN[PetalAttributes[entity.type].RARITY];
+		ctx.lineWidth = outlineWidth * 10;
+		renderRoundRect(dropLayer, x - (displayLength + outlineWidth * 50) / 2, y - (displayLength + outlineWidth * 50) / 2,
 		displayLength + outlineWidth * 50, displayLength + outlineWidth * 50, hpx * 1, true, true, true, true);
 		
-		let fillSize = displayLength * 1.6
+		let fillSize = displayLength * 1.6;
 
-		context.fillStyle = Constants.RARITY_COLOR[PetalAttributes[entity.type].RARITY];
-		context.globalAlpha = 0.88;
-		context.fillRect(x - fillSize, y - fillSize, fillSize * 2, fillSize * 2);
+		ctx.fillStyle = Constants.RARITY_COLOR[PetalAttributes[entity.type].RARITY];
+		ctx.globalAlpha = 0.88;
+		ctx.fillRect(x - fillSize, y - fillSize, fillSize * 2, fillSize * 2);
 		
-		context.drawImage(asset, x - size, y - size / width * height - 2.35, size * 2, size / width * height * 2);
+		ctx.drawImage(asset, x - size, y - size / width * height - 2.35, size * 2, size / width * height * 2);
 		
 		let name = entity.type.toLowerCase();
 		let textOffset = displayLength * 1.5;
 		let textFont = displayLength * 0.95;
 
-		renderTextSE(0.88, name.charAt(0).toUpperCase() + name.slice(1), x, y + textOffset, textFont, 'center');
+		renderText(dropLayer, 0.88, name.charAt(0).toUpperCase() + name.slice(1), x, y + textOffset, textFont, 'center');
 
-		renderTextSE(0.88, name.charAt(0).toUpperCase() + name.slice(1), x, y + textOffset, textFont, 'center');
+		renderText(dropLayer, name.charAt(0).toUpperCase() + name.slice(1), x, y + textOffset, textFont, 'center');
 
-		context.globalAlpha = 1;
+		ctx.globalAlpha = 1;
 		
-		context.restore();
+		ctx.restore();
 	})
 }
 

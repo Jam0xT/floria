@@ -124,7 +124,7 @@ class Game {
 
 	handlePetalSwitch(socket, petalA, petalB, implement) {
 		const player = this.players[socket.id];
-		player.switchPetals(petalA, petalB, implement);
+		player.switchPetals(petalA, petalB);
 	}
 
 	handlePetalDisable(socket, petal) {
