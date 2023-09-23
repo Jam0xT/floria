@@ -10,6 +10,8 @@ class Entity {
 		this.type = type;
 		this.hp = hp;
 		this.maxHp = maxHp;
+		this.store = 0;
+		this.direction = 0;
 		this.hurtByInfo = {
 			type: -1,
 			id: -1,
@@ -33,6 +35,8 @@ class Entity {
 		this.direction = 0;
 		this.skillCoolDown = 0;
 		this.skillCoolDownTimer = 0;
+		this.poison = 0;
+		this.poisonTime = 0;
 	}
 
 	distanceTo(object) {

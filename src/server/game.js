@@ -2,11 +2,9 @@ const Constants = require('../shared/constants');
 const EntityAttributes = require('../../public/entity_attributes');
 const PetalAttributes = require('../../public/petal_attributes');
 const Player = require('./player');
-const Bubble = require('./entity/bubble');
-const Dark_ladybug = require('./entity/dark_ladybug');
-const Hornet = require(`./entity/hornet`);
-const Missile = require(`./entity/missile`);
+const Mob = require(`./mob`);
 const { listen } = require('express/lib/application');
+const Drop = require('./drop');
 
 var TOTAL_SPAWN_WEIGHT = 0; // this is a constant
 Object.values(EntityAttributes).forEach(attribute => {
@@ -19,12 +17,14 @@ class Game {
 		this.sockets = {};
 		this.players = {};
 		this.mobs = {}; // {id:{type: mobType, value: mob},...}
+		this.drops = {};
 		this.chunks = {}; // {chunkID:[{type: entityType, id: id},...],...}
 		this.lastUpdateTime = Date.now();
 		this.mobSpawnTimer = 0;
 		this.volumeTaken = 0;
 		// this.shouldSendUpdate = false;
 		this.mobID = 0;
+		this.dropID = 0;
 		this.lightningPath = [];
 		this.diedEntities = [];
 		setInterval(this.update.bind(this), 1000 / Constants.TICK_PER_SECOND); // update the game every tick
@@ -62,21 +62,25 @@ class Game {
 				);
 			}
 		});
-		for ( let petalID = 0; petalID < this.players[playerID].petals.length; petalID ++ ) {
-			let petal = this.players[playerID].petals[petalID];
-			if ( !petal.inCooldown ) {
-				petal.chunks.forEach(chunk => {
-					if ( this.chunks[this.getChunkID(chunk)] ) {
-						this.chunks[this.getChunkID(chunk)].splice(
-							this.chunks[this.getChunkID(chunk)].findIndex((entityInChunk) => {
-								return entityInChunk.type == 'petal' && entityInChunk.id == {playerID: playerID, petalID: petal.id};
-							}),
-							1
-						);
-					}
-				});
-			}
-		}
+		this.players[playerID].petals.forEach((petals) => {
+			petals.forEach((petal) => {
+				if (petal.mob && petal.isHide) {
+					this.mobs[petal.mob].value.hp = -1;
+				}
+				if ( !petal.inCooldown ) {
+					petal.chunks.forEach(chunk => {
+						if ( this.chunks[this.getChunkID(chunk)] ) {
+							this.chunks[this.getChunkID(chunk)].splice(
+								this.chunks[this.getChunkID(chunk)].findIndex((entityInChunk) => {
+									return entityInChunk.type == 'petal' && entityInChunk.id == {playerID: playerID, petalID: petal.id};
+								}),
+								1
+							);
+						}
+					});
+				}
+			})
+		})
 		delete this.sockets[playerID];
 		delete this.players[playerID];
 	}
@@ -185,6 +189,7 @@ class Game {
 			type: `player`,
 			movement: player.movement,
 			size: player.attributes.RENDER_RADIUS,
+			dir: player.direction,
 		});
 		const killedByInfo = player.hurtByInfo;
 		if ( killedByInfo.type == 'player' || killedByInfo.type == 'petal' ) {
@@ -211,32 +216,35 @@ class Game {
 	}
 
 	handlePetalDeaths(player) { // make dead petals in cooldown
-		player.petals.forEach(petal => {
-			if ( !petal.inCooldown ) {
-				if ( petal.hp <= 0 ) {
-					this.diedEntities.push({
-						x: petal.x,
-						y: petal.y,
-						type: petal.type,
-						movement: petal.movement,
-						size: petal.attributes.RENDER_RADIUS,
-					});
-					petal.chunks.forEach(chunk => {
-						if ( this.chunks[this.getChunkID(chunk)] ) {
-							this.chunks[this.getChunkID(chunk)].splice(
-								this.chunks[this.getChunkID(chunk)].findIndex((entityInChunk) => {
-									return entityInChunk.type == 'petal' && entityInChunk.id == {playerID: player.id, petalID: petal.id};
-								}),
-								1
-							);
+		player.petals.forEach(petals => {
+			petals.forEach((petal,index) => {
+				if ( !petal.inCooldown ) {
+					if ( petal.hp <= 0 ) {
+						this.diedEntities.push({
+							x: petal.x,
+							y: petal.y,
+							type: petal.type,
+							movement: petal.movement,
+							size: petal.attributes.RENDER_RADIUS,
+							dir: petal.direction,
+						});
+						petal.chunks.forEach(chunk => {
+							if ( this.chunks[this.getChunkID(chunk)] ) {
+								this.chunks[this.getChunkID(chunk)].splice(
+									this.chunks[this.getChunkID(chunk)].findIndex((entityInChunk) => {
+										return entityInChunk.type == 'petal' && entityInChunk.id == {playerID: player.id, petalID: petal.id};
+									}),
+									1
+								);
+							}
+						});
+						if ( petal.placeHolder != -1 ) {
+							petal.inCooldown = true;
+							player.reload(petal.slot,index);
 						}
-					});
-					if ( petal.placeHolder != -1 ) {
-						petal.inCooldown = true;
-						player.reload(petal.placeHolder);
 					}
 				}
-			}
+			})
 		});
 	}
 
@@ -264,19 +272,24 @@ class Game {
 			const mob = this.mobs[mobID];
 			if ( mob.value.hp <= 0 ) {
 				const killedByInfo = mob.value.hurtByInfo;
-				if ( killedByInfo.type == 'player' || killedByInfo.type == 'petal') {
-					var killedBy;
-					if ( killedByInfo.type == 'player' ) {
-						killedBy = this.players[killedByInfo.id];
-					} else if ( killedByInfo.type == 'petal' ) {
-						killedBy = this.players[killedByInfo.id.playerID];
+				var killedBy;
+				if ( killedByInfo.type == 'player' ) {
+					killedBy = this.players[killedByInfo.id];
+				} else if ( killedByInfo.type == 'petal' ) {
+					killedBy = this.players[killedByInfo.id.playerID];
+				} else if ( killedByInfo.type == 'mob' && this.mobs[killedByInfo.id] ) {
+					let killedByMob = this.mobs[killedByInfo.id].value;
+					if (killedByMob.team != `mobTeam` && this.players[killedByMob.team]) {
+						killedBy = this.players[killedByMob.team];
 					}
+				}
+				if (killedBy) {
 					killedBy.score += Math.floor(EntityAttributes[mob.type].VALUE);
 					killedBy.addExp(EntityAttributes[mob.type].EXPERIENCE);
 					if ( this.getRankOnLeaderboard(killedBy.id) > 0 ) {
 						this.updateLeaderboard(killedBy);
 					}
-				}
+				};
 				mob.value.chunks.forEach(chunk => {
 					if( this.chunks[this.getChunkID(chunk)] ) {
 						this.chunks[this.getChunkID(chunk)].splice(
@@ -294,8 +307,26 @@ class Game {
 					type: this.mobs[mobID].type,
 					movement: this.mobs[mobID].value.movement,
 					size: this.mobs[mobID].value.attributes.RENDER_RADIUS,
+					dir: this.mobs[mobID].value.direction,
 					isMob: true,
 				});
+				
+				//召唤类花瓣重生
+				if (this.players[mob.value.team] && mob.value.slot != undefined) {
+					let player = this.players[mob.value.team];
+					let petals = player.petals.find(petals => (petals[0].slot == mob.value.slot));
+					petals.forEach((petal) => {
+						if (petal.id != mob.value.petalID) return;
+						petal.isHide = false;
+						petal.mob = 0;
+						player.reload(petal.slot,petal.idInPlaceHolder);
+						player.updatePlaceHolder();
+					})
+				}
+				
+				//创建掉落
+				if (mob.value.attributes.DROP) this.createDrop(mob.value.attributes.DROP,mob.value.x,mob.value.y);
+				
 				delete this.mobs[mobID];
 			}
 		});
@@ -322,29 +353,87 @@ class Game {
 		Object.values(this.players).forEach(player => {
 			player.updateMovement(deltaT);
 		});
-		Object.values(this.mobs).forEach(mob => {
-			if (mob.value.sensitization) { //判断mob是否为主动型生物
-				if (!mob.value.target || !this.players[mob.value.target]) { //没有目标或者目标不存在
+		Object.entries(this.mobs).forEach(([mobID,mob]) => {
+			if (mob.value.sensitization || mob.value.attributes.ATTACK_MODE == `EVIL`) { //判断mob是否为主动型生物,为mob寻找目标
+				if (!mob.value.target || !(this.players[mob.value.target] || this.mobs[mob.value.target])) { //没有目标或者目标不存在
 					let distances = [],
 						ids = [];
 						
-					Object.entries(this.players).forEach(([id,player]) => {
-						let distance = Math.sqrt((mob.value.x - player.x) ** 2 + (mob.value.y - player.y) ** 2);
-						distances.push(distance);
-						ids.push(id);
-					});
+					if (mob.value.team == `mobTeam`) {
+						const center = {
+							x: mob.value.x,
+							y: mob.value.y,
+						};
+						Object.entries(this.players).forEach(([id,player]) => {
+							let distance = Math.sqrt((center.x - player.x) ** 2 + (center.y - player.y) ** 2);
+							if (distance < Constants.MOB_ATTACK_RADIUS) {
+								distances.push(distance);
+								ids.push(id);
+							}
+						});
+						Object.entries(this.mobs).forEach(([id,enemyMob]) => {
+							if (enemyMob.value.team == mob.value.team || enemyMob.value.isProjectile) return; 
+							let distance = Math.sqrt((center.x - enemyMob.value.x) ** 2 + (center.y - enemyMob.value.y) ** 2);
+							if (distance < Constants.MOB_ATTACK_RADIUS) {
+								distances.push(distance);
+								ids.push(id);
+							}
+						});
+					} else { //玩家队伍
+						const player = this.players[mob.value.team];
+						const center = {
+							x: player.x,
+							y: player.y,
+						};
+						Object.entries(this.players).forEach(([id,player]) => {
+							if (player.team == mob.value.team) return; 
+							let distance = Math.sqrt((center.x - player.x) ** 2 + (center.y - player.y) ** 2);
+							if (distance < Constants.MOB_ATTACK_RADIUS) {
+								distances.push(distance);
+								ids.push(id);
+							}
+						});
+						Object.entries(this.mobs).forEach(([id,enemyMob]) => {
+							if (id == mobID || enemyMob.value.isProjectile || enemyMob.value.team == mob.value.team) return;
+							
+							//寻找玩家附近的目标
+							if (Math.sqrt((center.x - enemyMob.value.x) ** 2 + (center.y - enemyMob.value.y) ** 2) > Constants.MOB_ATTACK_RADIUS) return; 
+							
+							//寻找距离自己最近的目标
+							let distance = Math.sqrt((mob.value.x - enemyMob.value.x) ** 2 + (mob.value.y - enemyMob.value.y) ** 2);
+							if (distance < Constants.MOB_ATTACK_RADIUS) {
+								distances.push(distance);
+								ids.push(id);
+							}
+						});
+					}
 					
-					mob.value.target = ids[distances.indexOf(Math.min(distances))];
+					mob.value.target = ids[distances.indexOf(Math.min(...distances))];
 				}
 			}
 			
-			if (mob.value.target) {
-				const target = this.players[mob.value.target];
-				mob.value.updateMovement(deltaT,target);
+			//获取目标失败或距离目标太远，待机
+			const target = this.players[mob.value.target] || (this.mobs[mob.value.target] && this.mobs[mob.value.target].value);
+			if (!target || Math.sqrt((mob.value.x - target.x) ** 2 + (mob.value.y - target.y) ** 2) > Constants.MOB_ATTACK_RADIUS) { 
+				mob.value.idle(deltaT,this.players[mob.value.team]);
+                                mob.value.target = 0;
 				return;
 			}
 			
-			mob.value.updateMovement(deltaT);
+			//成功获取目标
+			if (mob.value.target) {
+				if (this.players[mob.value.target] || this.mobs[mob.value.target]) {
+					const target = this.players[mob.value.target] || this.mobs[mob.value.target].value;
+					mob.value.updateMovement(deltaT,target);
+					return;
+				}
+				
+				mob.value.target = 0;
+				mob.value.updateMovement(deltaT);
+			}
+		});
+		Object.values(this.drops).forEach(drop => {
+			drop.updateMovement(deltaT);
 		});
 	}
 
@@ -356,6 +445,9 @@ class Game {
 		Object.values(this.mobs).forEach(mob => {
 			mob.value.updateVelocity(deltaT);
 		});
+		Object.values(this.drops).forEach(drop => {
+			drop.updateVelocity(deltaT);
+		});
 	}
 
 	applyVelocity(deltaT) { // apply velocity for each entity
@@ -364,6 +456,9 @@ class Game {
 		});
 		Object.keys(this.sockets).forEach(playerID => {
 			this.players[playerID].applyVelocity(deltaT);
+		});
+		Object.values(this.drops).forEach(drop => {
+			drop.applyVelocity(deltaT);
 		});
 	}
 
@@ -391,33 +486,33 @@ class Game {
 					}
 				});
 			}
-			const petals = player.petals; // update the player's petals
-			for ( let petalID = 0; petalID < player.petals.length; petalID ++ ) {
-				const petal = petals[petalID];
-				if ( !petal.inCooldown ) {
-					const petalChunks = petal.updateChunks(petal.attributes.RADIUS);
-					if ( petalChunks ) { // update the petals' chunks
-						const chunksOld = petalChunks.chunksOld;
-						const chunksNew = petalChunks.chunksNew;
-						chunksOld.forEach(chunk => {
-							if ( this.chunks[this.getChunkID(chunk)] ) {
-								const idx = this.chunks[this.getChunkID(chunk)].findIndex((entityInChunk) => {
-									return ( entityInChunk.type == 'petal' ) && ( entityInChunk.id.playerID == playerID ) && ( entityInChunk.id.petalID == petalID );
-								});
-								if ( idx != -1 )
-									this.chunks[this.getChunkID(chunk)].splice(idx, 1);
-							}
-						});
-						chunksNew.forEach(chunk => {
-							if ( this.chunks[this.getChunkID(chunk)] ) {
-								this.chunks[this.getChunkID(chunk)].push({type: 'petal', id: {playerID: playerID, petalID: petalID}});
-							} else {
-								this.chunks[this.getChunkID(chunk)] = new Array({type: 'petal', id: {playerID: playerID, petalID: petalID}});
-							}
-						});
+			player.petals.forEach((petals) => {
+				petals.forEach((petal) => {
+					if ( !petal.inCooldown ) {
+						const petalChunks = petal.updateChunks(petal.attributes.RADIUS);
+						if ( petalChunks ) { // update the petals' chunks
+							const chunksOld = petalChunks.chunksOld;
+							const chunksNew = petalChunks.chunksNew;
+							chunksOld.forEach(chunk => {
+								if ( this.chunks[this.getChunkID(chunk)] ) {
+									const idx = this.chunks[this.getChunkID(chunk)].findIndex((entityInChunk) => {
+										return ( entityInChunk.type == 'petal' ) && ( entityInChunk.id.playerID == playerID ) && ( entityInChunk.id.petalID == petal.id );
+									});
+									if ( idx != -1 )
+										this.chunks[this.getChunkID(chunk)].splice(idx, 1);
+								}
+							});
+							chunksNew.forEach(chunk => {
+								if ( this.chunks[this.getChunkID(chunk)] ) {
+									this.chunks[this.getChunkID(chunk)].push({type: 'petal', id: {playerID: playerID, petalID: petal.id}});
+								} else {
+									this.chunks[this.getChunkID(chunk)] = new Array({type: 'petal', id: {playerID: playerID, petalID: petal.id}});
+								}
+							});
+						}
 					}
-				}
-			}
+				})
+			}) // update the player's petals
 		});
 		Object.values(this.mobs).forEach(mob => {
 			const chunks = mob.value.updateChunks();
@@ -442,6 +537,29 @@ class Game {
 				});
 			}
 		});
+		Object.values(this.drops).forEach(drop => {
+			const chunks = drop.updateChunks();
+			if ( chunks ) {
+				const chunksOld = chunks.chunksOld;
+				const chunksNew = chunks.chunksNew;
+				chunksOld.forEach(chunk => {
+					if( this.chunks[this.getChunkID(chunk)] ) {
+						const idx = this.chunks[this.getChunkID(chunk)].findIndex((entityInChunk) => {
+							return ( entityInChunk.type == 'drop' ) && ( entityInChunk.id == drop.id );
+						});
+						if ( idx != -1 )
+							this.chunks[this.getChunkID(chunk)].splice(idx, 1);
+					}
+				});
+				chunksNew.forEach(chunk => {
+					if( this.chunks[this.getChunkID(chunk)] ) {
+						this.chunks[this.getChunkID(chunk)].push({type: 'drop', id: drop.id});
+					} else {
+						this.chunks[this.getChunkID(chunk)] = new Array({type: 'drop', id: drop.id});
+					}
+				});
+			}
+		});
 	}
 
 	// other functions
@@ -460,6 +578,11 @@ class Game {
 		this.mobID ++;
 		return `mob-${this.mobID}`;
 	}
+	
+	getNewDropID() { // get a new mob ID when a mob spawns
+		this.dropID ++;
+		return `drop-${this.dropID}`;
+	}
 
 	mobSpawn() { // spawns mobs
 		if ( this.mobSpawnTimer <= 0 ) {
@@ -475,7 +598,7 @@ class Game {
 						const spawnX = this.rnd(0, Constants.MAP_WIDTH);
 						const spawnY = this.rnd(0, Constants.MAP_HEIGHT);
 						if (attribute.TYPE == `MISSILE`) return;
-						this.spawnMob(attribute.TYPE,spawnX,spawnY);
+						this.spawnMob(attribute.TYPE,spawnX,spawnY,`mobTeam`);
 					}
 				});
 			}
@@ -484,39 +607,13 @@ class Game {
 		}
 	}
 	
-	spawnMob(type, spawnX, spawnY) {
-		if ( type == 'BUBBLE' ) {
-			const newMobID = this.getNewMobID();
-			this.mobs[newMobID] = {
-				type: type,
-				value: new Bubble(newMobID, spawnX, spawnY, 'mobTeam'),
-			};
-			return this.mobs[newMobID];
-		}
-		else if ( type == 'DARK_LADYBUG' ) {
-			const newMobID = this.getNewMobID();
-			this.mobs[newMobID] = {
-				type: type,
-				value: new Dark_ladybug(newMobID, spawnX, spawnY, 'mobTeam'),
-			};
-			return this.mobs[newMobID];
-		}
-		else if ( type == 'HORNET' ) {
-			const newMobID = this.getNewMobID();
-			this.mobs[newMobID] = {
-				type: type,
-				value: new Hornet(newMobID, spawnX, spawnY, 'mobTeam'),
-			};
-			return this.mobs[newMobID];
-		}
-		else if ( type == 'MISSILE' ) {
-			const newMobID = this.getNewMobID();
-			this.mobs[newMobID] = {
-				type: type,
-				value: new Missile(newMobID, spawnX, spawnY, 'mobTeam'),
-			};
-			return this.mobs[newMobID];
-		}
+	spawnMob(type, spawnX, spawnY, team, isProjectile, existTime) {
+		const newMobID = this.getNewMobID();
+		this.mobs[newMobID] = {
+			type: type,
+			value: new Mob(newMobID, spawnX, spawnY, type, team, false, isProjectile, existTime),
+		};
+		return this.mobs[newMobID];
 	}
 
 	// solve collisions
@@ -540,9 +637,23 @@ class Game {
 					} else if ( entityInfoA.type == 'petal' ) {
 						if ( !this.players[entityInfoA.id.playerID] )
 							continue;
-						if ( this.players[entityInfoA.id.playerID].petals[entityInfoA.id.petalID].inCooldown )
+						try{
+							this.players[entityInfoA.id.playerID].petals.forEach(petals => {
+								petals.forEach(petal => {
+									if (petal.id == entityInfoA.id.petalID) {
+										if (petal.inCooldown || petal.isHide) {
+											throw Error();
+										} else{
+											entityA = petal;
+										}
+									}
+								})
+							})
+						}catch(e){
 							continue;
-						entityA = this.players[entityInfoA.id.playerID].petals[entityInfoA.id.petalID];
+						}
+					} else if ( entityInfoA.type == 'drop' ) {
+						entityA = this.drops[entityInfoA.id];
 					}
 					if ( entityInfoB.type == 'player' ) {
 						entityB = this.players[entityInfoB.id];
@@ -551,12 +662,30 @@ class Game {
 					} else if ( entityInfoB.type == 'petal' ) {
 						if ( !this.players[entityInfoB.id.playerID] )
 							continue;
-						if ( this.players[entityInfoB.id.playerID].petals[entityInfoB.id.petalID].inCooldown )
+						try{
+							this.players[entityInfoB.id.playerID].petals.forEach(petals => {
+								petals.forEach(petal => {
+									if (petal.id == entityInfoB.id.petalID) {
+										if (petal.inCooldown) {
+											throw Error();
+										} else{
+											entityB = petal;
+										}
+									}
+								})
+							})
+						}catch(e){
 							continue;
-						entityB = this.players[entityInfoB.id.playerID].petals[entityInfoB.id.petalID];
+						}
+					} else if ( entityInfoB.type == 'drop' ) {
+						entityB = this.drops[entityInfoB.id];
 					}
+					if (!entityA || !entityB) continue;
 					if ( ( entityA.team == entityB.team ) && ( entityInfoA.type == 'petal' || entityInfoB.type == 'petal' ) ) // petals do not collide with anything of the same team
 						continue;
+					if (entityA.team == entityB.team && (entityA.attributes.ATTACK_MODE == 'PROJECTILE' || entityB.attributes.ATTACK_MODE == 'PROJECTILE'))
+						continue;
+					
 					const distance = entityA.distanceTo(entityB);
 					const r1 = entityA.attributes.RADIUS, r2 = entityB.attributes.RADIUS;
 					if ( distance < r1 + r2) {
@@ -598,9 +727,23 @@ class Game {
 			} else if ( entityInfoA.type == 'petal' ) {
 				if ( !this.players[entityInfoA.id.playerID] )
 					continue;
-				if ( this.players[entityInfoA.id.playerID].petals[entityInfoA.id.petalID].inCooldown )
+				try{
+					this.players[entityInfoA.id.playerID].petals.forEach(petals => {
+						petals.forEach(petal => {
+							if (petal.id == entityInfoA.id.petalID) {
+								if (petal.inCooldown) {
+									throw Error();
+								} else{
+									entityA = petal;
+								}
+							}
+						})
+					})
+				}catch(e){
 					continue;
-				entityA = this.players[entityInfoA.id.playerID].petals[entityInfoA.id.petalID];
+				}
+			} else if ( entityInfoA.type == 'drop' ) {
+				entityA = this.drops[entityInfoA.id];
 			}
 			if ( entityInfoB.type == 'player' ) {
 				entityB = this.players[entityInfoB.id];
@@ -609,10 +752,40 @@ class Game {
 			} else if ( entityInfoB.type == 'petal' ) {
 				if ( !this.players[entityInfoB.id.playerID] )
 					continue;
-				if ( this.players[entityInfoB.id.playerID].petals[entityInfoB.id.petalID].inCooldown )
+				try{
+					this.players[entityInfoB.id.playerID].petals.forEach(petals => {
+						petals.forEach(petal => {
+							if (petal.id == entityInfoB.id.petalID) {
+								if (petal.inCooldown) {
+									throw Error();
+								} else{
+									entityB = petal;
+								}
+							}
+						})
+					})
+				}catch(e){
 					continue;
-				entityB = this.players[entityInfoB.id.playerID].petals[entityInfoB.id.petalID];
+				}
 			}
+			else if ( entityInfoB.type == 'drop' ) {
+				entityB = this.drops[entityInfoB.id];
+			}
+			if (!entityA || !entityB) continue;
+			
+			//是否为玩家与掉落
+			if (entityA.type == `PLAYER` && entityB.team == `drop`) {
+				let isCollectSuccess = this.givePetal(entityA,entityB.type);
+				if (isCollectSuccess) delete this.drops[entityB.id];
+				continue;
+			} else if (entityB.type == `PLAYER` && entityA.team == `drop`) {
+				let isCollectSuccess = this.givePetal(entityB,entityA.type);
+				if (isCollectSuccess) delete this.drops[entityA.id];
+				continue;
+			}
+
+			if (entityA.team == `drop` || entityB.team == `drop`) continue;
+			
 			const distance = entityA.distanceTo(entityB);
 			const r1 = entityA.attributes.RADIUS, r2 = entityB.attributes.RADIUS;
 			const depth = r1 + r2 - distance;
@@ -667,205 +840,118 @@ class Game {
 				entityA.hp -= entityB.attributes.DAMAGE * (1 + entityA.fragile);
 				entityB.hp -= entityA.attributes.DAMAGE * (1 + entityB.fragile);
 				
-				if (entityB.attributes.TRIGGERS) {
-					if ( entityB.attributes.TRIGGERS.NO_HEAL ) {
-						entityA.noHeal = entityB.attributes.TRIGGERS.NO_HEAL;
-					}
-					if ( entityB.attributes.TRIGGERS.POISON ) {
-						if ( entityA.poison * entityA.poisonTime < entityB.attributes.TRIGGERS.POISON ) {
-							entityA.poison = entityB.attributes.TRIGGERS.TOXICITY;
-							entityA.poisonTime = entityB.attributes.TRIGGERS.POISON / entityB.attributes.TRIGGERS.TOXICITY;
-						}
-					}
-					if ( entityB.attributes.TRIGGERS.PUNCTURE ) {
-						if ( entityA.puncture < entityB.attributes.TRIGGERS.PUNCTURE ) {
-							entityA.puncture = entityB.attributes.TRIGGERS.PUNCTURE;
-							entityA.fragile = entityB.attributes.TRIGGERS.PUNCTURE_DAMAGE;
-						}
-					}
-					if ( entityB.attributes.TRIGGERS.LIGHTNING ) {
-						let possibleEntityPositions = [];
-						let lightningPath = [];
-						
-						lightningPath.push({
-							x: entityB.x,
-							y: entityB.y,
-						});
-						lightningPath.push({
-							x: entityA.x,
-							y: entityA.y,
-						});
-						
-						Object.entries(this.players).forEach(([id,player]) => {
-							if (player.id == entityB.team) return;
-							if (Math.sqrt((player.x - entityA.x) ** 2 + (player.y - entityA.y) ** 2) <= Constants.LIGHTNING_LENGTH * entityB.attributes.TRIGGERS.LIGHTNING) {
-								possibleEntityPositions.push([player.x,player.y,id]);
-							}
-						})
-						Object.entries(this.mobs).forEach(([id,mob]) => {
-							if (Math.sqrt((mob.value.x - entityA.x) ** 2 + (mob.value.y - entityA.y) ** 2) <= Constants.LIGHTNING_LENGTH * entityB.attributes.TRIGGERS.LIGHTNING) {
-								possibleEntityPositions.push([mob.value.x,mob.value.y,id]);
-							}
-						})
-						
-						let nextTargetEntityPosition = {
-							x: entityA.x,
-							y: entityA.y,
-						}
-						let damagedEntity = [];
-						
-						for (let times = 1; times < entityB.attributes.TRIGGERS.LIGHTNING; times++) {
-							let distances = [],
-								ids = [];
-					
-							possibleEntityPositions.forEach(([entityX,entityY,id]) => {
-								if (damagedEntity.includes(id)) return;
-								let distance = Math.sqrt((entityX - nextTargetEntityPosition.x) ** 2 + (entityY - nextTargetEntityPosition.y) ** 2);
-								if (distance <= Constants.LIGHTNING_LENGTH) {
-									distances.push(distance);
-									ids.push(id);
-								}
-							})
-					
-							let nextTargetEntity = ids[distances.indexOf(Math.min(distances))];
-							if (!nextTargetEntity) continue;
-						
-							//判断连锁目标为玩家还是mob并且造成伤害
-							if (nextTargetEntity.charAt(0) == `m`) {
-								let mob = this.mobs[nextTargetEntity].value;
-								mob.hp -= entityB.attributes.DAMAGE * (1 + mob.fragile);
-								mob.hurtByInfo = entityInfoB;
-								nextTargetEntityPosition.x = mob.x;
-								nextTargetEntityPosition.y = mob.y;
-								lightningPath.push({
-									x: mob.x,
-									y: mob.y,
-								});
-							} else{
-								let player = this.players[nextTargetEntity];
-								player.hp -= entityB.attributes.DAMAGE * (1 + player.fragile);
-								player.hurtByInfo = entityInfoB;
-								nextTargetEntityPosition.x = player.x;
-								nextTargetEntityPosition.y = player.y;
-								lightningPath.push({
-									x: player.x,
-									y: player.y,
-								});
-							}
-							damagedEntity.push(nextTargetEntity);
-						}
-						this.lightningPath.push(lightningPath);
-					}
-				}
-				if (entityA.attributes.TRIGGERS) {
-					if ( entityA.attributes.TRIGGERS.NO_HEAL ) {
-						entityB.noHeal = entityA.attributes.TRIGGERS.NO_HEAL;
-					}
-					if ( entityA.attributes.TRIGGERS.POISON ) {
-						if ( entityB.poison * entityB.poisonTime < entityA.attributes.TRIGGERS.POISON ) {
-							entityB.poison = entityA.attributes.TRIGGERS.TOXICITY;
-							entityB.poisonTime = entityA.attributes.TRIGGERS.POISON / entityA.attributes.TRIGGERS.TOXICITY;
-						}
-					}
-					if ( entityA.attributes.TRIGGERS.PUNCTURE ) {
-						if ( entityB.puncture < entityA.attributes.TRIGGERS.PUNCTURE ) {
-							entityB.puncture = entityA.attributes.TRIGGERS.PUNCTURE;
-							entityB.fragile = entityA.attributes.TRIGGERS.PUNCTURE_DAMAGE;
-						}
-					}
-					if ( entityA.attributes.TRIGGERS.LIGHTNING ) {
-						let possibleEntityPositions = [];
-						let lightningPath = [];
-						
-						lightningPath.push({
-							x: entityA.x,
-							y: entityA.y,
-						});
-						lightningPath.push({
-							x: entityB.x,
-							y: entityB.y,
-						});
-						
-						Object.entries(this.players).forEach(([id,player]) => {
-							if (player.id == entityA.team) return;
-							if (Math.sqrt((player.x - entityB.x) ** 2 + (player.y - entityB.y) ** 2) <= Constants.LIGHTNING_LENGTH * entityA.attributes.TRIGGERS.LIGHTNING) {
-								possibleEntityPositions.push([player.x,player.y,id]);
-							}
-						})
-						Object.entries(this.mobs).forEach(([id,mob]) => {
-							if (Math.sqrt((mob.value.x - entityB.x) ** 2 + (mob.value.y - entityB.y) ** 2) <= Constants.LIGHTNING_LENGTH * entityA.attributes.TRIGGERS.LIGHTNING) {
-								possibleEntityPositions.push([mob.value.x,mob.value.y,id]);
-							}
-						})
-						
-						let nextTargetEntityPosition = {
-							x: entityB.x,
-							y: entityB.y,
-						}
-						let damagedEntity = [];
-						damagedEntity.push(entityB.id);
-						
-						for (let times = 1; times < entityA.attributes.TRIGGERS.LIGHTNING; times++) {
-							let distances = [],
-								ids = [];
-
-							possibleEntityPositions.forEach(([entityX,entityY,id]) => {
-								if (damagedEntity.includes(id)) return;
-								let distance = Math.sqrt((entityX - nextTargetEntityPosition.x) ** 2 + (entityY - nextTargetEntityPosition.y) ** 2);
-								if (distance <= Constants.LIGHTNING_LENGTH) {
-									distances.push(distance);
-									ids.push(id);
-								}
-							})
-
-							let nextTargetEntity = ids[distances.indexOf(Math.min(...distances))];
-							if (!nextTargetEntity) continue;
-							
-							//判断连锁目标为玩家还是mob并且造成伤害
-							if (nextTargetEntity.charAt(0) == `m`) {
-								let mob = this.mobs[nextTargetEntity].value;
-								mob.hp -= entityA.attributes.DAMAGE * (1 + mob.fragile);
-								mob.hurtByInfo = entityInfoA;
-								nextTargetEntityPosition.x = mob.x;
-								nextTargetEntityPosition.y = mob.y;
-								lightningPath.push({
-									x: mob.x,
-									y: mob.y,
-								});
-							} else{
-								let player = this.players[nextTargetEntity];
-								player.hp -= entityA.attributes.DAMAGE * (1 + player.fragile);
-								player.hurtByInfo = entityInfoA;
-								nextTargetEntityPosition.x = player.x;
-								nextTargetEntityPosition.y = player.y;
-								lightningPath.push({
-									x: player.x,
-									y: player.y,
-								});
-							}
-							damagedEntity.push(nextTargetEntity);
-						}
-						this.lightningPath.push(lightningPath);
-					}
-				}
-				
-				if (entityA.puncture > 0) {
-					entityA.puncture--;
-				}
-				if (entityA.puncture == 0) {
-					entityA.fragile = 0;
-				}
-				if (entityB.puncture > 0) {
-					entityB.puncture--;
-				}
-				if (entityB.puncture == 0) {
-					entityB.fragile = 0;
-				}
-
-				entityA.hurtByInfo = entityInfoB;
-				entityB.hurtByInfo = entityInfoA;
+				this.releaseCollisionSkill(entityA,entityB,entityInfoB);
+				this.releaseCollisionSkill(entityB,entityA,entityInfoA);
 			}
 		}
+	}
+	
+	releaseCollisionSkill(entityA,entityB,entityInfo) {
+		if (entityB.attributes.TRIGGERS) {
+			if ( entityB.attributes.TRIGGERS.NO_HEAL ) {
+				entityA.noHeal = entityB.attributes.TRIGGERS.NO_HEAL;
+			}
+			if ( entityB.attributes.TRIGGERS.POISON ) {
+				if ( entityA.poison * entityA.poisonTime < entityB.attributes.TRIGGERS.POISON ) {
+					entityA.poison = entityB.attributes.TRIGGERS.TOXICITY;
+					entityA.poisonTime = entityB.attributes.TRIGGERS.POISON / entityB.attributes.TRIGGERS.TOXICITY;
+				}
+			}
+			if ( entityB.attributes.TRIGGERS.PUNCTURE ) {
+				if ( entityA.puncture < entityB.attributes.TRIGGERS.PUNCTURE ) {
+					entityA.puncture = entityB.attributes.TRIGGERS.PUNCTURE;
+					entityA.fragile = entityB.attributes.TRIGGERS.PUNCTURE_DAMAGE;
+				}
+			}
+			if ( entityB.attributes.TRIGGERS.LIGHTNING ) {
+				let possibleEntityPositions = [];
+				let lightningPath = [];
+				
+				lightningPath.push({
+					x: entityB.x,
+					y: entityB.y,
+				});
+				lightningPath.push({
+					x: entityA.x,
+					y: entityA.y,
+				});
+				
+				Object.entries(this.players).forEach(([id,player]) => {
+					if (id == entityB.team) return;
+					if (Math.sqrt((player.x - entityA.x) ** 2 + (player.y - entityA.y) ** 2) <= Constants.LIGHTNING_LENGTH * entityB.attributes.TRIGGERS.LIGHTNING) {
+						possibleEntityPositions.push([player.x,player.y,id]);
+					}
+				})
+				Object.entries(this.mobs).forEach(([id,mob]) => {
+					if (mob.value.team == entityB.team) return;
+					if (Math.sqrt((mob.value.x - entityA.x) ** 2 + (mob.value.y - entityA.y) ** 2) <= Constants.LIGHTNING_LENGTH * entityB.attributes.TRIGGERS.LIGHTNING) {
+						possibleEntityPositions.push([mob.value.x,mob.value.y,id]);
+					}
+				})
+				
+				let nextTargetEntityPosition = {
+					x: entityA.x,
+					y: entityA.y,
+				}
+				let damagedEntity = [];
+				damagedEntity.push(entityA.id)
+				
+				for (let times = 1; times < entityB.attributes.TRIGGERS.LIGHTNING; times++) {
+					let distances = [],
+						ids = [];
+			
+					possibleEntityPositions.forEach(([entityX,entityY,id]) => {
+						if (damagedEntity.includes(id)) return;
+						let distance = Math.sqrt((entityX - nextTargetEntityPosition.x) ** 2 + (entityY - nextTargetEntityPosition.y) ** 2);
+						if (distance <= Constants.LIGHTNING_LENGTH) {
+							distances.push(distance);
+							ids.push(id);
+						}
+					})
+			
+					let nextTargetEntity = ids[distances.indexOf(Math.min(...distances))];
+					if (!nextTargetEntity) continue;
+				
+					//判断连锁目标为玩家还是mob并且造成伤害
+					if (nextTargetEntity.charAt(0) == `m`) {
+						let mob = this.mobs[nextTargetEntity].value;
+						mob.hp -= entityB.attributes.DAMAGE * (1 + mob.fragile);
+						mob.hurtByInfo = entityInfo;
+						nextTargetEntityPosition.x = mob.x;
+						nextTargetEntityPosition.y = mob.y;
+						lightningPath.push({
+							x: mob.x,
+							y: mob.y,
+						});
+					} else{
+						let player = this.players[nextTargetEntity];
+						player.hp -= entityB.attributes.DAMAGE * (1 + player.fragile);
+						player.hurtByInfo = entityInfo;
+						nextTargetEntityPosition.x = player.x;
+						nextTargetEntityPosition.y = player.y;
+						lightningPath.push({
+							x: player.x,
+							y: player.y,
+						});
+					}
+					damagedEntity.push(nextTargetEntity);
+				}
+				this.lightningPath.push(lightningPath);
+			}
+		}
+		
+		if (entityA.puncture > 0) {
+			entityA.puncture--;
+		}
+		if (entityA.puncture == 0) {
+			entityA.fragile = 0;
+		}
+		
+		if (entityB.attributes.ATTACK_MODE == `PROJECTILE`) {
+			entityA.hurtByInfo = {type: entityInfo.type, id: entityB.shootBy};
+			return;
+		}
+		entityA.hurtByInfo = entityInfo;
 	}
 
 	applyConstraintVelocity(deltaT) {
@@ -885,6 +971,9 @@ class Game {
 		Object.values(this.mobs).forEach(mob => {
 			mob.value.handleBorder();
 		});
+		Object.values(this.drops).forEach(drop => {
+			drop.handleBorder();
+		});
 	}
 
 	// update players
@@ -893,41 +982,184 @@ class Game {
 		Object.keys(this.sockets).forEach(playerID => {
 			const player = this.players[playerID];
 			player.update(deltaT);
-		});
-	}
-	
-	releaseMobSkill(deltaT) {
-		Object.values(this.mobs).forEach(mob => {
-			if (!mob.value.attributes.TRIGGERS) return;
-			
-			if (mob.value.skillCoolDownTimer < mob.value.skillCoolDown) {
-				mob.value.skillCoolDownTimer += deltaT;
-				return;
-			};
-			
-			if (!mob.value.isSkillenable) return;
-			
-			if (mob.value.attributes.TRIGGERS.SHOOT) {
-				mob.value.skillCoolDownTimer = 0;
+			player.petals.forEach((petals) => {
+				petals.forEach((petal) => {
+					//召唤类花瓣召唤
+					if ( petal.attributes.TRIGGERS.SUMMON && !petal.disabled && !petal.inCooldown && !petal.isHide ) {
+						if (petal.actionCooldown > 0) {
+							petal.actionCooldown -= deltaT;
+							return;
+						}
+						petal.isHide = true;
+						player.updatePlaceHolder();
+						player.updatePetalSlot();
 
-				let projectile = this.spawnMob(mob.value.attributes.TRIGGERS.SHOOT,mob.value.x,mob.value.y);
-				projectile.value.movement = {
-					direction: mob.value.direction,
-					speed: projectile.value.attributes.SPEED,
-				}
-				projectile.value.direction = mob.value.direction;
-			}
+						let mob = this.spawnMob(petal.attributes.TRIGGERS.SUMMON,petal.x,petal.y,petal.team);
+						mob.value.slot = petal.slot;
+						mob.value.petalID = petal.id;
+						
+						petal.mob = mob.value.id;
+					}
+				})
+			}) 
 		});
 	}
 	
-	updateMobExistTime(deltaT) {
+	updateMobs(deltaT) {
 		Object.values(this.mobs).forEach(mob => {
-			if (mob.value.existTime > 0) {
-				mob.value.existTime -= deltaT;
+			//技能
+			(() => {
+				if (!mob.value.attributes.TRIGGERS) return;
+				
+				if (mob.value.skillCoolDownTimer < mob.value.skillCoolDown) {
+					mob.value.skillCoolDownTimer += deltaT;
+					return;
+				};
+				
+				if (!mob.value.isSkillenable) return;
+				
+				if (mob.value.attributes.TRIGGERS.SHOOT) {
+					mob.value.skillCoolDownTimer = 0;
+					
+					let projectile = this.spawnMob(mob.value.attributes.TRIGGERS.SHOOT,mob.value.x,mob.value.y,mob.value.team,true,2.5);
+					projectile.value.movement = {
+						direction: mob.value.direction,
+						speed: projectile.value.attributes.SPEED,
+					}
+					
+					//后坐力
+					mob.value.movement.direction = mob.value.direction;
+					mob.value.movement.speed = -mob.value.attributes.SPEED;
+					
+					projectile.value.direction = mob.value.direction;
+					projectile.value.shootBy = mob.value.id;
+				}
+			})();
+			
+			//存活时间
+			(() => {
+				if (mob.value.existTime > 0) {
+					mob.value.existTime -= deltaT;
+				}
+				if (mob.value.existTime <= 0) {
+					mob.value.hp = 0;
+				}
+			})();
+			
+			//毒
+			(() => {
+				if (mob.value.poisonTime <= 0) {
+					mob.value.poison = 0;
+					return;
+				}
+				if (!mob.value.poison) return;
+				
+				mob.value.hp -= mob.value.poison * deltaT;
+				mob.value.poisonTime -= deltaT;
+			})();
+			
+			//友军mob检测花瓣是否仍然存在
+			(() => {
+				if (mob.value.team != `mobTeam` && mob.value.attributes.ATTACK_MODE != 'PROJECTILE') {
+					let petalIDs = [],
+						isPetalInCooldown = [];
+					this.players[mob.value.team].petals[mob.value.slot].forEach((petal) => {
+						petalIDs.push(petal.id);
+						isPetalInCooldown.push(petal.inCooldown);
+					})
+					if (petalIDs.includes(mob.value.petalID) && !isPetalInCooldown[petalIDs.indexOf(mob.value.petalID)]) {
+						return;
+					};
+					mob.value.hp = -1;
+				}
+			})();
+		});
+	}
+	
+	chance(chance) {
+		if (Math.random() < chance) return true;
+		return false;
+	}
+	
+	createDrop(drops, x, y) {
+		let actionMovement = {
+			direction: 0,
+			speed: 0,
+		}
+		const baseAngle = Math.PI / 2;
+		const successDrops = Object.entries(drops).filter(([type,chance]) => {
+			return this.chance(chance);
+		}) // getting success drops;
+		const dropCount = successDrops.length;
+		successDrops.forEach(([type], dropNumber) => {
+			if (dropCount > 1) {
+				actionMovement = {
+					direction: baseAngle + dropNumber / dropCount * 2 * Math.PI,
+					speed: Math.sqrt(Constants.DROP_SPREAD_DISTANCE * Math.sin(actionMovement.direction) ** 2 + Constants.DROP_SPREAD_DISTANCE * Math.cos(actionMovement.direction) ** 2) / Constants.DROP_ACTION_TIME,
+				}
 			}
-			if (mob.value.existTime <= 0) {
-				mob.value.hp = 0;
+			const newDropID = this.getNewDropID();
+			this.drops[newDropID] = new Drop(newDropID, x, y, type, 2.5);
+			this.drops[newDropID].movement = actionMovement;
+		});
+	}
+	
+	givePetal(player, newPetal) {
+		let primarySlot = player.primaryPetals.indexOf(`EMPTY`);
+		let secondarySlot = player.secondaryPetals.indexOf(`EMPTY`);
+		if (primarySlot != -1) {
+			player.primaryPetals[primarySlot] = newPetal;
+			player.switched = true;
+			
+			let times = PetalAttributes[newPetal].COUNT - player.petals[primarySlot].length;
+			for (let i = 0; i < times; i++) {
+				let petal = player.newPetal(newPetal, player.getNewPetalID(), primarySlot * Constants.PETAL_MULTIPLE_MAX + i, primarySlot, primarySlot);
+				player.petals[primarySlot].push(petal);
 			}
+				
+			player.petals[primarySlot].forEach((petal,index) => {
+				petal.isHide = false;
+				petal.idInPlaceHolder = index;
+				petal.disabled = false;
+				petal.type = newPetal;
+				petal.updateAttributes();
+				petal.cooldown = petal.attributes.RELOAD;
+				petal.inCooldown = true;
+			})
+			
+			player.updatePlaceHolder();
+			player.updatePetalSlot();
+			
+			return true;
+		} 
+		else if (secondarySlot != -1) {
+			player.secondaryPetals[secondarySlot] = newPetal;
+			player.switched = true;
+			
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	updateDrops(deltaT) {
+		Object.values(this.drops).forEach((drop) => {
+			if (drop.existTime > 0) {
+				drop.existTime -= deltaT;
+				return;
+			}
+			
+			drop.chunks.forEach(chunk => {
+				if( this.chunks[this.getChunkID(chunk)] ) {
+					this.chunks[this.getChunkID(chunk)].splice(
+						this.chunks[this.getChunkID(chunk)].findIndex((entityInChunk) => {
+							return entityInChunk.type == 'drop' && entityInChunk.id == drop.id;
+						}),
+						1
+					);
+				}
+			});
+			delete this.drops[drop.id];
 		})
 	}
 
@@ -940,16 +1172,22 @@ class Game {
 		this.lastUpdateTime = now;
 		
 		this.init(deltaT);
+		
+		this.handlePlayerDeaths();
+		
+		this.handleMobDeaths();
 
 		this.updatePlayers(deltaT);
 
 		this.updateMovement(deltaT);
 		
-		this.releaseMobSkill(deltaT);
+		this.updateMobs(deltaT);
 		
-		this.updateMobExistTime(deltaT);
+		this.updateDrops(deltaT);
 
 		this.updateVelocity(deltaT);
+		
+		this.solveCollisions(deltaT);
 
 		this.applyVelocity(deltaT);
 
@@ -957,15 +1195,9 @@ class Game {
 
 		this.handleBorder();
 
-		this.solveCollisions(deltaT);
-
 		this.applyConstraintVelocity(deltaT);
 
 		this.handleBorder();
-
-		this.handleMobDeaths();
-
-		this.handlePlayerDeaths();
 
 		this.mobSpawn();
 
@@ -998,6 +1230,12 @@ class Game {
 				return e.value.distanceTo(player) <= Constants.NEARBY_DISTANCE;
 			}
 		) // getting nearby mobs
+		
+		const nearbyDrops = Object.values(this.drops).filter(
+			e => {
+				return e.distanceTo(player) <= Constants.NEARBY_DISTANCE;
+			}
+		) // getting nearby drops
 
 		return {
 			t: Date.now(), // current time
@@ -1007,6 +1245,7 @@ class Game {
 			others: nearbyPlayers.map(p => p.serializeForUpdate(false)), // nearby players
 			playerCount: Object.keys(this.players).length, // the number of players online
 			mobs: nearbyMobs.map(e => e.value.serializeForUpdate()),
+			drops: nearbyDrops.map(e => e.serializeForUpdate()),
 			lightningPath: this.lightningPath,
 			diedEntities: this.diedEntities,
 		}

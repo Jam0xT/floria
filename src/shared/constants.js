@@ -29,6 +29,9 @@ module.exports = Object.freeze({
 
 	MOB_VOLUME_LIMIT: 10000, // mobs won't spawn if the sum of volumes of all mobs alive >= X
 	MOB_SPAWN_INTERVAL: 10, // try to spawn mobs every X ticks
+	MOB_ATTACK_RADIUS: 800, //追踪范围以及友军mob最大远离玩家距离
+	MOB_IDLE_RADIUS: 200, //友军mob待机范围
+	MOB_IDLE_MOVEMENT_COOLDOWN: 4, //mob待机变向时间（s）
 
 	CHUNK_SIZE: 200, // the size of each chunk
 	CHUNK_ID_CONSTANT: 114514, // help get the id of each chunk
@@ -39,8 +42,8 @@ module.exports = Object.freeze({
 	PETAL_ROTATION_SPEED_BASE: 2.5, // default player petal rotation speed
 	PETAL_FLOAT_SPEED: 1, //翅膀上下摆动的速度
 
-	PRIMARY_SLOT_COUNT_BASE: 5, // default player slot count
-	SECONDARY_SLOT_COUNT_BASE: 5,
+	PRIMARY_SLOT_COUNT_BASE: 8, // default player slot count
+	SECONDARY_SLOT_COUNT_BASE: 8,
 
 	PENETRATION_DEPTH_WEIGHT_IN_COLLISION: 1, // decides how much penetration depth will effect collision knockback
 	// VELOCITY_WEIGHT_IN_COLLISION: 2, // decides how much velocity will effect collision knockback
@@ -54,6 +57,7 @@ module.exports = Object.freeze({
 	BUBBLE_ATTENUATION_COEFFICIENT: 0.8, // bubble velocity *= X every tick
 
 	FIRST_PETAL_ID: 100,
+	PETAL_MULTIPLE_MAX: 5, //多子花瓣最多拥有的数量
 
 	RARITY_COLOR: [ // rarity color
 		'rgb(126, 239, 109)', // common
@@ -76,6 +80,10 @@ module.exports = Object.freeze({
 	],
 
 	PETAL_OUTLINE_WIDTH_PERCENTAGE: 0.05,
+	
+	DROP_SIZE: 20,
+	DROP_SPREAD_DISTANCE: 90,
+	DROP_ACTION_TIME: 0.1,
 	
 	LIGHTNING_LENGTH: 250,
 });

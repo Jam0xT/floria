@@ -8,6 +8,7 @@ class Dark_ladybug extends Mob {
 
 	updateMovement(deltaT,target) {
 		//首次受到攻击时更改攻击目标
+		console.log(this.hurtByInfo)
 		if (!this.target && this.hurtByInfo.id.playerID) {
 			this.target = this.hurtByInfo.id.playerID;
 		}

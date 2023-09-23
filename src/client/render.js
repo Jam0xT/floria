@@ -120,13 +120,17 @@ class Petal { // the petal item which you can operate on
 			ctx.translate(this.x, this.y);
 			ctx.rotate(this.dir);
 			ctx.globalAlpha = petalAlpha;
-
 			let displayLength = length * this.size;
 			let outlineWidth = displayLength * Constants.PETAL_OUTLINE_WIDTH_PERCENTAGE;
 			renderRoundRect(UILayer, - displayLength / 2 - outlineWidth, - displayLength / 2 - outlineWidth, 
 			displayLength + outlineWidth * 2, displayLength + outlineWidth * 2, hpx * 1, true, true, true, true);
 			ctx.strokeStyle = Constants.RARITY_COLOR_DARKEN[PetalAttributes[this.type].RARITY];
 			ctx.lineWidth = outlineWidth * 2;
+			
+			if (this.type == `EMPTY`) {
+				ctx.globalAlpha = 0;
+				petalAlpha = 0;
+			};
 
 			ctx.globalCompositeOperation = 'destination-out';
 			ctx.stroke();
@@ -140,50 +144,96 @@ class Petal { // the petal item which you can operate on
 			ctx.globalCompositeOperation = 'source-over';
 			ctx.fillStyle = Constants.RARITY_COLOR[PetalAttributes[this.type].RARITY];
 			ctx.fillRect(- displayLength / 2, - displayLength / 2, displayLength, displayLength);
-
+			
 			ctx.globalCompositeOperation = 'destination-out';
 			
 			const renderRadius = displayLength * 0.2;
 			const asset = getAsset(`petals/${this.type.toLowerCase()}.svg`);
 			const width = asset.naturalWidth, height = asset.naturalHeight;
 			const offset = displayLength * 0.08;
-
-			if ( width <= height ) {
-				ctx.drawImage(
-					asset,
-					- renderRadius,
-					- renderRadius / width * height - offset,
-					renderRadius * 2,
-					renderRadius / width * height * 2,
-				);
-				
-				ctx.globalCompositeOperation = 'source-over';
-				ctx.drawImage(
-					asset,
-					- renderRadius,
-					- renderRadius / width * height - offset,
-					renderRadius * 2,
-					renderRadius / width * height * 2,
-				);
-			} else {
-				ctx.drawImage(
-					asset,
-					- renderRadius / height * width,
-					- renderRadius - offset,
-					renderRadius / height * width * 2,
-					renderRadius * 2,
-				);
 			
-				ctx.globalCompositeOperation = 'source-over';
-				ctx.drawImage(
-					asset,
-					- renderRadius / height * width,
-					- renderRadius - offset,
-					renderRadius / height * width * 2,
-					renderRadius * 2,
-				);
+			let offsetX = 0,
+				offsetY = 0;
+			if (PetalAttributes[this.type].MULTIPLE) {
+				let baseAngle = Math.PI / 2;
+				for (let i = 0; i < PetalAttributes[this.type].COUNT; i++) {
+					offsetX = (renderRadius + 1) * Math.sin(baseAngle + i / PetalAttributes[this.type].COUNT * 2 * Math.PI);
+					offsetY = (renderRadius + 1) * Math.cos(baseAngle + i / PetalAttributes[this.type].COUNT * 2 * Math.PI);
+					
+					if ( width <= height ) {
+						ctx.drawImage(
+							asset,
+							- renderRadius + offsetX,
+							- renderRadius / width * height - offset + offsetY,
+							renderRadius * 2,
+							renderRadius / width * height * 2,
+						);
+						
+						ctx.globalCompositeOperation = 'source-over';
+						ctx.drawImage(
+							asset,
+							- renderRadius + offsetX,
+							- renderRadius / width * height - offset + offsetY,
+							renderRadius * 2,
+							renderRadius / width * height * 2,
+						);
+					} else {
+						ctx.drawImage(
+							asset,
+							- renderRadius / height * width + offsetX,
+							- renderRadius - offset + offsetY,
+							renderRadius / height * width * 2,
+							renderRadius * 2,
+						);
+					
+						ctx.globalCompositeOperation = 'source-over';
+						ctx.drawImage(
+							asset,
+							- renderRadius / height * width + offsetX,
+							- renderRadius - offset + offsetY,
+							renderRadius / height * width * 2,
+							renderRadius * 2,
+						);
+					}
+				}
+			} else {
+				if ( width <= height ) {
+					ctx.drawImage(
+						asset,
+						- renderRadius + offsetX,
+						- renderRadius / width * height - offset + offsetY,
+						renderRadius * 2,
+						renderRadius / width * height * 2,
+					);
+						
+					ctx.globalCompositeOperation = 'source-over';
+					ctx.drawImage(
+						asset,
+						- renderRadius + offsetX,
+						- renderRadius / width * height - offset + offsetY,
+						renderRadius * 2,
+						renderRadius / width * height * 2,
+					);
+				} else {
+					ctx.drawImage(
+						asset,
+						- renderRadius / height * width + offsetX,
+						- renderRadius - offset + offsetY,
+						renderRadius / height * width * 2,
+						renderRadius * 2,
+					);
+					
+					ctx.globalCompositeOperation = 'source-over';
+					ctx.drawImage(
+						asset,
+						- renderRadius / height * width + offsetX,
+						- renderRadius - offset + offsetY,
+						renderRadius / height * width * 2,
+						renderRadius * 2,
+					);
+				}
 			}
-
+			
 			let name = this.type.toLowerCase();
 			let textOffset = displayLength * 0.35;
 			let textFont = displayLength * 0.25;
@@ -429,7 +479,7 @@ function renderGame() {
 		gameRadiusOnEnter += deltaGameRadiusOnEnter;
 		deltaGameRadiusOnEnter *= 1.05;
 	}
-	const { me, others, mobs, leaderboard, playerCount, rankOnLeaderboard, lightningPath, diedEntities } = getCurrentState();
+	const { me, others, mobs, drops, leaderboard, playerCount, rankOnLeaderboard, lightningPath, diedEntities } = getCurrentState();
 	
 	updateSlotsData(W, hpx, primarySlotHitboxLength, primarySlotDisplayLength + 4 * primarySlotDisplayLength * Constants.PETAL_OUTLINE_WIDTH_PERCENTAGE, primarySlotCenterY, primarySlotCount,
 		secondarySlotHitboxLength, secondarySlotDisplayLength + 4 * secondarySlotDisplayLength * Constants.PETAL_OUTLINE_WIDTH_PERCENTAGE, secondarySlotCenterY, secondarySlotCount);
@@ -441,6 +491,7 @@ function renderGame() {
 		mobs.forEach(mob => {
 			renderMob(me, mob);
 		});
+		renderDrops(drops, me);
 		renderLightningPath(lightningPath, me);
 		renderDiedEntities(diedEntities, me);
 		renderText(UILayer, 0.7, "florr.cn", W - hpx * 80, H - hpx * 20, hpx * 40, 'center');
@@ -795,6 +846,8 @@ function renderPlayer(me, player) {
 	ctx = getCtx(petalLayer);
 
 	player.petals.forEach(petal => {
+		if (petal.isHide) return;
+		
 		const renderRadius = PetalAttributes[petal.type].RENDER_RADIUS;
 		const asset = getAsset(`petals/${petal.type.toLowerCase()}.svg`);
 		const width = asset.naturalWidth, height = asset.naturalHeight;
@@ -1150,6 +1203,41 @@ function renderRoundRect(layer, x, y, w, h, r, r4, r1, r2, r3) { // r1 -> r4 clo
 	ctx.closePath();
 }
 
+function renderRoundRectSE(x, y, w, h, r, r4, r1, r2, r3) { // r1 -> r4 clockwise, r1: top right | NOTE: path ONLY, no STROKE
+	let canvas = document.getElementById(`canvas-SE`);
+	let ctx = canvas.getContext('2d');
+	ctx.globalAlpha = 0.88;
+	if ( w < 2 * r ) {
+		w = 2 * r;
+	}
+	if ( h < 2 * r ) {
+		h = 2 * r;
+	}
+	ctx.beginPath();
+	ctx.moveTo(x+r, y);
+	if ( r1 ) {
+	    ctx.arcTo(x+w, y, x+w, y+h, r);
+	} else {
+		ctx.lineTo(x+w, y);
+	}
+	if ( r2 ) {
+		ctx.arcTo(x+w, y+h, x, y+h, r);
+	} else {
+		ctx.lineTo(x+w, y+h);
+	}
+	if ( r3 ) {
+    	ctx.arcTo(x, y+h, x, y, r);
+	} else {
+		ctx.lineTo(x, y+h);
+	}
+	if ( r4 ) {
+    	ctx.arcTo(x, y, x+w, y, r);
+	} else {
+		ctx.lineTo(x, y);
+	}
+	ctx.stroke();
+}
+
 function renderText(layer, alpha, text, x, y, fontSize, textAlign) {
 	ctx = getCtx(layer);
 	if ( fontSize ) {
@@ -1164,13 +1252,46 @@ function renderText(layer, alpha, text, x, y, fontSize, textAlign) {
 	ctx.strokeStyle = "black";
 	ctx.strokeText(text, x, y);
 
-	ctx.globalAlpha = 1;
+	if (alpha == 0) {
+		ctx.globalAlpha = alpha;
+	} else {
+		ctx.globalAlpha = 1;
+	}
 	ctx.globalCompositeOperation = 'destination-out';
 	ctx.fillStyle = "white";
 	ctx.fillText(text, x, y);
 
 	ctx.globalAlpha = alpha;
 	ctx.globalCompositeOperation = 'source-over';
+	ctx.fillStyle = "white";
+	ctx.fillText(text, x, y);
+
+	ctx.globalAlpha = 1;
+}
+
+function renderTextSE(alpha, text, x, y, fontSize, textAlign) {
+	let canvas = document.getElementById(`canvas-SE`);
+	let ctx = canvas.getContext('2d');
+	if ( fontSize ) {
+		ctx.lineWidth = fontSize * 0.125;
+		ctx.font = `${fontSize}px Ubuntu`;
+
+		ctx.textAlign = textAlign;
+	}
+
+	ctx.globalAlpha = alpha;
+	ctx.strokeStyle = "black";
+	ctx.strokeText(text, x, y);
+
+	if (alpha == 0) {
+		ctx.globalAlpha = alpha;
+	} else {
+		ctx.globalAlpha = 1;
+	}
+	ctx.fillStyle = "white";
+	ctx.fillText(text, x, y);
+
+	ctx.globalAlpha = alpha;
 	ctx.fillStyle = "white";
 	ctx.fillText(text, x, y);
 
@@ -1249,9 +1370,9 @@ function renderDiedEntities(entities,me) {
 	
 	diedEntities.forEach(([entity,alpha],index) => {
 		context.globalAlpha = alpha;
-		diedEntities[index][1] -= 0.15;
-		if (diedEntities[index][1] <= 0) {
-			diedEntities.splice(index,0.7);
+		diedEntities[index][1] -= diedEntities[index][1] * 0.25;
+		if (diedEntities[index][1] <= 0.1) {
+			diedEntities.splice(index,1);
 			return;
 		}
 		
@@ -1270,11 +1391,70 @@ function renderDiedEntities(entities,me) {
 			asset = getAsset(`petals/${entity.type.toLowerCase()}.svg`);
 		}
 		
-		context.drawImage(asset, x - entity.size, y - entity.size, entity.size * 2, entity.size * 2);
+		context.save()
+		context.translate(x, y);
+		context.rotate(entity.dir);
+		context.translate(-x, -y);
+		
+		const width = asset.naturalWidth, 
+			  height = asset.naturalHeight;
+		context.drawImage(asset, x - entity.size, y - entity.size / width * height, entity.size * 2, entity.size / width * height * 2);
+		
+		context.restore();
 
 		entity.x += Math.min(100,entity.movement.speed) * 0.025 * Math.sin(entity.movement.direction);
 		entity.y += Math.min(100,entity.movement.speed) * 0.025 * Math.cos(entity.movement.direction);
-		entity.size += entity.size * 0.009;
+		entity.size += entity.size * 0.0125;
+	})
+}
+
+function renderDrops(drops,me) {
+	let canvas = document.getElementById(`canvas-SE`);
+	let context = canvas.getContext('2d');
+	
+	drops.forEach((entity) => {
+		context.globalAlpha = 0.88;
+		
+		let x = canvas.width / 2 + entity.x - me.x;
+		let y = canvas.height / 2 + entity.y - me.y;
+
+		let asset = getAsset(`petals/${entity.type.toLowerCase()}.svg`);
+		
+		const width = asset.naturalWidth,
+			  height = asset.naturalHeight,
+			  size = Constants.DROP_SIZE / 2.5,
+			  displayLength = Constants.DROP_SIZE / 2.5;
+		
+		context.save()
+		context.translate(x, y);
+		context.rotate(entity.dir);
+		context.translate(-x, -y);
+		
+		let outlineWidth = displayLength * Constants.PETAL_OUTLINE_WIDTH_PERCENTAGE;
+		context.strokeStyle = Constants.RARITY_COLOR_DARKEN[PetalAttributes[entity.type].RARITY];
+		context.lineWidth = outlineWidth * 10;
+		renderRoundRectSE(x - (displayLength + outlineWidth * 50) / 2,y - (displayLength + outlineWidth * 50) / 2,
+		displayLength + outlineWidth * 50, displayLength + outlineWidth * 50, hpx * 1, true, true, true, true);
+		
+		let fillSize = displayLength * 1.6
+
+		context.fillStyle = Constants.RARITY_COLOR[PetalAttributes[entity.type].RARITY];
+		context.globalAlpha = 0.88;
+		context.fillRect(x - fillSize, y - fillSize, fillSize * 2, fillSize * 2);
+		
+		context.drawImage(asset, x - size, y - size / width * height - 2.35, size * 2, size / width * height * 2);
+		
+		let name = entity.type.toLowerCase();
+		let textOffset = displayLength * 1.5;
+		let textFont = displayLength * 0.95;
+
+		renderTextSE(0.88, name.charAt(0).toUpperCase() + name.slice(1), x, y + textOffset, textFont, 'center');
+
+		renderTextSE(0.88, name.charAt(0).toUpperCase() + name.slice(1), x, y + textOffset, textFont, 'center');
+
+		context.globalAlpha = 1;
+		
+		context.restore();
 	})
 }
 
