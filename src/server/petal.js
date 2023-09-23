@@ -3,7 +3,7 @@ const Entity = require('./entity');
 const PetalAttributes = require('../../public/petal_attributes');
 
 class Petal extends Entity {
-	constructor(id, idx, placeHolder, x, y, parent, type, noBorderCollision) {
+	constructor(id, idx, placeHolder, x, y, parent, type, noBorderCollision, idInPlaceHolder, slot) {
 		super(id, x, y, parent, 'petal', type, PetalAttributes[type].MAX_HP, PetalAttributes[type].MAX_HP, noBorderCollision);
 		this.idx = idx;
 		this.parent = parent;
@@ -13,7 +13,10 @@ class Petal extends Entity {
 		this.inCooldown = false;
 		this.action = false;
 		this.actionTime = 0;
+		this.isHide = false;
 		this.placeHolder = placeHolder;
+		this.idInPlaceHolder = idInPlaceHolder || 0; //多子花瓣在同花瓣位置的编号
+		this.slot = slot; 
 		// placeHolder: -1 -> projectile
 		if ( this.attributes.TRIGGERS.ACTION_COOLDOWN ) {
 			this.actionCooldown = this.attributes.TRIGGERS.ACTION_COOLDOWN;
@@ -36,6 +39,7 @@ class Petal extends Entity {
 			...(super.serializeForUpdate()),
 			type: this.type,
 			dir: this.direction,
+			isHide: this.isHide,
 		};
 	}
 }
