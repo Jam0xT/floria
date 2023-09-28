@@ -879,7 +879,7 @@ function renderMob(me, mob) {
 	const canvasY = H / 2 + (y - me.y) * hpx;
 	ctx.save();
 	ctx.translate(canvasX, canvasY);
-	const renderRadius = EntityAttributes[mob.type].RENDER_RADIUS * hpx;
+	const renderRadius = mob.size * hpx;
 	const asset = getAsset(`mobs/${mob.type.toLowerCase()}.svg`);
 	const width = asset.naturalWidth, height = asset.naturalHeight;
 	ctx.rotate(mob.dir);
