@@ -1,10 +1,11 @@
 const Constants = require('../shared/constants');
 const EntityAttributes = require('../../public/entity_attributes');
 const PetalAttributes = require('../../public/petal_attributes');
-const Player = require('./player');
-const Mob = require(`./mob`);
+const Player = require('./entity/player');
+const Mob = require('./entity/mob');
 const { listen } = require('express/lib/application');
-const Drop = require('./drop');
+const Drop = require('./entity/drop');
+const Block = require('./block');
 
 var TOTAL_SPAWN_WEIGHT = 0; // this is a constant
 Object.values(EntityAttributes).forEach(attribute => {
@@ -19,6 +20,7 @@ class Game {
 		this.mobs = {}; // {id:{type: mobType, value: mob},...}
 		this.drops = {};
 		this.chunks = {}; // {chunkID:[{type: entityType, id: id},...],...}
+		this.blocks = {};
 		this.lastUpdateTime = Date.now();
 		this.mobSpawnTimer = 0;
 		this.volumeTaken = 0;
@@ -39,6 +41,8 @@ class Game {
 		const y = Constants.MAP_HEIGHT * this.rnd(0.1, 0.9);
 
 		this.players[socket.id] = new Player(socket.id, username, x, y);
+		
+		//this.appendEntityToBlock(`player`, this.players[socket.id]);
 
 		this.updateLeaderboard(this.players[socket.id]);
 	}
@@ -216,7 +220,7 @@ class Game {
 	}
 
 	handlePetalDeaths(player) { // make dead petals in cooldown
-		player.petals.forEach(petals => {
+		player.petals.forEach((petals, slot) => {
 			petals.forEach((petal,index) => {
 				if ( !petal.inCooldown ) {
 					if ( petal.hp <= 0 ) {
@@ -241,7 +245,9 @@ class Game {
 						if ( petal.placeHolder != -1 ) {
 							petal.inCooldown = true;
 							player.reload(petal.slot,index);
+							return;
 						}
+						player.petals.splice(slot, 1);
 					}
 				}
 			})
@@ -327,6 +333,9 @@ class Game {
 				//创建掉落
 				if (mob.value.attributes.DROP) this.createDrop(mob.value.attributes.DROP,mob.value.x,mob.value.y);
 				
+				//删除存于玩家的mob属性
+				if (this.players[mob.value.team]) delete this.players[mob.value.team].pets[mobID]; 
+				
 				delete this.mobs[mobID];
 			}
 		});
@@ -336,6 +345,81 @@ class Game {
 		this.lightningPath = [];
 		this.diedEntities = [];
 	}
+	
+	
+	//block
+	/*
+	createBlocks() {
+		for (let x = -1; x <= Math.ceil(Constants.MAP_WIDTH / Constants.BLOCK_WIDTH); x++) {
+			for (let y = -1; y <= Math.ceil(Constants.MAP_HEIGHT / Constants.BLOCK_HEIGHT); y++) {
+				this.blocks[x + `-` + y] = new Block(x, y);
+			}
+		}
+	}
+	
+	appendEntityToBlock(type, entity) {
+		const blockName = this.getBlock(entity.x, entity.y);
+		this.blocks[blockName].entities[type].push(entity.id);
+		entity.block = blockName;
+	}
+	
+	removeEntityFromBlock(type, entity) {
+		const blockName = entity.block;
+		const block = this.blocks[blockName].entities[type];
+		block.splice(block.indexOf(entity.id), 1);
+		entity.block = false;
+	}
+	
+	getBlock(x, y) { //block name: `x-y`
+		return Math.floor(x / Constants.BLOCK_WIDTH) + `-` + Math.floor(y / Constants.BLOCK_HEIGHT); 
+	}
+	
+	updateBlocks() {
+		Object.values(this.chunks).forEach(chunk => {
+			chunk.forEach(entityType => {
+				if (!entityType) return;
+				//console.log(entityType.id, this.players[entityType.id])
+				const entity = this.players[entityType.id] || this.drops[entityType.id] || this.mobs[entityType.id].value;
+				const entityInOldBlock = entity.block;
+				const entityInCorrectBlock = this.getBlock(entity.x, entity.y);
+				if (entityInCorrectBlock != entityInOldBlock) {
+					this.removeEntityFromBlock(entityType.type, entity);
+					this.appendEntityToBlock(entityType.type, entity);
+					//console.log(`a entity from ${entityInOldBlock} was run to ${entityInCorrectBlock}`)
+				}
+			})
+		})
+		///////Object.entries(this.blocks).forEach(([entityInBlock, block]) => {
+			block.entities.mob.forEach(mobID => {
+				const mob = this.mobs[mobID].value;
+				const mobInCorrectBlock = this.getBlock(mob.x, mob.y);
+				if (mobInCorrectBlock != entityInBlock) {
+					this.removeEntityFromBlock(`mob`, mob);
+					this.appendEntityToBlock(`mob`, mob);
+					console.log(`a mob from ${entityInBlock} was run to ${mobInCorrectBlock}`)
+				}
+			})
+			block.entities.player.forEach(playerID => {
+				const player = this.players[playerID];
+				const playerInCorrectBlock = this.getBlock(player.x, player.y);
+				if (playerInCorrectBlock != entityInBlock) {
+					this.removeEntityFromBlock(`player`, player);
+					this.appendEntityToBlock(`player`, player);
+					console.log(`a player from ${entityInBlock} was run to ${playerInCorrectBlock}`)
+				}
+			})
+			block.entities.drop.forEach(dropID => {
+				const drop = this.drops[dropID];
+				const dropInCorrectBlock = this.getBlock(drop.x, drop.y);
+				if (dropInCorrectBlock != entityInBlock) {
+					this.removeEntityFromBlock(`drop`, drop);
+					this.appendEntityToBlock(`drop`, drop);
+					console.log(`a drop from ${entityInBlock} was run to ${dropInCorrectBlock}`)
+				}
+			})
+		})
+	}*/
+	
 
 	// movement
 
@@ -365,19 +449,19 @@ class Game {
 							y: mob.value.y,
 						};
 						Object.entries(this.players).forEach(([id,player]) => {
-							let distance = Math.sqrt((center.x - player.x) ** 2 + (center.y - player.y) ** 2);
+							const distance = Math.sqrt((center.x - player.x) ** 2 + (center.y - player.y) ** 2);
 							if (distance < Constants.MOB_ATTACK_RADIUS) {
 								distances.push(distance);
 								ids.push(id);
 							}
-						});
-						Object.entries(this.mobs).forEach(([id,enemyMob]) => {
-							if (enemyMob.value.team == mob.value.team || enemyMob.value.isProjectile) return; 
-							let distance = Math.sqrt((center.x - enemyMob.value.x) ** 2 + (center.y - enemyMob.value.y) ** 2);
-							if (distance < Constants.MOB_ATTACK_RADIUS) {
-								distances.push(distance);
-								ids.push(id);
-							}
+							Object.entries(player.pets).forEach(([id,enemyMob]) => {
+								if (enemyMob.value.team == mob.value.team || enemyMob.value.isProjectile) return; 
+								const distance = Math.sqrt((center.x - enemyMob.value.x) ** 2 + (center.y - enemyMob.value.y) ** 2);
+								if (distance < Constants.MOB_ATTACK_RADIUS) {
+									distances.push(distance);
+									ids.push(id);
+								}
+							});
 						});
 					} else { //玩家队伍
 						const player = this.players[mob.value.team];
@@ -387,7 +471,7 @@ class Game {
 						};
 						Object.entries(this.players).forEach(([id,player]) => {
 							if (player.team == mob.value.team) return; 
-							let distance = Math.sqrt((center.x - player.x) ** 2 + (center.y - player.y) ** 2);
+							const distance = Math.sqrt((center.x - player.x) ** 2 + (center.y - player.y) ** 2);
 							if (distance < Constants.MOB_ATTACK_RADIUS) {
 								distances.push(distance);
 								ids.push(id);
@@ -400,7 +484,7 @@ class Game {
 							if (Math.sqrt((center.x - enemyMob.value.x) ** 2 + (center.y - enemyMob.value.y) ** 2) > Constants.MOB_ATTACK_RADIUS) return; 
 							
 							//寻找距离自己最近的目标
-							let distance = Math.sqrt((mob.value.x - enemyMob.value.x) ** 2 + (mob.value.y - enemyMob.value.y) ** 2);
+							const distance = Math.sqrt((mob.value.x - enemyMob.value.x) ** 2 + (mob.value.y - enemyMob.value.y) ** 2);
 							if (distance < Constants.MOB_ATTACK_RADIUS) {
 								distances.push(distance);
 								ids.push(id);
@@ -414,22 +498,16 @@ class Game {
 			
 			//获取目标失败或距离目标太远，待机
 			const target = this.players[mob.value.target] || (this.mobs[mob.value.target] && this.mobs[mob.value.target].value);
+			
 			if (!target || Math.sqrt((mob.value.x - target.x) ** 2 + (mob.value.y - target.y) ** 2) > Constants.MOB_ATTACK_RADIUS) { 
 				mob.value.idle(deltaT,this.players[mob.value.team]);
-                                mob.value.target = 0;
 				return;
 			}
 			
 			//成功获取目标
-			if (mob.value.target) {
-				if (this.players[mob.value.target] || this.mobs[mob.value.target]) {
-					const target = this.players[mob.value.target] || this.mobs[mob.value.target].value;
-					mob.value.updateMovement(deltaT,target);
-					return;
-				}
-				
-				mob.value.target = 0;
-				mob.value.updateMovement(deltaT);
+			if (target) {
+				mob.value.updateMovement(deltaT,target);
+				return;
 			}
 		});
 		Object.values(this.drops).forEach(drop => {
@@ -597,7 +675,7 @@ class Game {
 						this.volumeTaken += volume;
 						const spawnX = this.rnd(0, Constants.MAP_WIDTH);
 						const spawnY = this.rnd(0, Constants.MAP_HEIGHT);
-						if (attribute.TYPE == `MISSILE`) return;
+						if (attribute.ATTACK_MODE == `PROJECTILE` || attribute.IS_SEGMENT) return;
 						this.spawnMob(attribute.TYPE,spawnX,spawnY,`mobTeam`);
 					}
 				});
@@ -609,10 +687,47 @@ class Game {
 	
 	spawnMob(type, spawnX, spawnY, team, isProjectile, existTime) {
 		const newMobID = this.getNewMobID();
+		const mob = new Mob(newMobID, spawnX, spawnY, type, team, false, isProjectile, existTime);
+		const offsetRadiusAttributes = mob.attributes.RADIUS_DEVIATION;
+		if (offsetRadiusAttributes) {
+			const offsetRadius = Math.floor(Math.random() * (offsetRadiusAttributes.MAX - offsetRadiusAttributes.MIN + 1)) + offsetRadiusAttributes.MIN;
+			mob.attributes.RADIUS += offsetRadius;
+			mob.attributes.RENDER_RADIUS += offsetRadius;
+			if (mob.attributes.HP_DEVIATION) {
+				const offsetHp = Math.round(offsetRadius / (offsetRadiusAttributes.MAX - offsetRadiusAttributes.MIN) * (mob.attributes.HP_DEVIATION.MAX - mob.attributes.HP_DEVIATION.MIN));
+				mob.attributes.MAX_HP += offsetHp;
+				mob.hp += offsetHp;
+				mob.maxHp += offsetHp;
+			}
+		}
 		this.mobs[newMobID] = {
 			type: type,
-			value: new Mob(newMobID, spawnX, spawnY, type, team, false, isProjectile, existTime),
+			value: mob,
 		};
+		
+		//segment
+		const mobSegmentAttributes =  EntityAttributes[type].SEGMENT;
+		if (mobSegmentAttributes) {
+			const segmentAngle = Math.random() * Math.PI * 2;
+			const segmentCount = Math.floor(Math.random() * (mobSegmentAttributes.MAX - mobSegmentAttributes.MIN + 1)) + mobSegmentAttributes.MIN;
+			const segmentRadius = EntityAttributes[mobSegmentAttributes.NAME].RENDER_RADIUS;
+			const mobRadius = EntityAttributes[type].RENDER_RADIUS;
+
+			let segments = [];
+			segments.push(mob.id);
+			for (let segmentNumber = 0; segmentNumber < segmentCount; segmentNumber++) {
+				const segment = this.spawnMob(mobSegmentAttributes.NAME, spawnX + (segmentRadius + mobRadius) * (segmentNumber + 1) * Math.sin(segmentAngle), spawnY + (segmentRadius + mobRadius) * segmentNumber * Math.cos(segmentAngle), `mobTeam`, false);
+				segment.value.target = segments[segmentNumber];
+				segments.push(segment.value.id);
+			}
+			
+			segments.forEach(id => {
+				this.mobs[id].value.segments = segments;
+			})
+		}
+		
+		//this.appendEntityToBlock(`mob`, this.mobs[newMobID].value);
+		
 		return this.mobs[newMobID];
 	}
 
@@ -999,6 +1114,8 @@ class Game {
 						mob.value.petalID = petal.id;
 						
 						petal.mob = mob.value.id;
+						
+						player.pets[mob.value.id] = mob;
 					}
 				})
 			}) 
@@ -1063,7 +1180,8 @@ class Game {
 				if (mob.value.team != `mobTeam` && mob.value.attributes.ATTACK_MODE != 'PROJECTILE') {
 					let petalIDs = [],
 						isPetalInCooldown = [];
-					this.players[mob.value.team].petals[mob.value.slot].forEach((petal) => {
+					const player = this.players[mob.value.team];
+					player.petals[mob.value.slot].forEach((petal) => {
 						petalIDs.push(petal.id);
 						isPetalInCooldown.push(petal.inCooldown);
 					})
@@ -1101,6 +1219,7 @@ class Game {
 			const newDropID = this.getNewDropID();
 			this.drops[newDropID] = new Drop(newDropID, x, y, type, 2.5);
 			this.drops[newDropID].movement = actionMovement;
+			//this.appendEntityToBlock(`drop`, this.drops[newDropID]);
 		});
 	}
 	
@@ -1142,12 +1261,9 @@ class Game {
 		}
 	}
 	
-	updateDrops(deltaT) {
+	handleDropDeaths() {
 		Object.values(this.drops).forEach((drop) => {
-			if (drop.existTime > 0) {
-				drop.existTime -= deltaT;
-				return;
-			}
+			if (drop.existTime > 0) return;
 			
 			drop.chunks.forEach(chunk => {
 				if( this.chunks[this.getChunkID(chunk)] ) {
@@ -1159,7 +1275,16 @@ class Game {
 					);
 				}
 			});
+			
+			//this.removeEntityFromBlock(`drop`, drop);
+			
 			delete this.drops[drop.id];
+		})
+	}
+	
+	updateDrops(deltaT) {
+		Object.values(this.drops).forEach((drop) => {
+			drop.existTime -= deltaT;
 		})
 	}
 
@@ -1171,25 +1296,36 @@ class Game {
 
 		this.lastUpdateTime = now;
 		
+		/*if (Object.keys(this.blocks).length == 0) {
+			this.createBlocks();
+			return;
+		}*/
+		
 		this.init(deltaT);
 		
 		this.handlePlayerDeaths();
 		
 		this.handleMobDeaths();
+		
+		this.handleDropDeaths();
+		
+		this.mobSpawn();
 
 		this.updatePlayers(deltaT);
-
-		this.updateMovement(deltaT);
+		
+		this.updateDrops(deltaT);
+		
+		this.updateVelocity(deltaT);
+		
+		this.applyVelocity(deltaT);
 		
 		this.updateMobs(deltaT);
 		
-		this.updateDrops(deltaT);
+		//this.updateBlocks();
 
-		this.updateVelocity(deltaT);
+		this.updateMovement(deltaT);
 		
 		this.solveCollisions(deltaT);
-
-		this.applyVelocity(deltaT);
 
 		this.updateChunks();
 
@@ -1198,8 +1334,6 @@ class Game {
 		this.applyConstraintVelocity(deltaT);
 
 		this.handleBorder();
-
-		this.mobSpawn();
 
 		this.sendUpdate();
 

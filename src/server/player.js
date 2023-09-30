@@ -31,14 +31,14 @@ class Player extends Entity {
 		for ( let i = 0; i < Constants.SECONDARY_SLOT_COUNT_BASE; i ++ ) {
 			this.secondaryPetals.push('EMPTY');
 		}
-		this.secondaryPetals[0] = 'EGG';
-		this.secondaryPetals[1] = 'EGG';
-		this.secondaryPetals[2] = 'EGG';
-		this.secondaryPetals[3] = 'EGG';
-		this.secondaryPetals[4] = 'EGG';
-		this.secondaryPetals[5] = 'EGG';
-		this.secondaryPetals[6] = 'EGG';
-		this.secondaryPetals[7] = 'EGG';
+		this.secondaryPetals[0] = 'DAHLIA';
+		this.secondaryPetals[1] = 'BUBBLE';
+		this.secondaryPetals[2] = 'BASIC';
+		this.secondaryPetals[3] = 'TRI_STINGER';
+		this.secondaryPetals[4] = 'PENTA';
+		this.secondaryPetals[5] = 'CACTUS';
+		this.secondaryPetals[6] = 'MISSILE';
+		this.secondaryPetals[7] = 'CACTUS_TOXIC';
 		this.petals = [
 			[new Petal(0, 0 * Constants.PETAL_MULTIPLE_MAX, 0, x, y, id, 'LIGHTNING', true)],
 			[new Petal(1, 1 * Constants.PETAL_MULTIPLE_MAX, 1, x, y, id, 'LIGHTNING', true)],
@@ -318,8 +318,8 @@ class Player extends Entity {
 						let offsetX = 0,
 							offsetY = 0;
 						if (petal.attributes.MULTIPLE && petal.attributes.CLUSTER) {
-							offsetX = 7 * Math.sin(index / petal.attributes.COUNT * 2 * Math.PI + this.firstPetalDirection * 0.5);
-							offsetY = 7 * Math.cos(index / petal.attributes.COUNT * 2 * Math.PI + this.firstPetalDirection * 0.5);
+							offsetX = Constants.PETAL_MULTIPLE_OFFSET_DISTANCE * Math.sin(index / petal.attributes.COUNT * 2 * Math.PI + this.firstPetalDirection * 0.5);
+							offsetY = Constants.PETAL_MULTIPLE_OFFSET_DISTANCE * Math.cos(index / petal.attributes.COUNT * 2 * Math.PI + this.firstPetalDirection * 0.5);
 						}
 						const goalPos = {
 							x: this.x + expandRadius * Math.sin(theta) + offsetX,

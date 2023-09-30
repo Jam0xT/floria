@@ -17,6 +17,8 @@ module.exports = Object.freeze({
 
 	MAP_WIDTH: 4000, // width of the map
 	MAP_HEIGHT: 4000, // height of the map
+	BLOCK_WIDTH: 200, // width of the block
+	BLOCK_HEIGHT: 200, // height of the block
 
 	RENDER_DELAY: 200, // render delay to make the animation smooth
 
@@ -50,14 +52,15 @@ module.exports = Object.freeze({
 
 	BASE_KNOCKBACK: 500, // base knockback when colliding
 
-	PETAL_EXPAND_RADIUS_NORMAL: 25, // petal expand radius
-	PETAL_EXPAND_RADIUS_ATTACK: 70,
-	PETAL_EXPAND_RADIUS_DEFEND: 8, 
+	PETAL_EXPAND_RADIUS_NORMAL: 45, // petal expand radius
+	PETAL_EXPAND_RADIUS_ATTACK: 90,
+	PETAL_EXPAND_RADIUS_DEFEND: 15, 
 
 	BUBBLE_ATTENUATION_COEFFICIENT: 0.8, // bubble velocity *= X every tick
 
 	FIRST_PETAL_ID: 100,
 	PETAL_MULTIPLE_MAX: 5, //多子花瓣最多拥有的数量
+	PETAL_MULTIPLE_OFFSET_DISTANCE: 12, //多子花瓣远离距离
 
 	RARITY_COLOR: [ // rarity color
 		'rgb(126, 239, 109)', // common
