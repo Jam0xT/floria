@@ -34,7 +34,7 @@ class Mob extends Entity {
 		else if (this.attributes.ATTACK_MODE == `PEACE`) {
 			this.updateMovement = (deltaT,parent) => {
 				//segment
-				if (parent && parent.team == `mobTeam` && this.team == `mobTeam`) {
+				if (parent) {
 					const direction = Math.atan2(parent.x - this.x, this.y - parent.y);
 					let distance = Math.sqrt((this.x - parent.x) ** 2 + (this.y - parent.y) ** 2) - this.attributes.RADIUS - parent.attributes.RADIUS;
 					if (!parent.attributes.IS_SEGMENT) distance -= 7;
@@ -62,7 +62,7 @@ class Mob extends Entity {
 				if (!target) return;
 				
 				//segment
-				if (target && target.team == `mobTeam` && this.team == `mobTeam`) {
+				if (target && target.segments && target.segments.includes(this.id)) {
 					const direction = Math.atan2(target.x - this.x, this.y - target.y);
 					let distance = Math.sqrt((this.x - target.x) ** 2 + (this.y - target.y) ** 2) - this.attributes.RADIUS - target.attributes.RADIUS;
 					if (!target.attributes.IS_SEGMENT) distance -= 7;

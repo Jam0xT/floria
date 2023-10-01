@@ -84,7 +84,7 @@ module.exports = Object.freeze({
 
 	PETAL_OUTLINE_WIDTH_PERCENTAGE: 0.05,
 	
-	DROP_SIZE: 20,
+	DROP_SIZE: 40,
 	DROP_SPREAD_DISTANCE: 90,
 	DROP_ACTION_TIME: 0.1,
 	

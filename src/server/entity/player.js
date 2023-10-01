@@ -26,28 +26,28 @@ class Player extends Entity {
 		this.primaryPetals = [];
 		this.secondaryPetals = [];
 		for (let i = 0; i < Constants.PRIMARY_SLOT_COUNT_BASE; i ++ ) {
-			this.primaryPetals.push('EGG');
+			this.primaryPetals.push('LIGHTNING');
 		}
 		for ( let i = 0; i < Constants.SECONDARY_SLOT_COUNT_BASE; i ++ ) {
-			this.secondaryPetals.push('LIGHTNING');
+			this.secondaryPetals.push('EGG');
 		}
-		this.secondaryPetals[0] = 'LIGHTNING';
-		this.secondaryPetals[1] = 'LIGHTNING';
-		this.secondaryPetals[2] = 'LIGHTNING';
-		this.secondaryPetals[3] = 'LIGHTNING';
-		this.secondaryPetals[4] = 'LIGHTNING';
-		this.secondaryPetals[5] = 'LIGHTNING';
-		this.secondaryPetals[6] = 'LIGHTNING';
-		this.secondaryPetals[7] = 'LIGHTNING';
+		this.secondaryPetals[0] = 'EGG';
+		this.secondaryPetals[1] = 'EGG';
+		this.secondaryPetals[2] = 'EGG';
+		this.secondaryPetals[3] = 'EGG';
+		this.secondaryPetals[4] = 'EGG';
+		this.secondaryPetals[5] = 'EGG';
+		this.secondaryPetals[6] = 'EGG';
+		this.secondaryPetals[7] = 'EGG';
 		this.petals = [
-			[new Petal(0, 0 * Constants.PETAL_MULTIPLE_MAX, 0, x, y, id, 'EGG', true)],
-			[new Petal(1, 1 * Constants.PETAL_MULTIPLE_MAX, 1, x, y, id, 'EGG', true)],
-			[new Petal(2, 2 * Constants.PETAL_MULTIPLE_MAX, 2, x, y, id, 'EGG', true)],
-			[new Petal(3, 3 * Constants.PETAL_MULTIPLE_MAX, 3, x, y, id, 'EGG', true)],
-			[new Petal(4, 4 * Constants.PETAL_MULTIPLE_MAX, 4, x, y, id, 'EGG', true)],
-			[new Petal(5, 5 * Constants.PETAL_MULTIPLE_MAX, 5, x, y, id, 'EGG', true)],
-			[new Petal(6, 6 * Constants.PETAL_MULTIPLE_MAX, 6, x, y, id, 'EGG', true)],
-			[new Petal(7, 7 * Constants.PETAL_MULTIPLE_MAX, 7, x, y, id, 'EGG', true)],
+			[new Petal(0, 0 * Constants.PETAL_MULTIPLE_MAX, 0, x, y, id, 'LIGHTNING', true)],
+			[new Petal(1, 1 * Constants.PETAL_MULTIPLE_MAX, 1, x, y, id, 'LIGHTNING', true)],
+			[new Petal(2, 2 * Constants.PETAL_MULTIPLE_MAX, 2, x, y, id, 'LIGHTNING', true)],
+			[new Petal(3, 3 * Constants.PETAL_MULTIPLE_MAX, 3, x, y, id, 'LIGHTNING', true)],
+			[new Petal(4, 4 * Constants.PETAL_MULTIPLE_MAX, 4, x, y, id, 'LIGHTNING', true)],
+			[new Petal(5, 5 * Constants.PETAL_MULTIPLE_MAX, 5, x, y, id, 'LIGHTNING', true)],
+			[new Petal(6, 6 * Constants.PETAL_MULTIPLE_MAX, 6, x, y, id, 'LIGHTNING', true)],
+			[new Petal(7, 7 * Constants.PETAL_MULTIPLE_MAX, 7, x, y, id, 'LIGHTNING', true)],
 		];
 		this.pets = {};
 		this.activeDirection = 0;
