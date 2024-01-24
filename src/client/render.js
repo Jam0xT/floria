@@ -478,7 +478,7 @@ function renderGame() {
 	}
 	// let canvas_SE = document.getElementById('canvas-SE');
 	// let ctx = canvas_SE.getContext(`2d`);
-	ctx.clearRect(0, 0, W, H);
+	// ctx.clearRect(0, 0, W, H);
 	
 	if ( gameRadiusOnEnter < hpx * 1800 ) {
 		fillBackground(0, "#1EA761");
@@ -491,7 +491,7 @@ function renderGame() {
 		gameRadiusOnEnter += deltaGameRadiusOnEnter;
 		deltaGameRadiusOnEnter *= 1.05;
 	}
-	const { me, others, mobs, drops, leaderboard, playerCount, rankOnLeaderboard, lightningPath, diedEntities } = getCurrentState();
+	const { info, me, others, mobs, drops, leaderboard, playerCount, rankOnLeaderboard, lightningPath } = getCurrentState();
 	
 	updateSlotsData(W, hpx, primarySlotHitboxLength, primarySlotDisplayLength + 4 * primarySlotDisplayLength * Constants.PETAL_OUTLINE_WIDTH_PERCENTAGE, primarySlotCenterY, primarySlotCount,
 		secondarySlotHitboxLength, secondarySlotDisplayLength + 4 * secondarySlotDisplayLength * Constants.PETAL_OUTLINE_WIDTH_PERCENTAGE, secondarySlotCenterY, secondarySlotCount);
@@ -505,10 +505,10 @@ function renderGame() {
 		});
 		renderDrops(drops, me);
 		renderLightningPath(lightningPath, me);
-		renderDiedEntities(diedEntities, me);
-		renderText(UILayer, 0.7, "floria.io", W - hpx * 80, H - hpx * 20, hpx * 40, 'center');
+		renderDiedEntities(me);
 		renderLeaderboard(leaderboard, playerCount, me, rankOnLeaderboard);
 		renderUI(me);
+		renderInfo(info);
 	}
 	
 	if ( gameRadiusOnEnter < hpx * 1800 ) {
@@ -742,6 +742,13 @@ function renderUI(me) {
 	}
 }
 
+function renderInfo(info) {
+	renderText(UILayer, 0.7, "floria.io", hpx * 85, hpx * 45, hpx * 40, 'center');
+	renderText(UILayer, 1, `MSPT: ${info.mspt}`, W - hpx * 10, H - hpx * 15, hpx * 10, 'right');
+	renderText(UILayer, 1, `Mob Count: ${info.mobCount}`, W - hpx * 10, H - hpx * 30, hpx * 10, 'right');
+	renderText(UILayer, 1, `Mob Volume Taken: ${info.mobVol}`, W - hpx * 10, H - hpx * 45, hpx * 10, 'right');
+}
+
 function renderBackground(x, y) {
 	ctx = getCtx(backgroundLayer);
 	ctx.fillStyle = 'rgb(28, 154, 89)';
@@ -874,6 +881,7 @@ function renderPlayer(me, player) {
 
 function renderMob(me, mob) {
 	ctx = getCtx(mobLayer);
+	ctx.globalAlpha = 1;
 	const {x, y} = mob;
 	const canvasX = W / 2 + (x - me.x) * hpx;
 	const canvasY = H / 2 + (y - me.y) * hpx;
@@ -900,8 +908,9 @@ function renderMob(me, mob) {
 			renderRadius * 2,
 		);
 	}
+
 	// ctx.rotate(-mob.dir);
-	ctx.translate(-canvasX, -canvasY);
+	// ctx.translate(-canvasX, -canvasY);
 	ctx.restore();
 
 	renderText(mobLayer, 1, mob.id, canvasX, canvasY - hpx * 35, hpx * 20, 'center');
@@ -1277,7 +1286,7 @@ function renderLightningPath(newPaths, me) {
 		ctx.beginPath();
 		let oldx = W / 2 + (path[0].x - me.x) * hpx;
 		let oldy = H / 2 + (path[0].y - me.y) * hpx;
-		ctx.moveTo(oldx,oldy);
+		ctx.moveTo(oldx, oldy);
 		
 		path.forEach((position) => {
 			let x = W / 2 + (position.x - me.x) * hpx;
@@ -1294,51 +1303,67 @@ function renderLightningPath(newPaths, me) {
 	})
 }
 
-function renderDiedEntities(entities, me) {
+export function addDiedEntities(entities) {
 	entities.forEach((entity) => {
-		diedEntities.push([entity, 1]);
-	})
-	
+		diedEntities.push([entity, 1, 1]);
+	});
+}
+
+function renderDiedEntities(me) {
 	let ctx = getCtx(mobLayer);
+	// if ( diedEntities.length != 0 )
+	// 	console.log(diedEntities);
 	
-	diedEntities.forEach(([entity, alpha], index) => {
+	diedEntities.forEach(([entity, alpha, size], index) => {
 		ctx.globalAlpha = alpha;
-		diedEntities[index][1] -= diedEntities[index][1] * 0.25;
-		if (diedEntities[index][1] <= 0.1) {
-			diedEntities.splice(index,1);
-			return;
+		const sz = entity.size * size;
+
+		diedEntities[index][1] *= 0.7;
+		diedEntities[index][2] *= 1.1;
+		if (diedEntities[index][1] <= 0.05) {
+			diedEntities.splice(index, 1);
+			return ;
 		}
-		
+
 		let x = W / 2 + (entity.x - me.x) * hpx;
 		let y = H / 2 + (entity.y - me.y) * hpx;
 		
 		let asset;
 		if (entity.type == `player`) {
 			asset = getAsset(`${entity.type.toLowerCase()}.svg`);
-			entity.size *= 0.25;
-			entity.x += entity.size;
-			entity.y += entity.size;
+			// entity.size *= 0.25;
+			// entity.x += entity.size;
+			// entity.y += entity.size;
 		} else if (entity.isMob) {
 			asset = getAsset(`mobs/${entity.type.toLowerCase()}.svg`);
-		} else{
+		} else {
 			asset = getAsset(`petals/${entity.type.toLowerCase()}.svg`);
 		}
 		
-		ctx.save()
+		ctx.save();
 		ctx.translate(x, y);
 		ctx.rotate(entity.dir);
-		ctx.translate(-x, -y);
 		
 		const width = asset.naturalWidth, 
 			  height = asset.naturalHeight;
-		ctx.drawImage(asset, x - entity.size, y - entity.size / width * height, entity.size * 2, entity.size / width * height * 2);
+		console.log('hh', sz);
 		
+		ctx.drawImage(
+			asset,
+			- sz,
+			- sz / width * height,
+			sz * 2,
+			sz / width * height * 2,
+		);
+
 		ctx.restore();
 
-		entity.x += Math.min(100, entity.movement.speed) * 0.025 * Math.sin(entity.movement.direction);
-		entity.y += Math.min(100, entity.movement.speed) * 0.025 * Math.cos(entity.movement.direction);
-		entity.size += entity.size * 0.0125;
-	})
+		// entity.x += Math.min(100, entity.movement.speed) * 0.025 * Math.sin(entity.movement.direction);
+		// entity.y += Math.min(100, entity.movement.speed) * 0.025 * Math.cos(entity.movement.direction);
+		// entity.size += entity.size * 0.0125;
+	});
+
+	ctx.globalAlpha = 1;
 }
 
 function renderDrops(drops,me) {
@@ -1382,7 +1407,7 @@ function renderDrops(drops,me) {
 
 		renderText(dropLayer, 0.88, name.charAt(0).toUpperCase() + name.slice(1), x, y + textOffset, textFont, 'center');
 
-		renderText(dropLayer, name.charAt(0).toUpperCase() + name.slice(1), x, y + textOffset, textFont, 'center');
+		renderText(dropLayer, 0.88, name.charAt(0).toUpperCase() + name.slice(1), x, y + textOffset, textFont, 'center');
 
 		ctx.globalAlpha = 1;
 		

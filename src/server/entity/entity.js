@@ -16,6 +16,7 @@ class Entity {
 			type: -1,
 			id: -1,
 		};
+		this.isHurt = false;
 		this.velocity = {
 			x: 0,
 			y: 0,
@@ -179,6 +180,7 @@ class Entity {
 			y: this.y,
 			hp: this.hp,
 			dir: this.direction,
+			isHurt: this.isHurt,
 		};
 	}
 }

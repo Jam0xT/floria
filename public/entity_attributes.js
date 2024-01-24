@@ -17,8 +17,8 @@ module.exports = Object.freeze({
 	BEE: {
 	    MASS: 10,
 	    SPEED: 80,
-	    RADIUS: 16,
-	    RENDER_RADIUS: 16,
+	    RADIUS: 160,
+	    RENDER_RADIUS: 160,
 	    MAX_HP: 15,
 	    DAMAGE: 50,
 	    VALUE: 10,
@@ -47,7 +47,7 @@ module.exports = Object.freeze({
 	    VALUE: 10,
 	    EXPERIENCE: 10,
 	    SPAWN_WEIGHT: 100,
-	    VOLUME: 1000,
+	    VOLUME: 100,
 	    DROP: { BUBBLE: 0.5 },
 	    IDLE_MODE: 'NORMAL',
 	    ATTACK_MODE: 'PEACE',
@@ -116,7 +116,7 @@ module.exports = Object.freeze({
 		DAMAGE: 10,
 		VALUE: 10,
 		EXPERIENCE: 10,
-		SPAWN_WEIGHT: 100,
+		SPAWN_WEIGHT: 0,
 		VOLUME: 100,
 		DROP: {
 			FAST: 0.09,
