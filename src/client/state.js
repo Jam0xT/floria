@@ -1,4 +1,5 @@
 import { RENDER_DELAY } from '../shared/constants';
+import { addDiedEntities } from './render';
 
 const gameUpdates = [];
 let gameStart = 0;
@@ -14,6 +15,7 @@ export function processGameUpdate(update) {
 		firstServerTimestamp = update.t;
 		gameStart = Date.now();
 	}
+
 	gameUpdates.push(update);
 
 	const base = getBaseUpdateIndex();
@@ -47,10 +49,18 @@ export function getCurrentState() {
 	if ( baseUpdateIndex < 0 || baseUpdateIndex === gameUpdates.length - 1) {
 		return gameUpdates[gameUpdates.length - 1];
 	} else {
-		const baseUpdate = gameUpdates[baseUpdateIndex];
+		let baseUpdate = gameUpdates[baseUpdateIndex];
 		const nextUpdate = gameUpdates[baseUpdateIndex + 1];
 		const ratio = (serverTime - baseUpdate.t) / (nextUpdate.t - baseUpdate.t);
+		if ( baseUpdate.diedEntities ) {
+			if ( baseUpdate.diedEntities.length != 0 ) {
+				// console.log(baseUpdate.diedEntities);
+				addDiedEntities(baseUpdate.diedEntities);
+				delete baseUpdate.diedEntities;
+			}
+		}
 		return {
+			info: baseUpdate.info,
 			me: interpolateObject(baseUpdate.me, nextUpdate.me, ratio),
 			others: interpolateObjectArray(baseUpdate.others, nextUpdate.others, ratio),
 			mobs: interpolateObjectArray(baseUpdate.mobs, nextUpdate.mobs, ratio),
@@ -58,7 +68,6 @@ export function getCurrentState() {
 			playerCount: baseUpdate.playerCount,
 			rankOnLeaderboard: baseUpdate.rankOnLeaderboard,
 			lightningPath: baseUpdate.lightningPath,
-			diedEntities: baseUpdate.diedEntities,
 			drops: baseUpdate.drops,
 		};
 	}

@@ -5,7 +5,6 @@ const Player = require('./entity/player');
 const Mob = require('./entity/mob');
 const { listen } = require('express/lib/application');
 const Drop = require('./entity/drop');
-const Block = require('./block');
 
 var TOTAL_SPAWN_WEIGHT = 0; // this is a constant
 Object.values(EntityAttributes).forEach(attribute => {
@@ -20,13 +19,14 @@ class Game {
 		this.mobs = {}; // {id:{type: mobType, value: mob},...}
 		this.drops = {};
 		this.chunks = {}; // {chunkID:[{type: entityType, id: id},...],...}
-		this.blocks = {};
+		// this.blocks = {};
 		this.lastUpdateTime = Date.now();
 		this.mobSpawnTimer = 0;
 		this.volumeTaken = 0;
 		// this.shouldSendUpdate = false;
 		this.mobID = 0;
 		this.dropID = 0;
+		this.info = {};
 		this.lightningPath = [];
 		this.diedEntities = [];
 		setInterval(this.update.bind(this), 1000 / Constants.TICK_PER_SECOND); // update the game every tick
@@ -191,11 +191,11 @@ class Game {
 	handlePlayerDeath(player) { // handles a single player death
 		// called when a player dies, adding score to 'killedBy' and remove the dead player from leaderboard
 		// this function will not remove the player itself
+
 		this.diedEntities.push({
 			x: player.x,
 			y: player.y,
 			type: `player`,
-			movement: player.movement,
 			size: player.attributes.RENDER_RADIUS,
 			dir: player.direction,
 		});
@@ -232,7 +232,6 @@ class Game {
 							x: petal.x,
 							y: petal.y,
 							type: petal.type,
-							movement: petal.movement,
 							size: petal.attributes.RENDER_RADIUS,
 							dir: petal.direction,
 						});
@@ -311,11 +310,13 @@ class Game {
 					}
 				});
 				this.volumeTaken -= EntityAttributes[mob.type].VOLUME;
+
+				// console.log("a mob has juts been killed!");
+
 				this.diedEntities.push({
 					x: this.mobs[mobID].value.x,
 					y: this.mobs[mobID].value.y,
 					type: this.mobs[mobID].type,
-					movement: this.mobs[mobID].value.movement,
 					size: this.mobs[mobID].value.attributes.RENDER_RADIUS,
 					dir: this.mobs[mobID].value.direction,
 					isMob: true,
@@ -351,81 +352,6 @@ class Game {
 		this.lightningPath = [];
 		this.diedEntities = [];
 	}
-	
-	
-	//block
-	/*
-	createBlocks() {
-		for (let x = -1; x <= Math.ceil(Constants.MAP_WIDTH / Constants.BLOCK_WIDTH); x++) {
-			for (let y = -1; y <= Math.ceil(Constants.MAP_HEIGHT / Constants.BLOCK_HEIGHT); y++) {
-				this.blocks[x + `-` + y] = new Block(x, y);
-			}
-		}
-	}
-	
-	appendEntityToBlock(type, entity) {
-		const blockName = this.getBlock(entity.x, entity.y);
-		this.blocks[blockName].entities[type].push(entity.id);
-		entity.block = blockName;
-	}
-	
-	removeEntityFromBlock(type, entity) {
-		const blockName = entity.block;
-		const block = this.blocks[blockName].entities[type];
-		block.splice(block.indexOf(entity.id), 1);
-		entity.block = false;
-	}
-	
-	getBlock(x, y) { //block name: `x-y`
-		return Math.floor(x / Constants.BLOCK_WIDTH) + `-` + Math.floor(y / Constants.BLOCK_HEIGHT); 
-	}
-	
-	updateBlocks() {
-		Object.values(this.chunks).forEach(chunk => {
-			chunk.forEach(entityType => {
-				if (!entityType) return;
-				//console.log(entityType.id, this.players[entityType.id])
-				const entity = this.players[entityType.id] || this.drops[entityType.id] || this.mobs[entityType.id].value;
-				const entityInOldBlock = entity.block;
-				const entityInCorrectBlock = this.getBlock(entity.x, entity.y);
-				if (entityInCorrectBlock != entityInOldBlock) {
-					this.removeEntityFromBlock(entityType.type, entity);
-					this.appendEntityToBlock(entityType.type, entity);
-					//console.log(`a entity from ${entityInOldBlock} was run to ${entityInCorrectBlock}`)
-				}
-			})
-		})
-		///////Object.entries(this.blocks).forEach(([entityInBlock, block]) => {
-			block.entities.mob.forEach(mobID => {
-				const mob = this.mobs[mobID].value;
-				const mobInCorrectBlock = this.getBlock(mob.x, mob.y);
-				if (mobInCorrectBlock != entityInBlock) {
-					this.removeEntityFromBlock(`mob`, mob);
-					this.appendEntityToBlock(`mob`, mob);
-					console.log(`a mob from ${entityInBlock} was run to ${mobInCorrectBlock}`)
-				}
-			})
-			block.entities.player.forEach(playerID => {
-				const player = this.players[playerID];
-				const playerInCorrectBlock = this.getBlock(player.x, player.y);
-				if (playerInCorrectBlock != entityInBlock) {
-					this.removeEntityFromBlock(`player`, player);
-					this.appendEntityToBlock(`player`, player);
-					console.log(`a player from ${entityInBlock} was run to ${playerInCorrectBlock}`)
-				}
-			})
-			block.entities.drop.forEach(dropID => {
-				const drop = this.drops[dropID];
-				const dropInCorrectBlock = this.getBlock(drop.x, drop.y);
-				if (dropInCorrectBlock != entityInBlock) {
-					this.removeEntityFromBlock(`drop`, drop);
-					this.appendEntityToBlock(`drop`, drop);
-					console.log(`a drop from ${entityInBlock} was run to ${dropInCorrectBlock}`)
-				}
-			})
-		})
-	}*/
-	
 
 	// movement
 
@@ -682,7 +608,7 @@ class Game {
 						const spawnX = this.rnd(0, Constants.MAP_WIDTH);
 						const spawnY = this.rnd(0, Constants.MAP_HEIGHT);
 						if (attribute.ATTACK_MODE == `PROJECTILE` || attribute.IS_SEGMENT) return;
-						this.spawnMob(attribute.TYPE,spawnX,spawnY,`mobTeam`);
+						this.spawnMob(attribute.TYPE, spawnX, spawnY, `mobTeam`);
 					}
 				});
 			}
@@ -723,6 +649,10 @@ class Game {
 			const segmentRadius = EntityAttributes[mobSegmentAttributes.NAME].RENDER_RADIUS;
 			const mobRadius = EntityAttributes[type].RENDER_RADIUS;
 
+			this.volumeTaken += EntityAttributes[mobSegmentAttributes.NAME].VOLUME * segmentCount;
+
+			let segments = [];
+			segments.push(mob.id);
 			for (let segmentNumber = 0; segmentNumber < segmentCount; segmentNumber++) {
 				const segment = this.spawnMob(mobSegmentAttributes.NAME, spawnX + (segmentRadius + mobRadius) * (segmentNumber + 1) * Math.sin(segmentAngle), spawnY + (segmentRadius + mobRadius) * segmentNumber * Math.cos(segmentAngle), mob.team, false);
 				segment.value.target = segments[segmentNumber];
@@ -960,8 +890,17 @@ class Game {
 						this.players[entityA.parent].hp -= entityA.attributes.DAMAGE * entityB.damageReflect * (1 + entityA.fragile);
 					}
 				}
-				entityA.hp -= entityB.attributes.DAMAGE * (1 + entityA.fragile);
-				entityB.hp -= entityA.attributes.DAMAGE * (1 + entityB.fragile);
+
+				const dmgA = entityB.attributes.DAMAGE * (1 + entityA.fragile);
+				const dmgB = entityA.attributes.DAMAGE * (1 + entityB.fragile);
+				entityA.hp -= dmgA;
+				entityB.hp -= dmgB;
+				if ( dmgA != 0 ) {
+					entityA.isHurt = true;
+				}
+				if ( dmgB != 0 ) {
+					entityB.isHurt = true;
+				}
 				
 				this.releaseCollisionSkill(entityA,entityB,entityInfoB);
 				this.releaseCollisionSkill(entityB,entityA,entityInfoA);
@@ -1046,7 +985,7 @@ class Game {
 							x: mob.x,
 							y: mob.y,
 						});
-					} else{
+					} else {
 						let player = this.players[nextTargetEntity];
 						player.hp -= entityB.attributes.DAMAGE * (1 + player.fragile);
 						player.hurtByInfo = entityInfo;
@@ -1314,12 +1253,6 @@ class Game {
 		
 		this.init(deltaT);
 		
-		this.handlePlayerDeaths();
-		
-		this.handleMobDeaths();
-		
-		this.handleDropDeaths();
-		
 		this.mobSpawn();
 
 		this.updatePlayers(deltaT);
@@ -1346,11 +1279,19 @@ class Game {
 
 		this.handleBorder();
 
-		this.sendUpdate();
-
-		// console.log(Object.values(this.players));
+		this.info = {
+			mspt: Date.now() - now,
+			mobCount: Object.keys(this.mobs).length,
+			mobVol: this.volumeTaken,
+		};
 		
-		// console.log(`mspt: ${Date.now() - now}`);
+		this.handlePlayerDeaths();
+		
+		this.handleMobDeaths();
+		
+		this.handleDropDeaths();
+
+		this.sendUpdate();
 	}
 
 	// send update
@@ -1384,6 +1325,7 @@ class Game {
 
 		return {
 			t: Date.now(), // current time
+			info: this.info,
 			leaderboard: this.leaderboard.slice(0, Constants.LEADERBOARD_LENGTH + 1), // leaderboard
 			rankOnLeaderboard: this.getRankOnLeaderboard(player.id), // this player's rank on leaderboard
 			me: player.serializeForUpdate(true), // this player
