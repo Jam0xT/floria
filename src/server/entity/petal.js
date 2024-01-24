@@ -14,6 +14,7 @@ class Petal extends Entity {
 		this.action = false;
 		this.actionTime = 0;
 		this.isHide = false;
+		this.mob = [];
 		this.placeHolder = placeHolder;
 		this.idInPlaceHolder = idInPlaceHolder || 0; //多子花瓣在同花瓣位置的编号
 		this.slot = slot; 

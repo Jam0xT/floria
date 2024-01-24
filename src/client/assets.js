@@ -2,6 +2,7 @@ const ASSET_NAMES = [
 	'player.svg',
 	'glass_single.svg',
 	'mobs/bee.svg',
+	'mobs/beetle.svg',
 	'mobs/bubble.svg',
 	'mobs/cactus.svg',
 	'mobs/centipede.svg',

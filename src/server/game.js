@@ -69,7 +69,9 @@ class Game {
 		this.players[playerID].petals.forEach((petals) => {
 			petals.forEach((petal) => {
 				if (petal.mob && petal.isHide) {
-					this.mobs[petal.mob].value.hp = -1;
+					petal.mob.forEach(mobID => {
+						this.mobs[mobID].value.hp = -1;
+					})
 				}
 				if ( !petal.inCooldown ) {
 					petal.chunks.forEach(chunk => {
@@ -128,11 +130,13 @@ class Game {
 
 	handlePetalSwitch(socket, petalA, petalB, implement) {
 		const player = this.players[socket.id];
+		if (!player) return;
 		player.switchPetals(petalA, petalB);
 	}
 
 	handlePetalDisable(socket, petal) {
 		const player = this.players[socket.id];
+		if (!player) return;
 		player.disablePetal(petal);
 	}
 
@@ -324,10 +328,12 @@ class Game {
 					let petals = player.petals.find(petals => (petals[0].slot == mob.value.slot));
 					petals.forEach((petal) => {
 						if (petal.id != mob.value.petalID) return;
-						petal.isHide = false;
-						petal.mob = 0;
-						player.reload(petal.slot,petal.idInPlaceHolder);
-						player.updatePlaceHolder();
+						petal.mob.splice(petal.mob.indexOf(mob.value.id), 1);
+						if (petal.mob.length == 0) {
+							petal.isHide = false;
+							player.reload(petal.slot, petal.idInPlaceHolder);
+							player.updatePlaceHolder();
+						}
 					})
 				}
 				
@@ -426,13 +432,13 @@ class Game {
 			const target = this.players[mob.value.target] || (this.mobs[mob.value.target] && this.mobs[mob.value.target].value);
 			
 			if (!target || Math.sqrt((mob.value.x - target.x) ** 2 + (mob.value.y - target.y) ** 2) > Constants.MOB_ATTACK_RADIUS) { 
-				mob.value.idle(deltaT,this.players[mob.value.team]);
+				mob.value.idle(deltaT, this.players[mob.value.team]);
 				return;
 			}
 			
 			//成功获取目标
 			if (target) {
-				mob.value.updateMovement(deltaT,target);
+				mob.value.updateMovement(deltaT, target);
 				return;
 			}
 		});
@@ -632,6 +638,10 @@ class Game {
 		};
 		
 		//segment
+		let segments = [];
+		segments.push(mob.id);
+		mob.segments = segments;
+		
 		const mobSegmentAttributes =  EntityAttributes[type].SEGMENT;
 		if (mobSegmentAttributes) {
 			const segmentAngle = Math.random() * Math.PI * 2;
@@ -644,7 +654,7 @@ class Game {
 			let segments = [];
 			segments.push(mob.id);
 			for (let segmentNumber = 0; segmentNumber < segmentCount; segmentNumber++) {
-				const segment = this.spawnMob(mobSegmentAttributes.NAME, spawnX + (segmentRadius + mobRadius) * (segmentNumber + 1) * Math.sin(segmentAngle), spawnY + (segmentRadius + mobRadius) * segmentNumber * Math.cos(segmentAngle), `mobTeam`, false);
+				const segment = this.spawnMob(mobSegmentAttributes.NAME, spawnX + (segmentRadius + mobRadius) * (segmentNumber + 1) * Math.sin(segmentAngle), spawnY + (segmentRadius + mobRadius) * segmentNumber * Math.cos(segmentAngle), mob.team, false);
 				segment.value.target = segments[segmentNumber];
 				segments.push(segment.value.id);
 			}
@@ -1047,12 +1057,15 @@ class Game {
 						player.updatePetalSlot();
 
 						let mob = this.spawnMob(petal.attributes.TRIGGERS.SUMMON,petal.x,petal.y,petal.team);
-						mob.value.slot = petal.slot;
-						mob.value.petalID = petal.id;
-						
-						petal.mob = mob.value.id;
-						
-						player.pets[mob.value.id] = mob;
+						mob.value.segments.forEach(segmentID => {
+							const segment = this.mobs[segmentID];
+							segment.value.slot = petal.slot;
+							segment.value.petalID = petal.id;
+							player.pets[segment.value.id] = segment;
+							petal.mob.push(segmentID);
+						})
+						//mob.value.slot = 
+						//mob.value.petalID = petal.id;
 					}
 				})
 			}) 

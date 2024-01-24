@@ -37,6 +37,27 @@ module.exports = Object.freeze({
 	    ATTACK_MODE: 'PEACE',
 	    TYPE: 'BEE'
 	},
+	BEETLE: {
+	    MASS: 20,
+	    SPEED: 80,
+	    RADIUS: 24,
+	    RENDER_RADIUS: 24,
+	    MAX_HP: 40,
+	    DAMAGE: 35,
+	    VALUE: 10,
+	    EXPERIENCE: 5,
+	    SPAWN_WEIGHT: 200,
+	    VOLUME: 100,
+	    DROP: {
+		  IRIS: 0.09,
+		  SALT: 0.06,
+	      WING: 0.06,
+		  TRIPLET: 0.003,
+	    },
+	    IDLE_MODE: 'NORMAL',
+	    ATTACK_MODE: 'EVIL',
+	    TYPE: 'BEETLE'
+	},
 	BUBBLE: {
 	    MASS: 10,
 	    SPEED: 0,

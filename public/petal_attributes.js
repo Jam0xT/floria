@@ -116,7 +116,7 @@ module.exports = Object.freeze({
 	  RADIUS: 14,
 	  RENDER_RADIUS: 14,
 	  RARITY: 4,
-	  RELOAD: 1,
+	  RELOAD: 1.5,
 	  DAMAGE: 2,
 	  MAX_HP: 25,
 	  MASS: 1,
@@ -124,7 +124,7 @@ module.exports = Object.freeze({
 	  MULTIPLE: false,
 	  CLUSTER: false,
 	  COUNT: 1,
-	  TRIGGERS: { ACTION_COOLDOWN: 3.5, SUMMON: 'HORNET' }
+	  TRIGGERS: { ACTION_COOLDOWN: 3.5, SUMMON: 'BEETLE' } //HORNET
 	},
 	FAST: {
 	  TYPE: 'FAST',
