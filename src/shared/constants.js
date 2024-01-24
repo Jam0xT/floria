@@ -54,7 +54,7 @@ module.exports = Object.freeze({
 
 	PETAL_EXPAND_RADIUS_NORMAL: 45, // petal expand radius
 	PETAL_EXPAND_RADIUS_ATTACK: 90,
-	PETAL_EXPAND_RADIUS_DEFEND: 15, 
+	PETAL_EXPAND_RADIUS_DEFEND: 15,
 
 	BUBBLE_ATTENUATION_COEFFICIENT: 0.8, // bubble velocity *= X every tick
 
@@ -72,7 +72,7 @@ module.exports = Object.freeze({
 		'rgb(255, 43, 117)', // unique
 	],
 
-	RARITY_COLOR_DARKEN: [ // darken rarity color
+	RARITY_COLOR_DARKEN: [ // darkened rarity color
 		'rgb(102, 194, 88)',
 		'rgb(207, 186, 75)',
 		'rgb(62, 66, 184)',
