@@ -279,6 +279,9 @@ class Game {
 	handleMobDeaths() { // remove dead mobs
 		Object.keys(this.mobs).forEach(mobID => {
 			const mob = this.mobs[mobID];
+			if (!mob) return;
+
+			if (mob.value.hpConnection && this.getEntity(mob.value.hpConnection).hp > 0) return;
 			if ( mob.value.hp <= 0 ) {
 				const killedByInfo = mob.value.hurtByInfo;
 				var killedBy;
@@ -337,11 +340,28 @@ class Game {
 					})
 				}
 				
+				if (mob.value.attributes.CONTENT_RELEASE) {
+					if (mob.value.attributes.CONTENT_RELEASE.ONDIE) {
+						const releases = mob.value.attributes.CONTENT_RELEASE.ONDIE;
+						const contents = mob.value.attributes.CONTENT;
+						Object.entries(releases.RELEASE).forEach(([type, number]) => {
+							const isContentProjectile = EntityAttributes[type].ATTACK_MODE == `PROJECTILE` ? true : false;
+							for (let time = 0; time < number; time++) {
+								if (contents[type] <= 0) break;
+								this.spawnMob(type, mob.value.x, mob.value.y, mob.value.team, isContentProjectile, isContentProjectile ? Constants.PROJECTILE_EXIST_TIME : Infinity);
+								contents[type]--;
+							}
+						})
+					}
+				}
+				
 				//创建掉落
-				if (mob.value.attributes.DROP) this.createDrop(mob.value.attributes.DROP,mob.value.x,mob.value.y);
+				if (mob.value.attributes.DROP) this.createDrop(mob.value.attributes.DROP, mob.value.x, mob.value.y);
 				
 				//删除存于玩家的mob属性
 				if (this.players[mob.value.team]) delete this.players[mob.value.team].pets[mobID]; 
+				
+				mob.value.segments.splice(mob.value.segments.indexOf(mob.value.id), 1);
 				
 				delete this.mobs[mobID];
 			}
@@ -351,6 +371,10 @@ class Game {
 	init(deltaT) {
 		this.lightningPath = [];
 		this.diedEntities = [];
+		Object.values(this.mobs).forEach(mob => {
+			const targetId = mob.value.target;
+			if (!this.players[targetId] && !this.mobs[targetId]) mob.value.target = -1;
+		});
 	}
 
 	// movement
@@ -371,7 +395,7 @@ class Game {
 		});
 		Object.entries(this.mobs).forEach(([mobID,mob]) => {
 			if (mob.value.sensitization || mob.value.attributes.ATTACK_MODE == `EVIL`) { //判断mob是否为主动型生物,为mob寻找目标
-				if (!mob.value.target || !(this.players[mob.value.target] || this.mobs[mob.value.target])) { //没有目标或者目标不存在
+				if (mob.value.target == -1 || !(this.players[mob.value.target] || this.mobs[mob.value.target])) { //没有目标或者目标不存在
 					let distances = [],
 						ids = [];
 						
@@ -424,7 +448,7 @@ class Game {
 						});
 					}
 					
-					mob.value.target = ids[distances.indexOf(Math.min(...distances))];
+					mob.value.target = ids[distances.indexOf(Math.min(...distances))] || -1;
 				}
 			}
 			
@@ -638,9 +662,7 @@ class Game {
 		};
 		
 		//segment
-		let segments = [];
-		segments.push(mob.id);
-		mob.segments = segments;
+		let segments = mob.segments;
 		
 		const mobSegmentAttributes =  EntityAttributes[type].SEGMENT;
 		if (mobSegmentAttributes) {
@@ -660,7 +682,15 @@ class Game {
 			}
 			
 			segments.forEach(id => {
-				this.mobs[id].value.segments = segments;
+				const segment = this.mobs[id].value;
+				segment.segments = segments;
+				if (segment.attributes.HP_CONNECT) {
+					segment.hpConnection = mob.id;
+					mob.hp += segment.hp;
+					mob.maxHp += segment.maxHp;
+					segment.hp = 0;
+					segment.maxHp = 0;
+				}
 			})
 		}
 		
@@ -852,6 +882,7 @@ class Game {
 			entityA.constraintVelocity.y += velA * Math.cos(theta2) / deltaT;
 			entityB.constraintVelocity.x += velB * Math.sin(theta1) / deltaT;
 			entityB.constraintVelocity.y += velB * Math.cos(theta1) / deltaT;
+			
 			if ( entityA.team != entityB.team ) {
 				if ( entityInfoA.type == 'player' ) {
 					entityA.velocity.x += velA * Math.sin(theta2) / deltaT;
@@ -890,18 +921,55 @@ class Game {
 						this.players[entityA.parent].hp -= entityA.attributes.DAMAGE * entityB.damageReflect * (1 + entityA.fragile);
 					}
 				}
+				
+				if (entityA.segments.length != 0 && !entityA.segments.includes(entityB.id)) {
+					entityA.segments.some((segmentId, index) => {
+						if (segmentId == entityA.id) return true;
+						const segment = this.getEntity(segmentId);
+						const parent = this.getEntity(entityA.segments[index + 1]);
+						const direction = Math.atan2(parent.x - segment.x, segment.y - parent.y);
+						let distance = Math.sqrt((segment.x - parent.x) ** 2 + (segment.y - parent.y) ** 2) - segment.attributes.RADIUS - parent.attributes.RADIUS;
+						if (!segment.attributes.IS_SEGMENT) distance -= 7;
+						segment.x += distance * Math.sin(direction); 
+						segment.y -= distance * Math.cos(direction); 
+					})
+				}
+				if (entityB.segments.length != 0 && !entityB.segments.includes(entityA.id)) {
+					entityB.segments.some((segmentId, index) => {
+						if (segmentId == entityB.id) return true;
+						const segment = this.getEntity(segmentId);
+						const parent = this.getEntity(entityB.segments[index + 1]);
+						const direction = Math.atan2(parent.x - segment.x, segment.y - parent.y);
+						let distance = Math.sqrt((segment.x - parent.x) ** 2 + (segment.y - parent.y) ** 2) - segment.attributes.RADIUS - parent.attributes.RADIUS;
+						if (!segment.attributes.IS_SEGMENT) distance -= 7;
+						segment.x += distance * Math.sin(direction); 
+						segment.y -= distance * Math.cos(direction); 
+					})
+				}
 
 				const dmgA = entityB.attributes.DAMAGE * (1 + entityA.fragile);
 				const dmgB = entityA.attributes.DAMAGE * (1 + entityB.fragile);
-				entityA.hp -= dmgA;
-				entityB.hp -= dmgB;
-				if ( dmgA != 0 ) {
-					entityA.isHurt = true;
-				}
-				if ( dmgB != 0 ) {
-					entityB.isHurt = true;
-				}
 				
+				//第一个if是吸血相关的
+				if (!entityA.segments.includes(entityB.id) && !entityB.segments.includes(entityA.id) || !(entityA.attributes.TRIGGERS.VAMPIRISM || entityB.attributes.TRIGGERS.VAMPIRISM)) {
+					if ( dmgA != 0 ) {
+						entityA.isHurt = true;
+					}
+					if ( dmgB != 0 ) {
+						entityB.isHurt = true;
+					}
+					if (entityA.hpConnection) {
+						this.getEntity(entityA.hpConnection).hp -= dmgA;
+					} else {
+						entityA.hp -= dmgA;
+					}
+					if (entityB.hpConnection) {
+						this.getEntity(entityB.hpConnection).hp -= dmgB;
+					} else {
+						entityB.hp -= dmgB;
+					}
+				}
+
 				this.releaseCollisionSkill(entityA,entityB,entityInfoB);
 				this.releaseCollisionSkill(entityB,entityA,entityInfoA);
 			}
@@ -925,80 +993,32 @@ class Game {
 					entityA.fragile = entityB.attributes.TRIGGERS.PUNCTURE_DAMAGE;
 				}
 			}
-			if ( entityB.attributes.TRIGGERS.LIGHTNING ) {
-				let possibleEntityPositions = [];
-				let lightningPath = [];
+			if ( entityB.attributes.TRIGGERS.LIGHTNING && entityB.attributes.TRIGGERS.LIGHTNING.COLLIDE ) {
+				this.lightning(entityB, entityA, entityInfo);
+			}
+			if (entityB.attributes.TRIGGERS.VAMPIRISM && entityB.target == entityA.id) {
+				entityB.segments.push(entityA.id);
+			}
+		}
+		
+		if (entityA.attributes.CONTENT_RELEASE) {
+			if (entityA.attributes.CONTENT_RELEASE.ONHIT) {
+				const releases = entityA.attributes.CONTENT_RELEASE.ONHIT;
+				const contents = entityA.attributes.CONTENT;
+				const correctTimes = Math.floor((entityA.maxHp - entityA.hp) / releases.HP);
 				
-				lightningPath.push({
-					x: entityB.x,
-					y: entityB.y,
-				});
-				lightningPath.push({
-					x: entityA.x,
-					y: entityA.y,
-				});
-				
-				Object.entries(this.players).forEach(([id,player]) => {
-					if (id == entityB.team) return;
-					if (Math.sqrt((player.x - entityA.x) ** 2 + (player.y - entityA.y) ** 2) <= Constants.LIGHTNING_LENGTH * entityB.attributes.TRIGGERS.LIGHTNING) {
-						possibleEntityPositions.push([player.x,player.y,id]);
-					}
-				})
-				Object.entries(this.mobs).forEach(([id,mob]) => {
-					if (mob.value.team == entityB.team) return;
-					if (Math.sqrt((mob.value.x - entityA.x) ** 2 + (mob.value.y - entityA.y) ** 2) <= Constants.LIGHTNING_LENGTH * entityB.attributes.TRIGGERS.LIGHTNING) {
-						possibleEntityPositions.push([mob.value.x,mob.value.y,id]);
-					}
-				})
-				
-				let nextTargetEntityPosition = {
-					x: entityA.x,
-					y: entityA.y,
-				}
-				let damagedEntity = [];
-				damagedEntity.push(entityA.id)
-				
-				for (let times = 1; times < entityB.attributes.TRIGGERS.LIGHTNING; times++) {
-					let distances = [],
-						ids = [];
-			
-					possibleEntityPositions.forEach(([entityX,entityY,id]) => {
-						if (damagedEntity.includes(id)) return;
-						let distance = Math.sqrt((entityX - nextTargetEntityPosition.x) ** 2 + (entityY - nextTargetEntityPosition.y) ** 2);
-						if (distance <= Constants.LIGHTNING_LENGTH) {
-							distances.push(distance);
-							ids.push(id);
+				if (correctTimes > releases.TIMES) {
+					releases.TIMES = correctTimes;
+					
+					Object.entries(releases.RELEASE).forEach(([type, number]) => {
+						const isContentProjectile = EntityAttributes[type].ATTACK_MODE == `PROJECTILE` ? true : false;
+						for (let time = 0; time < number; time++) {
+							if (contents[type] <= 0) break;
+							this.spawnMob(type, entityA.x, entityA.y, entityA.team, isContentProjectile, isContentProjectile ? Constants.PROJECTILE_EXIST_TIME : Infinity);
+							contents[type]--;
 						}
 					})
-			
-					let nextTargetEntity = ids[distances.indexOf(Math.min(...distances))];
-					if (!nextTargetEntity) continue;
-				
-					//判断连锁目标为玩家还是mob并且造成伤害
-					if (nextTargetEntity.charAt(0) == `m`) {
-						let mob = this.mobs[nextTargetEntity].value;
-						mob.hp -= entityB.attributes.DAMAGE * (1 + mob.fragile);
-						mob.hurtByInfo = entityInfo;
-						nextTargetEntityPosition.x = mob.x;
-						nextTargetEntityPosition.y = mob.y;
-						lightningPath.push({
-							x: mob.x,
-							y: mob.y,
-						});
-					} else {
-						let player = this.players[nextTargetEntity];
-						player.hp -= entityB.attributes.DAMAGE * (1 + player.fragile);
-						player.hurtByInfo = entityInfo;
-						nextTargetEntityPosition.x = player.x;
-						nextTargetEntityPosition.y = player.y;
-						lightningPath.push({
-							x: player.x,
-							y: player.y,
-						});
-					}
-					damagedEntity.push(nextTargetEntity);
 				}
-				this.lightningPath.push(lightningPath);
 			}
 		}
 		
@@ -1076,7 +1096,8 @@ class Game {
 		Object.values(this.mobs).forEach(mob => {
 			//技能
 			(() => {
-				if (!mob.value.attributes.TRIGGERS) return;
+				const targetId = mob.value.target;
+				if (!mob.value.attributes.TRIGGERS || targetId == -1) return;
 				
 				if (mob.value.skillCoolDownTimer < mob.value.skillCoolDown) {
 					mob.value.skillCoolDownTimer += deltaT;
@@ -1100,6 +1121,25 @@ class Game {
 					
 					projectile.value.direction = mob.value.direction;
 					projectile.value.shootBy = mob.value.id;
+					return;
+				}
+				
+				if (mob.value.attributes.TRIGGERS.LIGHTNING) {
+					mob.value.skillCoolDownTimer = 0;
+					this.lightning(mob.value, this.getEntity(targetId), { type: `mob`, id: mob.value.id });
+					return;
+				}
+				
+				if (mob.value.attributes.TRIGGERS.VAMPIRISM) {
+					const target = this.getEntity(targetId);
+					if (mob.value.segments.includes(targetId)) {
+						mob.value.skillCoolDownTimer = 0;
+						target.hp -= mob.value.attributes.TRIGGERS.VAMPIRISM.DAMAGE;
+						mob.value.hp += mob.value.attributes.TRIGGERS.VAMPIRISM.DAMAGE * mob.value.attributes.TRIGGERS.VAMPIRISM.HEAL;
+						target.isHurt = true;
+						this.releaseCollisionSkill(target, mob.value, {type: `mob`, id: mob.value.id});
+					}
+					return;
 				}
 			})();
 			
@@ -1337,6 +1377,85 @@ class Game {
 			diedEntities: this.diedEntities,
 		}
 	
+	}
+	
+	lightning(start, target, entityInfo) {
+		let possibleEntityPositions = [];
+		let lightningPath = [];
+		
+		lightningPath.push({
+			x: start.x,
+			y: start.y,
+		});
+		lightningPath.push({
+			x: target.x,
+			y: target.y,
+		});
+		
+		//寻找可能被连锁的实体，提升效率
+		Object.entries(this.players).forEach(([id, player]) => {
+			if (id == start.team) return;
+			if (Math.sqrt((player.x - target.x) ** 2 + (player.y - target.y) ** 2) <= Constants.LIGHTNING_LENGTH * start.attributes.TRIGGERS.LIGHTNING.COUNT) {
+				possibleEntityPositions.push([player.x,player.y,id]);
+			}
+		})
+		Object.entries(this.mobs).forEach(([id, mob]) => {
+			if (mob.value.team == start.team) return;
+			if (Math.sqrt((mob.value.x - target.x) ** 2 + (mob.value.y - target.y) ** 2) <= Constants.LIGHTNING_LENGTH * start.attributes.TRIGGERS.LIGHTNING.COUNT) {
+				possibleEntityPositions.push([mob.value.x,mob.value.y,id]);
+			}
+		})
+		
+		//指定接触目标为正在被连锁的实体并造成伤害
+		target.hp -= start.attributes.TRIGGERS.LIGHTNING.DAMAGE * (1 + target.fragile);
+		target.hurtByInfo = entityInfo;
+		let damagingEntityPosition = {
+			x: target.x,
+			y: target.y,
+		}
+		let damagedEntity = [];
+		damagedEntity.push(target.id)
+		
+		//连锁
+		for (let times = 1; times < start.attributes.TRIGGERS.LIGHTNING.COUNT; times++) {
+			let distances = [],
+				ids = [];
+			
+			//寻找与正在被连锁的实体附近小于等于闪电连锁距离的实体
+			possibleEntityPositions.forEach(([entityX, entityY, id]) => {
+				if (damagedEntity.includes(id)) return;
+				let distance = Math.sqrt((entityX - damagingEntityPosition.x) ** 2 + (entityY - damagingEntityPosition.y) ** 2);
+				if (distance <= Constants.LIGHTNING_LENGTH) {
+					distances.push(distance);
+					ids.push(id);
+				}
+			})
+			
+			//寻找与正在被连锁实体最近的实体（距离小于等于闪电连锁范围），没有就退出循环
+			let nextTargetEntityId = ids[distances.indexOf(Math.min(...distances))];
+			if (!nextTargetEntityId) break;
+			
+			//对该实体进行伤害并指定其为正在被连锁的实体
+			const nextTargetEntity = this.getEntity(nextTargetEntityId);
+			nextTargetEntity.hp -= start.attributes.TRIGGERS.LIGHTNING.DAMAGE * (1 + nextTargetEntity.fragile);
+			nextTargetEntity.hurtByInfo = entityInfo;
+			damagingEntityPosition.x = nextTargetEntity.x;
+			damagingEntityPosition.y = nextTargetEntity.y;
+			lightningPath.push({
+				x: damagingEntityPosition.x,
+				y: damagingEntityPosition.y,
+			});
+			damagedEntity.push(nextTargetEntityId);
+		}
+		this.lightningPath.push(lightningPath);
+	}
+		
+	getEntity(id) {
+		return this.players[id] || (this.mobs[id] && this.mobs[id].value) || false;
+	}
+	
+	damage(start, target, startEntityInfo) {
+		
 	}
 }
 

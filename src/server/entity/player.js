@@ -41,14 +41,14 @@ class Player extends Entity {
 		this.primaryPetals[6] = 'ROSE_ADVANCED';
 		this.primaryPetals[7] = 'ROSE_ADVANCED';
 
-		this.secondaryPetals[0] = 'BUBBLE';
-		this.secondaryPetals[1] = 'BUBBLE';
-		this.secondaryPetals[2] = 'BUBBLE';
-		this.secondaryPetals[3] = 'BUBBLE';
-		this.secondaryPetals[4] = 'BUBBLE';
-		this.secondaryPetals[5] = 'BUBBLE';
-		this.secondaryPetals[6] = 'BUBBLE';
-		this.secondaryPetals[7] = 'BUBBLE';
+		this.secondaryPetals[0] = 'EGG';
+		this.secondaryPetals[1] = 'EGG';
+		this.secondaryPetals[2] = 'EGG';
+		this.secondaryPetals[3] = 'EGG';
+		this.secondaryPetals[4] = 'EGG';
+		this.secondaryPetals[5] = 'EGG';
+		this.secondaryPetals[6] = 'EGG';
+		this.secondaryPetals[7] = 'EGG';
 		this.petals = [
 			[new Petal(0, 0 * Constants.PETAL_MULTIPLE_MAX, 0, x, y, id, 'LIGHTNING', true)],
 			[new Petal(1, 1 * Constants.PETAL_MULTIPLE_MAX, 1, x, y, id, 'LIGHTNING', true)],

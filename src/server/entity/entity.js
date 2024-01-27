@@ -38,6 +38,7 @@ class Entity {
 		this.skillCoolDownTimer = 0;
 		this.poison = 0;
 		this.poisonTime = 0;
+		this.segments = [this.id];
 	}
 
 	distanceTo(object) {

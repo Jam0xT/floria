@@ -121,10 +121,10 @@ module.exports = Object.freeze({
 	  MAX_HP: 25,
 	  MASS: 1,
 	  EXPANDABLE: false,
-	  MULTIPLE: false,
+	  MULTIPLE: true,
 	  CLUSTER: false,
-	  COUNT: 1,
-	  TRIGGERS: { ACTION_COOLDOWN: 3.5, SUMMON: 'BEETLE' } //HORNET
+	  COUNT: 5,
+	  TRIGGERS: { ACTION_COOLDOWN: 3.5, SUMMON: 'LEECH' } //HORNET
 	},
 	FAST: {
 	  TYPE: 'FAST',
@@ -155,6 +155,27 @@ module.exports = Object.freeze({
 	  CLUSTER: false,
 	  COUNT: 1,
 	  TRIGGERS: {}
+	},
+	LIGHTNING: {
+	  TYPE: 'LIGHTNING',
+	  RADIUS: 19,
+	  RENDER_RADIUS: 25,
+	  RARITY: 5,
+	  RELOAD: 2,
+	  DAMAGE: 0,
+	  MAX_HP: 0.1,
+	  MASS: 1,
+	  EXPANDABLE: true,
+	  MULTIPLE: false,
+	  CLUSTER: false,
+	  COUNT: 1,
+	  TRIGGERS: { 
+		  LIGHTNING:  {
+			  DAMAGE: 12,
+			  COUNT: 5,
+			  COLLIDE: true
+		  }
+	  }
 	},
 	PEAS: {
 	  TYPE: 'PEAS',
@@ -501,21 +522,6 @@ module.exports = Object.freeze({
 	  CLUSTER: false,
 	  COUNT: 1,
 	  TRIGGERS: {}
-	},
-	LIGHTNING: {
-	  TYPE: 'LIGHTNING',
-	  RADIUS: 19,
-	  RENDER_RADIUS: 25,
-	  RARITY: 5,
-	  RELOAD: 2,
-	  DAMAGE: 20,
-	  MAX_HP: 0.1,
-	  MASS: 1,
-	  EXPANDABLE: true,
-	  MULTIPLE: false,
-	  CLUSTER: false,
-	  COUNT: 1,
-	  TRIGGERS: { LIGHTNING: 5 }
 	},
 	YINYANG: {
 	  TYPE: 'YINYANG',
