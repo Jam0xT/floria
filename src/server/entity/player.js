@@ -25,40 +25,30 @@ class Player extends Entity {
 		this.petalID = Constants.FIRST_PETAL_ID;
 		this.primaryPetals = [];
 		this.secondaryPetals = [];
-		// for (let i = 0; i < Constants.PRIMARY_SLOT_COUNT_BASE; i ++ ) {
-		// 	this.primaryPetals.push('BASIC');
-		// }
-		// for ( let i = 0; i < Constants.SECONDARY_SLOT_COUNT_BASE; i ++ ) {
-		// 	this.secondaryPetals.push('EMPTY');
-		// }
-		
-		this.primaryPetals[0] = 'LIGHTNING';
-		this.primaryPetals[1] = 'LIGHTNING';
-		this.primaryPetals[2] = 'LIGHTNING';
-		this.primaryPetals[3] = 'LIGHTNING';
-		this.primaryPetals[4] = 'LIGHTNING';
-		this.primaryPetals[5] = 'LIGHTNING';
+		this.petals = [];
+
+		this.primaryPetals[0] = 'TRI_STINGER';
+		this.primaryPetals[1] = 'MISSILE';
+		this.primaryPetals[2] = 'PEAS';
+		this.primaryPetals[3] = 'WING';
+		this.primaryPetals[4] = 'WING';
+		this.primaryPetals[5] = 'WING';
 		this.primaryPetals[6] = 'ROSE_ADVANCED';
 		this.primaryPetals[7] = 'ROSE_ADVANCED';
 
-		this.secondaryPetals[0] = 'EGG';
-		this.secondaryPetals[1] = 'EGG';
-		this.secondaryPetals[2] = 'EGG';
-		this.secondaryPetals[3] = 'EGG';
-		this.secondaryPetals[4] = 'EGG';
-		this.secondaryPetals[5] = 'EGG';
-		this.secondaryPetals[6] = 'EGG';
+		this.secondaryPetals[0] = 'RICE';
+		this.secondaryPetals[1] = 'RICE';
+		this.secondaryPetals[2] = 'PENTA';
+		this.secondaryPetals[3] = 'YINYANG';
+		this.secondaryPetals[4] = 'BUBBLE';
+		this.secondaryPetals[5] = 'BUBBLE';
+		this.secondaryPetals[6] = 'BUBBLE';
 		this.secondaryPetals[7] = 'EGG';
-		this.petals = [
-			[new Petal(0, 0 * Constants.PETAL_MULTIPLE_MAX, 0, x, y, id, 'LIGHTNING', true)],
-			[new Petal(1, 1 * Constants.PETAL_MULTIPLE_MAX, 1, x, y, id, 'LIGHTNING', true)],
-			[new Petal(2, 2 * Constants.PETAL_MULTIPLE_MAX, 2, x, y, id, 'LIGHTNING', true)],
-			[new Petal(3, 3 * Constants.PETAL_MULTIPLE_MAX, 3, x, y, id, 'LIGHTNING', true)],
-			[new Petal(4, 4 * Constants.PETAL_MULTIPLE_MAX, 4, x, y, id, 'LIGHTNING', true)],
-			[new Petal(5, 5 * Constants.PETAL_MULTIPLE_MAX, 5, x, y, id, 'LIGHTNING', true)],
-			[new Petal(6, 6 * Constants.PETAL_MULTIPLE_MAX, 6, x, y, id, 'ROSE_ADVANCED', true)],
-			[new Petal(7, 7 * Constants.PETAL_MULTIPLE_MAX, 7, x, y, id, 'ROSE_ADVANCED', true)],
-		];
+
+		for (let i = 0; i < Constants.PRIMARY_SLOT_COUNT_BASE; i ++ ) {
+			this.petals.push([new Petal(i, i * Constants.PETAL_MULTIPLE_MAX, i, x, y, id, this.primaryPetals[i], true)]);
+		}
+
 		this.pets = {};
 		this.activeDirection = 0;
 		this.attributes = Attribute;
@@ -319,7 +309,7 @@ class Player extends Entity {
 									petal.floatDirection = 0;
 									petal.floatRadius = 0;
 								}
-								expandRadius -= petal.floatRadius// + Math.cos(petal.floatDirection / (petal.attributes.TRIGGERS.FLOAT * 2) * Math.PI) * (Constants.PETAL_EXPAND_RADIUS_ATTACK / 2);
+								expandRadius -= petal.floatRadius;// + Math.cos(petal.floatDirection / (petal.attributes.TRIGGERS.FLOAT * 2) * Math.PI) * (Constants.PETAL_EXPAND_RADIUS_ATTACK / 2);
 							} else{
 								petal.floatRadius = 0;
 								petal.floatDirection = 0;

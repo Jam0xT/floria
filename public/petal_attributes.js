@@ -121,10 +121,10 @@ module.exports = Object.freeze({
 	  MAX_HP: 25,
 	  MASS: 1,
 	  EXPANDABLE: false,
-	  MULTIPLE: true,
+	  MULTIPLE: false,
 	  CLUSTER: false,
-	  COUNT: 5,
-	  TRIGGERS: { ACTION_COOLDOWN: 3.5, SUMMON: 'LEECH' } //HORNET
+	  COUNT: 1,
+	  TRIGGERS: { ACTION_COOLDOWN: 3.5, SUMMON: 'BEETLE' } //HORNET
 	},
 	FAST: {
 	  TYPE: 'FAST',

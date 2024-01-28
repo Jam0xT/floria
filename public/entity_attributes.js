@@ -24,7 +24,7 @@ module.exports = Object.freeze({
 		DAMAGE: 15,
 		VALUE: 10,
 		EXPERIENCE: 10,
-		SPAWN_WEIGHT: 200,
+		SPAWN_WEIGHT: 0,
 		VOLUME: 1000,
 		CONTENT: {
 			ANT_BABY: 5,
@@ -74,7 +74,7 @@ module.exports = Object.freeze({
 		DAMAGE: 10,
 		VALUE: 10,
 		EXPERIENCE: 1,
-		SPAWN_WEIGHT: 200,
+		SPAWN_WEIGHT: 0,
 		VOLUME: 100,
 		DROP: {
 		  FAST: 0.44,
@@ -96,7 +96,7 @@ module.exports = Object.freeze({
 		DAMAGE: 10,
 		VALUE: 10,
 		EXPERIENCE: 2,
-		SPAWN_WEIGHT: 200,
+		SPAWN_WEIGHT: 0,
 		VOLUME: 100,
 		DROP: {
 		  FAST: 0.46,
@@ -118,7 +118,7 @@ module.exports = Object.freeze({
 		DAMAGE: 10,
 		VALUE: 10,
 		EXPERIENCE: 5,
-		SPAWN_WEIGHT: 200,
+		SPAWN_WEIGHT: 0,
 		VOLUME: 100,
 		DROP: {
 		  IRIS: 0.12,
@@ -140,7 +140,7 @@ module.exports = Object.freeze({
 		DAMAGE: 10,
 		VALUE: 10,
 		EXPERIENCE: 5,
-		SPAWN_WEIGHT: 200,
+		SPAWN_WEIGHT: 0,
 		VOLUME: 100,
 		DROP: {
 		  TWIN: 1,
@@ -164,7 +164,7 @@ module.exports = Object.freeze({
 		DAMAGE: 15,
 		VALUE: 10,
 		EXPERIENCE: 10,
-		SPAWN_WEIGHT: 200,
+		SPAWN_WEIGHT: 0,
 		VOLUME: 1000,
 		CONTENT: {
 			ANT_BABY: 5,
@@ -215,7 +215,7 @@ module.exports = Object.freeze({
 		DAMAGE: 10,
 		VALUE: 10,
 		EXPERIENCE: 1,
-		SPAWN_WEIGHT: 200,
+		SPAWN_WEIGHT: 0,
 		VOLUME: 100,
 		DROP: {
 		  FAST: 0.44,
@@ -238,7 +238,7 @@ module.exports = Object.freeze({
 		DAMAGE: 10,
 		VALUE: 10,
 		EXPERIENCE: 2,
-		SPAWN_WEIGHT: 200,
+		SPAWN_WEIGHT: 0,
 		VOLUME: 100,
 		DROP: {
 		  FAST: 0.46,
@@ -261,7 +261,7 @@ module.exports = Object.freeze({
 		DAMAGE: 10,
 		VALUE: 10,
 		EXPERIENCE: 5,
-		SPAWN_WEIGHT: 200,
+		SPAWN_WEIGHT: 0,
 		VOLUME: 100,
 		DROP: {
 		  IRIS: 0.12,
@@ -284,7 +284,7 @@ module.exports = Object.freeze({
 		DAMAGE: 10,
 		VALUE: 10,
 		EXPERIENCE: 5,
-		SPAWN_WEIGHT: 200,
+		SPAWN_WEIGHT: 0,
 		VOLUME: 100,
 		DROP: {
 		  TWIN: 1,
@@ -308,7 +308,7 @@ module.exports = Object.freeze({
 	    DAMAGE: 50,
 	    VALUE: 10,
 	    EXPERIENCE: 10,
-	    SPAWN_WEIGHT: 200,
+	    SPAWN_WEIGHT: 0,
 	    VOLUME: 100,
 	    DROP: {
 	      BUBBLE: 0.006,
@@ -332,7 +332,7 @@ module.exports = Object.freeze({
 	    DAMAGE: 35,
 	    VALUE: 10,
 	    EXPERIENCE: 5,
-	    SPAWN_WEIGHT: 200,
+	    SPAWN_WEIGHT: 0,
 	    VOLUME: 100,
 	    DROP: {
 		  IRIS: 0.09,
@@ -354,7 +354,7 @@ module.exports = Object.freeze({
 	    DAMAGE: 5,
 	    VALUE: 10,
 	    EXPERIENCE: 10,
-	    SPAWN_WEIGHT: 100,
+	    SPAWN_WEIGHT: 0,
 	    VOLUME: 100,
 	    DROP: { BUBBLE: 0.5 },
 	    IDLE_MODE: 'NORMAL',
@@ -371,7 +371,7 @@ module.exports = Object.freeze({
 			MIN: -20,
 			MAX: 20,
 		},
-		MAX_HP: 36,
+		MAX_HP: 36000,
 		HP_DEVIATION: {
 			MIN: -8,
 			MAX: 8,
@@ -379,7 +379,7 @@ module.exports = Object.freeze({
 		DAMAGE: 35,
 		VALUE: 10,
 		EXPERIENCE: 2,
-		SPAWN_WEIGHT: 150,
+		SPAWN_WEIGHT: 100,
 		VOLUME: 100,
 		DROP: {
 			CACTUS: 0.03,
@@ -402,7 +402,7 @@ module.exports = Object.freeze({
 		DAMAGE: 10,
 		VALUE: 10,
 		EXPERIENCE: 10,
-		SPAWN_WEIGHT: 100,
+		SPAWN_WEIGHT: 0,
 		VOLUME: 100,
 		DROP: {
 			FAST: 0.09,
@@ -452,7 +452,7 @@ module.exports = Object.freeze({
 		DAMAGE: 10,
 		VALUE: 10,
 		EXPERIENCE: 10,
-		SPAWN_WEIGHT: 100,
+		SPAWN_WEIGHT: 0,
 		VOLUME: 100,
 		DROP: {
 			IRIS: 0.82,
@@ -475,7 +475,7 @@ module.exports = Object.freeze({
 		DAMAGE: 10,
 		VALUE: 10,
 		EXPERIENCE: 10,
-		SPAWN_WEIGHT: 100,
+		SPAWN_WEIGHT: 0,
 		VOLUME: 100,
 		DROP: {
 			IRIS: 0.82,
@@ -498,7 +498,7 @@ module.exports = Object.freeze({
 	    DAMAGE: 10,
 	    VALUE: 10,
 	    EXPERIENCE: 10,
-	    SPAWN_WEIGHT: 200,
+	    SPAWN_WEIGHT: 0,
 	    VOLUME: 100,
 	    DROP: {
 	      BUBBLE: 0.006,
@@ -522,7 +522,7 @@ module.exports = Object.freeze({
 	    DAMAGE: 50,
 	    VALUE: 10,
 	    EXPERIENCE: 10,
-	    SPAWN_WEIGHT: 100,
+	    SPAWN_WEIGHT: 0,
 	    VOLUME: 200,
 	    DROP: { DANDELION: 0.14, MISSILE: 0.09, BUBBLE: 0.05, WING: 0.03 },
 	    IDLE_MODE: 'FLOAT',
@@ -541,7 +541,7 @@ module.exports = Object.freeze({
 	    DAMAGE: 40,
 	    VALUE: 10,
 	    EXPERIENCE: 10,
-	    SPAWN_WEIGHT: 100,
+	    SPAWN_WEIGHT: 0,
 	    VOLUME: 200,
 	    DROP: { LIGHTNING: 0.00114514 },
 	    IDLE_MODE: 'FLOAT',
@@ -565,7 +565,7 @@ module.exports = Object.freeze({
 		DAMAGE: 25,
 		VALUE: 10,
 		EXPERIENCE: 10,
-		SPAWN_WEIGHT: 100,
+		SPAWN_WEIGHT: 0,
 		VOLUME: 100,
 		DROP: {
 
@@ -591,7 +591,7 @@ module.exports = Object.freeze({
 		DAMAGE: 25,
 		VALUE: 10,
 		EXPERIENCE: 10,
-		SPAWN_WEIGHT: 100,
+		SPAWN_WEIGHT: 0,
 		VOLUME: 100,
 		DROP: {
 

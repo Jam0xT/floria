@@ -61,7 +61,7 @@ class Mob extends Entity {
 			};
 		} 
 		else if (this.attributes.ATTACK_MODE == `EVIL`) {
-			this.updateMovement = (deltaT,target) => {
+			this.updateMovement = (deltaT, target) => {
 				if (!target) return;
 				
 				//segment

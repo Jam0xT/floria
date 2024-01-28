@@ -292,10 +292,10 @@ function handleKeyUpInput(e) {
 	if ( (!leftDown) && (!rightDown) ) {
 		if ( e.code == 'Space' ) {
 			spaceDown = false;
-			sendMouseDownEvent((spaceDown * 1) | (shiftDown * 2));
+			sendMouseUpEvent((spaceDown * 1) | (shiftDown * 2));
 		} else if ( e.code == 'ShiftLeft' ) {
 			shiftDown = false;
-			sendMouseDownEvent((spaceDown * 1) | (shiftDown * 2));
+			sendMouseUpEvent((spaceDown * 1) | (shiftDown * 2));
 		}
 	}
 }
