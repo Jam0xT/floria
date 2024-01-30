@@ -15,8 +15,38 @@ module.exports = Object.freeze({
 		LIGHTNING_PATH: 'lightning_path',
 	},
 
-	MAP_WIDTH: 4000, // width of the map
+	MAP_WIDTH: 20000, // width of the map
 	MAP_HEIGHT: 4000, // height of the map
+	MAP_AREAS: {
+		GARDEN: {
+			START_WIDTH: 0,
+			START_HEIGHT: 0,
+			WIDTH: 4000,
+			HEIGHT: 4000,
+			MAX_LEVEL: 15,
+		},
+		DESERT: {
+			START_WIDTH: 4000,
+			START_HEIGHT: 0,
+			WIDTH: 4000,
+			HEIGHT: 4000,
+			MAX_LEVEL: 30,
+		},
+		OCEAN: {
+			START_WIDTH: 8000,
+			START_HEIGHT: 0,
+			WIDTH: 4000,
+			HEIGHT: 4000,
+			MAX_LEVEL: 45,
+		},
+		UNKNOWN: {
+			START_WIDTH: 12000,
+			START_HEIGHT: 0,
+			WIDTH: 4000,
+			HEIGHT: 4000,
+			MAX_LEVEL: Infinity,
+		}
+	},
 	BLOCK_WIDTH: 200, // width of the block
 	BLOCK_HEIGHT: 200, // height of the block
 

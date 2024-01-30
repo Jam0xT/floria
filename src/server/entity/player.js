@@ -38,8 +38,8 @@ class Player extends Entity {
 		this.primaryPetals[3] = 'LIGHTNING';
 		this.primaryPetals[4] = 'LIGHTNING';
 		this.primaryPetals[5] = 'LIGHTNING';
-		this.primaryPetals[6] = 'ROSE_ADVANCED';
-		this.primaryPetals[7] = 'ROSE_ADVANCED';
+		this.primaryPetals[6] = 'LIGHTNING';
+		this.primaryPetals[7] = 'LIGHTNING';
 
 		this.secondaryPetals[0] = 'EGG';
 		this.secondaryPetals[1] = 'EGG';

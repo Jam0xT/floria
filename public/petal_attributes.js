@@ -121,10 +121,31 @@ module.exports = Object.freeze({
 	  MAX_HP: 25,
 	  MASS: 1,
 	  EXPANDABLE: false,
-	  MULTIPLE: true,
+	  MULTIPLE: false,
 	  CLUSTER: false,
-	  COUNT: 5,
-	  TRIGGERS: { ACTION_COOLDOWN: 3.5, SUMMON: 'LEECH' } //HORNET
+	  COUNT: 1,
+	  TRIGGERS: { ACTION_COOLDOWN: 3.5, SUMMON: 'HORNET' } //HORNET
+	},
+	FANGS: {
+	  TYPE: 'FANGS',
+	  RADIUS: 8,
+	  RENDER_RADIUS: 8,
+	  RARITY: 2,
+	  RELOAD: 2,
+	  DAMAGE: 15,
+	  MAX_HP: 10,
+	  MASS: 1,
+	  EXPANDABLE: true,
+	  MULTIPLE: false,
+	  CLUSTER: false,
+	  COUNT: 1,
+	  TRIGGERS: {
+		  VAMPIRISM: {
+		  	HEAL: 0.1, //自身回血倍率
+			HEAL_PLAYER: 0.3, //玩家回血倍率
+			COLLIDE: true,
+		  },
+	  }
 	},
 	FAST: {
 	  TYPE: 'FAST',
