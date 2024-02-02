@@ -418,6 +418,7 @@ export function renderStartup () {
 }
 
 export function renderInit() {
+	initPetals = false;
 	alphaConnecting = 0;
 	alphaInputBox = 0;
 	alphaBlack = 1;
@@ -909,12 +910,10 @@ function renderMob(me, mob) {
 		);
 	}
 
-	// ctx.rotate(-mob.dir);
-	// ctx.translate(-canvasX, -canvasY);
 	ctx.restore();
 
-	renderText(mobLayer, 1, mob.id, canvasX, canvasY - hpx * 35, hpx * 20, 'center');
-	renderText(mobLayer, 1, `hp:${mob.hp}`, canvasX, canvasY + hpx * 65, hpx * 18, 'center');
+	// renderText(mobLayer, 1, mob.id, canvasX, canvasY - hpx * 35, hpx * 20, 'center');
+	// renderText(mobLayer, 1, `hp:${mob.hp}`, canvasX, canvasY + hpx * 65, hpx * 18, 'center');
 }
 
 function renderLeaderboardRank(rank, leaderboardRankBaseLength, leaderboardRankOutlineWidth, leaderboardRankBaseWidth, rankTopScore,
@@ -1311,8 +1310,6 @@ export function addDiedEntities(entities) {
 
 function renderDiedEntities(me) {
 	let ctx = getCtx(mobLayer);
-	// if ( diedEntities.length != 0 )
-	// 	console.log(diedEntities);
 	
 	diedEntities.forEach(([entity, alpha, size], index) => {
 		ctx.globalAlpha = alpha;
@@ -1346,8 +1343,7 @@ function renderDiedEntities(me) {
 		
 		const width = asset.naturalWidth, 
 			  height = asset.naturalHeight;
-		console.log('hh', sz);
-		
+
 		ctx.drawImage(
 			asset,
 			- sz,

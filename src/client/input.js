@@ -292,10 +292,10 @@ function handleKeyUpInput(e) {
 	if ( (!leftDown) && (!rightDown) ) {
 		if ( e.code == 'Space' ) {
 			spaceDown = false;
-			sendMouseDownEvent((spaceDown * 1) | (shiftDown * 2));
+			sendMouseUpEvent((spaceDown * 1) | (shiftDown * 2));
 		} else if ( e.code == 'ShiftLeft' ) {
 			shiftDown = false;
-			sendMouseDownEvent((spaceDown * 1) | (shiftDown * 2));
+			sendMouseUpEvent((spaceDown * 1) | (shiftDown * 2));
 		}
 	}
 }
@@ -320,8 +320,8 @@ function disable(petal) {
 	sendPetalDisableEvent(petal);
 }
 
-export function switchInput(petalA, petalB, implement) {
-	sendPetalSwitchEvent(petalA, petalB, implement);
+export function switchInput(petalA, petalB) {
+	sendPetalSwitchEvent(petalA, petalB);
 }
 
 export function updateSlotsData(W_, hpx_, primarySlotHitboxLength_, primarySlotDisplayLength_, primarySlotCenterY_, primarySlotCount_,

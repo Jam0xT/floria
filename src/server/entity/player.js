@@ -25,40 +25,30 @@ class Player extends Entity {
 		this.petalID = Constants.FIRST_PETAL_ID;
 		this.primaryPetals = [];
 		this.secondaryPetals = [];
-		// for (let i = 0; i < Constants.PRIMARY_SLOT_COUNT_BASE; i ++ ) {
-		// 	this.primaryPetals.push('BASIC');
-		// }
-		// for ( let i = 0; i < Constants.SECONDARY_SLOT_COUNT_BASE; i ++ ) {
-		// 	this.secondaryPetals.push('EMPTY');
-		// }
-		
-		this.primaryPetals[0] = 'LIGHTNING';
-		this.primaryPetals[1] = 'LIGHTNING';
-		this.primaryPetals[2] = 'LIGHTNING';
-		this.primaryPetals[3] = 'LIGHTNING';
-		this.primaryPetals[4] = 'LIGHTNING';
-		this.primaryPetals[5] = 'LIGHTNING';
-		this.primaryPetals[6] = 'ROSE_ADVANCED';
-		this.primaryPetals[7] = 'ROSE_ADVANCED';
+		this.petals = [];
 
-		this.secondaryPetals[0] = 'BUBBLE';
-		this.secondaryPetals[1] = 'BUBBLE';
-		this.secondaryPetals[2] = 'BUBBLE';
-		this.secondaryPetals[3] = 'BUBBLE';
+		this.primaryPetals[0] = 'EGG';
+		this.primaryPetals[1] = 'EGG';
+		this.primaryPetals[2] = 'EGG';
+		this.primaryPetals[3] = 'EGG';
+		this.primaryPetals[4] = 'EGG';
+		this.primaryPetals[5] = 'EGG';
+		this.primaryPetals[6] = 'EGG';
+		this.primaryPetals[7] = 'EGG';
+
+		this.secondaryPetals[0] = 'LEAF';
+		this.secondaryPetals[1] = 'LEAF';
+		this.secondaryPetals[2] = 'LEAF';
+		this.secondaryPetals[3] = 'LEAF';
 		this.secondaryPetals[4] = 'BUBBLE';
 		this.secondaryPetals[5] = 'BUBBLE';
 		this.secondaryPetals[6] = 'BUBBLE';
-		this.secondaryPetals[7] = 'BUBBLE';
-		this.petals = [
-			[new Petal(0, 0 * Constants.PETAL_MULTIPLE_MAX, 0, x, y, id, 'LIGHTNING', true)],
-			[new Petal(1, 1 * Constants.PETAL_MULTIPLE_MAX, 1, x, y, id, 'LIGHTNING', true)],
-			[new Petal(2, 2 * Constants.PETAL_MULTIPLE_MAX, 2, x, y, id, 'LIGHTNING', true)],
-			[new Petal(3, 3 * Constants.PETAL_MULTIPLE_MAX, 3, x, y, id, 'LIGHTNING', true)],
-			[new Petal(4, 4 * Constants.PETAL_MULTIPLE_MAX, 4, x, y, id, 'LIGHTNING', true)],
-			[new Petal(5, 5 * Constants.PETAL_MULTIPLE_MAX, 5, x, y, id, 'LIGHTNING', true)],
-			[new Petal(6, 6 * Constants.PETAL_MULTIPLE_MAX, 6, x, y, id, 'ROSE_ADVANCED', true)],
-			[new Petal(7, 7 * Constants.PETAL_MULTIPLE_MAX, 7, x, y, id, 'ROSE_ADVANCED', true)],
-		];
+		this.secondaryPetals[7] = 'POLLEN';
+
+		for (let i = 0; i < Constants.PRIMARY_SLOT_COUNT_BASE; i ++ ) {
+			this.petals.push([new Petal(i, i * Constants.PETAL_MULTIPLE_MAX, i, x, y, id, this.primaryPetals[i], true)]);
+		}
+
 		this.pets = {};
 		this.activeDirection = 0;
 		this.attributes = Attribute;
@@ -92,7 +82,6 @@ class Player extends Entity {
 		let tmp;
 		this.switched = true;
 		if ( slot1 != -1 ) {
-			// console.log('switch');
 			if ( (!slot1.isPrimary) && slot2.isPrimary ) {
 				tmp = slot1;
 				slot1 = slot2;
@@ -319,7 +308,7 @@ class Player extends Entity {
 									petal.floatDirection = 0;
 									petal.floatRadius = 0;
 								}
-								expandRadius -= petal.floatRadius// + Math.cos(petal.floatDirection / (petal.attributes.TRIGGERS.FLOAT * 2) * Math.PI) * (Constants.PETAL_EXPAND_RADIUS_ATTACK / 2);
+								expandRadius -= petal.floatRadius;// + Math.cos(petal.floatDirection / (petal.attributes.TRIGGERS.FLOAT * 2) * Math.PI) * (Constants.PETAL_EXPAND_RADIUS_ATTACK / 2);
 							} else{
 								petal.floatRadius = 0;
 								petal.floatDirection = 0;
@@ -499,9 +488,14 @@ class Player extends Entity {
 						return;
 					}
 				}
-				
-				if ( this.defend ) { // defend trigger
-					if ( petal.attributes.TRIGGERS.BUBBLE_PUSH ) { // trigger bubble
+
+				if ( petal.attributes.TRIGGERS.BUBBLE_PUSH ) { // trigger bubble
+					if ( petal.actionCooldown > 0 ) {
+						petal.actionCooldown -= deltaT;
+						return;
+					} 
+					
+					if ( this.defend ) {
 						petal.hp = -1;
 						const dir = this.firstPetalDirection + 2 * Math.PI * petal.placeHolder / this.placeHolder;
 						const push = petal.attributes.TRIGGERS.BUBBLE_PUSH;
@@ -509,6 +503,9 @@ class Player extends Entity {
 						this.bubbleVelocity.y += push * Math.cos(dir);
 						return;
 					}
+				}
+				
+				if ( this.defend ) { // defend trigger
 					if ( petal.attributes.TRIGGERS.HEAL_SUSTAIN_DEFENCE ) {
 						if ( this.hp < this.maxHp && (!this.noHeal) ) {
 							this.hp += petal.attributes.TRIGGERS.HEAL_SUSTAIN_DEFENCE * deltaT;
@@ -582,7 +579,7 @@ class Player extends Entity {
 		})
 	}
 
-	reload(slot,idInPlaceHolder) {
+	reload(slot, idInPlaceHolder) {
 		this.petals.forEach((petals) => {
 			petals.forEach((petal) => {
 				if (petal.isHide) return;

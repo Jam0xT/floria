@@ -42,8 +42,8 @@ export const sendMouseUpEvent = (mouseUpEvent) => {
 	socket.emit(Constants.MSG_TYPES.MOUSE_UP, mouseUpEvent);
 }
 
-export const sendPetalSwitchEvent = (petalA, petalB, implement) => {
-	socket.emit(Constants.MSG_TYPES.PETAL_SWITCH, petalA, petalB, implement);
+export const sendPetalSwitchEvent = (petalA, petalB) => {
+	socket.emit(Constants.MSG_TYPES.PETAL_SWITCH, petalA, petalB);
 }
 
 export const sendPetalDisableEvent = (petal) => {

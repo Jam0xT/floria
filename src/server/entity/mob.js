@@ -8,8 +8,7 @@ class Mob extends Entity {
 		this.attributes = JSON.parse(JSON.stringify(EntityAttributes[type]));
 		this.existTime = existTime || Infinity;
 		this.sensitization = false;
-		this.target = 0;
-		this.segments = [];
+		this.target = -1;
 		this.idleMovementCooldown = 0;
 		this.isProjectile = isProjectile || false;
 		this.startDirection = 0;
@@ -22,11 +21,15 @@ class Mob extends Entity {
 		if (Math.random() <= 0.5) {
 			this.aimMovementDirection = -1;
 		}
-		if (Math.random() <= 0.5) {
+		if (Math.random() <= 0.5 && EntityAttributes[type].TRIGGERS.SHOOT) {
 			this.isEinstein = true;
 		}
 		
-		if (this.attributes.ATTACK_MODE == `PROJECTILE`) {
+		if (this.attributes.ATTACK_MODE == `STATIC`) {
+			this.updateMovement = (deltaT) => {};
+			this.idle = (deltaT,parent) => {};
+		} 
+		else if (this.attributes.ATTACK_MODE == `PROJECTILE`) {
 			this.noBorderCollision = true;
 			this.updateMovement = (deltaT) => {};
 			this.idle = (deltaT,parent) => {};
@@ -58,11 +61,11 @@ class Mob extends Entity {
 			};
 		} 
 		else if (this.attributes.ATTACK_MODE == `EVIL`) {
-			this.updateMovement = (deltaT,target) => {
+			this.updateMovement = (deltaT, target) => {
 				if (!target) return;
 				
 				//segment
-				if (target && target.segments && target.segments.includes(this.id)) {
+				if (target && this.segments.includes(target.id)) {
 					const direction = Math.atan2(target.x - this.x, this.y - target.y);
 					let distance = Math.sqrt((this.x - target.x) ** 2 + (this.y - target.y) ** 2) - this.attributes.RADIUS - target.attributes.RADIUS;
 					if (!target.attributes.IS_SEGMENT) distance -= 7;
@@ -73,7 +76,7 @@ class Mob extends Entity {
 				}
 				
 				let distanceToTarget = Math.sqrt((target.x - this.x) ** 2 + (target.y - this.y) ** 2);
-				if (distanceToTarget <= this.maxCloseLength) {
+				if (distanceToTarget - this.attributes.RADIUS - target.attributes.RADIUS <= this.maxCloseLength) {
 					let atan = Math.atan2(this.x - target.x, target.y - this.y) + this.aimMovementDirection;
 					let goalPos = {
 						x: target.x + distanceToTarget * Math.sin(atan),
@@ -111,13 +114,18 @@ class Mob extends Entity {
 	
 	idle(deltaT,parent) {
 		//首次受到攻击时更改攻击目标
-		if (this.attributes.ATTACK_MODE != `PEACE` && this.hurtByInfo.id.playerID) { //player
-			this.target = this.hurtByInfo.id.playerID;
-		} else if (this.hurtByInfo.id != -1) { //mob
-			this.target = this.hurtByInfo.id;
+		if (this.attributes.ATTACK_MODE != `PEACE`) {
+			if (this.hurtByInfo.id.playerID) { //player
+				this.target = this.hurtByInfo.id.playerID;
+			} else if (this.hurtByInfo.id != -1) { //mob
+				this.target = this.hurtByInfo.id;
+			}
 		}
 		
-		if (this.idleMode == `NORMAL`) {
+		if (this.idleMode == `STATIC`) {
+			return;
+		}
+		else if (this.idleMode == `NORMAL`) {
 			this.isSkillenable = false;
 			
 			if (parent && this.distanceTo(parent) > Constants.MOB_IDLE_RADIUS) {

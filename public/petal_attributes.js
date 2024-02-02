@@ -43,7 +43,7 @@ module.exports = Object.freeze({
 	  MULTIPLE: false,
 	  CLUSTER: false,
 	  COUNT: 1,
-	  TRIGGERS: { BUBBLE_PUSH: 1500 }
+	  TRIGGERS: { BUBBLE_PUSH: 1500, ACTION_COOLDOWN: 0.1 }
 	},
 	CACTUS: {
 	  TYPE: 'CACTUS',
@@ -124,7 +124,7 @@ module.exports = Object.freeze({
 	  MULTIPLE: false,
 	  CLUSTER: false,
 	  COUNT: 1,
-	  TRIGGERS: { ACTION_COOLDOWN: 3.5, SUMMON: 'BEETLE' } //HORNET
+	  TRIGGERS: { ACTION_COOLDOWN: 3.5, SUMMON: 'BEETLE' }
 	},
 	FAST: {
 	  TYPE: 'FAST',
@@ -155,6 +155,27 @@ module.exports = Object.freeze({
 	  CLUSTER: false,
 	  COUNT: 1,
 	  TRIGGERS: {}
+	},
+	LIGHTNING: {
+	  TYPE: 'LIGHTNING',
+	  RADIUS: 19,
+	  RENDER_RADIUS: 25,
+	  RARITY: 5,
+	  RELOAD: 2,
+	  DAMAGE: 0,
+	  MAX_HP: 0.1,
+	  MASS: 1,
+	  EXPANDABLE: true,
+	  MULTIPLE: false,
+	  CLUSTER: false,
+	  COUNT: 1,
+	  TRIGGERS: { 
+		  LIGHTNING:  {
+			  DAMAGE: 12,
+			  COUNT: 5,
+			  COLLIDE: true
+		  }
+	  }
 	},
 	PEAS: {
 	  TYPE: 'PEAS',
@@ -502,21 +523,6 @@ module.exports = Object.freeze({
 	  COUNT: 1,
 	  TRIGGERS: {}
 	},
-	LIGHTNING: {
-	  TYPE: 'LIGHTNING',
-	  RADIUS: 19,
-	  RENDER_RADIUS: 25,
-	  RARITY: 5,
-	  RELOAD: 2,
-	  DAMAGE: 20,
-	  MAX_HP: 0.1,
-	  MASS: 1,
-	  EXPANDABLE: true,
-	  MULTIPLE: false,
-	  CLUSTER: false,
-	  COUNT: 1,
-	  TRIGGERS: { LIGHTNING: 5 }
-	},
 	YINYANG: {
 	  TYPE: 'YINYANG',
 	  RADIUS: 14,
@@ -549,8 +555,8 @@ module.exports = Object.freeze({
 	},
 	LEAF: {
 	  TYPE: 'LEAF',
-	  RADIUS: 14,
-	  RENDER_RADIUS: 9,
+	  RADIUS: 12,
+	  RENDER_RADIUS: 12,
 	  RARITY: 1,
 	  RELOAD: 1,
 	  DAMAGE: 8,
