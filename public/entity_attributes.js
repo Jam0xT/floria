@@ -371,12 +371,12 @@ module.exports = Object.freeze({
 			MIN: -20,
 			MAX: 20,
 		},
-		MAX_HP: 36000,
+		MAX_HP: 36, // 36
 		HP_DEVIATION: {
 			MIN: -8,
 			MAX: 8,
 		},
-		DAMAGE: 35,
+		DAMAGE: 0, //35
 		VALUE: 10,
 		EXPERIENCE: 2,
 		SPAWN_WEIGHT: 100,

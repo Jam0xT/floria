@@ -320,8 +320,8 @@ function disable(petal) {
 	sendPetalDisableEvent(petal);
 }
 
-export function switchInput(petalA, petalB, implement) {
-	sendPetalSwitchEvent(petalA, petalB, implement);
+export function switchInput(petalA, petalB) {
+	sendPetalSwitchEvent(petalA, petalB);
 }
 
 export function updateSlotsData(W_, hpx_, primarySlotHitboxLength_, primarySlotDisplayLength_, primarySlotCenterY_, primarySlotCount_,

@@ -27,23 +27,23 @@ class Player extends Entity {
 		this.secondaryPetals = [];
 		this.petals = [];
 
-		this.primaryPetals[0] = 'TRI_STINGER';
-		this.primaryPetals[1] = 'MISSILE';
-		this.primaryPetals[2] = 'PEAS';
-		this.primaryPetals[3] = 'WING';
-		this.primaryPetals[4] = 'WING';
-		this.primaryPetals[5] = 'WING';
-		this.primaryPetals[6] = 'ROSE_ADVANCED';
-		this.primaryPetals[7] = 'ROSE_ADVANCED';
+		this.primaryPetals[0] = 'EGG';
+		this.primaryPetals[1] = 'EGG';
+		this.primaryPetals[2] = 'EGG';
+		this.primaryPetals[3] = 'EGG';
+		this.primaryPetals[4] = 'EGG';
+		this.primaryPetals[5] = 'EGG';
+		this.primaryPetals[6] = 'EGG';
+		this.primaryPetals[7] = 'EGG';
 
-		this.secondaryPetals[0] = 'RICE';
-		this.secondaryPetals[1] = 'RICE';
-		this.secondaryPetals[2] = 'PENTA';
-		this.secondaryPetals[3] = 'YINYANG';
+		this.secondaryPetals[0] = 'LEAF';
+		this.secondaryPetals[1] = 'LEAF';
+		this.secondaryPetals[2] = 'LEAF';
+		this.secondaryPetals[3] = 'LEAF';
 		this.secondaryPetals[4] = 'BUBBLE';
 		this.secondaryPetals[5] = 'BUBBLE';
 		this.secondaryPetals[6] = 'BUBBLE';
-		this.secondaryPetals[7] = 'EGG';
+		this.secondaryPetals[7] = 'POLLEN';
 
 		for (let i = 0; i < Constants.PRIMARY_SLOT_COUNT_BASE; i ++ ) {
 			this.petals.push([new Petal(i, i * Constants.PETAL_MULTIPLE_MAX, i, x, y, id, this.primaryPetals[i], true)]);
@@ -82,7 +82,6 @@ class Player extends Entity {
 		let tmp;
 		this.switched = true;
 		if ( slot1 != -1 ) {
-			// console.log('switch');
 			if ( (!slot1.isPrimary) && slot2.isPrimary ) {
 				tmp = slot1;
 				slot1 = slot2;
@@ -489,9 +488,14 @@ class Player extends Entity {
 						return;
 					}
 				}
-				
-				if ( this.defend ) { // defend trigger
-					if ( petal.attributes.TRIGGERS.BUBBLE_PUSH ) { // trigger bubble
+
+				if ( petal.attributes.TRIGGERS.BUBBLE_PUSH ) { // trigger bubble
+					if ( petal.actionCooldown > 0 ) {
+						petal.actionCooldown -= deltaT;
+						return;
+					} 
+					
+					if ( this.defend ) {
 						petal.hp = -1;
 						const dir = this.firstPetalDirection + 2 * Math.PI * petal.placeHolder / this.placeHolder;
 						const push = petal.attributes.TRIGGERS.BUBBLE_PUSH;
@@ -499,6 +503,9 @@ class Player extends Entity {
 						this.bubbleVelocity.y += push * Math.cos(dir);
 						return;
 					}
+				}
+				
+				if ( this.defend ) { // defend trigger
 					if ( petal.attributes.TRIGGERS.HEAL_SUSTAIN_DEFENCE ) {
 						if ( this.hp < this.maxHp && (!this.noHeal) ) {
 							this.hp += petal.attributes.TRIGGERS.HEAL_SUSTAIN_DEFENCE * deltaT;
@@ -572,7 +579,7 @@ class Player extends Entity {
 		})
 	}
 
-	reload(slot,idInPlaceHolder) {
+	reload(slot, idInPlaceHolder) {
 		this.petals.forEach((petals) => {
 			petals.forEach((petal) => {
 				if (petal.isHide) return;

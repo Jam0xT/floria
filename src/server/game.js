@@ -128,7 +128,7 @@ class Game {
 		}
 	}
 
-	handlePetalSwitch(socket, petalA, petalB, implement) {
+	handlePetalSwitch(socket, petalA, petalB) {
 		const player = this.players[socket.id];
 		if (!player) return;
 		player.switchPetals(petalA, petalB);
@@ -357,10 +357,15 @@ class Game {
 				}
 				
 				//创建掉落
-				if (mob.attributes.DROP) this.createDrop(mob.attributes.DROP, mob.x, mob.y);
+				(() => {
+					if ( this.players[mob.team] )
+						return;
+					if ( mob.attributes.DROP )
+						this.createDrop(mob.attributes.DROP, mob.x, mob.y);
+				})();
 				
 				//删除存于玩家的mob属性
-				if (this.players[mob.team]) delete this.players[mob.team].pets[mobID]; 
+				if ( this.players[mob.team] ) delete this.players[mob.team].pets[mobID]; 
 				
 				mob.segments.splice(mob.segments.indexOf(mob.id), 1);
 				
