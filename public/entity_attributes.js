@@ -234,9 +234,9 @@ module.exports = Object.freeze({
 	    EXPERIENCE: 10,
 	    VOLUME: 100,
 	    DROP: { BUBBLE: 0.5 },
-		SPAWN_AREA: {
-			OCEAN: 100
-		},
+      SPAWN_AREA: {
+        OCEAN: 100
+      },
 	    IDLE_MODE: 'NORMAL',
 	    ATTACK_MODE: 'PEACE',
 	    TYPE: 'BUBBLE',
@@ -251,12 +251,12 @@ module.exports = Object.freeze({
 			MIN: -20,
 			MAX: 20,
 		},
-		MAX_HP: 36,
+		MAX_HP: 36, // 36
 		HP_DEVIATION: {
 			MIN: -8,
 			MAX: 8,
 		},
-		DAMAGE: 35,
+		DAMAGE: 0, //35
 		VALUE: 10,
 		EXPERIENCE: 2,
 		VOLUME: 100,

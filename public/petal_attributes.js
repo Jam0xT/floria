@@ -43,7 +43,7 @@ module.exports = Object.freeze({
 	  MULTIPLE: false,
 	  CLUSTER: false,
 	  COUNT: 1,
-	  TRIGGERS: { BUBBLE_PUSH: 1500 }
+	  TRIGGERS: { BUBBLE_PUSH: 1500, ACTION_COOLDOWN: 0.1 }
 	},
 	CACTUS: {
 	  TYPE: 'CACTUS',
@@ -576,8 +576,8 @@ module.exports = Object.freeze({
 	},
 	LEAF: {
 	  TYPE: 'LEAF',
-	  RADIUS: 14,
-	  RENDER_RADIUS: 9,
+	  RADIUS: 12,
+	  RENDER_RADIUS: 12,
 	  RARITY: 1,
 	  RELOAD: 1,
 	  DAMAGE: 8,
