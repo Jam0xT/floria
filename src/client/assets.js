@@ -16,6 +16,7 @@ const ASSET_NAMES = [
 	'mobs/centipede_segment.svg',
 	'mobs/centipede_evil.svg',
 	'mobs/centipede_evil_segment.svg',
+	'mobs/crab.svg',
 	'mobs/dark_ladybug.svg',
 	'mobs/hornet.svg',
 	'mobs/jellyfish.svg',

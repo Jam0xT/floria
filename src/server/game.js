@@ -351,7 +351,8 @@ class Game {
 							const isContentProjectile = EntityAttributes[type].ATTACK_MODE == `PROJECTILE` ? true : false;
 							for (let time = 0; time < number; time++) {
 								if (contents[type] <= 0) break;
-								this.spawnMob(type, mob.value.x, mob.value.y, mob.value.team, isContentProjectile, isContentProjectile ? Constants.PROJECTILE_EXIST_TIME : Infinity);
+								const newMob = this.spawnMob(type, entityA.x, entityA.y, entityA.team, isContentProjectile, isContentProjectile ? Constants.PROJECTILE_EXIST_TIME : Infinity);
+								newMob.slot = mob.slot;					
 								contents[type]--;
 							}
 						})
@@ -1032,7 +1033,8 @@ class Game {
 						const isContentProjectile = EntityAttributes[type].ATTACK_MODE == `PROJECTILE` ? true : false;
 						for (let time = 0; time < number; time++) {
 							if (contents[type] <= 0) break;
-							this.spawnMob(type, entityA.x, entityA.y, entityA.team, isContentProjectile, isContentProjectile ? Constants.PROJECTILE_EXIST_TIME : Infinity);
+							const newMob = this.spawnMob(type, entityA.x, entityA.y, entityA.team, isContentProjectile, isContentProjectile ? Constants.PROJECTILE_EXIST_TIME : Infinity);
+							newMob.slot = entityA.slot;
 							contents[type]--;
 						}
 					})

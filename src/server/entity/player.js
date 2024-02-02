@@ -32,7 +32,7 @@ class Player extends Entity {
 		// 	this.secondaryPetals.push('EMPTY');
 		// }
 		
-		this.primaryPetals[0] = 'LIGHTNING';
+		this.primaryPetals[0] = 'PEAS';
 		this.primaryPetals[1] = 'LIGHTNING';
 		this.primaryPetals[2] = 'LIGHTNING';
 		this.primaryPetals[3] = 'LIGHTNING';
@@ -291,10 +291,10 @@ class Player extends Entity {
 		this.petals.forEach((petals) => {
 			petals.forEach((petal,index) => {
 				if ( !petal.inCooldown ) {
-					if ( (petal.attributes.TRIGGERS.PROJECTILE || petal.attributes.TRIGGERS.DIVIDE) && petal.action ) {
+					if (petal.attributes.TRIGGERS.PROJECTILE && petal.action ) {
 						petal.movement = {
 							direction: petal.direction,
-							speed: petal.attributes.TRIGGERS.PROJECTILE || petal.attributes.TRIGGERS.DIVIDE,
+							speed: petal.attributes.TRIGGERS.PROJECTILE,
 						};
 					} else {
 						if (petal.attributes.TRIGGERS.PROJECTILE) {
@@ -466,7 +466,7 @@ class Player extends Entity {
 					}
 				}
 				
-				if ( petal.attributes.TRIGGERS.DIVIDE ) {
+				if ( petal.attributes.TRIGGERS.SPLIT ) {
 					if ( petal.actionCooldown > 0 ) {
 						petal.actionCooldown -= deltaT;
 						return;
@@ -482,16 +482,16 @@ class Player extends Entity {
 					
 					if ( this.attack ) {
 						const firstDirection = Math.random() * Math.PI * 2;
-						for (let i = 0; i < petal.attributes.TRIGGERS.DIVIDE.COUNT; i++) {
-							const direction = firstDirection + i / petal.attributes.TRIGGERS.DIVIDE.COUNT * Math.PI * 2;
-							const projectile = this.newPetal(petal.attributes.TRIGGERS.DIVIDE.NAME, this.getNewPetalID(), -1, -1, -1);
+						for (let i = 0; i < petal.attributes.TRIGGERS.SPLIT.COUNT; i++) {
+							const direction = firstDirection + i / petal.attributes.TRIGGERS.SPLIT.COUNT * Math.PI * 2;
+							const projectile = this.newPetal(petal.attributes.TRIGGERS.SPLIT.NAME, this.getNewPetalID(), -1, -1, -1);
 							projectile.action = true;
 							projectile.x = petal.x;
 							projectile.y = petal.y;
 							projectile.direction = direction;
 							projectile.velocity = {
-								x: petal.attributes.TRIGGERS.DIVIDE.SPEED / Constants.SPEED_ATTENUATION_COEFFICIENT * Math.sin(direction),
-								y: petal.attributes.TRIGGERS.DIVIDE.SPEED / Constants.SPEED_ATTENUATION_COEFFICIENT * Math.cos(direction),
+								x: petal.attributes.TRIGGERS.SPLIT.SPEED / Constants.SPEED_ATTENUATION_COEFFICIENT * Math.sin(direction),
+								y: petal.attributes.TRIGGERS.SPLIT.SPEED / Constants.SPEED_ATTENUATION_COEFFICIENT * Math.cos(direction),
 							};
 							this.petals.push([projectile]);
 						}
