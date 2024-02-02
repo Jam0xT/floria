@@ -9,8 +9,10 @@ module.exports = Object.freeze({
 		DAMAGE: 25,
 		VALUE: 100,
 		EXPERIENCE: 10,
-		SPAWN_WEIGHT: 0,
 		VOLUME: 0,
+		SPAWN_AREA: {
+			//area name, spawn rate     example: DESERT: 50
+		},
 		ATTACK_MODE: 'PLAYER',
 		TYPE: 'PLAYER',
 		TRIGGERS: {}
@@ -24,7 +26,6 @@ module.exports = Object.freeze({
 		DAMAGE: 15,
 		VALUE: 10,
 		EXPERIENCE: 10,
-		SPAWN_WEIGHT: 0,
 		VOLUME: 1000,
 		CONTENT: {
 			ANT_BABY: 5,
@@ -61,145 +62,8 @@ module.exports = Object.freeze({
 		  WING: 0.31,
 		  EGG: 0.06,
 		},
-		IDLE_MODE: 'STATIC',
-		ATTACK_MODE: 'STATIC',
-		TYPE: 'ANT_HOLE'
-	},
-	ANT_BABY: {
-		MASS: 10,
-		SPEED: 80,
-		RADIUS: 15,
-		RENDER_RADIUS: 15,
-		MAX_HP: 10,
-		DAMAGE: 10,
-		VALUE: 10,
-		EXPERIENCE: 1,
-		SPAWN_WEIGHT: 0,
-		VOLUME: 100,
-		DROP: {
-		  FAST: 0.44,
-		  LEAF: 0.26,
-		  TWIN: 0.12,
-		  RICE: 0.005,
-		  TRIPLET: 0.0006,
-		},
-		IDLE_MODE: 'NORMAL',
-		ATTACK_MODE: 'PEACE',
-		TYPE: 'ANT_BABY'
-	},
-	ANT_WORKER: {
-		MASS: 10,
-		SPEED: 80,
-		RADIUS: 16,
-		RENDER_RADIUS: 16,
-		MAX_HP: 25,
-		DAMAGE: 10,
-		VALUE: 10,
-		EXPERIENCE: 2,
-		SPAWN_WEIGHT: 0,
-		VOLUME: 100,
-		DROP: {
-		  FAST: 0.46,
-		  LEAF: 0.28,
-		  TWIN: 0.13,
-		  //CORN: 0.006,
-		  TRIPLET: 0.0006,
-		},
-		IDLE_MODE: 'NORMAL',
-		ATTACK_MODE: 'NEUTRAL',
-		TYPE: 'ANT_WORKER'
-	},
-	ANT_SOLDIER: {
-		MASS: 10,
-		SPEED: 80,
-		RADIUS: 18,
-		RENDER_RADIUS: 18,
-		MAX_HP: 40,
-		DAMAGE: 10,
-		VALUE: 10,
-		EXPERIENCE: 5,
-		SPAWN_WEIGHT: 0,
-		VOLUME: 100,
-		DROP: {
-		  IRIS: 0.12,
-		  TWIN: 0.08,
-		  FASTER: 0.03,
-		  WING: 0.008,
-		  TRIPLET: 0.0004,
-		},
-		IDLE_MODE: 'NORMAL',
-		ATTACK_MODE: 'EVIL',
-		TYPE: 'ANT_SOLDIER'
-	},
-	ANT_QUEEN: {
-		MASS: 20,
-		SPEED: 80,
-		RADIUS: 26,
-		RENDER_RADIUS: 26,
-		MAX_HP: 200,
-		DAMAGE: 10,
-		VALUE: 10,
-		EXPERIENCE: 5,
-		SPAWN_WEIGHT: 0,
-		VOLUME: 100,
-		DROP: {
-		  TWIN: 1,
-		  FASTER: 1,
-		  WING: 0.31,
-		  EGG: 0.06,
-		  TRIPLET: 0.01,
-		  TRI_STINGER: 0.006,
-		},
-		IDLE_MODE: 'NORMAL',
-		ATTACK_MODE: 'EVIL',
-		TYPE: 'ANT_QUEEN',
-		TRIGGERS: {}
-	},
-	ANT_HOLE: {
-		MASS: 10000,
-		SPEED: 0,
-		RADIUS: 40,
-		RENDER_RADIUS: 40,
-		MAX_HP: 300,
-		DAMAGE: 15,
-		VALUE: 10,
-		EXPERIENCE: 10,
-		SPAWN_WEIGHT: 0,
-		VOLUME: 1000,
-		CONTENT: {
-			ANT_BABY: 5,
-			ANT_WORKER: 8,
-			ANT_SOLDIER: 26,
-			ANT_QUEEN: 1,
-		},
-		CONTENT_RELEASE: {
-			ONHIT: {
-				HP: 30,
-				TIMES: 0,
-				RELEASE: {
-					ANT_BABY: 1,
-					ANT_WORKER: 1,
-					ANT_SOLDIER: 2,
-				}
-			},
-			ONSPAWN: {
-				RELEASE: {
-					ANT_BABY: 2,
-					ANT_WORKER: 4,
-					ANT_SOLDIER: 5,
-				}
-			},
-			ONDIE: {
-				RELEASE: {
-					ANT_SOLDIER: 6,
-					ANT_QUEEN: 1,
-				}
-			}
-		},
-		DROP: {
-		  IRIS: 1,
-		  WING: 0.31,
-		  EGG: 0.06,
+		SPAWN_AREA: {
+			DESERT: 50
 		},
 		IDLE_MODE: 'STATIC',
 		ATTACK_MODE: 'STATIC',
@@ -215,7 +79,6 @@ module.exports = Object.freeze({
 		DAMAGE: 10,
 		VALUE: 10,
 		EXPERIENCE: 1,
-		SPAWN_WEIGHT: 0,
 		VOLUME: 100,
 		DROP: {
 		  FAST: 0.44,
@@ -223,6 +86,10 @@ module.exports = Object.freeze({
 		  TWIN: 0.12,
 		  RICE: 0.005,
 		  TRIPLET: 0.0006,
+		},
+		SPAWN_AREA: {
+			GARDEN: 200,
+			DESERT: 200
 		},
 		IDLE_MODE: 'NORMAL',
 		ATTACK_MODE: 'PEACE',
@@ -238,7 +105,6 @@ module.exports = Object.freeze({
 		DAMAGE: 10,
 		VALUE: 10,
 		EXPERIENCE: 2,
-		SPAWN_WEIGHT: 0,
 		VOLUME: 100,
 		DROP: {
 		  FAST: 0.46,
@@ -246,6 +112,10 @@ module.exports = Object.freeze({
 		  TWIN: 0.13,
 		  //CORN: 0.006,
 		  TRIPLET: 0.0006,
+		},
+		SPAWN_AREA: {
+			GARDEN: 200,
+			DESERT: 200
 		},
 		IDLE_MODE: 'NORMAL',
 		ATTACK_MODE: 'NEUTRAL',
@@ -261,7 +131,6 @@ module.exports = Object.freeze({
 		DAMAGE: 10,
 		VALUE: 10,
 		EXPERIENCE: 5,
-		SPAWN_WEIGHT: 0,
 		VOLUME: 100,
 		DROP: {
 		  IRIS: 0.12,
@@ -269,6 +138,9 @@ module.exports = Object.freeze({
 		  FASTER: 0.03,
 		  WING: 0.008,
 		  TRIPLET: 0.0004,
+		},
+		SPAWN_AREA: {
+			DESERT: 200
 		},
 		IDLE_MODE: 'NORMAL',
 		ATTACK_MODE: 'EVIL',
@@ -284,7 +156,6 @@ module.exports = Object.freeze({
 		DAMAGE: 10,
 		VALUE: 10,
 		EXPERIENCE: 5,
-		SPAWN_WEIGHT: 0,
 		VOLUME: 100,
 		DROP: {
 		  TWIN: 1,
@@ -293,6 +164,9 @@ module.exports = Object.freeze({
 		  EGG: 0.06,
 		  TRIPLET: 0.01,
 		  TRI_STINGER: 0.006,
+		},
+		SPAWN_AREA: {
+			//empty......
 		},
 		IDLE_MODE: 'NORMAL',
 		ATTACK_MODE: 'EVIL',
@@ -308,7 +182,6 @@ module.exports = Object.freeze({
 	    DAMAGE: 50,
 	    VALUE: 10,
 	    EXPERIENCE: 10,
-	    SPAWN_WEIGHT: 0,
 	    VOLUME: 100,
 	    DROP: {
 	      BUBBLE: 0.006,
@@ -318,6 +191,9 @@ module.exports = Object.freeze({
 	      TWIN: 0.03,
 	      WING: 0.003
 	    },
+		SPAWN_AREA: {
+			GARDEN: 200,
+		},
 	    IDLE_MODE: 'FLOAT',
 	    ATTACK_MODE: 'PEACE',
 	    TYPE: 'BEE',
@@ -332,7 +208,6 @@ module.exports = Object.freeze({
 	    DAMAGE: 35,
 	    VALUE: 10,
 	    EXPERIENCE: 5,
-	    SPAWN_WEIGHT: 0,
 	    VOLUME: 100,
 	    DROP: {
 		  IRIS: 0.09,
@@ -340,6 +215,9 @@ module.exports = Object.freeze({
 	      WING: 0.06,
 		  TRIPLET: 0.003,
 	    },
+		SPAWN_AREA: {
+			DESERT: 200
+		},
 	    IDLE_MODE: 'NORMAL',
 	    ATTACK_MODE: 'EVIL',
 	    TYPE: 'BEETLE',
@@ -354,9 +232,11 @@ module.exports = Object.freeze({
 	    DAMAGE: 5,
 	    VALUE: 10,
 	    EXPERIENCE: 10,
-	    SPAWN_WEIGHT: 0,
 	    VOLUME: 100,
 	    DROP: { BUBBLE: 0.5 },
+      SPAWN_AREA: {
+        OCEAN: 100
+      },
 	    IDLE_MODE: 'NORMAL',
 	    ATTACK_MODE: 'PEACE',
 	    TYPE: 'BUBBLE',
@@ -379,7 +259,6 @@ module.exports = Object.freeze({
 		DAMAGE: 0, //35
 		VALUE: 10,
 		EXPERIENCE: 2,
-		SPAWN_WEIGHT: 100,
 		VOLUME: 100,
 		DROP: {
 			CACTUS: 0.03,
@@ -387,6 +266,9 @@ module.exports = Object.freeze({
 			TRI_CACTUS: 0.00005,
 			MISSILE: 0.009,
 			STINGER: 0.05,
+		},
+		SPAWN_AREA: {
+			DESERT: 150
 		},
 		IDLE_MODE: 'STATIC',
 		ATTACK_MODE: 'PEACE',
@@ -402,7 +284,6 @@ module.exports = Object.freeze({
 		DAMAGE: 10,
 		VALUE: 10,
 		EXPERIENCE: 10,
-		SPAWN_WEIGHT: 0,
 		VOLUME: 100,
 		DROP: {
 			FAST: 0.09,
@@ -411,6 +292,10 @@ module.exports = Object.freeze({
 			PEAS_TOXIC: 0.0005,
 			TWIN: 0.02,
 			TRIPLET: 0.0001,
+		},
+		SPAWN_AREA: {
+			GARDEN: 100,
+			DESERT: 100
 		},
 		SEGMENT: { MIN: 5, MAX: 9, NAME: 'CENTIPEDE_SEGMENT'},
 		IDLE_MODE: 'FLOAT_SLOW',
@@ -427,7 +312,6 @@ module.exports = Object.freeze({
 		DAMAGE: 10,
 		VALUE: 10,
 		EXPERIENCE: 10,
-		SPAWN_WEIGHT: 0,
 		VOLUME: 100,
 		DROP: {
 			FAST: 0.09,
@@ -452,13 +336,15 @@ module.exports = Object.freeze({
 		DAMAGE: 10,
 		VALUE: 10,
 		EXPERIENCE: 10,
-		SPAWN_WEIGHT: 0,
 		VOLUME: 100,
 		DROP: {
 			IRIS: 0.82,
 			PEAS_TOXIC: 0.01,
 			TRIPLET: 0.003,
 			//Peas Legendary: 0.001,
+		},
+		SPAWN_AREA: {
+			DESERT: 50
 		},
 		SEGMENT: { MIN: 5, MAX: 9, NAME: 'CENTIPEDE_EVIL_SEGMENT'},
 		IDLE_MODE: 'FLOAT_SLOW',
@@ -475,7 +361,6 @@ module.exports = Object.freeze({
 		DAMAGE: 10,
 		VALUE: 10,
 		EXPERIENCE: 10,
-		SPAWN_WEIGHT: 0,
 		VOLUME: 100,
 		DROP: {
 			IRIS: 0.82,
@@ -498,7 +383,6 @@ module.exports = Object.freeze({
 	    DAMAGE: 10,
 	    VALUE: 10,
 	    EXPERIENCE: 10,
-	    SPAWN_WEIGHT: 0,
 	    VOLUME: 100,
 	    DROP: {
 	      BUBBLE: 0.006,
@@ -508,6 +392,9 @@ module.exports = Object.freeze({
 	      WING: 0.04,
 	      YINYANG: 0.02
 	    },
+		SPAWN_AREA: {
+			UNKNOWN: 200
+		},
 	    IDLE_MODE: 'NORMAL',
 	    ATTACK_MODE: 'NEUTRAL',
 	    TYPE: 'DARK_LADYBUG',
@@ -522,9 +409,12 @@ module.exports = Object.freeze({
 	    DAMAGE: 50,
 	    VALUE: 10,
 	    EXPERIENCE: 10,
-	    SPAWN_WEIGHT: 0,
 	    VOLUME: 200,
 	    DROP: { DANDELION: 0.14, MISSILE: 0.09, BUBBLE: 0.05, WING: 0.03 },
+		SPAWN_AREA: {
+			DESERT: 20,
+			UNKNOWN: 200
+		},
 	    IDLE_MODE: 'FLOAT',
 	    ATTACK_MODE: 'EVIL',
 	    MAX_CLOSE_LENGTH: 350,
@@ -541,9 +431,11 @@ module.exports = Object.freeze({
 	    DAMAGE: 40,
 	    VALUE: 10,
 	    EXPERIENCE: 10,
-	    SPAWN_WEIGHT: 0,
 	    VOLUME: 200,
 	    DROP: { LIGHTNING: 0.00114514 },
+		SPAWN_AREA: {
+			OCEAN: 200
+		},
 	    IDLE_MODE: 'FLOAT',
 	    ATTACK_MODE: 'EVIL',
 	    MAX_CLOSE_LENGTH: 250,
@@ -551,8 +443,8 @@ module.exports = Object.freeze({
 	    TYPE: 'JELLYFISH',
 	    TRIGGERS: {
 			LIGHTNING:  {
-				DAMAGE: 12,
-				COUNT: 5
+				DAMAGE: 8,
+				COUNT: 4
 			}
 		}
 	},
@@ -565,13 +457,15 @@ module.exports = Object.freeze({
 		DAMAGE: 25,
 		VALUE: 10,
 		EXPERIENCE: 10,
-		SPAWN_WEIGHT: 0,
 		VOLUME: 100,
 		DROP: {
 
 		},
+		SPAWN_AREA: {
+			OCEAN: 100
+		},
 		SKILL_COOLDOWN: 1,
-		SEGMENT: { MIN: 10, MAX: 10, NAME: 'LEECH_SEGMENT'},
+		SEGMENT: { MIN: 9, MAX: 9, NAME: 'LEECH_SEGMENT'},
 		IDLE_MODE: 'FLOAT_SLOW',
 		ATTACK_MODE: 'EVIL',
 		TYPE: 'LEECH',
@@ -591,7 +485,6 @@ module.exports = Object.freeze({
 		DAMAGE: 25,
 		VALUE: 10,
 		EXPERIENCE: 10,
-		SPAWN_WEIGHT: 0,
 		VOLUME: 100,
 		DROP: {
 
@@ -612,7 +505,6 @@ module.exports = Object.freeze({
 	    DAMAGE: 10,
 	    VALUE: 10,
 	    EXPERIENCE: 0,
-	    SPAWN_WEIGHT: 0,
 	    VOLUME: 0,
 	    IDLE_MODE: 'NORMAL',
 	    ATTACK_MODE: 'PROJECTILE',

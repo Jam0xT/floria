@@ -124,7 +124,28 @@ module.exports = Object.freeze({
 	  MULTIPLE: false,
 	  CLUSTER: false,
 	  COUNT: 1,
-	  TRIGGERS: { ACTION_COOLDOWN: 3.5, SUMMON: 'BEETLE' }
+	  TRIGGERS: { ACTION_COOLDOWN: 3.5, SUMMON: 'ANT_HOLE' } //HORNET
+	},
+	FANGS: {
+	  TYPE: 'FANGS',
+	  RADIUS: 8,
+	  RENDER_RADIUS: 8,
+	  RARITY: 2,
+	  RELOAD: 2,
+	  DAMAGE: 15,
+	  MAX_HP: 10,
+	  MASS: 1,
+	  EXPANDABLE: true,
+	  MULTIPLE: false,
+	  CLUSTER: false,
+	  COUNT: 1,
+	  TRIGGERS: {
+		  VAMPIRISM: {
+		  	HEAL: 0.1,
+			HEAL_PLAYER: 0.3,
+			COLLIDE: true,
+		  },
+	  }
 	},
 	FAST: {
 	  TYPE: 'FAST',
@@ -191,7 +212,7 @@ module.exports = Object.freeze({
 	  CLUSTER: false,
 	  COUNT: 1,
 	  TRIGGERS: { 
-		DIVIDE: {
+		SPLIT: {
 			COUNT: 4,
 			SPEED: 250,
 			NAME: 'PEAS_SINGLE',
@@ -214,7 +235,7 @@ module.exports = Object.freeze({
 		CLUSTER: false,
 		COUNT: 1,
 		TRIGGERS: { 
-			DIVIDE: 250,
+			PROJECTILE: 250,
 			ACTION_TIME: 1.5,
 		}
 	},
@@ -232,7 +253,7 @@ module.exports = Object.freeze({
 	  CLUSTER: false,
 	  COUNT: 1,
 	  TRIGGERS: { 
-		DIVIDE: {
+		SPLIT: {
 			COUNT: 4,
 			SPEED: 250,
 			NAME: 'PEAS_TOXIC_SINGLE',
@@ -257,7 +278,7 @@ module.exports = Object.freeze({
 		CLUSTER: false,
 		COUNT: 1,
 		TRIGGERS: { 
-			DIVIDE: 250,
+			PROJECTILE: 250,
 			ACTION_TIME: 1.5,
 			POISON: 5,
 			TOXICITY: 5,
@@ -277,7 +298,7 @@ module.exports = Object.freeze({
 	  CLUSTER: false,
 	  COUNT: 1,
 	  TRIGGERS: { 
-		DIVIDE: {
+		SPLIT: {
 			COUNT: 4,
 			SPEED: 250,
 			NAME: 'PEAS_LEGENDARY_SINGLE',
@@ -302,7 +323,7 @@ module.exports = Object.freeze({
 		CLUSTER: false,
 		COUNT: 1,
 		TRIGGERS: { 
-			DIVIDE: 250,
+			PROJECTILE: 250,
 			ACTION_TIME: 1.5,
 			POISON: 20,
 			TOXICITY: 9,
@@ -655,6 +676,29 @@ PETAL_NAME: {
 		TOXICITY: dmg // 每秒毒伤
 		BODY_POISON: poison // 身体碰撞毒伤
 		BODY_TOXICITY: dmg // 身体碰撞每秒毒伤
+		PUNCTURE: times // 百分比脆弱触发次数
+		PUNCTURE_DAMAGE: dmg // 百分比脆弱倍率
+		HEAL_SUSTAIN: heal // 持续恢复血量
+		HEAL_SUSTAIN_DEFENCE: heal // 持续恢复血量(防御姿态)
+		FLOAT: distance // 花瓣上下浮动幅度
+		SPLIT: { 分裂
+			COUNT 分裂数量,
+			SPEED 分裂物速度,
+			NAME 分裂物名称,
+		},
+		LIGHTNING: { 闪电
+			DAMAGE 伤害,
+			COUNT 连锁数量,
+			COLLIDE 是否为碰撞触发，为否则由其它方式触发
+		}
+		SUMMON: name 召唤物名称（需要配合ACTION_COOLDOWN使用）
+		VAMPIRISM: { 吸血
+			HEAL 自身回血倍率
+			HEAL_PLAYER 玩家回血倍率
+			COLLIDE 是否为碰撞触发，为否则由其它方式触发
+		},
+		ROTATION_ACCELERATE: speed 花瓣旋转速度增加
+		ROTATION_SWITCH: bool 是否能改变花瓣旋转模式（阴阳）
 	}, 
 }
 */

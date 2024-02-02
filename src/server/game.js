@@ -8,7 +8,10 @@ const Drop = require('./entity/drop');
 
 var TOTAL_SPAWN_WEIGHT = 0; // this is a constant
 Object.values(EntityAttributes).forEach(attribute => {
-	TOTAL_SPAWN_WEIGHT += attribute.SPAWN_WEIGHT;
+	if (attribute.ATTACK_MODE == `PROJECTILE` || attribute.IS_SEGMENT) return;
+	Object.entries(attribute.SPAWN_AREA).forEach(([name, weight]) => {
+		TOTAL_SPAWN_WEIGHT += weight;
+	})
 });
 
 class Game {
@@ -37,8 +40,8 @@ class Game {
 	addPlayer(socket, username) { // add a player
 		this.sockets[socket.id] = socket;
 
-		const x = Constants.MAP_WIDTH * this.rnd(0.1, 0.9);
-		const y = Constants.MAP_HEIGHT * this.rnd(0.1, 0.9);
+		const x = Constants.MAP_AREAS.GARDEN.WIDTH * this.rnd(0.1, 0.9);
+		const y = Constants.MAP_AREAS.GARDEN.HEIGHT * this.rnd(0.1, 0.9);
 
 		this.players[socket.id] = new Player(socket.id, username, x, y);
 		
@@ -349,7 +352,8 @@ class Game {
 							const isContentProjectile = EntityAttributes[type].ATTACK_MODE == `PROJECTILE` ? true : false;
 							for (let time = 0; time < number; time++) {
 								if (contents[type] <= 0) break;
-								this.spawnMob(type, mob.x, mob.y, mob.team, isContentProjectile, isContentProjectile ? Constants.PROJECTILE_EXIST_TIME : Infinity);
+								const newMob = this.spawnMob(type, entityA.x, entityA.y, entityA.team, isContentProjectile, isContentProjectile ? Constants.PROJECTILE_EXIST_TIME : Infinity);
+								newMob.slot = mob.slot;				
 								contents[type]--;
 							}
 						})
@@ -618,20 +622,25 @@ class Game {
 
 	mobSpawn() { // spawns mobs
 		if ( this.mobSpawnTimer <= 0 ) {
-			this.mobSpawnTimer = Constants.MOB_SPAWN_INTERVAL;
+			this.mobSpawnTimer = Infinity//Constants.MOB_SPAWN_INTERVAL;
 			while ( this.volumeTaken < Constants.MOB_VOLUME_LIMIT ) {
 				const mobNumber = this.rnd(1, TOTAL_SPAWN_WEIGHT);
 				const currentMobNumber = 0;
 				Object.values(EntityAttributes).forEach(attribute => {
-					const weight = attribute.SPAWN_WEIGHT;
-					const volume = attribute.VOLUME;
-					if ( currentMobNumber < mobNumber && currentMobNumber + weight >= mobNumber ) {
-						this.volumeTaken += volume;
-						const spawnX = this.rnd(0, Constants.MAP_WIDTH);
-						const spawnY = this.rnd(0, Constants.MAP_HEIGHT);
-						if (attribute.ATTACK_MODE == `PROJECTILE` || attribute.IS_SEGMENT) return;
-						this.spawnMob(attribute.TYPE, spawnX, spawnY, `mobTeam`);
-					}
+					if (attribute.ATTACK_MODE == `PROJECTILE` || attribute.IS_SEGMENT) return;
+					Object.entries(attribute.SPAWN_AREA).forEach(([name, weight]) => {
+						const volume = attribute.VOLUME;
+						if ( currentMobNumber < mobNumber && currentMobNumber + weight >= mobNumber ) {
+							this.volumeTaken += volume;
+							const startWidth = Constants.MAP_AREAS[name].START_WIDTH;
+							const startHeight = Constants.MAP_AREAS[name].START_HEIGHT;
+							const width = Constants.MAP_AREAS[name].WIDTH;
+							const height = Constants.MAP_AREAS[name].HEIGHT;
+							const spawnX = this.rnd(startWidth, width);
+							const spawnY = this.rnd(startHeight, height);
+							this.spawnMob(attribute.TYPE, spawnX, spawnY, `mobTeam`);
+						}
+					})
 				});
 			}
 		} else {
@@ -991,8 +1000,18 @@ class Game {
 			if ( entityB.attributes.TRIGGERS.LIGHTNING && entityB.attributes.TRIGGERS.LIGHTNING.COLLIDE ) {
 				this.lightning(entityB, entityA, entityInfo);
 			}
-			if (entityB.attributes.TRIGGERS.VAMPIRISM && entityB.target == entityA.id) {
-				entityB.segments.push(entityA.id);
+			if (entityB.attributes.TRIGGERS.VAMPIRISM) {
+				if (entityB.attributes.TRIGGERS.VAMPIRISM.COLLIDE) {
+					entityB.hp = Math.min(entityB.maxHp, entityB.hp + entityB.attributes.DAMAGE * entityB.attributes.TRIGGERS.VAMPIRISM.HEAL);
+					entityA.isHurt = true;
+					if (entityB.attributes.TRIGGERS.VAMPIRISM.HEAL_PLAYER) {
+						const player = this.getEntity(entityInfo.id.playerID);
+						player.hp = Math.min(player.maxHp, player.hp + entityB.attributes.DAMAGE * entityB.attributes.TRIGGERS.VAMPIRISM.HEAL_PLAYER);
+					}
+				} 
+				else if (entityB.target == entityA.id) {
+					entityB.segments.push(entityA.id);
+				}
 			}
 		}
 		
@@ -1009,7 +1028,8 @@ class Game {
 						const isContentProjectile = EntityAttributes[type].ATTACK_MODE == `PROJECTILE` ? true : false;
 						for (let time = 0; time < number; time++) {
 							if (contents[type] <= 0) break;
-							this.spawnMob(type, entityA.x, entityA.y, entityA.team, isContentProjectile, isContentProjectile ? Constants.PROJECTILE_EXIST_TIME : Infinity);
+							const newMob = this.spawnMob(type, entityA.x, entityA.y, entityA.team, isContentProjectile, isContentProjectile ? Constants.PROJECTILE_EXIST_TIME : Infinity);
+							newMob.slot = entityA.slot;
 							contents[type]--;
 						}
 					})
@@ -1125,7 +1145,7 @@ class Game {
 					return;
 				}
 				
-				if (mob.attributes.TRIGGERS.VAMPIRISM) {
+				if (mob.value.attributes.TRIGGERS.VAMPIRISM && !mob.value.attributes.TRIGGERS.VAMPIRISM.COLLIDE) {
 					const target = this.getEntity(targetId);
 					if (mob.segments.includes(targetId)) {
 						mob.skillCoolDownTimer = 0;
@@ -1429,7 +1449,11 @@ class Game {
 			
 			//对该实体进行伤害并指定其为正在被连锁的实体
 			const nextTargetEntity = this.getEntity(nextTargetEntityId);
-			nextTargetEntity.hp -= start.attributes.TRIGGERS.LIGHTNING.DAMAGE * (1 + nextTargetEntity.fragile);
+			if (nextTargetEntity.hpConnection) {
+				this.getEntity(nextTargetEntity.hpConnection).hp -= start.attributes.TRIGGERS.LIGHTNING.DAMAGE * (1 + nextTargetEntity.fragile);
+			} else {
+				nextTargetEntity.hp -= start.attributes.TRIGGERS.LIGHTNING.DAMAGE * (1 + nextTargetEntity.fragile);
+			}
 			nextTargetEntity.hurtByInfo = entityInfo;
 			damagingEntityPosition.x = nextTargetEntity.x;
 			damagingEntityPosition.y = nextTargetEntity.y;
