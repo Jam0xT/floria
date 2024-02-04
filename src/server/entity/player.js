@@ -43,10 +43,15 @@ class Player extends Entity {
 		this.secondaryPetals[4] = 'BUBBLE';
 		this.secondaryPetals[5] = 'BUBBLE';
 		this.secondaryPetals[6] = 'BUBBLE';
-		this.secondaryPetals[7] = 'POLLEN';
+		this.secondaryPetals[7] = 'YINYANG';
 
 		for (let i = 0; i < Constants.PRIMARY_SLOT_COUNT_BASE; i ++ ) {
-			this.petals.push([new Petal(i, i * Constants.PETAL_MULTIPLE_MAX, i, x, y, id, this.primaryPetals[i], true)]);
+			const petal = new Petal(i, i * Constants.PETAL_MULTIPLE_MAX, i, x, y, id, this.primaryPetals[i], true);
+			let petals = []
+			for (let o = 0; o < petal.attributes.COUNT; o++) {
+				petals.push(petal);
+			}
+			this.petals.push(petals);
 		}
 
 		this.pets = {};

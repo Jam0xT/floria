@@ -31,7 +31,10 @@ class Mob extends Entity {
 		} 
 		else if (this.attributes.ATTACK_MODE == `PROJECTILE`) {
 			this.noBorderCollision = true;
-			this.updateMovement = (deltaT) => {};
+			this.updateMovement = (deltaT) => {
+				this.velocity.x /= Constants.SPEED_ATTENUATION_COEFFICIENT;
+				this.velocity.y /= Constants.SPEED_ATTENUATION_COEFFICIENT;
+			};
 			this.idle = (deltaT,parent) => {};
 		} 
 		else if (this.attributes.ATTACK_MODE == `PEACE`) {
@@ -88,12 +91,9 @@ class Mob extends Entity {
 					};
 					
 					if (this.isEinstein) {
-						const time = distanceToTarget / EntityAttributes[this.attributes.TRIGGERS.SHOOT].SPEED;
-						const targetNextPosition = {
-							x: target.x + Math.sin(target.movement.direction) * target.movement.speed * time,
-							y: target.y - Math.cos(target.movement.direction) * target.movement.speed * time,
-						}
-						this.direction = Math.atan2(targetNextPosition.x - this.x, this.y - targetNextPosition.y);
+						const x1 = target.x, x2 = this.x, y1 = target.y, y2 = this.y, v1 = target.movement.speed, v2 = EntityAttributes[this.attributes.TRIGGERS.SHOOT].SPEED - EntityAttributes[this.attributes.TRIGGERS.SHOOT].RADIUS * 2, n1 = target.movement.direction;
+						const acos = Math.atan2(target.x - this.x, this.y - target.y) + this.direction < this.direction ? -Math.acos((v1 / v2) * Math.cos(n1 + Math.atan((y2 - y1) / (x1 - x2)))) : Math.acos((v1 / v2) * Math.cos(n1 + Math.atan((y2 - y1) / (x1 - x2)))); //决定正反
+						this.direction = acos - Math.atan((y2 - y1) / (x1 - x2));
 					} else {
 						this.direction = Math.atan2(target.x - this.x, this.y - target.y);
 					}

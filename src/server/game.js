@@ -352,8 +352,20 @@ class Game {
 							const isContentProjectile = EntityAttributes[type].ATTACK_MODE == `PROJECTILE` ? true : false;
 							for (let time = 0; time < number; time++) {
 								if (contents[type] <= 0) break;
-								const newMob = this.spawnMob(type, entityA.x, entityA.y, entityA.team, isContentProjectile, isContentProjectile ? Constants.PROJECTILE_EXIST_TIME : Infinity);
-								newMob.slot = mob.slot;				
+								const newMob = this.spawnMob(type, mob.x, mob.y, mob.team, isContentProjectile, isContentProjectile ? Constants.PROJECTILE_EXIST_TIME : Infinity);
+								if (mob.team != `mobTeam`) {
+									const player = this.getEntity(mob.team);
+									newMob.slot = mob.slot;
+									newMob.petalID = mob.petalID;
+									player.pets[newMob.id] = newMob;
+									player.petals.some(petals => {
+										const petal = petals.find(petal => petal.id == newMob.petalID);
+										if (petal) {
+											petal.mob.push(newMob.id);
+											return true;
+										}
+									})
+								}	
 								contents[type]--;
 							}
 						})
@@ -925,31 +937,6 @@ class Game {
 						this.players[entityA.parent].hp -= entityA.attributes.DAMAGE * entityB.damageReflect * (1 + entityA.fragile);
 					}
 				}
-				
-				if (entityA.segments.length != 0 && !entityA.segments.includes(entityB.id)) {
-					entityA.segments.some((segmentId, index) => {
-						if (segmentId == entityA.id) return true;
-						const segment = this.getEntity(segmentId);
-						const parent = this.getEntity(entityA.segments[index + 1]);
-						const direction = Math.atan2(parent.x - segment.x, segment.y - parent.y);
-						let distance = Math.sqrt((segment.x - parent.x) ** 2 + (segment.y - parent.y) ** 2) - segment.attributes.RADIUS - parent.attributes.RADIUS;
-						if (!segment.attributes.IS_SEGMENT) distance -= 7;
-						segment.x += distance * Math.sin(direction); 
-						segment.y -= distance * Math.cos(direction); 
-					})
-				}
-				if (entityB.segments.length != 0 && !entityB.segments.includes(entityA.id)) {
-					entityB.segments.some((segmentId, index) => {
-						if (segmentId == entityB.id) return true;
-						const segment = this.getEntity(segmentId);
-						const parent = this.getEntity(entityB.segments[index + 1]);
-						const direction = Math.atan2(parent.x - segment.x, segment.y - parent.y);
-						let distance = Math.sqrt((segment.x - parent.x) ** 2 + (segment.y - parent.y) ** 2) - segment.attributes.RADIUS - parent.attributes.RADIUS;
-						if (!segment.attributes.IS_SEGMENT) distance -= 7;
-						segment.x += distance * Math.sin(direction); 
-						segment.y -= distance * Math.cos(direction); 
-					})
-				}
 
 				const dmgA = entityB.attributes.DAMAGE * (1 + entityA.fragile);
 				const dmgB = entityA.attributes.DAMAGE * (1 + entityB.fragile);
@@ -1029,7 +1016,19 @@ class Game {
 						for (let time = 0; time < number; time++) {
 							if (contents[type] <= 0) break;
 							const newMob = this.spawnMob(type, entityA.x, entityA.y, entityA.team, isContentProjectile, isContentProjectile ? Constants.PROJECTILE_EXIST_TIME : Infinity);
-							newMob.slot = entityA.slot;
+							if (entityA.team != `mobTeam`) {
+								const player = this.getEntity(entityA.team);
+								newMob.slot = entityA.slot;
+								newMob.petalID = entityA.petalID;
+								player.pets[newMob.id] = newMob;
+								player.petals.some(petals => {
+									const petal = petals.find(petal => petal.id == newMob.petalID);
+									if (petal) {
+										petal.mob.push(newMob.id);
+										return true;
+									}
+								})
+							}
 							contents[type]--;
 						}
 					})
@@ -1099,8 +1098,6 @@ class Game {
 							player.pets[segment.id] = segment;
 							petal.mob.push(segmentID);
 						});
-						//mob.slot = 
-						//mob.petalID = petal.id;
 					}
 				})
 			}) 
@@ -1131,8 +1128,8 @@ class Game {
 					}
 					
 					//后坐力
-					mob.movement.direction = mob.direction;
-					mob.movement.speed = -mob.attributes.SPEED;
+					mob.velocity.x = Math.sin(mob.direction) * -200;
+					mob.velocity.y = Math.cos(mob.direction) * -200;
 					
 					projectile.direction = mob.direction;
 					projectile.shootBy = mob.id;
@@ -1145,7 +1142,7 @@ class Game {
 					return;
 				}
 				
-				if (mob.value.attributes.TRIGGERS.VAMPIRISM && !mob.value.attributes.TRIGGERS.VAMPIRISM.COLLIDE) {
+				if (mob.attributes.TRIGGERS.VAMPIRISM && !mob.attributes.TRIGGERS.VAMPIRISM.COLLIDE) {
 					const target = this.getEntity(targetId);
 					if (mob.segments.includes(targetId)) {
 						mob.skillCoolDownTimer = 0;

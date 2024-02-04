@@ -124,7 +124,7 @@ module.exports = Object.freeze({
 	  MULTIPLE: false,
 	  CLUSTER: false,
 	  COUNT: 1,
-	  TRIGGERS: { ACTION_COOLDOWN: 3.5, SUMMON: 'ANT_HOLE' } //HORNET
+	  TRIGGERS: { ACTION_COOLDOWN: 3.5, SUMMON: 'HORNET' } //HORNET
 	},
 	FANGS: {
 	  TYPE: 'FANGS',
