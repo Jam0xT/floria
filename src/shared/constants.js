@@ -39,8 +39,15 @@ module.exports = Object.freeze({
 			HEIGHT: 4000,
 			MAX_LEVEL: 45,
 		},
-		UNKNOWN: {
+		JUNGLE: {
 			START_WIDTH: 12000,
+			START_HEIGHT: 0,
+			WIDTH: 4000,
+			HEIGHT: 4000,
+			MAX_LEVEL: 60,
+		},
+		UNKNOWN: {
+			START_WIDTH: 16000,
 			START_HEIGHT: 0,
 			WIDTH: 4000,
 			HEIGHT: 4000,

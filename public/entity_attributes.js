@@ -234,12 +234,41 @@ module.exports = Object.freeze({
 	    EXPERIENCE: 10,
 	    VOLUME: 100,
 	    DROP: { BUBBLE: 0.5 },
-      SPAWN_AREA: {
-        OCEAN: 100
-      },
+		SPAWN_AREA: {
+			OCEAN: 100
+		},
 	    IDLE_MODE: 'NORMAL',
 	    ATTACK_MODE: 'PEACE',
 	    TYPE: 'BUBBLE',
+		TRIGGERS: {}
+	},
+	BUSH: {
+		MASS: 1000,
+		SPEED: 0,
+		RADIUS: 60,
+		RENDER_RADIUS: 60,
+		RADIUS_DEVIATION: {
+			MIN: -20,
+			MAX: 20,
+		},
+		MAX_HP: 36,
+		HP_DEVIATION: {
+			MIN: -8,
+			MAX: 8,
+		},
+		DAMAGE: 10,
+		VALUE: 10,
+		EXPERIENCE: 2,
+		VOLUME: 100,
+		DROP: {
+			LEAF: 0.1
+		},
+		SPAWN_AREA: {
+			JUNGLE: 200
+		},
+		IDLE_MODE: 'STATIC',
+		ATTACK_MODE: 'PEACE',
+		TYPE: 'BUSH',
 		TRIGGERS: {}
 	},
 	CACTUS: {
@@ -251,12 +280,12 @@ module.exports = Object.freeze({
 			MIN: -20,
 			MAX: 20,
 		},
-		MAX_HP: 36, // 36
+		MAX_HP: 36,
 		HP_DEVIATION: {
 			MIN: -8,
 			MAX: 8,
 		},
-		DAMAGE: 0, //35
+		DAMAGE: 35,
 		VALUE: 10,
 		EXPERIENCE: 2,
 		VOLUME: 100,
@@ -353,6 +382,28 @@ module.exports = Object.freeze({
 		TRIGGERS: {}
 	},
 	CENTIPEDE_EVIL_SEGMENT: {
+		MASS: 20,
+		SPEED: 80,
+		RADIUS: 32,
+		RENDER_RADIUS: 37,
+		MAX_HP: 50,
+		DAMAGE: 10,
+		VALUE: 10,
+		EXPERIENCE: 10,
+		VOLUME: 100,
+		DROP: {
+			IRIS: 0.82,
+			PEAS_TOXIC: 0.01,
+			TRIPLET: 0.003,
+			//Peas Legendary: 0.001,
+		},
+		IS_SEGMENT: true,
+		IDLE_MODE: 'FLOAT_SLOW',
+		ATTACK_MODE: 'EVIL',
+		TYPE: 'CENTIPEDE_EVIL_SEGMENT',
+		TRIGGERS: {}
+	},
+	CRAB: {
 		MASS: 20,
 		SPEED: 80,
 		RADIUS: 32,
@@ -499,8 +550,8 @@ module.exports = Object.freeze({
 	MISSILE: {
 	    MASS: 20,
 	    SPEED: 250,
-	    RADIUS: 11,
-	    RENDER_RADIUS: 9,
+	    RADIUS: 12,
+	    RENDER_RADIUS: 10,
 	    MAX_HP: 10,
 	    DAMAGE: 10,
 	    VALUE: 10,
@@ -516,6 +567,28 @@ module.exports = Object.freeze({
 				COLLIDE: true
 			}*/
 		}
+	},
+	WASP: {
+		MASS: 20,
+		SPEED: 80,
+		RADIUS: 21,
+		RENDER_RADIUS: 21,
+		MAX_HP: 35,
+		DAMAGE: 50,
+		VALUE: 10,
+		EXPERIENCE: 10,
+		VOLUME: 200,
+		DROP: { MISSILE: 0.09, WING: 0.03 },
+		SPAWN_AREA: {
+			JUNGLE: 200,
+			UNKNOWN: 200
+		},
+		IDLE_MODE: 'FLOAT',
+		ATTACK_MODE: 'EVIL',
+		MAX_CLOSE_LENGTH: 550,
+		SKILL_COOLDOWN: 1,
+		TYPE: 'WASP',
+		TRIGGERS: { SHOOT: 'MISSILE' }
 	}
 });
 
