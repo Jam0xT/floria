@@ -308,7 +308,7 @@ class Game {
 					}
 				}
 				if ( killedBy ) {
-					killedBy.score += Math.floor(EntityAttributes[mob.type]);
+					killedBy.score += Math.floor(EntityAttributes[mob.type].VALUE);
 					killedBy.addExp(EntityAttributes[mob.type].EXPERIENCE);
 					if ( this.getRankOnLeaderboard(killedBy.id) > 0 ) {
 						this.updateLeaderboard(killedBy);

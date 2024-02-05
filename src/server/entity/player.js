@@ -45,17 +45,6 @@ class Player extends Entity {
 		this.secondaryPetals[6] = 'BUBBLE';
 		this.secondaryPetals[7] = 'YINYANG';
 		
-		/*this.petals = [
-			[new Petal(0, 0 * Constants.PETAL_MULTIPLE_MAX, 0, x, y, id, 'TRI_CACTUS', true)],
-			[new Petal(1, 1 * Constants.PETAL_MULTIPLE_MAX, 1, x, y, id, 'LIGHTNING', true)],
-			[new Petal(2, 2 * Constants.PETAL_MULTIPLE_MAX, 2, x, y, id, 'LIGHTNING', true)],
-			[new Petal(3, 3 * Constants.PETAL_MULTIPLE_MAX, 3, x, y, id, 'LIGHTNING', true)],
-			[new Petal(4, 4 * Constants.PETAL_MULTIPLE_MAX, 4, x, y, id, 'LIGHTNING', true)],
-			[new Petal(5, 5 * Constants.PETAL_MULTIPLE_MAX, 5, x, y, id, 'LIGHTNING', true)],
-			[new Petal(6, 6 * Constants.PETAL_MULTIPLE_MAX, 6, x, y, id, 'ROSE_ADVANCED', true)],
-			[new Petal(7, 7 * Constants.PETAL_MULTIPLE_MAX, 7, x, y, id, 'ROSE_ADVANCED', true)],
-		]*/
-		//type, petalID, petalIDX, placeHolder, idInPlaceHolder, slot
 		for (let i = 0; i < Constants.PRIMARY_SLOT_COUNT_BASE; i ++ ) {
 			let petals = []
 			for (let o = 0; o < PetalAttributes[this.primaryPetals[i]].COUNT; o++) {
@@ -82,6 +71,7 @@ class Player extends Entity {
 		this.bodyToxicity = 0; // 碰撞毒秒伤
 		this.bodyPoison = 0; // 碰撞毒总伤
 		this.damageReflect = 0.000; // 反伤
+		this.vision = 1.0;
 		
 		this.updatePetalSlot();
 	}
@@ -109,24 +99,7 @@ class Player extends Entity {
 				this.primaryPetals[slot1.slot] = this.primaryPetals[slot2.slot];
 				this.primaryPetals[slot2.slot] = tmp;
 				let petalA = this.petals.find(ptl => (ptl[0].slot == slot1.slot)),
-					petalB = this.petals.find(ptl => (ptl[0].slot == slot2.slot)),
-					petalA_type = this.primaryPetals[slot2.slot],
-					petalB_type = this.primaryPetals[slot1.slot];
-				tmp = petalA[0].placeHolder;
-				//petalA
-				//目标花瓣数量是否大于自身数量，是就增加花瓣位
-				if (PetalAttributes[petalB_type].COUNT > petalA.length) {
-					let times = PetalAttributes[petalB_type].COUNT - petalA.length;
-					for (let i = 0; i < times; i++) {
-						let petal = this.newPetal(petalB_type, this.getNewPetalID(), petalA[petalA.length - 1].idx + 1, petalB[0].placeHolder, 0);
-						petalA.push(petal);
-					}
-				}
-				
-				//目标花瓣数量是否小于自身数量，是就删除多出的花瓣位
-				if (PetalAttributes[petalB_type].COUNT < petalA.length) {
-					petalA.splice(PetalAttributes[petalB_type].COUNT,Constants.PETAL_MULTIPLE_MAX);
-				}
+					petalB = this.petals.find(ptl => (ptl[0].slot == slot2.slot));
 				
 				//刷新花瓣属性
 				petalA.forEach((petal,index) => {
@@ -145,21 +118,6 @@ class Player extends Entity {
 						}
 					})
 				})
-
-				//petalB
-				//目标花瓣数量是否大于自身数量，是就增加花瓣位
-				if (PetalAttributes[petalA_type].COUNT > petalB.length) {
-					let times = PetalAttributes[petalA_type].COUNT - petalB.length;
-					for (let i = 0; i < times; i++) {
-						let petal = this.newPetal(petalA_type, this.getNewPetalID(), petalB[petalB.length - 1].idx + 1, tmp, 0);
-						petalB.push(petal);
-					}
-				}
-				
-				//目标花瓣数量是否小于自身数量，是就删除多出的花瓣位
-				if (PetalAttributes[petalA_type].COUNT < petalB.length) {
-					petalB.splice(PetalAttributes[petalA_type].COUNT,Constants.PETAL_MULTIPLE_MAX);
-				}
 				
 				//刷新花瓣属性
 				petalB.forEach((petal,index) => {

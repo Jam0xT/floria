@@ -360,7 +360,6 @@ export function switchPetals(isPrimary, slot, targetIsPrimary, targetSlot) {
 
 	petalA.swing = false;
 	petalB.swing = false;
-
 	
 	petalA.setTargetPos(petalA.defaultX, petalA.defaultY);
 	petalB.setTargetPos(petalB.defaultX, petalB.defaultY);
@@ -544,8 +543,6 @@ function renderUI(me) {
 
 	// exp bar
 
-	// ctx.globalAlpha = 0.85;
-
 	const expBarYPos = hpx * 900;
 	const expBarBaseLength = hpx * 300;
 	const expBarBaseWidth = hpx * 45;
@@ -567,7 +564,7 @@ function renderUI(me) {
 	ctx.stroke();
 	ctx.closePath();
 
-	ctx.globalCompositeOperation = 'desitination-out'; // clip
+	ctx.globalCompositeOperation = 'desitination-out';
 	ctx.beginPath();
 	ctx.moveTo(0, expBarYPos);
 	ctx.lineTo(expBarLength, expBarYPos);
