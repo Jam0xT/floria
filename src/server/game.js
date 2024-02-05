@@ -300,7 +300,7 @@ class Game {
 					}
 				}
 				if ( killedBy ) {
-					killedBy.score += Math.floor(EntityAttributes[mob.type]);
+					killedBy.score += Math.floor(EntityAttributes[mob.type].VALUE);
 					killedBy.addExp(EntityAttributes[mob.type].EXPERIENCE);
 					if ( this.getRankOnLeaderboard(killedBy.id) > 0 ) {
 						this.updateLeaderboard(killedBy);
@@ -344,7 +344,7 @@ class Game {
 					})
 				}
 				
-				if (mob.attributes.CONTENT_RELEASE) {
+				if (mob.attributes.CONTENT_RELEASE && !(mob.team != 'mobTeam' && !this.players[mob.team])) {
 					if (mob.attributes.CONTENT_RELEASE.ONDIE) {
 						const releases = mob.attributes.CONTENT_RELEASE.ONDIE;
 						const contents = mob.attributes.CONTENT;
@@ -634,16 +634,14 @@ class Game {
 
 	mobSpawn() { // spawns mobs
 		if ( this.mobSpawnTimer <= 0 ) {
-			this.mobSpawnTimer = Infinity//Constants.MOB_SPAWN_INTERVAL;
+			this.mobSpawnTimer = Constants.MOB_SPAWN_INTERVAL;
 			while ( this.volumeTaken < Constants.MOB_VOLUME_LIMIT ) {
 				const mobNumber = this.rnd(1, TOTAL_SPAWN_WEIGHT);
 				const currentMobNumber = 0;
 				Object.values(EntityAttributes).forEach(attribute => {
 					if (attribute.ATTACK_MODE == `PROJECTILE` || attribute.IS_SEGMENT) return;
 					Object.entries(attribute.SPAWN_AREA).forEach(([name, weight]) => {
-						const volume = attribute.VOLUME;
 						if ( currentMobNumber < mobNumber && currentMobNumber + weight >= mobNumber ) {
-							this.volumeTaken += volume;
 							const startWidth = Constants.MAP_AREAS[name].START_WIDTH;
 							const startHeight = Constants.MAP_AREAS[name].START_HEIGHT;
 							const width = Constants.MAP_AREAS[name].WIDTH;
@@ -663,6 +661,7 @@ class Game {
 	spawnMob(type, spawnX, spawnY, team, isProjectile, existTime) {
 		const newMobID = this.getNewMobID();
 		const mob = new Mob(newMobID, spawnX, spawnY, type, team, false, isProjectile, existTime);
+		this.volumeTaken += mob.attributes.VOLUME;
 		const offsetRadiusAttributes = mob.attributes.RADIUS_DEVIATION;
 		if (offsetRadiusAttributes) {
 			const offsetRadius = Math.floor(Math.random() * (offsetRadiusAttributes.MAX - offsetRadiusAttributes.MIN + 1)) + offsetRadiusAttributes.MIN;
