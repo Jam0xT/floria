@@ -193,6 +193,7 @@ module.exports = Object.freeze({
 	    },
 		SPAWN_AREA: {
 			GARDEN: 200,
+			DESERT: 50
 		},
 	    IDLE_MODE: 'FLOAT',
 	    ATTACK_MODE: 'PEACE',
@@ -510,7 +511,8 @@ module.exports = Object.freeze({
 		EXPERIENCE: 10,
 		VOLUME: 100,
 		DROP: {
-
+			FANGS: 0.09,
+			FASTER: 0.12
 		},
 		SPAWN_AREA: {
 			OCEAN: 100

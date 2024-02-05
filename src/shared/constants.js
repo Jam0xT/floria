@@ -24,6 +24,10 @@ module.exports = Object.freeze({
 			WIDTH: 4000,
 			HEIGHT: 4000,
 			MAX_LEVEL: 15,
+			MAX_VOLUME: 4000,
+			MOB_SPAWN_INTERVAL: 10,
+			BACKGROUND_COLOR: `rgb(30, 167, 97)`,
+			BACKGROUND_COLOR_DARKEN: `rgb(28, 154, 89)`,
 		},
 		DESERT: {
 			START_WIDTH: 4000,
@@ -31,6 +35,10 @@ module.exports = Object.freeze({
 			WIDTH: 4000,
 			HEIGHT: 4000,
 			MAX_LEVEL: 30,
+			MAX_VOLUME: 4000,
+			MOB_SPAWN_INTERVAL: 10,
+			BACKGROUND_COLOR: `rgb(222,207,124)`,
+			BACKGROUND_COLOR_DARKEN: `rgb(199,186,111)`,
 		},
 		OCEAN: {
 			START_WIDTH: 8000,
@@ -38,6 +46,10 @@ module.exports = Object.freeze({
 			WIDTH: 4000,
 			HEIGHT: 4000,
 			MAX_LEVEL: 45,
+			MAX_VOLUME: 5000,
+			MOB_SPAWN_INTERVAL: 10,
+			BACKGROUND_COLOR: `rgb(85, 170, 255)`,
+			BACKGROUND_COLOR_DARKEN: `rgb(69, 140, 211)`,
 		},
 		JUNGLE: {
 			START_WIDTH: 12000,
@@ -45,6 +57,10 @@ module.exports = Object.freeze({
 			WIDTH: 4000,
 			HEIGHT: 4000,
 			MAX_LEVEL: 60,
+			MAX_VOLUME: 7000,
+			MOB_SPAWN_INTERVAL: 10,
+			BACKGROUND_COLOR: `rgb(85, 170, 0)`,
+			BACKGROUND_COLOR_DARKEN: `rgb(65, 130, 0)`,
 		},
 		UNKNOWN: {
 			START_WIDTH: 16000,
@@ -52,6 +68,10 @@ module.exports = Object.freeze({
 			WIDTH: 4000,
 			HEIGHT: 4000,
 			MAX_LEVEL: Infinity,
+			MAX_VOLUME: 10000,
+			MOB_SPAWN_INTERVAL: 2,
+			BACKGROUND_COLOR: `rgb(92, 92, 92)`,
+			BACKGROUND_COLOR_DARKEN: `rgb(69, 69, 69)`,
 		}
 	},
 	BLOCK_WIDTH: 200, // width of the block

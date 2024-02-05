@@ -5,6 +5,7 @@ const Player = require('./entity/player');
 const Mob = require('./entity/mob');
 const { listen } = require('express/lib/application');
 const Drop = require('./entity/drop');
+const { MAP_AREAS } = require('../shared/constants');
 
 var TOTAL_SPAWN_WEIGHT = 0; // this is a constant
 Object.values(EntityAttributes).forEach(attribute => {
@@ -24,8 +25,8 @@ class Game {
 		this.chunks = {}; // {chunkID:[{type: entityType, id: id},...],...}
 		// this.blocks = {};
 		this.lastUpdateTime = Date.now();
-		this.mobSpawnTimer = 0;
-		this.volumeTaken = 0;
+		//this.mobSpawnTimer = {};
+		//this.volumeTaken = 0;
 		// this.shouldSendUpdate = false;
 		this.mobID = 0;
 		this.dropID = 0;
@@ -33,6 +34,13 @@ class Game {
 		this.lightningPath = [];
 		this.diedEntities = [];
 		setInterval(this.update.bind(this), 1000 / Constants.TICK_PER_SECOND); // update the game every tick
+	
+		this.areas = {};
+		Object.keys(Constants.MAP_AREAS).forEach(name => {
+			this.areas[name] = {};
+			this.areas[name].mobSpawnTimer = 0
+			this.areas[name].volumeTaken = 0
+		})
 	}
 
 	// client networking
@@ -316,7 +324,7 @@ class Game {
 						);
 					}
 				});
-				this.volumeTaken -= EntityAttributes[mob.type].VOLUME;
+				this.areas[mob.birthplace].volumeTaken -= EntityAttributes[mob.type].VOLUME;
 
 				// console.log("a mob has juts been killed!");
 
@@ -344,7 +352,7 @@ class Game {
 					})
 				}
 				
-				if (mob.attributes.CONTENT_RELEASE && !(mob.team != 'mobTeam' && !this.players[mob.team])) {
+				if (mob.attributes.CONTENT_RELEASE && !(mob.team != `mobTeam` && !this.players[mob.team])) {
 					if (mob.attributes.CONTENT_RELEASE.ONDIE) {
 						const releases = mob.attributes.CONTENT_RELEASE.ONDIE;
 						const contents = mob.attributes.CONTENT;
@@ -633,15 +641,20 @@ class Game {
 	}
 
 	mobSpawn() { // spawns mobs
-		if ( this.mobSpawnTimer <= 0 ) {
-			this.mobSpawnTimer = Constants.MOB_SPAWN_INTERVAL;
-			while ( this.volumeTaken < Constants.MOB_VOLUME_LIMIT ) {
+		Object.entries(Constants.MAP_AREAS).forEach(([areaName, areaAttribute]) => {
+			const areaAttributesNow = this.areas[areaName];
+			if ( areaAttributesNow.mobSpawnTimer > 0 ) {
+				areaAttributesNow.mobSpawnTimer --;
+				return;
+			}
+			areaAttributesNow.mobSpawnTimer = areaAttribute.MOB_SPAWN_INTERVAL;
+			while ( areaAttributesNow.volumeTaken < areaAttribute.MAX_VOLUME ) {
 				const mobNumber = this.rnd(1, TOTAL_SPAWN_WEIGHT);
 				const currentMobNumber = 0;
 				Object.values(EntityAttributes).forEach(attribute => {
 					if (attribute.ATTACK_MODE == `PROJECTILE` || attribute.IS_SEGMENT) return;
 					Object.entries(attribute.SPAWN_AREA).forEach(([name, weight]) => {
-						if ( currentMobNumber < mobNumber && currentMobNumber + weight >= mobNumber ) {
+						if ( currentMobNumber < mobNumber && currentMobNumber + weight >= mobNumber && areaName == name) {
 							const startWidth = Constants.MAP_AREAS[name].START_WIDTH;
 							const startHeight = Constants.MAP_AREAS[name].START_HEIGHT;
 							const width = Constants.MAP_AREAS[name].WIDTH;
@@ -653,15 +666,14 @@ class Game {
 					})
 				});
 			}
-		} else {
-			this.mobSpawnTimer --;
-		}
+		})
 	}
 	
 	spawnMob(type, spawnX, spawnY, team, isProjectile, existTime) {
 		const newMobID = this.getNewMobID();
 		const mob = new Mob(newMobID, spawnX, spawnY, type, team, false, isProjectile, existTime);
-		this.volumeTaken += mob.attributes.VOLUME;
+		mob.birthplace = this.getAreaNameByEntityPosition(mob.x, mob.y);
+		this.areas[mob.birthplace].volumeTaken += mob.attributes.VOLUME;
 		const offsetRadiusAttributes = mob.attributes.RADIUS_DEVIATION;
 		if (offsetRadiusAttributes) {
 			const offsetRadius = Math.floor(Math.random() * (offsetRadiusAttributes.MAX - offsetRadiusAttributes.MIN + 1)) + offsetRadiusAttributes.MIN;
@@ -677,8 +689,6 @@ class Game {
 		this.mobs[newMobID] = mob;
 		
 		//segment
-		let segments = mob.segments;
-		
 		const mobSegmentAttributes =  EntityAttributes[type].SEGMENT;
 		if (mobSegmentAttributes) {
 			const segmentAngle = Math.random() * Math.PI * 2;
@@ -686,12 +696,19 @@ class Game {
 			const segmentRadius = EntityAttributes[mobSegmentAttributes.NAME].RENDER_RADIUS;
 			const mobRadius = EntityAttributes[type].RENDER_RADIUS;
 
-			this.volumeTaken += EntityAttributes[mobSegmentAttributes.NAME].VOLUME * segmentCount;
-
 			let segments = [];
 			segments.push(mob.id);
 			for (let segmentNumber = 0; segmentNumber < segmentCount; segmentNumber++) {
-				const segment = this.spawnMob(mobSegmentAttributes.NAME, spawnX + (segmentRadius + mobRadius) * (segmentNumber + 1) * Math.sin(segmentAngle), spawnY + (segmentRadius + mobRadius) * segmentNumber * Math.cos(segmentAngle), mob.team, false);
+				const lastArea = Object.values(Constants.MAP_AREAS)[Object.keys(Constants.MAP_AREAS).length - 1];
+				const mapWidth = lastArea.START_WIDTH + lastArea.WIDTH,
+					  mapHeight = lastArea.START_HEIGHT + lastArea.HEIGHT;
+				let newSpawnX = spawnX + (segmentRadius + mobRadius) * (segmentNumber + 1) * Math.sin(segmentAngle),
+					newSpawnY = spawnY + (segmentRadius + mobRadius) * (segmentNumber + 1) * Math.cos(segmentAngle);
+				if (newSpawnX < 0) newSpawnX = 0
+				else if (newSpawnX > mapWidth) newSpawnX = mapWidth;
+				if (newSpawnY < 0) newSpawnY = 0
+				else if (newSpawnY > mapHeight) newSpawnY = mapHeight;
+				const segment = this.spawnMob(mobSegmentAttributes.NAME, newSpawnX, newSpawnY, mob.team, false);
 				segment.target = segments[segmentNumber];
 				segments.push(segment.id);
 			}
@@ -1330,7 +1347,7 @@ class Game {
 		this.info = {
 			mspt: Date.now() - now,
 			mobCount: Object.keys(this.mobs).length,
-			mobVol: this.volumeTaken,
+			mobVol: this.areas.GARDEN.volumeTaken//this.areas[this.getAreaNameByEntityPosition(this.rnd(0, 20000), this.rnd(0, 4000))].volumeTaken,
 		};
 		
 		this.handlePlayerDeaths();
@@ -1480,6 +1497,13 @@ class Game {
 		return (Math.random() < chance);
 	}
 
+	getAreaNameByEntityPosition(x, y) {
+		const areasArray = Object.entries(Constants.MAP_AREAS);
+		const result = areasArray.find(([name, attribute]) => {
+			return attribute.START_WIDTH <= x && x <= attribute.START_WIDTH + attribute.WIDTH && attribute.START_HEIGHT <= y && y <= attribute.START_HEIGHT + attribute.HEIGHT;
+		});
+		return result[0]
+	}
 }
 
 module.exports = Game;

@@ -447,13 +447,16 @@ window.addEventListener('resize', setCanvasDimensions);
 let animationFrameRequestId;
 
 function setCanvasDimensions() {
-	W = window.innerWidth;
-	H = window.innerHeight;
+	let devicePixelRatio = window.devicePixelRatio || 1;
+	W = window.innerWidth * devicePixelRatio;
+	H = window.innerHeight * devicePixelRatio;
 	wpx = W / 1000;
 	hpx = H / 1000;
 	for ( let i = 0; i < layerCount; i ++ ) {
 		canvas[i].width = W;
 		canvas[i].height = H;
+		canvas[i].style.width = window.innerWidth + `px`;
+		canvas[i].style.height = window.innerHeight + `px`;
 	}
 
 	// let canvas_SE = document.getElementById('canvas-SE');
@@ -749,20 +752,30 @@ function renderInfo(info) {
 
 function renderBackground(x, y) {
 	ctx = getCtx(backgroundLayer);
-	ctx.fillStyle = 'rgb(28, 154, 89)';
-	ctx.fillRect(0, 0, W, H);
-
-	ctx.fillStyle = 'rgb(30, 167, 97)';
-	ctx.fillRect(W / 2 - x * hpx, H / 2 - y * hpx, MAP_WIDTH * hpx, MAP_HEIGHT * hpx);
-
+	
 	const gridInterval = hpx * 50;
-
+	
 	const startX = ( W / 2 - x * hpx ) % gridInterval;
 	const startY = ( H / 2 - y * hpx ) % gridInterval;
-
+	
 	const gridLineWidth = hpx * 0.5;
-	const gridLineStyle = 'rgb(23, 128, 74)';
 
+	Object.values(Constants.MAP_AREAS).forEach((attribute, count, maps) => {
+		if (count == 0) {
+			ctx.fillStyle = attribute.BACKGROUND_COLOR_DARKEN;
+			ctx.fillRect(0, 0, W, H);
+		} else if (count == maps.length - 1) {
+			ctx.fillStyle = attribute.BACKGROUND_COLOR_DARKEN;
+			ctx.fillRect(W / 2 - x * hpx + attribute.START_WIDTH * hpx, 0, W * 5, H);
+		} else {
+			ctx.fillStyle = attribute.BACKGROUND_COLOR_DARKEN;
+			ctx.fillRect(W / 2 - x * hpx + attribute.START_WIDTH * hpx, 0, attribute.WIDTH * hpx, H);
+		}
+		ctx.fillStyle = attribute.BACKGROUND_COLOR;
+		ctx.fillRect(W / 2 - x * hpx + attribute.START_WIDTH * hpx, H / 2 - y * hpx, attribute.WIDTH * hpx, attribute.HEIGHT * hpx);
+	})
+	
+	const gridLineStyle = `rgba(0, 0, 0, 0.5)`;
 	for ( let ix = startX; ix < W; ix += gridInterval) {
 		ctx.beginPath();
 		ctx.moveTo(ix, 0);
@@ -772,7 +785,7 @@ function renderBackground(x, y) {
 		ctx.stroke();
 		ctx.closePath();
 	}
-
+	
 	for ( let iy = startY; iy < H; iy += gridInterval) {
 		ctx.beginPath();
 		ctx.moveTo(0, iy);
