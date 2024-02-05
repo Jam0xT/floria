@@ -14,12 +14,12 @@ class Mob extends Entity {
 		this.startDirection = 0;
 		this.maxCloseLength = this.attributes.MAX_CLOSE_LENGTH || 0;
 		this.skillCoolDown = this.attributes.SKILL_COOLDOWN || 0;
-		this.aimMovementDirection = 0;
+		this.aimMovementDirection = 0.01;
 		this.isSkillenable = false;
 		this.isEinstein = false;
 		this.idleMode = EntityAttributes[type].IDLE_MODE;
 		if (Math.random() <= 0.5) {
-			this.aimMovementDirection = -1;
+			this.aimMovementDirection = -0.01;
 		}
 		if (Math.random() <= 0.5 && EntityAttributes[type].TRIGGERS.SHOOT) {
 			this.isEinstein = true;

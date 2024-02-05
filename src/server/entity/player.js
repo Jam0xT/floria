@@ -27,8 +27,8 @@ class Player extends Entity {
 		this.secondaryPetals = [];
 		this.petals = [];
 
-		this.primaryPetals[0] = 'EGG';
-		this.primaryPetals[1] = 'EGG';
+		this.primaryPetals[0] = 'PENTA';
+		this.primaryPetals[1] = 'TRI_CACTUS';
 		this.primaryPetals[2] = 'EGG';
 		this.primaryPetals[3] = 'EGG';
 		this.primaryPetals[4] = 'EGG';
@@ -44,16 +44,28 @@ class Player extends Entity {
 		this.secondaryPetals[5] = 'BUBBLE';
 		this.secondaryPetals[6] = 'BUBBLE';
 		this.secondaryPetals[7] = 'YINYANG';
-
+		
+		/*this.petals = [
+			[new Petal(0, 0 * Constants.PETAL_MULTIPLE_MAX, 0, x, y, id, 'TRI_CACTUS', true)],
+			[new Petal(1, 1 * Constants.PETAL_MULTIPLE_MAX, 1, x, y, id, 'LIGHTNING', true)],
+			[new Petal(2, 2 * Constants.PETAL_MULTIPLE_MAX, 2, x, y, id, 'LIGHTNING', true)],
+			[new Petal(3, 3 * Constants.PETAL_MULTIPLE_MAX, 3, x, y, id, 'LIGHTNING', true)],
+			[new Petal(4, 4 * Constants.PETAL_MULTIPLE_MAX, 4, x, y, id, 'LIGHTNING', true)],
+			[new Petal(5, 5 * Constants.PETAL_MULTIPLE_MAX, 5, x, y, id, 'LIGHTNING', true)],
+			[new Petal(6, 6 * Constants.PETAL_MULTIPLE_MAX, 6, x, y, id, 'ROSE_ADVANCED', true)],
+			[new Petal(7, 7 * Constants.PETAL_MULTIPLE_MAX, 7, x, y, id, 'ROSE_ADVANCED', true)],
+		]*/
+		//type, petalID, petalIDX, placeHolder, idInPlaceHolder, slot
 		for (let i = 0; i < Constants.PRIMARY_SLOT_COUNT_BASE; i ++ ) {
-			const petal = new Petal(i, i * Constants.PETAL_MULTIPLE_MAX, i, x, y, id, this.primaryPetals[i], true);
 			let petals = []
-			for (let o = 0; o < petal.attributes.COUNT; o++) {
+			for (let o = 0; o < PetalAttributes[this.primaryPetals[i]].COUNT; o++) {
+				const petal = this.newPetal(this.primaryPetals[i], i * Constants.PETAL_MULTIPLE_MAX + o, i * Constants.PETAL_MULTIPLE_MAX + o, i, o, i);
 				petals.push(petal);
 			}
 			this.petals.push(petals);
 		}
-
+		this.updatePlaceHolder();
+		
 		this.pets = {};
 		this.activeDirection = 0;
 		this.attributes = Attribute;
