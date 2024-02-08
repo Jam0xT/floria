@@ -19,6 +19,8 @@ class Player extends Entity {
 		this.rotationSpeed = Constants.PETAL_ROTATION_SPEED_BASE;
 		this.firstPetalDirection = 0;
 		this.rotateClockwise = 1; // 1 for clockwise, -1 for counter-clockwise
+		this.suffocateTime = 0;
+		this.oxygen = Constants.PLAYER_OXYGEN;
 		this.petalExpandRadius = Constants.PETAL_EXPAND_RADIUS_NORMAL;
 		this.slotCount = Constants.PRIMARY_SLOT_COUNT_BASE;
 		this.placeHolder = Constants.PRIMARY_SLOT_COUNT_BASE; // how many places are there
@@ -373,6 +375,10 @@ class Player extends Entity {
 		if ( this.hp < this.maxHp && (!this.noHeal) ) {
 			this.hp += ((this.maxHp / 240) * deltaT);
 			this.hp = Math.min(this.hp, this.maxHp);
+		}
+		
+		if (this.oxygen < 0) {
+			this.hp -= Constants.SUFFOCATE_DAMAGE_BASE * deltaT + this.suffocateTime * deltaT * Constants.SUFFOCATE_DAMAGE_IMPROVE;
 		}
 		
 		const isAllYinYang = this.petals.every(petal => petal[0].attributes && petal[0].attributes.TYPE === `YINYANG`); //判断是否所有花瓣都为阴阳

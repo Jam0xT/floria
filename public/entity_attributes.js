@@ -238,6 +238,7 @@ module.exports = Object.freeze({
 		SPAWN_AREA: {
 			OCEAN: 100
 		},
+		AQUATIC: true,
 	    IDLE_MODE: 'NORMAL',
 	    ATTACK_MODE: 'PEACE',
 	    TYPE: 'BUBBLE',
@@ -479,7 +480,7 @@ module.exports = Object.freeze({
 	    SPEED: 80,
 	    RADIUS: 40,
 	    RENDER_RADIUS: 40,
-	    MAX_HP: 60,
+	    MAX_HP: 40,
 	    DAMAGE: 40,
 	    VALUE: 10,
 	    EXPERIENCE: 10,
@@ -488,6 +489,7 @@ module.exports = Object.freeze({
 		SPAWN_AREA: {
 			OCEAN: 200
 		},
+		AQUATIC: true,
 	    IDLE_MODE: 'FLOAT',
 	    ATTACK_MODE: 'EVIL',
 	    MAX_CLOSE_LENGTH: 250,
@@ -495,7 +497,7 @@ module.exports = Object.freeze({
 	    TYPE: 'JELLYFISH',
 	    TRIGGERS: {
 			LIGHTNING:  {
-				DAMAGE: 8,
+				DAMAGE: 5,
 				COUNT: 4
 			}
 		}
@@ -503,10 +505,10 @@ module.exports = Object.freeze({
 	LEECH: {
 		MASS: 5,
 		SPEED: 150,
-		RADIUS: 24,
-		RENDER_RADIUS: 28,
-		MAX_HP: 10,
-		DAMAGE: 25,
+		RADIUS: 14,
+		RENDER_RADIUS: 14,
+		MAX_HP: 5,
+		DAMAGE: 15,
 		VALUE: 10,
 		EXPERIENCE: 10,
 		VOLUME: 100,
@@ -517,6 +519,7 @@ module.exports = Object.freeze({
 		SPAWN_AREA: {
 			OCEAN: 0
 		},
+		AQUATIC: true,
 		SKILL_COOLDOWN: 1,
 		SEGMENT: { MIN: 9, MAX: 9, NAME: 'LEECH_SEGMENT'},
 		IDLE_MODE: 'FLOAT_SLOW',
@@ -524,7 +527,7 @@ module.exports = Object.freeze({
 		TYPE: 'LEECH',
 		TRIGGERS: {
 			VAMPIRISM: {
-				DAMAGE: 10,
+				DAMAGE: 7,
 				HEAL: 1 //自身回血倍率
 			},
 		}
@@ -532,9 +535,9 @@ module.exports = Object.freeze({
 	LEECH_SEGMENT: {
 		MASS: 5,
 		SPEED: 80,
-		RADIUS: 24,
-		RENDER_RADIUS: 28,
-		MAX_HP: 10,
+		RADIUS: 14,
+		RENDER_RADIUS: 14,
+		MAX_HP: 5,
 		DAMAGE: 25,
 		VALUE: 10,
 		EXPERIENCE: 10,
@@ -542,6 +545,7 @@ module.exports = Object.freeze({
 		DROP: {
 
 		},
+		AQUATIC: true,
 		IS_SEGMENT: true,
 		IDLE_MODE: 'FLOAT_SLOW',
 		ATTACK_MODE: 'EVIL',

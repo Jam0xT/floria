@@ -18,6 +18,7 @@ class Mob extends Entity {
 		this.isSkillenable = false;
 		this.isEinstein = false;
 		this.idleMode = EntityAttributes[type].IDLE_MODE;
+		this.suffocateTime = 0;
 		if (Math.random() <= 0.5) {
 			this.aimMovementDirection = -0.01;
 		}

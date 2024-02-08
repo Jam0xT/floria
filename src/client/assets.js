@@ -1,5 +1,6 @@
 const ASSET_NAMES = [
 	'player.svg',
+	'player_suffocate.svg',
 	'glass_single.svg',
 	'decorates/beetle_pincer_left.svg',
 	'decorates/beetle_pincer_right.svg',
@@ -19,6 +20,8 @@ const ASSET_NAMES = [
 	'mobs/centipede_evil_segment.svg',
 	'mobs/crab.svg',
 	'mobs/dark_ladybug.svg',
+	'mobs/fire_ant_hole.svg',
+	'mobs/fire_ant_soldier.svg',
 	'mobs/hornet.svg',
 	'mobs/jellyfish.svg',
 	'mobs/leech.svg',
