@@ -176,9 +176,9 @@ module.exports = Object.freeze({
 	BEE: {
 	    MASS: 10,
 	    SPEED: 80,
-	    RADIUS: 160,
-	    RENDER_RADIUS: 160,
-	    MAX_HP: 15,
+	    RADIUS: 18,
+	    RENDER_RADIUS: 16,
+	    MAX_HP: 150,
 	    DAMAGE: 50,
 	    VALUE: 10,
 	    EXPERIENCE: 10,
@@ -324,8 +324,8 @@ module.exports = Object.freeze({
 			TRIPLET: 0.0001,
 		},
 		SPAWN_AREA: {
-			GARDEN: 100,
-			DESERT: 100
+			GARDEN: 0,
+			DESERT: 0
 		},
 		SEGMENT: { MIN: 5, MAX: 9, NAME: 'CENTIPEDE_SEGMENT'},
 		IDLE_MODE: 'FLOAT_SLOW',
@@ -374,7 +374,7 @@ module.exports = Object.freeze({
 			//Peas Legendary: 0.001,
 		},
 		SPAWN_AREA: {
-			DESERT: 50
+			DESERT: 0
 		},
 		SEGMENT: { MIN: 5, MAX: 9, NAME: 'CENTIPEDE_EVIL_SEGMENT'},
 		IDLE_MODE: 'FLOAT_SLOW',
@@ -515,7 +515,7 @@ module.exports = Object.freeze({
 			FASTER: 0.12
 		},
 		SPAWN_AREA: {
-			OCEAN: 100
+			OCEAN: 0
 		},
 		SKILL_COOLDOWN: 1,
 		SEGMENT: { MIN: 9, MAX: 9, NAME: 'LEECH_SEGMENT'},

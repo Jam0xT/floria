@@ -145,12 +145,6 @@ class Game {
 		player.switchPetals(petalA, petalB);
 	}
 
-	handlePetalDisable(socket, petal) {
-		const player = this.players[socket.id];
-		if (!player) return;
-		player.disablePetal(petal);
-	}
-
 	handleMovement(socket, movement) { // handle input from a player
 		const player = this.players[socket.id];
 		if ( player ) {
@@ -452,32 +446,36 @@ class Game {
 							});
 						});
 					} else { //玩家队伍
-						const player = this.players[mob.team];
-						const center = {
-							x: player.x,
-							y: player.y,
-						};
-						Object.entries(this.players).forEach(([id,player]) => {
-							if (player.team == mob.team) return; 
-							const distance = Math.sqrt((center.x - player.x) ** 2 + (center.y - player.y) ** 2);
-							if (distance < Constants.MOB_ATTACK_RADIUS) {
-								distances.push(distance);
-								ids.push(id);
-							}
-						});
-						Object.entries(this.mobs).forEach(([id,enemyMob]) => {
-							if (id == mobID || enemyMob.isProjectile || enemyMob.team == mob.team) return;
-							
-							//寻找玩家附近的目标
-							if (Math.sqrt((center.x - enemyMob.x) ** 2 + (center.y - enemyMob.y) ** 2) > Constants.MOB_ATTACK_RADIUS) return; 
-							
-							//寻找距离自己最近的目标
-							const distance = Math.sqrt((mob.x - enemyMob.x) ** 2 + (mob.y - enemyMob.y) ** 2);
-							if (distance < Constants.MOB_ATTACK_RADIUS) {
-								distances.push(distance);
-								ids.push(id);
-							}
-						});
+						(() => {
+							const player = this.players[mob.team];
+							if ( !player )
+								return ;
+							const center = {
+								x: player.x,
+								y: player.y,
+							};
+							Object.entries(this.players).forEach(([id,player]) => {
+								if (player.team == mob.team) return; 
+								const distance = Math.sqrt((center.x - player.x) ** 2 + (center.y - player.y) ** 2);
+								if (distance < Constants.MOB_ATTACK_RADIUS) {
+									distances.push(distance);
+									ids.push(id);
+								}
+							});
+							Object.entries(this.mobs).forEach(([id,enemyMob]) => {
+								if (id == mobID || enemyMob.isProjectile || enemyMob.team == mob.team) return;
+								
+								//寻找玩家附近的目标
+								if (Math.sqrt((center.x - enemyMob.x) ** 2 + (center.y - enemyMob.y) ** 2) > Constants.MOB_ATTACK_RADIUS) return; 
+								
+								//寻找距离自己最近的目标
+								const distance = Math.sqrt((mob.x - enemyMob.x) ** 2 + (mob.y - enemyMob.y) ** 2);
+								if (distance < Constants.MOB_ATTACK_RADIUS) {
+									distances.push(distance);
+									ids.push(id);
+								}
+							});
+						})();
 					}
 					
 					mob.target = ids[distances.indexOf(Math.min(...distances))] || -1;
@@ -672,6 +670,7 @@ class Game {
 	spawnMob(type, spawnX, spawnY, team, isProjectile, existTime) {
 		const newMobID = this.getNewMobID();
 		const mob = new Mob(newMobID, spawnX, spawnY, type, team, false, isProjectile, existTime);
+		// console.log(mob.x, mob.y);
 		mob.birthplace = this.getAreaNameByEntityPosition(mob.x, mob.y);
 		this.areas[mob.birthplace].volumeTaken += mob.attributes.VOLUME;
 		const offsetRadiusAttributes = mob.attributes.RADIUS_DEVIATION;
@@ -1199,6 +1198,8 @@ class Game {
 					let petalIDs = [],
 						isPetalInCooldown = [];
 					const player = this.players[mob.team];
+					if ( !player ) 
+						return;
 					player.petals[mob.slot].forEach((petal) => {
 						petalIDs.push(petal.id);
 						isPetalInCooldown.push(petal.inCooldown);
@@ -1307,14 +1308,10 @@ class Game {
 
 	update() { // updates the game every tick
 		const now = Date.now();
-		const deltaT = (now - this.lastUpdateTime) / 1000; // the length of the last tick
+
+		const deltaT = 1 / Constants.TICK_PER_SECOND;
 
 		this.lastUpdateTime = now;
-		
-		/*if (Object.keys(this.blocks).length == 0) {
-			this.createBlocks();
-			return;
-		}*/
 		
 		this.init(deltaT);
 		
@@ -1329,8 +1326,6 @@ class Game {
 		this.applyVelocity(deltaT);
 		
 		this.updateMobs(deltaT);
-		
-		//this.updateBlocks();
 
 		this.updateMovement(deltaT);
 		
@@ -1502,7 +1497,7 @@ class Game {
 		const result = areasArray.find(([name, attribute]) => {
 			return attribute.START_WIDTH <= x && x <= attribute.START_WIDTH + attribute.WIDTH && attribute.START_HEIGHT <= y && y <= attribute.START_HEIGHT + attribute.HEIGHT;
 		});
-		return result[0]
+		return result[0];
 	}
 }
 

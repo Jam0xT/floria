@@ -46,6 +46,6 @@ export const sendPetalSwitchEvent = (petalA, petalB) => {
 	socket.emit(Constants.MSG_TYPES.PETAL_SWITCH, petalA, petalB);
 }
 
-export const sendPetalDisableEvent = (petal) => {
-	socket.emit(Constants.MSG_TYPES.PETAL_DISABLE, petal);
-}
+// export const sendPetalDisableEvent = (petal) => {
+// 	socket.emit(Constants.MSG_TYPES.PETAL_DISABLE, petal);
+// }

@@ -54,7 +54,6 @@ export function getCurrentState() {
 		const ratio = (serverTime - baseUpdate.t) / (nextUpdate.t - baseUpdate.t);
 		if ( baseUpdate.diedEntities ) {
 			if ( baseUpdate.diedEntities.length != 0 ) {
-				// console.log(baseUpdate.diedEntities);
 				addDiedEntities(baseUpdate.diedEntities);
 				delete baseUpdate.diedEntities;
 			}

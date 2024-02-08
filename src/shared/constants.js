@@ -77,7 +77,7 @@ module.exports = Object.freeze({
 	BLOCK_WIDTH: 200, // width of the block
 	BLOCK_HEIGHT: 200, // height of the block
 
-	RENDER_DELAY: 200, // render delay to make the animation smooth
+	RENDER_DELAY: 150, // render delay to make the animation smooth
 
 	RATED_WIDTH: 1920, // rated rendering size on client
 	RATED_HEIGHT: 1080,
@@ -138,6 +138,8 @@ module.exports = Object.freeze({
 		'rgb(25, 177, 180)',
 		'rgb(207, 35, 95)',
 	],
+
+	PETAL_SYNC_INTERVAL: 25, // tick
 
 	PETAL_OUTLINE_WIDTH_PERCENTAGE: 0.05,
 	

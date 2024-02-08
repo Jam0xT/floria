@@ -28,13 +28,13 @@ class Player extends Entity {
 		this.petals = [];
 
 		this.primaryPetals[0] = 'PENTA';
-		this.primaryPetals[1] = 'TRI_CACTUS';
-		this.primaryPetals[2] = 'EGG';
-		this.primaryPetals[3] = 'EGG';
-		this.primaryPetals[4] = 'EGG';
-		this.primaryPetals[5] = 'EGG';
-		this.primaryPetals[6] = 'EGG';
-		this.primaryPetals[7] = 'EGG';
+		this.primaryPetals[1] = 'CACTUS_TOXIC';
+		this.primaryPetals[2] = 'PENTA';
+		this.primaryPetals[3] = 'BUBBLE';
+		this.primaryPetals[4] = 'BUBBLE';
+		this.primaryPetals[5] = 'BUBBLE';
+		this.primaryPetals[6] = 'DAHLIA';
+		this.primaryPetals[7] = 'DAHLIA';
 
 		this.secondaryPetals[0] = 'LEAF';
 		this.secondaryPetals[1] = 'LEAF';
@@ -64,7 +64,7 @@ class Player extends Entity {
 			x: 0,
 			y: 0,
 		};
-		this.switched = true; // 这一刻是否进行交换操作
+		// this.switched = true; // 这一刻是否进行交换操作
 		this.noHeal = 0; // 剩余禁用回血时间
 		this.poison = 0; // 中毒每秒毒伤
 		this.poisonTime = 0; // 剩余中毒时间
@@ -72,6 +72,7 @@ class Player extends Entity {
 		this.bodyPoison = 0; // 碰撞毒总伤
 		this.damageReflect = 0.000; // 反伤
 		this.vision = 1.0;
+		this.petalSyncTimer = Constants.PETAL_SYNC_INTERVAL;
 		
 		this.updatePetalSlot();
 	}
@@ -87,7 +88,6 @@ class Player extends Entity {
 
 	switchPetals(slot1, slot2) {
 		let tmp;
-		this.switched = true;
 		if ( slot1 != -1 ) {
 			if ( (!slot1.isPrimary) && slot2.isPrimary ) {
 				tmp = slot1;
@@ -99,7 +99,24 @@ class Player extends Entity {
 				this.primaryPetals[slot1.slot] = this.primaryPetals[slot2.slot];
 				this.primaryPetals[slot2.slot] = tmp;
 				let petalA = this.petals.find(ptl => (ptl[0].slot == slot1.slot)),
-					petalB = this.petals.find(ptl => (ptl[0].slot == slot2.slot));
+					petalB = this.petals.find(ptl => (ptl[0].slot == slot2.slot)),
+					petalA_type = this.primaryPetals[slot2.slot],
+					petalB_type = this.primaryPetals[slot1.slot];
+				tmp = petalA[0].placeHolder;
+				//petalA
+				//目标花瓣数量是否大于自身数量，是就增加花瓣位
+				if (PetalAttributes[petalB_type].COUNT > petalA.length) {
+					let times = PetalAttributes[petalB_type].COUNT - petalA.length;
+					for (let i = 0; i < times; i++) {
+						let petal = this.newPetal(petalB_type, this.getNewPetalID(), petalA[petalA.length - 1].idx + 1, petalB[0].placeHolder, 0);
+						petalA.push(petal);
+					}
+				}
+
+				//目标花瓣数量是否小于自身数量，是就删除多出的花瓣位
+				if (PetalAttributes[petalB_type].COUNT < petalA.length) {
+					petalA.splice(PetalAttributes[petalB_type].COUNT,Constants.PETAL_MULTIPLE_MAX);
+				}
 				
 				//刷新花瓣属性
 				petalA.forEach((petal,index) => {
@@ -118,6 +135,21 @@ class Player extends Entity {
 						}
 					})
 				})
+				
+				//petalB
+				//目标花瓣数量是否大于自身数量，是就增加花瓣位
+				if (PetalAttributes[petalA_type].COUNT > petalB.length) {
+					let times = PetalAttributes[petalA_type].COUNT - petalB.length;
+					for (let i = 0; i < times; i++) {
+						let petal = this.newPetal(petalA_type, this.getNewPetalID(), petalB[petalB.length - 1].idx + 1, tmp, 0);
+						petalB.push(petal);
+					}
+				}
+
+				//目标花瓣数量是否小于自身数量，是就删除多出的花瓣位
+				if (PetalAttributes[petalA_type].COUNT < petalB.length) {
+					petalB.splice(PetalAttributes[petalA_type].COUNT,Constants.PETAL_MULTIPLE_MAX);
+				}
 				
 				//刷新花瓣属性
 				petalB.forEach((petal,index) => {
@@ -608,8 +640,8 @@ class Player extends Entity {
 
 	serializeForUpdate(self) { // get neccesary data and send to client
 		if ( self ) {
-			if ( this.switched ) {
-				this.switched = false;
+			if ( this.petalSyncTimer <= 0  ) {
+				this.petalSyncTimer = Constants.PETAL_SYNC_INTERVAL;
 				return {
 					...(super.serializeForUpdate()),
 					score: this.score,
@@ -620,11 +652,12 @@ class Player extends Entity {
 					exp: this.exp,
 					username: this.username,
 					petals: this.getPetalsForUpdate(),
-					switched: true,
+					petalSync: true,
 					primaryPetals: this.primaryPetals,
 					secondaryPetals: this.secondaryPetals,
 				};
 			} else {
+				this.petalSyncTimer --;
 				return {
 					...(super.serializeForUpdate()),
 					score: this.score,
@@ -635,7 +668,6 @@ class Player extends Entity {
 					exp: this.exp,
 					username: this.username,
 					petals: this.getPetalsForUpdate(),
-					switched: false,
 				};
 			}
 		} else {

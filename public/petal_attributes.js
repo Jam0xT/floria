@@ -43,7 +43,7 @@ module.exports = Object.freeze({
 	  MULTIPLE: false,
 	  CLUSTER: false,
 	  COUNT: 1,
-	  TRIGGERS: { BUBBLE_PUSH: 1500, ACTION_COOLDOWN: 0.1 }
+	  TRIGGERS: { BUBBLE_PUSH: 1500, ACTION_COOLDOWN: 0.3 }
 	},
 	CACTUS: {
 	  TYPE: 'CACTUS',
@@ -602,7 +602,7 @@ module.exports = Object.freeze({
 	  MULTIPLE: false,
 	  CLUSTER: false,
 	  COUNT: 1,
-	  TRIGGERS: { HEAL_SUSTAIN: 1 }
+	  TRIGGERS: { HEAL_SUSTAIN: 100 } // 1
 	},
 	POLLEN: {
 	  TYPE: 'POLLEN',

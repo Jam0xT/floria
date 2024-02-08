@@ -1,6 +1,6 @@
 import { getAsset } from './assets';
 import { getCurrentState } from './state';
-import { startCapturingInput, updateSlotsData, switchInput, enable } from './input';
+import { startCapturingInput, updateSlotsData, isKeyboardMovement } from './input';
 const Constants = require('../shared/constants');
 const { MAP_WIDTH, MAP_HEIGHT, RATED_WIDTH, RATED_HEIGHT } = Constants;
 const EntityAttributes = require('../../public/entity_attributes');
@@ -25,6 +25,8 @@ let startup = true;
 let gameRadiusOnEnter = 0;
 let deltaGameRadiusOnEnter = 5;
 
+const PETAL_OUTLINE_WIDTH_PERCENTAGE = 0.05;
+
 let backgroundLayer = 1, playerLayer = 5, petalLayer = 3, shadeLayer = 7, mobLayer = 4, UILayer = 8, effectLayer = 6, dropLayer = 2;
 
 let primarySlotDisplayLength = 60, primarySlotHitboxLength = 92, primarySlotCenterY = 850;
@@ -36,9 +38,6 @@ let selectedSize = 1.2;
 let initPetals = false;
 
 let petalSwing = Math.PI * 0.03;
-let selectedPetal = [], targetedPetal = [];
-
-let keyboardMovement = false;
 
 let lightningPaths = [];
 let diedEntities = [];
@@ -121,7 +120,7 @@ class Petal { // the petal item which you can operate on
 			ctx.rotate(this.dir);
 			ctx.globalAlpha = petalAlpha;
 			let displayLength = length * this.size;
-			let outlineWidth = displayLength * Constants.PETAL_OUTLINE_WIDTH_PERCENTAGE;
+			let outlineWidth = displayLength * PETAL_OUTLINE_WIDTH_PERCENTAGE;
 			renderRoundRect(UILayer, - displayLength / 2 - outlineWidth, - displayLength / 2 - outlineWidth, 
 			displayLength + outlineWidth * 2, displayLength + outlineWidth * 2, hpx * 1, true, true, true, true);
 			ctx.strokeStyle = Constants.RARITY_COLOR_DARKEN[PetalAttributes[this.type].RARITY];
@@ -333,14 +332,6 @@ export function drag(isPrimary, slot, x, y) {
 }
 
 export function switchPetals(isPrimary, slot, targetIsPrimary, targetSlot) {
-	selectedPetal.push({
-		isPrimary: isPrimary,
-		slot: slot,
-	});
-	targetedPetal.push({
-		isPrimary: targetIsPrimary,
-		slot: targetSlot,
-	});
 
 	let petalA, petalB;
 
@@ -356,6 +347,7 @@ export function switchPetals(isPrimary, slot, targetIsPrimary, targetSlot) {
 		petalB = secondaryPetals[targetSlot];
 	}
 
+	petalA.animating = true;
 	petalB.animating = true;
 
 	petalA.swing = false;
@@ -496,8 +488,8 @@ function renderGame() {
 	}
 	const { info, me, others, mobs, drops, leaderboard, playerCount, rankOnLeaderboard, lightningPath } = getCurrentState();
 	
-	updateSlotsData(W, hpx, primarySlotHitboxLength, primarySlotDisplayLength + 4 * primarySlotDisplayLength * Constants.PETAL_OUTLINE_WIDTH_PERCENTAGE, primarySlotCenterY, primarySlotCount,
-		secondarySlotHitboxLength, secondarySlotDisplayLength + 4 * secondarySlotDisplayLength * Constants.PETAL_OUTLINE_WIDTH_PERCENTAGE, secondarySlotCenterY, secondarySlotCount);
+	updateSlotsData(W, hpx, primarySlotHitboxLength, primarySlotDisplayLength + 4 * primarySlotDisplayLength * PETAL_OUTLINE_WIDTH_PERCENTAGE, primarySlotCenterY, primarySlotCount,
+		secondarySlotHitboxLength, secondarySlotDisplayLength + 4 * secondarySlotDisplayLength * PETAL_OUTLINE_WIDTH_PERCENTAGE, secondarySlotCenterY, secondarySlotCount);
 
 	if ( me ) {
 		renderBackground(me.x, me.y);
@@ -591,23 +583,16 @@ function renderUI(me) {
 
 	// movement helper
 
-	if ( !keyboardMovement ) {
+	if ( !isKeyboardMovement() ) {
 		// render movement helper
+		
 	}
 
 	// petals
 
 	// primary slots
 
-	if ( !initPetals ) {
-		if ( !me.switched ) {
-			switchInput(-1, -1);
-		} else {
-			initPetals = true;
-		}
-	}
-
-	if ( me.switched ) {
+	if ( me.petalSync ) {
 		if ( primarySlotCount < me.primaryPetals.length ) {
 			primarySlotCount = me.primaryPetals.length;
 		}
@@ -621,7 +606,7 @@ function renderUI(me) {
 	let slotDisplayLength = primarySlotDisplayLength * hpx;
 	let slotHitboxLength = primarySlotHitboxLength * hpx;
 	let centerY = primarySlotCenterY * hpx;
-	let petalOutlineWidth = slotDisplayLength * Constants.PETAL_OUTLINE_WIDTH_PERCENTAGE;
+	let petalOutlineWidth = slotDisplayLength * PETAL_OUTLINE_WIDTH_PERCENTAGE;
 	for (let i = 0; i < slotCount; i ++ ) {
 		let centerX = W / 2 - slotHitboxLength * (slotCount / 2 - 0.5) + i * slotHitboxLength;
 		renderRoundRect(UILayer, centerX - slotDisplayLength / 2 - petalOutlineWidth, centerY - slotDisplayLength / 2 - petalOutlineWidth, 
@@ -640,7 +625,7 @@ function renderUI(me) {
 
 	// secondary slots
 
-	if ( me.switched ) {
+	if ( me.petalSync ) {
 		if ( secondarySlotCount < me.secondaryPetals.length ) {
 			secondarySlotCount = me.secondaryPetals.length;
 		}
@@ -654,7 +639,7 @@ function renderUI(me) {
 	slotDisplayLength = secondarySlotDisplayLength * hpx;
 	slotHitboxLength = secondarySlotHitboxLength * hpx;
 	centerY = secondarySlotCenterY * hpx;
-	petalOutlineWidth = slotDisplayLength * Constants.PETAL_OUTLINE_WIDTH_PERCENTAGE;
+	petalOutlineWidth = slotDisplayLength * PETAL_OUTLINE_WIDTH_PERCENTAGE;
 	for (let i = 0; i < slotCount; i ++ ) {
 		let centerX = W / 2 - slotHitboxLength * (slotCount / 2 - 0.5) + i * slotHitboxLength;
 		renderRoundRect(UILayer, centerX - slotDisplayLength / 2 - petalOutlineWidth, centerY - slotDisplayLength / 2 - petalOutlineWidth, 
@@ -682,7 +667,7 @@ function renderUI(me) {
 		if ( !primaryPetals[i].animating ) {
 			primaryPetals[i].setTargetPos(centerX, centerY);
 			primaryPetals[i].setTargetSize(1);
-			if ( me.switched ) {
+			if ( me.petalSync ) {
 				primaryPetals[i].setType(me.primaryPetals[i]);
 			}
 			primaryPetals[i].render(slotDisplayLength);
@@ -706,7 +691,7 @@ function renderUI(me) {
 		if ( !secondaryPetals[i].animating ) {
 			secondaryPetals[i].setTargetPos(centerX, centerY);
 			secondaryPetals[i].setTargetSize(1);
-			if ( me.switched )
+			if ( me.petalSync )
 				secondaryPetals[i].setType(me.secondaryPetals[i]);
 			secondaryPetals[i].render(slotDisplayLength);
 		}
@@ -714,31 +699,6 @@ function renderUI(me) {
 	for (let i = 0; i < slotCount; i ++ ) {
 		if ( secondaryPetals[i].animating ) {
 			secondaryPetals[i].render(slotDisplayLength);
-		}
-	}
-
-	if ( selectedPetal.length > 0 && targetedPetal.length > 0 ) {
-		let petalA, petalB;
-		if ( selectedPetal[0].isPrimary ) {
-			petalA = primaryPetals[selectedPetal[0].slot];
-		} else {
-			petalA = secondaryPetals[selectedPetal[0].slot];
-		}
-		if ( targetedPetal[0].isPrimary ) {
-			petalB = primaryPetals[targetedPetal[0].slot];
-		} else {
-			petalB = secondaryPetals[targetedPetal[0].slot];
-		}
-		if ( (!petalA.animating) && (!petalB.animating) ) {
-			switchInput(selectedPetal[0], targetedPetal[0]);
-			if ( selectedPetal[0].isPrimary ) {
-				enable(selectedPetal[0].slot);
-			}
-			if ( targetedPetal[0].isPrimary ) {
-				enable(targetedPetal[0].slot);
-			}
-			selectedPetal.shift();
-			targetedPetal.shift();
 		}
 	}
 }
@@ -1393,7 +1353,7 @@ function renderDrops(drops,me) {
 		ctx.rotate(entity.dir);
 		ctx.translate(-x, -y);
 		
-		let outlineWidth = displayLength * Constants.PETAL_OUTLINE_WIDTH_PERCENTAGE;
+		let outlineWidth = displayLength * PETAL_OUTLINE_WIDTH_PERCENTAGE;
 		ctx.strokeStyle = Constants.RARITY_COLOR_DARKEN[PetalAttributes[entity.type].RARITY];
 		ctx.lineWidth = outlineWidth * 10;
 		renderRoundRect(dropLayer, x - (displayLength + outlineWidth * 50) / 2, y - (displayLength + outlineWidth * 50) / 2,
