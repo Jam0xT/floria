@@ -26,8 +26,9 @@ function inRegion(x, y, xl, xr, yl, yr) {
 }
 
 function onMouseMove(e) {
-	let x = e.clientX, y = e.clientY;
-	handleMovement(x, y);
+	const dpr = window.devicePixelRatio;
+	let x = e.clientX * dpr, y = e.clientY * dpr;
+	handleMovement(x / dpr, y / dpr);
 
 	let slotCount = primarySlotCount;
 	let slotHitboxLength = primarySlotHitboxLength * hpx;
@@ -112,7 +113,8 @@ function onMouseDown(e) {
 		sendMouseDownEvent(e.buttons);
 	}
 	if ( e.buttons & 1 ) {
-		let x = e.clientX, y = e.clientY;
+		const dpr = window.devicePixelRatio;
+		let x = e.clientX * dpr, y = e.clientY * dpr;
 		let slotCount = primarySlotCount;
 		let slotHitboxLength = primarySlotHitboxLength * hpx;
 		let slotDisplayLength = primarySlotDisplayLength * hpx;

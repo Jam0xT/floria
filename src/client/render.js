@@ -513,6 +513,7 @@ function renderGame() {
 		renderLeaderboard(leaderboard, playerCount, me, rankOnLeaderboard);
 		renderUI(me);
 		renderInfo(info);
+		renderWarning(me);
 	}
 	
 	if ( gameRadiusOnEnter < hpx * 1800 ) {
@@ -1424,6 +1425,32 @@ function renderDrops(drops,me) {
 	})
 }
 
+function renderWarning(me) {
+	const ctx = getCtx(UILayer);
+	if (getAreaNameByEntityPosition(me.x, me.y) == `OCEAN`) {
+		ctx.fillStyle = `black`
+		ctx.globalAlpha = 0.5;
+		renderRoundRect(UILayer, W / 2 - 200, H / 4 - 100, 400, 150, 16, true, true, true, true);
+		ctx.fill();
+		ctx.stroke();
+		ctx.globalAlpha = 1;
+		renderText(UILayer, 0.88, `Warning: suffocate`, W / 2 - 100, H / 4 - 65, 16, 'left');
+		renderText(UILayer, 0.88, `in water, you will keep losing oxygen`, W / 2 - 100, H / 4 - 35, 16, 'left');
+		renderText(UILayer, 0.88, `when oxygen is zero,`, W / 2 - 100, H / 4 - 5, 16, 'left');
+		renderText(UILayer, 0.88, `you will keep reciving damage`, W / 2 - 100, H / 4 + 25, 16, 'left');
+		let asset = getAsset(`player_suffocate.svg`);
+		ctx.drawImage(asset, W / 2 - 170, H / 4 - 60, asset.naturalWidth / 2.6, asset.naturalHeight / 2.6);
+	}
+}
+
 function random(min, max) {
 	return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function getAreaNameByEntityPosition(x, y) {
+	const areasArray = Object.entries(Constants.MAP_AREAS);
+	const result = areasArray.find(([name, attribute]) => {
+		return attribute.START_WIDTH <= x && x <= attribute.START_WIDTH + attribute.WIDTH && attribute.START_HEIGHT <= y && y <= attribute.START_HEIGHT + attribute.HEIGHT;
+	});
+	return result[0]
 }

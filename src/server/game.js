@@ -81,7 +81,7 @@ class Game {
 			petals.forEach((petal) => {
 				if ( petal.mob && petal.isHide ) {
 					petal.mob.forEach(mobID => {
-						this.mobs[mobID].hp = -1;
+						delete this.mobs[mobID];
 					})
 				}
 				if ( !petal.inCooldown ) {
@@ -484,10 +484,10 @@ class Game {
 				}
 			}
 			
-			//获取目标失败或距离目标太远，待机
-			const target = this.players[mob.target] || (this.mobs[mob.target] && this.mobs[mob.target]);
+			//获取目标失败或距离目标太远或离玩家（parent）太远，待机
+			const target = this.getEntity(mob.target);
 			
-			if (!target || Math.sqrt((mob.x - target.x) ** 2 + (mob.y - target.y) ** 2) > Constants.MOB_ATTACK_RADIUS) { 
+			if (!target || mob.distanceTo(target) > Constants.MOB_ATTACK_RADIUS || (mob.team != `mobTeam` && mob.distanceTo(this.getEntity(mob.team)) > Constants.MOB_ATTACK_RADIUS)) { 
 				mob.idle(deltaT, this.players[mob.team]);
 				return;
 			}
@@ -1093,6 +1093,17 @@ class Game {
 	updatePlayers(deltaT) {
 		Object.keys(this.sockets).forEach(playerID => {
 			const player = this.players[playerID];
+			if (this.getAreaNameByEntityPosition(player.x, player.y) == `OCEAN`) {
+				if (player.oxygen < 0) {
+					player.suffocateTime += deltaT;
+				} else {
+					player.oxygen -= deltaT;
+					player.suffocateTime = 0;
+				}
+			} else {
+				player.oxygen = Constants.PLAYER_OXYGEN;
+				player.suffocateTime = 0;
+			}
 			player.update(deltaT);
 			player.petals.forEach((petals) => {
 				petals.forEach((petal) => {
@@ -1209,6 +1220,19 @@ class Game {
 					mob.hp = -1;
 				}
 			})();
+			
+			//窒息伤害
+			(() => {
+				/* 找出mob出现在地图外原因后即可删除以下代码 */
+				if (mob.x < 0 || mob.y < 0 || mob.x > Constants.MAP_WIDTH || mob.y > Constants.MAP_HEIGHT) return; 
+				/* 找出mob出现在地图外原因后即可删除以上代码 */
+				if (this.getAreaNameByEntityPosition(mob.x, mob.y) == `OCEAN` && mob.attributes.ATTACK_MODE != 'PROJECTILE' && !mob.attributes.AQUATIC) {
+					mob.hp -= Constants.SUFFOCATE_DAMAGE_BASE * deltaT + mob.suffocateTime * deltaT * Constants.SUFFOCATE_DAMAGE_IMPROVE;
+					mob.suffocateTime += deltaT;
+					return;
+				}
+				mob.suffocateTime = 0;
+			})();
 		});
 	}
 
@@ -1319,8 +1343,6 @@ class Game {
 		this.init(deltaT);
 		
 		this.mobSpawn();
-
-		this.updatePlayers(deltaT);
 		
 		this.updateDrops(deltaT);
 		
@@ -1328,7 +1350,11 @@ class Game {
 		
 		this.applyVelocity(deltaT);
 		
+		this.handleBorder();
+		
 		this.updateMobs(deltaT);
+		
+		this.updatePlayers(deltaT);
 		
 		//this.updateBlocks();
 
@@ -1337,8 +1363,6 @@ class Game {
 		this.solveCollisions(deltaT);
 
 		this.updateChunks();
-
-		this.handleBorder();
 
 		this.applyConstraintVelocity(deltaT);
 
