@@ -1,4 +1,4 @@
-import { sendMovement, sendMouseDownEvent, sendMouseUpEvent, sendPetalSwitchEvent, sendPetalDisableEvent } from './networking';
+import { sendMovement, sendMouseDownEvent, sendMouseUpEvent, sendPetalSwitchEvent } from './networking';
 import { toggleKeyboardMovement, select, deSelect, drag, target, switchPetals } from './render';
 
 var keyDown = {
@@ -17,7 +17,6 @@ var hpx;
 var primarySlotHitboxLength, primarySlotDisplayLength, primarySlotCenterY, primarySlotCount;
 var secondarySlotHitboxLength, secondarySlotDisplayLength, secondarySlotCenterY, secondarySlotCount;
 var selectedSlot = undefined, targetSlot = undefined;
-var disabled = [];
 
 document.addEventListener('contextmenu', event => event.preventDefault()); // prevent right-clicks
 
@@ -158,19 +157,10 @@ function onMouseUp(e) {
 	if ( !(e.buttons & 1) ) {
 		if ( selectedSlot && targetSlot ) {
 			switchPetals(selectedSlot.isPrimary, selectedSlot.slot, targetSlot.isPrimary, targetSlot.slot);
-			if ( selectedSlot.isPrimary ) {
-				if ( !disabled[selectedSlot.slot] ) {
-					disable(selectedSlot.slot);
-					disabled[selectedSlot.slot] = true;
-				}
-			}
-			if ( targetSlot.isPrimary ) {
-				if ( !disabled[targetSlot.slot] ) {
-					disable(targetSlot.slot);
-					disabled[targetSlot.slot] = true;
-				}
-			}
-			// switchInput(selectedSlot, targetSlot, false);
+			sendPetalSwitchEvent(
+				{isPrimary: selectedSlot.isPrimary, slot: selectedSlot.slot},
+				{isPrimary: targetSlot.isPrimary, slot: targetSlot.slot}
+			);
 			selectedSlot = undefined;
 		} else if ( selectedSlot ) {
 			deSelect(selectedSlot.isPrimary, selectedSlot.slot);
@@ -249,11 +239,10 @@ function handleKeyDownInput(e) {
 			slot = 9;
 		if ( slot >= 0 && slot < primarySlotCount) {
 			switchPetals(true, slot, false, slot);
-			if ( !disabled[slot] ) {
-				disable(slot);
-				disabled[slot] = true;
-			}
-			// switchInput({isPrimary: true, slot: slot}, {isPrimary: false, slot: slot}, false);
+			sendPetalSwitchEvent(
+				{isPrimary: true, slot: slot},
+				{isPrimary: false, slot: slot}
+			);
 			selectedSlot = undefined;
 			targetSlot = undefined;
 		}
@@ -318,14 +307,6 @@ export function stopCapturingInput() {
 	window.removeEventListener('keyup', handleKeyUpInput);
 }
 
-function disable(petal) {
-	sendPetalDisableEvent(petal);
-}
-
-export function switchInput(petalA, petalB) {
-	sendPetalSwitchEvent(petalA, petalB);
-}
-
 export function updateSlotsData(W_, hpx_, primarySlotHitboxLength_, primarySlotDisplayLength_, primarySlotCenterY_, primarySlotCount_,
 		secondarySlotHitboxLength_, secondarySlotDisplayLength_, secondarySlotCenterY_, secondarySlotCount_) {
 	W = W_;
@@ -338,11 +319,8 @@ export function updateSlotsData(W_, hpx_, primarySlotHitboxLength_, primarySlotD
 	secondarySlotDisplayLength = secondarySlotDisplayLength_;
 	secondarySlotCenterY = secondarySlotCenterY_;
 	secondarySlotCount = secondarySlotCount_;
-	while ( disabled.length < primarySlotCount ) {
-		disabled.push(false);
-	}
 }
 
-export function enable(slot) {
-	disabled[slot] = false;
+export function isKeyboardMovement() {
+	return keyboardMovement;
 }

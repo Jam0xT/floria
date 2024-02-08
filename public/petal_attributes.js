@@ -43,7 +43,7 @@ module.exports = Object.freeze({
 	  MULTIPLE: false,
 	  CLUSTER: false,
 	  COUNT: 1,
-	  TRIGGERS: { BUBBLE_PUSH: 1500, ACTION_COOLDOWN: 0.1 }
+	  TRIGGERS: { BUBBLE_PUSH: 1500, ACTION_COOLDOWN: 0.3 }
 	},
 	CACTUS: {
 	  TYPE: 'CACTUS',
@@ -124,7 +124,7 @@ module.exports = Object.freeze({
 	  MULTIPLE: false,
 	  CLUSTER: false,
 	  COUNT: 1,
-	  TRIGGERS: { ACTION_COOLDOWN: 3.5, SUMMON: 'HORNET' } //HORNET
+	  TRIGGERS: { ACTION_COOLDOWN: 3.5, SUMMON: 'ANT_HOLE' } //HORNET
 	},
 	FANGS: {
 	  TYPE: 'FANGS',
@@ -161,6 +161,21 @@ module.exports = Object.freeze({
 	  CLUSTER: false,
 	  COUNT: 1,
 	  TRIGGERS: {}
+	},
+	HEAVY: {
+		TYPE: 'HEAVY',
+		RADIUS: 10,
+		RENDER_RADIUS: 10,
+		RARITY: 2,
+		RELOAD: 5,
+		DAMAGE: 5,
+		MAX_HP: 1000,
+		MASS: 100,
+		EXPANDABLE: true,
+		MULTIPLE: false,
+		CLUSTER: false,
+		COUNT: 1,
+		TRIGGERS: {}
 	},
 	HONEY: {
 	  TYPE: 'HONEY',
@@ -587,7 +602,7 @@ module.exports = Object.freeze({
 	  MULTIPLE: false,
 	  CLUSTER: false,
 	  COUNT: 1,
-	  TRIGGERS: { HEAL_SUSTAIN: 1 }
+	  TRIGGERS: { HEAL_SUSTAIN: 100 } // 1
 	},
 	POLLEN: {
 	  TYPE: 'POLLEN',
@@ -649,6 +664,23 @@ module.exports = Object.freeze({
 	  COUNT: 1,
 	  TRIGGERS: { HEAL_SUSTAIN_DEFENCE: 1.5 }
 	},
+	ANTENNAE: {
+		TYPE: 'ANTENNAE',
+		RADIUS: 10,
+		RENDER_RADIUS: 10,
+		RARITY: 1,
+		RELOAD: 1,
+		DAMAGE: 1,
+		MAX_HP: 1,
+		MASS: 1,
+		EXPANDABLE: false,
+		MULTIPLE: false,
+		CLUSTER: false,
+		COUNT: 1,
+		TRIGGERS: {
+			VISION: 2.0,
+		}
+	}
 });
 // all petal attributes are here
 /*
