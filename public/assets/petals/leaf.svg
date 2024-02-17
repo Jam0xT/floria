@@ -24,15 +24,15 @@
      inkscape:deskcolor="#505050"
      inkscape:document-units="mm"
      showgrid="false"
-     inkscape:zoom="2"
-     inkscape:cx="100.75"
-     inkscape:cy="132.5"
+     inkscape:zoom="5.6568542"
+     inkscape:cx="125.24629"
+     inkscape:cy="83.792154"
      inkscape:window-width="1920"
      inkscape:window-height="1027"
      inkscape:window-x="-8"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
-     inkscape:current-layer="layer1" />
+     inkscape:current-layer="layer2" />
   <defs
      id="defs2">
     <inkscape:path-effect
@@ -124,13 +124,6 @@
      id="layer2"
      inkscape:label="图层 2"
      transform="translate(-88.650304,-105.21004)">
-    <path
-       style="fill:#ffffff;fill-opacity:0;stroke:#2e933c;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
-       d="M 110.59583,117.475 Z"
-       id="path44042"
-       inkscape:path-effect="#path-effect44044"
-       inkscape:original-d="m 110.59583,117.475 c -4.23307,7.84957 -12.964577,23.81249 0,0 z"
-       sodipodi:nodetypes="cc" />
     <path
        style="fill:#ffffff;fill-opacity:0;stroke:#2e933c;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
        d="m 112.84479,116.94582 c -4.27841,5.43912 -9.00464,12.18953 -12.56771,20.76981"

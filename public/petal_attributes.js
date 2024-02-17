@@ -549,7 +549,7 @@ module.exports = Object.freeze({
 	  RADIUS: 7,
 	  RENDER_RADIUS: 11,
 	  RARITY: 3,
-	  RELOAD: 0.04,
+	  RELOAD: 0,
 	  DAMAGE: 5,
 	  MAX_HP: 5,
 	  MASS: 1,
@@ -562,7 +562,7 @@ module.exports = Object.freeze({
 	YINYANG: {
 	  TYPE: 'YINYANG',
 	  RADIUS: 14,
-	  RENDER_RADIUS: 9,
+	  RENDER_RADIUS: 14,
 	  RARITY: 3,
 	  RELOAD: 1,
 	  DAMAGE: 15,

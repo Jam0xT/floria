@@ -50,7 +50,7 @@ class Mob extends Entity {
 					this.direction = direction;
 				}
 			};
-		} 
+		}
 		else if (this.attributes.ATTACK_MODE == `NEUTRAL`) {
 			this.updateMovement = (deltaT,target) => {
 				//拥有攻击目标则开始追杀
@@ -288,7 +288,7 @@ class Mob extends Entity {
 			...(super.serializeForUpdate()),
 			type: this.type,
 			activeDirection: this.activeDirection,
-			size: this.attributes.RENDER_RADIUS,
+			size: this.attributes.RADIUS * this.attributes.RENDER_RADIUS,
 		}
 	}
 }

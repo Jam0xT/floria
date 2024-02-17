@@ -1,5 +1,5 @@
 import { sendMovement, sendMouseDownEvent, sendMouseUpEvent, sendPetalSwitchEvent } from './networking';
-import { toggleKeyboardMovement, select, deSelect, drag, target, switchPetals } from './render';
+import { select, deSelect, drag, target, switchPetals } from './render';
 
 var keyDown = {
 	'w': false,
@@ -217,7 +217,6 @@ function handleKeyDownInput(e) {
 	}
 	if ( e.key == 'k' ) {
 		keyboardMovement = !keyboardMovement;
-		toggleKeyboardMovement(keyboardMovement);
 		sendMovement({
 			direction: 0,
 			magnitude: 0,

@@ -29,23 +29,23 @@ class Player extends Entity {
 		this.secondaryPetals = [];
 		this.petals = [];
 
-		this.primaryPetals[0] = 'PENTA';
-		this.primaryPetals[1] = 'CACTUS_TOXIC';
-		this.primaryPetals[2] = 'PENTA';
-		this.primaryPetals[3] = 'BUBBLE';
-		this.primaryPetals[4] = 'BUBBLE';
-		this.primaryPetals[5] = 'BUBBLE';
-		this.primaryPetals[6] = 'DAHLIA';
-		this.primaryPetals[7] = 'DAHLIA';
+		this.primaryPetals[0] = 'LEAF';
+		this.primaryPetals[1] = 'LEAF';
+		this.primaryPetals[2] = 'LEAF';
+		this.primaryPetals[3] = 'LEAF';
+		this.primaryPetals[4] = 'LEAF';
+		this.primaryPetals[5] = 'LEAF';
+		this.primaryPetals[6] = 'LEAF';
+		this.primaryPetals[7] = 'LEAF';
 
-		this.secondaryPetals[0] = 'LEAF';
-		this.secondaryPetals[1] = 'LEAF';
-		this.secondaryPetals[2] = 'LEAF';
-		this.secondaryPetals[3] = 'LEAF';
+		this.secondaryPetals[0] = 'YINYANG';
+		this.secondaryPetals[1] = 'BUBBLE';
+		this.secondaryPetals[2] = 'BUBBLE';
+		this.secondaryPetals[3] = 'BUBBLE';
 		this.secondaryPetals[4] = 'BUBBLE';
 		this.secondaryPetals[5] = 'BUBBLE';
-		this.secondaryPetals[6] = 'BUBBLE';
-		this.secondaryPetals[7] = 'YINYANG';
+		this.secondaryPetals[6] = 'RICE';
+		this.secondaryPetals[7] = 'MISSILE';
 		
 		for (let i = 0; i < Constants.PRIMARY_SLOT_COUNT_BASE; i ++ ) {
 			let petals = []
@@ -653,6 +653,7 @@ class Player extends Entity {
 					score: this.score,
 					hp: this.hp,
 					maxHp: this.maxHp,
+					size: this.attributes.RADIUS * this.attributes.RENDER_RADIUS,
 					currentExpForLevel: this.currentExpForLevel,
 					level: this.level,
 					exp: this.exp,
@@ -669,11 +670,13 @@ class Player extends Entity {
 					score: this.score,
 					hp: this.hp,
 					maxHp: this.maxHp,
+					size: this.attributes.RADIUS * this.attributes.RENDER_RADIUS,
 					currentExpForLevel: this.currentExpForLevel,
 					level: this.level,
 					exp: this.exp,
 					username: this.username,
 					petals: this.getPetalsForUpdate(),
+			size: this.attributes.RADIUS * this.attributes.RENDER_RADIUS,
 				};
 			}
 		} else {
@@ -682,6 +685,7 @@ class Player extends Entity {
 				score: this.score,
 				hp: this.hp,
 				maxHp: this.maxHp,
+				size: this.attributes.RADIUS * this.attributes.RENDER_RADIUS,
 				username: this.username,
 				petals: this.getPetalsForUpdate(),
 			};

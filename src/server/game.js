@@ -23,7 +23,6 @@ class Game {
 		this.mobs = {}; // {id: mob,...}
 		this.drops = {};
 		this.chunks = {}; // {chunkID:[{type: entityType, id: id},...],...}
-		// this.blocks = {};
 		this.lastUpdateTime = Date.now();
 		//this.mobSpawnTimer = {};
 		//this.volumeTaken = 0;
@@ -38,8 +37,8 @@ class Game {
 		this.areas = {};
 		Object.keys(Constants.MAP_AREAS).forEach(name => {
 			this.areas[name] = {};
-			this.areas[name].mobSpawnTimer = 0
-			this.areas[name].volumeTaken = 0
+			this.areas[name].mobSpawnTimer = 0;
+			this.areas[name].volumeTaken = 0;
 		})
 	}
 
@@ -200,6 +199,7 @@ class Game {
 		this.diedEntities.push({
 			x: player.x,
 			y: player.y,
+			vdir: Math.atan2(player.velocity.y, player.velocity.x),
 			type: `player`,
 			size: player.attributes.RENDER_RADIUS,
 			dir: player.direction,
@@ -236,6 +236,7 @@ class Game {
 						this.diedEntities.push({
 							x: petal.x,
 							y: petal.y,
+							vdir: Math.atan2(petal.velocity.y, petal.velocity.x),
 							type: petal.type,
 							size: petal.attributes.RENDER_RADIUS,
 							dir: petal.direction,
@@ -323,11 +324,12 @@ class Game {
 				// console.log("a mob has juts been killed!");
 
 				this.diedEntities.push({
-					x: this.mobs[mobID].x,
-					y: this.mobs[mobID].y,
-					type: this.mobs[mobID].type,
-					size: this.mobs[mobID].attributes.RENDER_RADIUS,
-					dir: this.mobs[mobID].direction,
+					x: mob.x,
+					y: mob.y,
+					vdir: Math.atan2(mob.velocity.y, mob.velocity.x),
+					type: mob.type,
+					size: mob.attributes.RADIUS * mob.attributes.RENDER_RADIUS,
+					dir: mob.direction,
 					isMob: true,
 				});
 				
@@ -677,7 +679,7 @@ class Game {
 		if (offsetRadiusAttributes) {
 			const offsetRadius = Math.floor(Math.random() * (offsetRadiusAttributes.MAX - offsetRadiusAttributes.MIN + 1)) + offsetRadiusAttributes.MIN;
 			mob.attributes.RADIUS += offsetRadius;
-			mob.attributes.RENDER_RADIUS += offsetRadius;
+			// mob.attributes.RENDER_RADIUS += offsetRadius;
 			if (mob.attributes.HP_DEVIATION) {
 				const offsetHp = Math.round(offsetRadius / (offsetRadiusAttributes.MAX - offsetRadiusAttributes.MIN) * (mob.attributes.HP_DEVIATION.MAX - mob.attributes.HP_DEVIATION.MIN));
 				mob.attributes.MAX_HP += offsetHp;
