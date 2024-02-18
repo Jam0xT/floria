@@ -48,6 +48,19 @@ let selectedSize = 1.2;
 
 let petalSwing = Math.PI * 0.03;
 
+let cmdLog = [];
+let cmdMaxLineCnt = 30;
+let cmdColor = 'cyan';
+let debugOptions =
+	[
+		false, // show hitbox
+		false, // show hp
+	];
+
+export function addCmdLog(log) {
+	cmdLog.push(log);
+}
+
 let lightningPaths = [];
 let diedEntities = [];
 
@@ -518,8 +531,18 @@ let expBarLength = 0;
 function renderUI(me) {
 	ctx = getCtx(UILayer);
 
-	// exp bar
+	renderExpBar(me); // exp bar
 
+	if ( !isKeyboardMovement() ) { // render movement helper
+		renderMovementHelper();
+	}
+
+	renderSlots(me); // slots
+
+	renderCmdLog();
+}
+
+function renderExpBar(me) {
 	const expBarYPos = hpx * 900;
 	const expBarBaseLength = hpx * 300;
 	const expBarBaseWidth = hpx * 45;
@@ -565,18 +588,14 @@ function renderUI(me) {
 	ctx.globalAlpha = 1;
 	renderText(1, `Lvl ${Math.floor(me.level)} flower`, hpx * 100, expBarYPos + hpx * 5, hpx * 18, 'left');
 	renderText(0.9, me.username, hpx * 150, expBarYPos - hpx * 40, hpx * 30, 'center');
+}
 
-	// movement helper
+function renderMovementHelper() {
+	// ...
+}
 
-	if ( !isKeyboardMovement() ) {
-		// render movement helper
-		
-	}
-
-	// petals
-
+function renderSlots(me) {
 	// primary slots
-
 	if ( me.petalSync ) {
 		if ( primarySlotCount < me.primaryPetals.length ) {
 			primarySlotCount = me.primaryPetals.length;
@@ -688,6 +707,30 @@ function renderUI(me) {
 	}
 }
 
+function renderCmdLog() {
+	let len = cmdLog.length;
+	let rightAlign = 990 * wpx;
+	let fontSize = 15 * hpx;
+	let spaceBetween = 5 * hpx;
+	let alpha = 0.9;
+
+	ctx.lineWidth = fontSize * 0.125;
+	ctx.font = `${fontSize}px Ubuntu`;
+	ctx.textAlign = "right";
+	ctx.globalAlpha = alpha;
+
+	for (let i = len - 1; i >= Math.max(0, len - cmdMaxLineCnt); i -- ) {
+		// ctx.strokeText(cmdLog[i], rightAlign, (900 - (len - i) * (spaceBetween + fontSize)) * hpx, fontSize);
+		let text = cmdLog[i];
+		let x = rightAlign;
+		let y = (900 * hpx - (len - i) * (spaceBetween + fontSize));
+		ctx.globalCompositeOperation = 'source-over';
+		ctx.fillStyle = cmdColor;
+		ctx.fillText(text, x, y);
+	}
+	ctx.globalAlpha = 1;
+}
+
 function renderInfo(info) {
 	ctx = getCtx(UILayer[0]);
 	renderText(0.7, "floria.io", hpx * 85, hpx * 45, hpx * 40, 'center');
@@ -747,33 +790,41 @@ function renderPlayer(me, player) {
 	// render player itself
 	ctx = getCtx(playerLayer[0]);
 	const { x, y } = player;
+	let playerAsset;
+	if ( player.username == "Pop!") {
+		playerAsset = getAsset('mobs/bubble.svg');
+	} else {
+		playerAsset = getAsset('player.svg');
+	}
 	const canvasX = W / 2 + (x - me.x) * hpx;
 	const canvasY = H / 2 + (y - me.y) * hpx;
 	const renderRadius = player.size * hpx;
-	if ( player.username == "Pop!" ) {
-		ctx.drawImage(
-			getAsset('mobs/bubble.svg'),
-			canvasX - renderRadius,
-			canvasY - renderRadius,
-			renderRadius * 2,
-			renderRadius * 2,
-		);
-	} else {
-		ctx.drawImage(
-			getAsset('player.svg'),
-			canvasX - renderRadius,
-			canvasY - renderRadius,
-			renderRadius * 2,
-			renderRadius * 2,
-		);
+	ctx.translate(canvasX, canvasY);
+
+	ctx.drawImage(
+		playerAsset,
+		- renderRadius,
+		- renderRadius,
+		renderRadius * 2,
+		renderRadius * 2,
+	);
+
+	if ( debugOptions[0] ) {
+		renderHitbox(player.radius * hpx);
+	}
+	
+	if ( debugOptions[1] ) {
+		renderText(1, `hp:${player.hp.toFixed(1)}`, 0, hpx * 25, hpx * 18, 'center');
 	}
 
-	// render username
-	renderText(backgroundLayer[0], 1, player.username, canvasX, canvasY - hpx * 35, hpx * 20, 'center');
+	ctx.translate(-canvasX, -canvasY);
 
-	// render health bar
 	ctx = getCtx(backgroundLayer[0]);
 
+	// render username
+	renderText(1, player.username, canvasX, canvasY - hpx * 35, hpx * 20, 'center');
+
+	// render health bar
 	const healthBarBaseWidth = hpx * 10;
 	const healthBarBaseStyle = 'rgb(51, 51, 51)';
 	const healthBarBaseLength = renderRadius * 2 + hpx * 20;
@@ -832,6 +883,12 @@ function renderPlayer(me, player) {
 			);
 		}
 		ctx.rotate(-petal.dir);
+		if ( debugOptions[0] ) {
+			renderHitbox(PetalAttributes[petal.type].RADIUS * hpx);
+		}
+		if ( debugOptions[1] ) {
+			renderText(1, `hp:${petal.hp.toFixed(1)}`, 0, hpx * 25, hpx * 18, 'center');
+		}
 		ctx.translate(-(canvasX + (petal.x - player.x) * hpx), -(canvasY + (petal.y - player.y) * hpx));
 	});
 }
@@ -842,14 +899,14 @@ function renderMob(me, mob) {
 	const {x, y} = mob;
 	const canvasX = W / 2 + (x - me.x) * hpx;
 	const canvasY = H / 2 + (y - me.y) * hpx;
-	ctx.save();
 	ctx.translate(canvasX, canvasY);
 	const renderRadius = mob.size * hpx;
 	const asset = getAsset(`mobs/${mob.type.toLowerCase()}.svg`);
 	const width = asset.naturalWidth, height = asset.naturalHeight;
 	if ( mob.type == "CENTIPEDE" || mob.type == "CENTIPEDE_EVIL") {
-		ctx.translate(0, renderRadius * -0.3);
-		// ctx.rotate(mob.dir);
+		let offset = 0.24;
+		ctx.rotate(mob.dir);
+		ctx.translate(0, renderRadius * -offset);
 		if ( width <= height ) {
 			ctx.drawImage(
 				asset,
@@ -867,8 +924,9 @@ function renderMob(me, mob) {
 				renderRadius * 2,
 			);
 		}
-	}
-	else {
+		ctx.translate(0, -renderRadius * -offset);
+		ctx.rotate(-mob.dir);
+	} else {
 		ctx.rotate(mob.dir);
 		if ( width <= height ) {
 			ctx.drawImage(
@@ -887,12 +945,18 @@ function renderMob(me, mob) {
 				renderRadius * 2,
 			);
 		}
+		ctx.rotate(-mob.dir);
+	}
+	
+	if ( debugOptions[0] ) {
+		renderHitbox(mob.radius * hpx);
 	}
 
-	ctx.restore();
+	if ( debugOptions[1] ) {
+		renderText(1, `hp:${mob.hp.toFixed(1)}`, 0, hpx * 25, hpx * 18, 'center');
+	}
 
-	// renderText(mobLayer[0], 1, mob.id, canvasX, canvasY - hpx * 35, hpx * 20, 'center');
-	// renderText(mobLayer[0], 1, `hp:${mob.hp}`, canvasX, canvasY + hpx * 65, hpx * 18, 'center');
+	ctx.translate(-canvasX, -canvasY);
 }
 
 function renderLeaderboardRank(rank, leaderboardRankBaseLength, leaderboardRankOutlineWidth, leaderboardRankBaseWidth, rankTopScore,
@@ -1391,18 +1455,18 @@ function renderDrops(drops,me) {
 }
 
 function renderWarning(me) {
-	const ctx = getCtx(UILayer);
+	const ctx = getCtx(UILayer[0]);
 	if (getAreaNameByEntityPosition(me.x, me.y) == `OCEAN`) {
 		ctx.fillStyle = `black`
 		ctx.globalAlpha = 0.5;
-		renderRoundRect(UILayer, W / 2 - 200, H / 4 - 100, 400, 150, 16, true, true, true, true);
+		renderRoundRect(W / 2 - 200, H / 4 - 100, 400, 150, 16, true, true, true, true);
 		ctx.fill();
 		ctx.stroke();
 		ctx.globalAlpha = 1;
-		renderText(UILayer, 0.88, `Warning: suffocate`, W / 2 - 100, H / 4 - 65, 16, 'left');
-		renderText(UILayer, 0.88, `in water, you will keep losing oxygen`, W / 2 - 100, H / 4 - 35, 16, 'left');
-		renderText(UILayer, 0.88, `when oxygen is zero,`, W / 2 - 100, H / 4 - 5, 16, 'left');
-		renderText(UILayer, 0.88, `you will keep reciving damage`, W / 2 - 100, H / 4 + 25, 16, 'left');
+		renderText(0.88, `Warning: suffocate`, W / 2 - 100, H / 4 - 65, 16, 'left');
+		renderText(0.88, `in water, you will keep losing oxygen`, W / 2 - 100, H / 4 - 35, 16, 'left');
+		renderText(0.88, `when oxygen is zero,`, W / 2 - 100, H / 4 - 5, 16, 'left');
+		renderText(0.88, `you will keep reciving damage`, W / 2 - 100, H / 4 + 25, 16, 'left');
 		let asset = getAsset(`player_suffocate.svg`);
 		ctx.drawImage(asset, W / 2 - 170, H / 4 - 60, asset.naturalWidth / 2.6, asset.naturalHeight / 2.6);
 	}
@@ -1418,4 +1482,29 @@ function getAreaNameByEntityPosition(x, y) {
 		return attribute.START_WIDTH <= x && x <= attribute.START_WIDTH + attribute.WIDTH && attribute.START_HEIGHT <= y && y <= attribute.START_HEIGHT + attribute.HEIGHT;
 	});
 	return result[0]
+}
+
+export function setCmdLayer() {
+	document.getElementById("cmd-input").style['z-index'] = UILayer[0];
+}
+
+export function setCmdColor(color) {
+	cmdColor = color;
+}
+
+export function clearCmdLog() {
+	cmdLog = [];
+}
+
+export function toggleDebugOption(optionID, value) {
+	debugOptions[optionID] = value;
+}
+
+function renderHitbox(radius) {
+	ctx.beginPath();
+	ctx.arc(0, 0, radius, 0, 2 * Math.PI);
+	ctx.closePath();
+	ctx.strokeStyle = '#242424';
+	ctx.lineWidth = hpx * 1;
+	ctx.stroke();
 }

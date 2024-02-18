@@ -41,16 +41,16 @@ class Player extends Entity {
 		this.secondaryPetals[0] = 'YINYANG';
 		this.secondaryPetals[1] = 'BUBBLE';
 		this.secondaryPetals[2] = 'BUBBLE';
-		this.secondaryPetals[3] = 'BUBBLE';
-		this.secondaryPetals[4] = 'BUBBLE';
-		this.secondaryPetals[5] = 'BUBBLE';
+		this.secondaryPetals[3] = 'PENTA';
+		this.secondaryPetals[4] = 'RICE';
+		this.secondaryPetals[5] = 'RICE';
 		this.secondaryPetals[6] = 'RICE';
-		this.secondaryPetals[7] = 'MISSILE';
+		this.secondaryPetals[7] = 'RICE';
 		
 		for (let i = 0; i < Constants.PRIMARY_SLOT_COUNT_BASE; i ++ ) {
 			let petals = []
 			for (let o = 0; o < PetalAttributes[this.primaryPetals[i]].COUNT; o++) {
-				const petal = this.newPetal(this.primaryPetals[i], i * Constants.PETAL_MULTIPLE_MAX + o, i * Constants.PETAL_MULTIPLE_MAX + o, i, o, i);
+				const petal = this.newPetal(this.primaryPetals[i], i * Constants.PETAL_MULTIPLE_MAX + o, i * Constants.PETAL_MULTIPLE_MAX + o, i, o, i, this.x, this.y);
 				petals.push(petal);
 			}
 			this.petals.push(petals);
@@ -346,7 +346,16 @@ class Player extends Entity {
 					if ( !petal.disabled ) {
 						petal.cooldown -= deltaT;
 						if ( petal.cooldown <= 0 ) {
-							petals[index] = this.newPetal(petal.attributes.TYPE, this.getNewPetalID(), petal.idx, petal.placeHolder, petal.idInPlaceHolder, petal.slot);
+							const theta = this.firstPetalDirection + 2 * Math.PI * petal.placeHolder / this.placeHolder;
+							let startRadius = this.attributes.RADIUS;
+							let offsetX = 0,
+								offsetY = 0;
+							if (petal.attributes.MULTIPLE && petal.attributes.CLUSTER) {
+								offsetX = Constants.PETAL_MULTIPLE_OFFSET_DISTANCE * Math.sin(index / petal.attributes.COUNT * 2 * Math.PI + this.firstPetalDirection * 0.5);
+								offsetY = Constants.PETAL_MULTIPLE_OFFSET_DISTANCE * Math.cos(index / petal.attributes.COUNT * 2 * Math.PI + this.firstPetalDirection * 0.5);
+							}
+							petals[index] = this.newPetal(petal.attributes.TYPE, this.getNewPetalID(), petal.idx, petal.placeHolder, petal.idInPlaceHolder, petal.slot, 
+														this.x + startRadius * Math.sin(theta) + offsetX, this.y + startRadius * Math.cos(theta) + offsetY);
 						}
 					}
 				}
@@ -354,8 +363,8 @@ class Player extends Entity {
 		})
 	}
 
-	newPetal(type, petalID, petalIDX, placeHolder, idInPlaceHolder, slot) {
-		return new Petal(petalID, petalIDX, placeHolder, this.x, this.y, this.id, type, true, idInPlaceHolder, slot);
+	newPetal(type, petalID, petalIDX, placeHolder, idInPlaceHolder, slot, x, y) {
+		return new Petal(petalID, petalIDX, placeHolder, x, y, this.id, type, true, idInPlaceHolder, slot);
 	}
 
 	handleActiveMovement(activeMovement) { // handles active motion
@@ -453,7 +462,7 @@ class Player extends Entity {
 					}
 					
 					if ( this.attack ) {
-						const projectile = this.newPetal(petal.type, this.getNewPetalID(), -1, -1, -1);
+						const projectile = this.newPetal(petal.type, this.getNewPetalID(), -1, -1, -1, this.x, this.y);
 						projectile.action = true;
 						projectile.x = petal.x;
 						projectile.y = petal.y;
@@ -486,7 +495,7 @@ class Player extends Entity {
 						const firstDirection = Math.random() * Math.PI * 2;
 						for (let i = 0; i < petal.attributes.TRIGGERS.SPLIT.COUNT; i++) {
 							const direction = firstDirection + i / petal.attributes.TRIGGERS.SPLIT.COUNT * Math.PI * 2;
-							const projectile = this.newPetal(petal.attributes.TRIGGERS.SPLIT.NAME, this.getNewPetalID(), -1, -1, -1);
+							const projectile = this.newPetal(petal.attributes.TRIGGERS.SPLIT.NAME, this.getNewPetalID(), -1, -1, -1, this.x, this.y);
 							projectile.action = true;
 							projectile.x = petal.x;
 							projectile.y = petal.y;
@@ -653,6 +662,7 @@ class Player extends Entity {
 					score: this.score,
 					hp: this.hp,
 					maxHp: this.maxHp,
+					radius: this.attributes.RADIUS,
 					size: this.attributes.RADIUS * this.attributes.RENDER_RADIUS,
 					currentExpForLevel: this.currentExpForLevel,
 					level: this.level,
@@ -670,13 +680,13 @@ class Player extends Entity {
 					score: this.score,
 					hp: this.hp,
 					maxHp: this.maxHp,
-					size: this.attributes.RADIUS * this.attributes.RENDER_RADIUS,
 					currentExpForLevel: this.currentExpForLevel,
 					level: this.level,
 					exp: this.exp,
 					username: this.username,
 					petals: this.getPetalsForUpdate(),
-			size: this.attributes.RADIUS * this.attributes.RENDER_RADIUS,
+					radius: this.attributes.RADIUS,
+					size: this.attributes.RADIUS * this.attributes.RENDER_RADIUS,
 				};
 			}
 		} else {
@@ -685,6 +695,7 @@ class Player extends Entity {
 				score: this.score,
 				hp: this.hp,
 				maxHp: this.maxHp,
+				radius: this.attributes.RADIUS,
 				size: this.attributes.RADIUS * this.attributes.RENDER_RADIUS,
 				username: this.username,
 				petals: this.getPetalsForUpdate(),

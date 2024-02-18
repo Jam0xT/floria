@@ -38,28 +38,38 @@ html, body {
 	transform: translateY(-50%) translateX(-50%);
 	padding: 0.1vh;
 	background-color: rgba(238, 238, 238, 1);
-	outline-color: rgba(0, 0, 0, 0);
-	outline-style: solid;
-	outline-width: 0.5vh;
+	outline: rgba(0, 0, 0, 1) solid 0.5vh;
 	border-radius: 0.2vh;
 	font-size: 3.5vh;
 	font-family: Ubuntu;
 }
 
 #cmd-input {
-	height: 4vh;
-	width: 40vh;
-	position: absolute;
+	left: 80%;
+	right: 0%;
+	top: 90%;
 	z-index: 10;
-	left: 50vw;
-	top: 10vh;
-	transform: translateY(-50%) translateX(-50%);
-	padding: 0.1vh;
-	background-color: rgba(238, 238, 238, 1);
-	outline-color: rgba(0, 0, 0, 0);
-	outline-style: solid;
-	outline-width: 0.5vh;
-	border-radius: 0.2vh;
-	font-size: 3.5vh;
+	height: 2vh;
+	position: absolute;
+	font-size: 1.5vh;
 	font-family: Ubuntu;
+	border-color: transparent;
+	background-color: rgba(255, 255, 255, 0.4);
+
+	/* padding: 0vh;
+	outline:rgba(0, 0, 0, 1) solid 0vh;
+	border-radius: 0; */
+}
+
+#cmd-input:focus {
+	outline: none;
+	border-color: transparent;
+	border-bottom: 0.3vh solid rgb(60, 96, 255);
+	background-color: rgba(172, 208, 255, 0.7);
+}
+
+#cmd-input::placeholder {
+	font-size: 1.5vh;
+	font-family: Ubuntu;
+	color: rgb(71, 71, 71);
 }
