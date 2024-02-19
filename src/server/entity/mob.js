@@ -39,17 +39,7 @@ class Mob extends Entity {
 			this.idle = (deltaT,parent) => {};
 		} 
 		else if (this.attributes.ATTACK_MODE == `PEACE`) {
-			this.updateMovement = (deltaT,parent) => {
-				//segment
-				if (parent) {
-					const direction = Math.atan2(parent.x - this.x, this.y - parent.y);
-					let distance = Math.sqrt((this.x - parent.x) ** 2 + (this.y - parent.y) ** 2) - this.attributes.RADIUS - parent.attributes.RADIUS;
-					if (!parent.attributes.IS_SEGMENT) distance -= 7;
-					this.x += distance * Math.sin(direction); 
-					this.y -= distance * Math.cos(direction); 
-					this.direction = direction;
-				}
-			};
+			this.updateMovement = (deltaT,parent) => {};
 		} 
 		else if (this.attributes.ATTACK_MODE == `NEUTRAL`) {
 			this.updateMovement = (deltaT,target) => {
@@ -68,17 +58,7 @@ class Mob extends Entity {
 			this.updateMovement = (deltaT, target) => {
 				if (!target) return;
 				
-				//segment
-				if (target && this.segments.includes(target.id)) {
-					const direction = Math.atan2(target.x - this.x, this.y - target.y);
-					let distance = Math.sqrt((this.x - target.x) ** 2 + (this.y - target.y) ** 2) - this.attributes.RADIUS - target.attributes.RADIUS;
-					if (!target.attributes.IS_SEGMENT) distance -= 7;
-					this.x += distance * Math.sin(direction); 
-					this.y -= distance * Math.cos(direction); 
-					this.direction = direction;
-					return;
-				}
-				
+				//绕圈
 				let distanceToTarget = Math.sqrt((target.x - this.x) ** 2 + (target.y - this.y) ** 2);
 				if (distanceToTarget - this.attributes.RADIUS - target.attributes.RADIUS <= this.maxCloseLength) {
 					let atan = Math.atan2(this.x - target.x, target.y - this.y) + this.aimMovementDirection;
@@ -91,14 +71,6 @@ class Mob extends Entity {
 						speed: this.attributes.SPEED / 5,
 					};
 					
-					if (this.isEinstein) {
-						const x1 = target.x, x2 = this.x, y1 = target.y, y2 = this.y, v1 = target.movement.speed, v2 = EntityAttributes[this.attributes.TRIGGERS.SHOOT].SPEED - EntityAttributes[this.attributes.TRIGGERS.SHOOT].RADIUS * 2, n1 = target.movement.direction;
-						const acos = Math.atan2(target.x - this.x, this.y - target.y) + this.direction < this.direction ? -Math.acos((v1 / v2) * Math.cos(n1 + Math.atan((y2 - y1) / (x1 - x2)))) : Math.acos((v1 / v2) * Math.cos(n1 + Math.atan((y2 - y1) / (x1 - x2)))); //决定正反
-						this.direction = acos - Math.atan((y2 - y1) / (x1 - x2));
-					} else {
-						this.direction = Math.atan2(target.x - this.x, this.y - target.y);
-					}
-					
 					this.isSkillenable = true;
 					return;
 				}
@@ -107,7 +79,6 @@ class Mob extends Entity {
 					direction: Math.atan2(target.x - this.x, this.y - target.y),
 					speed: this.attributes.SPEED,
 				};
-				this.direction = this.movement.direction;
 				this.isSkillenable = false;
 			};
 		}
@@ -272,6 +243,27 @@ class Mob extends Entity {
 			this.startDirection = direction;
 			
 			this.idleMovementCooldown = Constants.MOB_IDLE_MOVEMENT_COOLDOWN * 32;
+		}
+	}
+	
+	connectTo(target) {
+		if (target) {
+			const direction = Math.atan2(target.x - this.x, this.y - target.y);
+			let distance = Math.sqrt((this.x - target.x) ** 2 + (this.y - target.y) ** 2) - this.attributes.RADIUS - target.attributes.RADIUS;
+			//if (!target.attributes.IS_SEGMENT) distance -= 7;
+			this.x += distance * Math.sin(direction); 
+			this.y -= distance * Math.cos(direction); 
+			this.direction = direction;
+		}
+	}
+	
+	aimAt(target) {
+		if (this.isEinstein) {
+			const x1 = target.x, x2 = this.x, y1 = target.y, y2 = this.y, v1 = target.movement.speed, v2 = EntityAttributes[this.attributes.TRIGGERS.SHOOT].SPEED - EntityAttributes[this.attributes.TRIGGERS.SHOOT].RADIUS * 2, n1 = target.movement.direction;
+			const acos = Math.atan2(target.x - this.x, this.y - target.y) + this.direction < this.direction ? -Math.acos((v1 / v2) * Math.cos(n1 + Math.atan((y2 - y1) / (x1 - x2)))) : Math.acos((v1 / v2) * Math.cos(n1 + Math.atan((y2 - y1) / (x1 - x2)))); //决定正反
+			this.direction = acos - Math.atan((y2 - y1) / (x1 - x2));
+		} else {
+			this.direction = Math.atan2(target.x - this.x, this.y - target.y);
 		}
 	}
 	

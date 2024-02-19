@@ -482,23 +482,34 @@ class Game {
 				}
 			}
 			
-			//获取目标失败或距离目标太远或离玩家（parent）太远，待机
 			const target = this.getEntity(mob.target);
 			
-			if (!target || mob.distanceTo(target) > Constants.MOB_ATTACK_RADIUS || (mob.team != `mobTeam` && mob.distanceTo(this.getEntity(mob.team)) > Constants.MOB_ATTACK_RADIUS)) { 
-				mob.idle(deltaT, this.players[mob.team]);
+			if (mob.bodyConnection && mob.segments.includes(mob.bodyConnection)) {
 				return;
 			}
 			
+			//获取目标失败或距离目标太远或离玩家（parent）太远，待机
+			else if (!target || mob.distanceTo(target) > Constants.MOB_ATTACK_RADIUS || (mob.team != `mobTeam` && mob.distanceTo(this.getEntity(mob.team)) > Constants.MOB_ATTACK_RADIUS)) { 
+				mob.idle(deltaT, this.players[mob.team]);
+			}
+			
 			//成功获取目标
-			if (target) {
+			else if (target) {
 				mob.updateMovement(deltaT, target);
-				return;
+				mob.aimAt(target);
 			}
 		});
 		Object.values(this.drops).forEach(drop => {
 			drop.updateMovement(deltaT);
 		});
+	}
+	
+	updateBodyConnection(deltaT) {
+		Object.values(this.mobs).forEach(mob => {
+			if (mob.bodyConnection && mob.segments.includes(mob.bodyConnection)) {
+				mob.connectTo(this.getEntity(mob.bodyConnection));
+			}
+		})
 	}
 
 	updateVelocity(deltaT) {
@@ -708,7 +719,7 @@ class Game {
 				if (newSpawnY < 0) newSpawnY = 0
 				else if (newSpawnY > mapHeight) newSpawnY = mapHeight;
 				const segment = this.spawnMob(mobSegmentAttributes.NAME, newSpawnX, newSpawnY, mob.team, false);
-				segment.target = segments[segmentNumber];
+				segment.bodyConnection = segments[segmentNumber];
 				segments.push(segment.id);
 			}
 			
@@ -1012,6 +1023,7 @@ class Game {
 					}
 				} 
 				else if (entityB.target == entityA.id) {
+					entityB.bodyConnection = entityA.id;
 					entityB.segments.push(entityA.id);
 				}
 			}
@@ -1170,7 +1182,7 @@ class Game {
 				
 				if (mob.attributes.TRIGGERS.VAMPIRISM && !mob.attributes.TRIGGERS.VAMPIRISM.COLLIDE) {
 					const target = this.getEntity(targetId);
-					if (mob.segments.includes(targetId)) {
+					if (mob.bodyConnection == target.id) {
 						mob.skillCoolDownTimer = 0;
 						target.hp -= mob.attributes.TRIGGERS.VAMPIRISM.DAMAGE;
 						mob.hp += mob.attributes.TRIGGERS.VAMPIRISM.DAMAGE * mob.attributes.TRIGGERS.VAMPIRISM.HEAL;
@@ -1343,17 +1355,21 @@ class Game {
 		
 		this.updateDrops(deltaT);
 		
+		this.updateBodyConnection(deltaT);
+		
+		this.updateMovement(deltaT);
+		
 		this.updateVelocity(deltaT);
 		
 		this.applyVelocity(deltaT);
+		
+		this.updateBodyConnection(deltaT);
 		
 		this.handleBorder();
 		
 		this.updateMobs(deltaT);
 		
 		this.updatePlayers(deltaT);
-
-		this.updateMovement(deltaT);
 		
 		this.solveCollisions(deltaT);
 

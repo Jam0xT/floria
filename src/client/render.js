@@ -42,6 +42,8 @@ let petalSwing = Math.PI * 0.03;
 let lightningPaths = [];
 let diedEntities = [];
 
+let time = 0; //页面运行的时间
+
 export function toggleKeyboardMovement(isKeyboardMovement) {
 	keyboardMovement = isKeyboardMovement;
 }
@@ -466,7 +468,14 @@ function setCanvasDimensions() {
 	}
 }
 
+let lastUpdateTime = Date.now();
+		
 function renderGame() {
+	const now = Date.now();
+	const deltaT = (now - lastUpdateTime) / 1000;
+	lastUpdateTime = now;
+	time += deltaT;
+	
 	for ( let i = 0; i < layerCount; i ++ ) {
 		ctx = getCtx(i);
 		ctx.clearRect(0, 0, W, H);
@@ -496,7 +505,29 @@ function renderGame() {
 		renderPlayer(me, me);
 		others.forEach(renderPlayer.bind(null, me));
 		mobs.forEach(mob => {
-			renderMob(me, mob);
+			const mobDecorates = EntityAttributes[mob.type].DECORATES;
+			const renderArray = [];
+			const layerArray = [];
+			if (mobDecorates) {
+				renderArray.push(mob);
+				layerArray.push(0)
+				Object.values(mobDecorates).forEach((decorate) => {
+					renderArray.push(decorate);
+					layerArray.push(decorate.LAYER);
+				})
+				const indexArray = layerArray.sortIndex();
+				for (let i = 0; i < renderArray.length; i++) {
+					const entityLayer = layerArray[indexArray[i]];
+					const entity = renderArray[indexArray[i]]
+					if (entityLayer == 0) {
+						renderMob(me, entity)
+					} else {
+						renderDecorate(me, entity, mob);
+					}
+				}
+			} else {
+				renderMob(me, mob);
+			}
 		});
 		renderDrops(drops, me);
 		renderLightningPath(lightningPath, me);
@@ -885,6 +916,48 @@ function renderMob(me, mob) {
 
 	// renderText(mobLayer, 1, mob.id, canvasX, canvasY - hpx * 35, hpx * 20, 'center');
 	// renderText(mobLayer, 1, `hp:${mob.hp}`, canvasX, canvasY + hpx * 65, hpx * 18, 'center');
+}
+
+function renderDecorate(me, decorate, mob) {
+	const ctx = getCtx(mobLayer);
+	ctx.globalAlpha = 1;
+	const canvasX = W / 2 + (mob.x - me.x) * hpx;
+	const canvasY = H / 2 + (mob.y - me.y) * hpx;
+	const renderRadius = decorate.RENDER_RADIUS * hpx;
+	const asset = getAsset(`decorates/${decorate.TYPE.toLowerCase()}.svg`);
+	const width = asset.naturalWidth, height = asset.naturalHeight;
+	const animation = decorate.ANIMATION;
+	let offsetX = 0, offsetY = 0, offsetRotate = 0;
+	if (animation) {
+		if (animation.ROTATE) {
+			//const rotation = animation.ROTATE;
+			//offsetX = rotation.X;
+			//offsetY = rotation.Y;
+			//offsetRotate = getNumberInRangeByTime([rotation.MIN, rotation.MAX], rotation.SPEED, true);
+		}
+	}
+	ctx.save();
+	ctx.translate(canvasX + offsetX, canvasY + offsetY);
+	ctx.rotate(decorate.DIRECTION + mob.dir + offsetRotate);
+	if ( width <= height ) {
+		ctx.drawImage(
+			asset,
+			- renderRadius + decorate.X - offsetX,
+			- renderRadius / width * height + decorate.Y - offsetY,
+			renderRadius * 2,
+			renderRadius / width * height * 2,
+		);
+	} else {
+		ctx.drawImage(
+			asset,
+			- renderRadius / height * width,
+			- renderRadius,
+			renderRadius / height * width * 2,
+			renderRadius * 2,
+		);
+	}
+	
+	ctx.restore();
 }
 
 function renderLeaderboardRank(rank, leaderboardRankBaseLength, leaderboardRankOutlineWidth, leaderboardRankBaseWidth, rankTopScore,
@@ -1392,8 +1465,8 @@ function renderWarning(me) {
 		ctx.stroke();
 		ctx.globalAlpha = 1;
 		renderText(UILayer, 0.88, `Warning: suffocate`, W / 2 - 100, H / 4 - 65, 16, 'left');
-		renderText(UILayer, 0.88, `in water, you will keep losing oxygen`, W / 2 - 100, H / 4 - 35, 16, 'left');
-		renderText(UILayer, 0.88, `when oxygen is zero,`, W / 2 - 100, H / 4 - 5, 16, 'left');
+		renderText(UILayer, 0.88, `in water, you will keep losing air`, W / 2 - 100, H / 4 - 35, 16, 'left');
+		renderText(UILayer, 0.88, `when air is empty,`, W / 2 - 100, H / 4 - 5, 16, 'left');
 		renderText(UILayer, 0.88, `you will keep reciving damage`, W / 2 - 100, H / 4 + 25, 16, 'left');
 		let asset = getAsset(`player_suffocate.svg`);
 		ctx.drawImage(asset, W / 2 - 170, H / 4 - 60, asset.naturalWidth / 2.6, asset.naturalHeight / 2.6);
@@ -1410,4 +1483,32 @@ function getAreaNameByEntityPosition(x, y) {
 		return attribute.START_WIDTH <= x && x <= attribute.START_WIDTH + attribute.WIDTH && attribute.START_HEIGHT <= y && y <= attribute.START_HEIGHT + attribute.HEIGHT;
 	});
 	return result[0]
+}
+
+function getNumberInRangeByTime([ min, max ], speed, isLoop) {
+	const length = max - min;
+	if (isLoop) {
+		const newRange = [min, max * 2 - min];
+		const result = getNumberInRangeByTime(newRange, speed, false);
+		if (result > max) {
+			return max * 2 - result;
+		} else {
+			return result;
+		}
+	} else {
+		const result = (time * speed) % length + min;
+		return result;
+	}
+}
+
+Array.prototype.sortIndex = function() {
+	const arrayClone = JSON.parse(JSON.stringify(this));
+	const indexArray = [];
+	for (let i = 0; i < arrayClone.length; i++) {
+		const min = Math.min(...arrayClone);
+		const index = arrayClone.indexOf(min);
+		indexArray.push(index)
+		arrayClone[index] = Infinity;
+	}
+	return indexArray
 }

@@ -219,6 +219,44 @@ module.exports = Object.freeze({
 		SPAWN_AREA: {
 			DESERT: 200
 		},
+		DECORATES: {
+			PINCER_LEFT: {
+				X: -10,
+				Y: -26,
+				ANIMATION: {
+					ROTATE: {
+						X: -10,
+						Y: -18,
+						SPEED: 1,
+						MIN: -0.5,
+						MAX: 0.5,
+						TYPE: `ROTATE`
+					},
+				},
+				LAYER: -1, //为负则在mob之下, 为正在mob之上, 不要等于0
+				DIRECTION: 0,
+				RENDER_RADIUS: 7,
+				TYPE: `BEETLE_PINCER_LEFT`
+			},
+			PINCER_RIGHT: {
+				X: 10,
+				Y: -28,
+				ANIMATION: {
+					ROTATE: {
+						X: 10,
+						Y: -20,
+						SPEED: 1,
+						MIN: -0.5,
+						MAX: 0.5,
+						TYPE: `ROTATE`
+					},
+				},
+				LAYER: -1,
+				DIRECTION: 0,
+				RENDER_RADIUS: 7,
+				TYPE: `BEETLE_PINCER_RIGHT`
+			}
+		},
 	    IDLE_MODE: 'NORMAL',
 	    ATTACK_MODE: 'EVIL',
 	    TYPE: 'BEETLE',
@@ -325,8 +363,8 @@ module.exports = Object.freeze({
 			TRIPLET: 0.0001,
 		},
 		SPAWN_AREA: {
-			GARDEN: 0,
-			DESERT: 0
+			GARDEN: 200,
+			DESERT: 100
 		},
 		SEGMENT: { MIN: 5, MAX: 9, NAME: 'CENTIPEDE_SEGMENT'},
 		IDLE_MODE: 'FLOAT_SLOW',
@@ -375,7 +413,7 @@ module.exports = Object.freeze({
 			//Peas Legendary: 0.001,
 		},
 		SPAWN_AREA: {
-			DESERT: 0
+			DESERT: 100
 		},
 		SEGMENT: { MIN: 5, MAX: 9, NAME: 'CENTIPEDE_EVIL_SEGMENT'},
 		IDLE_MODE: 'FLOAT_SLOW',
@@ -405,7 +443,7 @@ module.exports = Object.freeze({
 		TYPE: 'CENTIPEDE_EVIL_SEGMENT',
 		TRIGGERS: {}
 	},
-	CRAB: {
+	/*CRAB: {
 		MASS: 20,
 		SPEED: 80,
 		RADIUS: 32,
@@ -422,11 +460,11 @@ module.exports = Object.freeze({
 			//Peas Legendary: 0.001,
 		},
 		IS_SEGMENT: true,
-		IDLE_MODE: 'FLOAT_SLOW',
+		IDLE_MODE: 'FLOAT',
 		ATTACK_MODE: 'EVIL',
-		TYPE: 'CENTIPEDE_EVIL_SEGMENT',
+		TYPE: 'CRAB',
 		TRIGGERS: {}
-	},
+	},*/
 	DARK_LADYBUG: {
 	    MASS: 20,
 	    SPEED: 80,
@@ -517,7 +555,7 @@ module.exports = Object.freeze({
 			FASTER: 0.12
 		},
 		SPAWN_AREA: {
-			OCEAN: 0
+			OCEAN: 200
 		},
 		AQUATIC: true,
 		SKILL_COOLDOWN: 1,
