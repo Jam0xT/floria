@@ -280,7 +280,8 @@ class Mob extends Entity {
 			...(super.serializeForUpdate()),
 			type: this.type,
 			activeDirection: this.activeDirection,
-			size: this.attributes.RENDER_RADIUS,
+			radius: this.attributes.RADIUS,
+			size: this.attributes.RADIUS * this.attributes.RENDER_RADIUS,
 		}
 	}
 }
