@@ -44,13 +44,13 @@ class Mob extends Entity {
 				if (parent) {
 					const direction = Math.atan2(parent.x - this.x, this.y - parent.y);
 					let distance = Math.sqrt((this.x - parent.x) ** 2 + (this.y - parent.y) ** 2) - this.attributes.RADIUS - parent.attributes.RADIUS;
-					if (!parent.attributes.IS_SEGMENT) distance -= 7;
+					// if (!parent.attributes.IS_SEGMENT) distance -= 7;
 					this.x += distance * Math.sin(direction); 
 					this.y -= distance * Math.cos(direction); 
 					this.direction = direction;
 				}
 			};
-		} 
+		}
 		else if (this.attributes.ATTACK_MODE == `NEUTRAL`) {
 			this.updateMovement = (deltaT,target) => {
 				//拥有攻击目标则开始追杀
@@ -72,7 +72,7 @@ class Mob extends Entity {
 				if (target && this.segments.includes(target.id)) {
 					const direction = Math.atan2(target.x - this.x, this.y - target.y);
 					let distance = Math.sqrt((this.x - target.x) ** 2 + (this.y - target.y) ** 2) - this.attributes.RADIUS - target.attributes.RADIUS;
-					if (!target.attributes.IS_SEGMENT) distance -= 7;
+					// if (!target.attributes.IS_SEGMENT) distance -= 7;
 					this.x += distance * Math.sin(direction); 
 					this.y -= distance * Math.cos(direction); 
 					this.direction = direction;
@@ -288,7 +288,8 @@ class Mob extends Entity {
 			...(super.serializeForUpdate()),
 			type: this.type,
 			activeDirection: this.activeDirection,
-			size: this.attributes.RENDER_RADIUS,
+			radius: this.attributes.RADIUS,
+			size: this.attributes.RADIUS * this.attributes.RENDER_RADIUS,
 		}
 	}
 }

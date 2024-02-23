@@ -6,8 +6,7 @@ const { MAP_WIDTH, MAP_HEIGHT, RATED_WIDTH, RATED_HEIGHT } = Constants;
 const EntityAttributes = require('../../public/entity_attributes');
 const PetalAttributes = require('../../public/petal_attributes');
 
-const layerCount = 10;
-let canvas = [];
+let canvas = [0];
 let ctx;
 let W, H, wpx, hpx;
 let alphaConnecting = 0;
@@ -27,7 +26,17 @@ let deltaGameRadiusOnEnter = 5;
 
 const PETAL_OUTLINE_WIDTH_PERCENTAGE = 0.05;
 
-let backgroundLayer = 1, playerLayer = 5, petalLayer = 3, shadeLayer = 7, mobLayer = 4, UILayer = 8, effectLayer = 6, dropLayer = 2;
+const layerCount = 15;
+
+let backgroundLayer = [1],
+	dropLayer = [2],
+	petalLayer = [3],
+	mobLayer = [4],
+	playerLayer = [5],
+	effectLayer = [6],
+	shadeLayer = [7],
+	UILayer = [8],
+	menuLayer = [9, 10, 11, 12];
 
 let primarySlotDisplayLength = 60, primarySlotHitboxLength = 92, primarySlotCenterY = 850;
 let secondarySlotDisplayLength = 45, secondarySlotHitboxLength = 70, secondarySlotCenterY = 930;
@@ -35,16 +44,25 @@ let primarySlotCount = Constants.PRIMARY_SLOT_COUNT_BASE;
 let secondarySlotCount = Constants.SECONDARY_SLOT_COUNT_BASE;
 let selectedSize = 1.2;
 
-let initPetals = false;
+// let initPetals = false;
 
 let petalSwing = Math.PI * 0.03;
 
+let cmdLog = [];
+let cmdMaxLineCnt = 30;
+let cmdColor = 'cyan';
+let debugOptions =
+	[
+		false, // show hitbox
+		false, // show hp
+	];
+
+export function addCmdLog(log) {
+	cmdLog.push(log);
+}
+
 let lightningPaths = [];
 let diedEntities = [];
-
-export function toggleKeyboardMovement(isKeyboardMovement) {
-	keyboardMovement = isKeyboardMovement;
-}
 
 class Petal { // the petal item which you can operate on
 	constructor(x, y, type) {
@@ -121,7 +139,7 @@ class Petal { // the petal item which you can operate on
 			ctx.globalAlpha = petalAlpha;
 			let displayLength = length * this.size;
 			let outlineWidth = displayLength * PETAL_OUTLINE_WIDTH_PERCENTAGE;
-			renderRoundRect(UILayer, - displayLength / 2 - outlineWidth, - displayLength / 2 - outlineWidth, 
+			renderRoundRect(- displayLength / 2 - outlineWidth, - displayLength / 2 - outlineWidth, 
 			displayLength + outlineWidth * 2, displayLength + outlineWidth * 2, hpx * 1, true, true, true, true);
 			ctx.strokeStyle = Constants.RARITY_COLOR_DARKEN[PetalAttributes[this.type].RARITY];
 			ctx.lineWidth = outlineWidth * 2;
@@ -238,10 +256,10 @@ class Petal { // the petal item which you can operate on
 			let textFont = displayLength * 0.25;
 			
 			ctx.globalCompositeOperation = 'destination-out';
-			renderText(UILayer, petalAlpha, name.charAt(0).toUpperCase() + name.slice(1), 0, textOffset, textFont, 'center');
+			renderText(petalAlpha, name.charAt(0).toUpperCase() + name.slice(1), 0, textOffset, textFont, 'center');
 
 			ctx.globalCompositeOperation = 'source-over';
-			renderText(UILayer, petalAlpha, name.charAt(0).toUpperCase() + name.slice(1), 0, textOffset, textFont, 'center');
+			renderText(petalAlpha, name.charAt(0).toUpperCase() + name.slice(1), 0, textOffset, textFont, 'center');
 
 			ctx.rotate(-this.dir);
 			ctx.translate(-this.x, -this.y);
@@ -372,26 +390,17 @@ export function switchPetals(isPrimary, slot, targetIsPrimary, targetSlot) {
 }
 
 export function renderStartup () {
-	for (let i = 0; i < layerCount; i ++ ) {
+	for (let i = 1; i <= layerCount; i ++ ) {
 		let newCanvas = document.createElement('canvas');
 		newCanvas.id = `canvas-${i}`;
 		document.body.append(newCanvas);
 		canvas.push(document.getElementById(`canvas-${i}`));
 		canvas[i].classList.add('canvas');
-		canvas[i].style['z-index'] = i + 2;
+		canvas[i].style['z-index'] = i;
 	}
 	
-	//闪电路径图层
-	// let newCanvas = document.createElement('canvas');
-	// newCanvas.id = `canvas-SE`;
-	// newCanvas.classList.add('canvas');
-	// newCanvas.style['z-index'] = layerCount * 2 + 2;
-	// newCanvas.width = window.innerWidth;
-	// newCanvas.height = window.innerHeight;
-	// document.body.append(newCanvas);
-	
 	setCanvasDimensions();
-	for (let i = 0; i < layerCount; i ++ ) {
+	for (let i = 1; i <= layerCount; i ++ ) {
 		ctx = canvas[i].getContext('2d');
 		ctx.clearRect(0, 0, W, H);
 	}
@@ -409,7 +418,7 @@ export function renderStartup () {
 }
 
 export function renderInit() {
-	initPetals = false;
+	// initPetals = false;
 	alphaConnecting = 0;
 	alphaInputBox = 0;
 	alphaBlack = 1;
@@ -420,7 +429,7 @@ export function renderInit() {
 	connected = false;
 	gameRadiusOnEnter = 0;
 	deltaGameRadiusOnEnter = 5;
-	for (let i = 0; i < layerCount; i ++ ) {
+	for (let i = 1; i <= layerCount; i ++ ) {
 		ctx = getCtx(i);
 		ctx.clearRect(0, 0, W, H);
 	}
@@ -444,16 +453,13 @@ function setCanvasDimensions() {
 	H = window.innerHeight * devicePixelRatio;
 	wpx = W / 1000;
 	hpx = H / 1000;
-	for ( let i = 0; i < layerCount; i ++ ) {
+	for ( let i = 1; i <= layerCount; i ++ ) {
 		canvas[i].width = W;
 		canvas[i].height = H;
 		canvas[i].style.width = window.innerWidth + `px`;
 		canvas[i].style.height = window.innerHeight + `px`;
 	}
 
-	// let canvas_SE = document.getElementById('canvas-SE');
-	// canvas_SE.width = W;
-	// canvas_SE.height = H;
 	if ( primaryPetals[0] ) {
 		for (let i = 0; i < primarySlotCount; i ++ ) {
 			primaryPetals[i].defaultX = W / 2 - primarySlotHitboxLength * hpx * (primarySlotCount / 2 - 0.5) + i * primarySlotHitboxLength * hpx;
@@ -467,25 +473,11 @@ function setCanvasDimensions() {
 }
 
 function renderGame() {
-	for ( let i = 0; i < layerCount; i ++ ) {
+	for ( let i = 1; i <= layerCount; i ++ ) {
 		ctx = getCtx(i);
 		ctx.clearRect(0, 0, W, H);
 	}
-	// let canvas_SE = document.getElementById('canvas-SE');
-	// let ctx = canvas_SE.getContext(`2d`);
-	// ctx.clearRect(0, 0, W, H);
 	
-	if ( gameRadiusOnEnter < hpx * 1800 ) {
-		fillBackground(0, "#1EA761");
-		renderText(0, 1, "floria.io", W / 2, H / 2 - hpx * 220, hpx * 85, 'center');
-		renderText(0, 1, "How to play", W / 2, H / 2 + hpx * 100, hpx * 30, 'center');
-		renderText(0, 1, "Use Mouse or [W] [S] [A] [D] to move", W / 2, H / 2 + hpx * 140, hpx * 15, 'center');
-		renderText(0, 1, "Left click or [Space] to attack", W / 2, H / 2 + hpx * 165, hpx * 15, 'center');
-		renderText(0, 1, "Right click or [LShift] to defend", W / 2, H / 2 + hpx * 190, hpx * 15, 'center');
-		renderText(0, 1, "Press [K] to toggle keyboard movement", W / 2, H / 2 + hpx * 215, hpx * 15, 'center');
-		gameRadiusOnEnter += deltaGameRadiusOnEnter;
-		deltaGameRadiusOnEnter *= 1.05;
-	}
 	const { info, me, others, mobs, drops, leaderboard, playerCount, rankOnLeaderboard, lightningPath } = getCurrentState();
 	
 	updateSlotsData(W, hpx, primarySlotHitboxLength, primarySlotDisplayLength + 4 * primarySlotDisplayLength * PETAL_OUTLINE_WIDTH_PERCENTAGE, primarySlotCenterY, primarySlotCount,
@@ -508,20 +500,25 @@ function renderGame() {
 	}
 	
 	if ( gameRadiusOnEnter < hpx * 1800 ) {
-		for ( let i = 1; i <= 5; i ++ ) {
-			ctx = getCtx(i);
-			ctx.globalCompositeOperation = 'destination-in';
-			ctx.beginPath();
-			ctx.arc(W / 2, H / 2, gameRadiusOnEnter, 0, 2 * Math.PI, false);
-			ctx.closePath();
-			ctx.fillStyle = 'rgb(0, 0, 0)';
-			ctx.fill();
-			ctx.globalCompositeOperation = 'source-over';
-		}
-		ctx = getCtx(9);
+		ctx = getCtx(menuLayer[0]);
+		fillBackground("#1EA761");
+		renderText(1, "floria.io", W / 2, H / 2 - hpx * 220, hpx * 85, 'center');
+		renderText(1, "How to play", W / 2, H / 2 + hpx * 100, hpx * 30, 'center');
+		renderText(1, "Use Mouse or [W] [S] [A] [D] to move", W / 2, H / 2 + hpx * 140, hpx * 15, 'center');
+		renderText(1, "Left click or [Space] to attack", W / 2, H / 2 + hpx * 165, hpx * 15, 'center');
+		renderText(1, "Right click or [LShift] to defend", W / 2, H / 2 + hpx * 190, hpx * 15, 'center');
+		renderText(1, "Press [K] to toggle keyboard movement", W / 2, H / 2 + hpx * 215, hpx * 15, 'center');
+		gameRadiusOnEnter += deltaGameRadiusOnEnter;
+		deltaGameRadiusOnEnter *= 1.05;
+
+		ctx = getCtx(menuLayer[0]);
+		ctx.globalCompositeOperation = 'destination-out';
 		ctx.beginPath();
 		ctx.arc(W / 2, H / 2, gameRadiusOnEnter, 0, 2 * Math.PI, false);
 		ctx.closePath();
+		ctx.fillStyle = 'rgb(0, 0, 0)';
+		ctx.fill();
+		ctx.globalCompositeOperation = 'source-over';
 		ctx.strokeStyle = 'rgb(0, 0, 0)';
 		ctx.lineWidth = hpx * 5;
 		ctx.stroke();
@@ -534,8 +531,18 @@ let expBarLength = 0;
 function renderUI(me) {
 	ctx = getCtx(UILayer);
 
-	// exp bar
+	renderExpBar(me); // exp bar
 
+	if ( !isKeyboardMovement() ) { // render movement helper
+		renderMovementHelper();
+	}
+
+	renderSlots(me); // slots
+
+	renderCmdLog();
+}
+
+function renderExpBar(me) {
 	const expBarYPos = hpx * 900;
 	const expBarBaseLength = hpx * 300;
 	const expBarBaseWidth = hpx * 45;
@@ -579,20 +586,16 @@ function renderUI(me) {
 	ctx.globalCompositeOperation = 'source-over';
 
 	ctx.globalAlpha = 1;
-	renderText(UILayer, 1, `Lvl ${Math.floor(me.level)} flower`, hpx * 100, expBarYPos + hpx * 5, hpx * 18, 'left');
-	renderText(UILayer, 0.9, me.username, hpx * 150, expBarYPos - hpx * 40, hpx * 30, 'center');
+	renderText(1, `Lvl ${Math.floor(me.level)} flower`, hpx * 100, expBarYPos + hpx * 5, hpx * 18, 'left');
+	renderText(0.9, me.username, hpx * 150, expBarYPos - hpx * 40, hpx * 30, 'center');
+}
 
-	// movement helper
+function renderMovementHelper() {
+	// ...
+}
 
-	if ( !isKeyboardMovement() ) {
-		// render movement helper
-		
-	}
-
-	// petals
-
+function renderSlots(me) {
 	// primary slots
-
 	if ( me.petalSync ) {
 		if ( primarySlotCount < me.primaryPetals.length ) {
 			primarySlotCount = me.primaryPetals.length;
@@ -610,7 +613,7 @@ function renderUI(me) {
 	let petalOutlineWidth = slotDisplayLength * PETAL_OUTLINE_WIDTH_PERCENTAGE;
 	for (let i = 0; i < slotCount; i ++ ) {
 		let centerX = W / 2 - slotHitboxLength * (slotCount / 2 - 0.5) + i * slotHitboxLength;
-		renderRoundRect(UILayer, centerX - slotDisplayLength / 2 - petalOutlineWidth, centerY - slotDisplayLength / 2 - petalOutlineWidth, 
+		renderRoundRect(centerX - slotDisplayLength / 2 - petalOutlineWidth, centerY - slotDisplayLength / 2 - petalOutlineWidth, 
 			slotDisplayLength + petalOutlineWidth * 2, slotDisplayLength + petalOutlineWidth * 2, hpx * 1, true, true, true, true);
 		ctx.strokeStyle = 'rgba(207, 207, 207, 0.7)';
 		ctx.lineWidth = petalOutlineWidth * 2;
@@ -643,7 +646,7 @@ function renderUI(me) {
 	petalOutlineWidth = slotDisplayLength * PETAL_OUTLINE_WIDTH_PERCENTAGE;
 	for (let i = 0; i < slotCount; i ++ ) {
 		let centerX = W / 2 - slotHitboxLength * (slotCount / 2 - 0.5) + i * slotHitboxLength;
-		renderRoundRect(UILayer, centerX - slotDisplayLength / 2 - petalOutlineWidth, centerY - slotDisplayLength / 2 - petalOutlineWidth, 
+		renderRoundRect(centerX - slotDisplayLength / 2 - petalOutlineWidth, centerY - slotDisplayLength / 2 - petalOutlineWidth, 
 			slotDisplayLength + petalOutlineWidth * 2, slotDisplayLength + petalOutlineWidth * 2, hpx * 1, true, true, true, true);
 		ctx.strokeStyle = 'rgba(207, 207, 207, 0.7)';
 		ctx.lineWidth = petalOutlineWidth * 2;
@@ -704,15 +707,40 @@ function renderUI(me) {
 	}
 }
 
+function renderCmdLog() {
+	let len = cmdLog.length;
+	let rightAlign = 990 * wpx;
+	let fontSize = 15 * hpx;
+	let spaceBetween = 5 * hpx;
+	let alpha = 0.9;
+
+	ctx.lineWidth = fontSize * 0.125;
+	ctx.font = `${fontSize}px Ubuntu`;
+	ctx.textAlign = "right";
+	ctx.globalAlpha = alpha;
+
+	for (let i = len - 1; i >= Math.max(0, len - cmdMaxLineCnt); i -- ) {
+		// ctx.strokeText(cmdLog[i], rightAlign, (900 - (len - i) * (spaceBetween + fontSize)) * hpx, fontSize);
+		let text = cmdLog[i];
+		let x = rightAlign;
+		let y = (900 * hpx - (len - i) * (spaceBetween + fontSize));
+		ctx.globalCompositeOperation = 'source-over';
+		ctx.fillStyle = cmdColor;
+		ctx.fillText(text, x, y);
+	}
+	ctx.globalAlpha = 1;
+}
+
 function renderInfo(info) {
-	renderText(UILayer, 0.7, "floria.io", hpx * 85, hpx * 45, hpx * 40, 'center');
-	renderText(UILayer, 1, `MSPT: ${info.mspt}`, W - hpx * 10, H - hpx * 15, hpx * 10, 'right');
-	renderText(UILayer, 1, `Mob Count: ${info.mobCount}`, W - hpx * 10, H - hpx * 30, hpx * 10, 'right');
-	renderText(UILayer, 1, `Mob Volume Taken: ${info.mobVol}`, W - hpx * 10, H - hpx * 45, hpx * 10, 'right');
+	ctx = getCtx(UILayer[0]);
+	renderText(0.7, "floria.io", hpx * 85, hpx * 45, hpx * 40, 'center');
+	renderText(1, `MSPT: ${info.mspt}`, W - hpx * 10, H - hpx * 15, hpx * 10, 'right');
+	renderText(1, `Mob Count: ${info.mobCount}`, W - hpx * 10, H - hpx * 30, hpx * 10, 'right');
+	renderText(1, `Mob Volume Taken: ${info.mobVol}`, W - hpx * 10, H - hpx * 45, hpx * 10, 'right');
 }
 
 function renderBackground(x, y) {
-	ctx = getCtx(backgroundLayer);
+	ctx = getCtx(backgroundLayer[0]);
 	
 	const gridInterval = hpx * 50;
 	
@@ -735,8 +763,8 @@ function renderBackground(x, y) {
 		ctx.fillStyle = attribute.BACKGROUND_COLOR;
 		ctx.fillRect(W / 2 - x * hpx + attribute.START_WIDTH * hpx, H / 2 - y * hpx, attribute.WIDTH * hpx, attribute.HEIGHT * hpx);
 	})
-	
-	const gridLineStyle = `rgba(0, 0, 0, 0.5)`;
+
+	const gridLineStyle = `rgba(0, 0, 0, 0.3)`;
 	for ( let ix = startX; ix < W; ix += gridInterval) {
 		ctx.beginPath();
 		ctx.moveTo(ix, 0);
@@ -760,35 +788,43 @@ function renderBackground(x, y) {
 
 function renderPlayer(me, player) {
 	// render player itself
-	ctx = getCtx(playerLayer);
+	ctx = getCtx(playerLayer[0]);
 	const { x, y } = player;
+	let playerAsset;
+	if ( player.username == "Pop!") {
+		playerAsset = getAsset('mobs/bubble.svg');
+	} else {
+		playerAsset = getAsset('player.svg');
+	}
 	const canvasX = W / 2 + (x - me.x) * hpx;
 	const canvasY = H / 2 + (y - me.y) * hpx;
-	const renderRadius = EntityAttributes.PLAYER.RENDER_RADIUS * hpx;
-	if ( player.username == "Pop!" ) {
-		ctx.drawImage(
-			getAsset('mobs/bubble.svg'),
-			canvasX - renderRadius,
-			canvasY - renderRadius,
-			renderRadius * 2,
-			renderRadius * 2,
-		);
-	} else {
-		ctx.drawImage(
-			getAsset('player.svg'),
-			canvasX - renderRadius,
-			canvasY - renderRadius,
-			renderRadius * 2,
-			renderRadius * 2,
-		);
+	const renderRadius = player.size * hpx;
+	ctx.translate(canvasX, canvasY);
+
+	ctx.drawImage(
+		playerAsset,
+		- renderRadius,
+		- renderRadius,
+		renderRadius * 2,
+		renderRadius * 2,
+	);
+
+	if ( debugOptions[0] ) {
+		renderHitbox(player.radius * hpx);
+	}
+	
+	if ( debugOptions[1] ) {
+		renderText(1, `hp:${player.hp.toFixed(1)}`, 0, hpx * 25, hpx * 18, 'center');
 	}
 
+	ctx.translate(-canvasX, -canvasY);
+
+	ctx = getCtx(backgroundLayer[0]);
+
 	// render username
-	renderText(backgroundLayer, 1, player.username, canvasX, canvasY - hpx * 35, hpx * 20, 'center');
+	renderText(1, player.username, canvasX, canvasY - hpx * 35, hpx * 20, 'center');
 
 	// render health bar
-	ctx = getCtx(backgroundLayer);
-
 	const healthBarBaseWidth = hpx * 10;
 	const healthBarBaseStyle = 'rgb(51, 51, 51)';
 	const healthBarBaseLength = renderRadius * 2 + hpx * 20;
@@ -818,7 +854,7 @@ function renderPlayer(me, player) {
 	ctx.closePath();
 
 	// render petals
-	ctx = getCtx(petalLayer);
+	ctx = getCtx(petalLayer[0]);
 
 	player.petals.forEach(petal => {
 		if (petal.isHide) return;
@@ -847,50 +883,86 @@ function renderPlayer(me, player) {
 			);
 		}
 		ctx.rotate(-petal.dir);
+		if ( debugOptions[0] ) {
+			renderHitbox(PetalAttributes[petal.type].RADIUS * hpx);
+		}
+		if ( debugOptions[1] ) {
+			renderText(1, `hp:${petal.hp.toFixed(1)}`, 0, hpx * 25, hpx * 18, 'center');
+		}
 		ctx.translate(-(canvasX + (petal.x - player.x) * hpx), -(canvasY + (petal.y - player.y) * hpx));
 	});
 }
 
 function renderMob(me, mob) {
-	ctx = getCtx(mobLayer);
+	ctx = getCtx(mobLayer[0]);
 	ctx.globalAlpha = 1;
 	const {x, y} = mob;
 	const canvasX = W / 2 + (x - me.x) * hpx;
 	const canvasY = H / 2 + (y - me.y) * hpx;
-	ctx.save();
 	ctx.translate(canvasX, canvasY);
 	const renderRadius = mob.size * hpx;
 	const asset = getAsset(`mobs/${mob.type.toLowerCase()}.svg`);
 	const width = asset.naturalWidth, height = asset.naturalHeight;
-	ctx.rotate(mob.dir);
-	if ( width <= height ) {
-		ctx.drawImage(
-			asset,
-			- renderRadius,
-			- renderRadius / width * height,
-			renderRadius * 2,
-			renderRadius / width * height * 2,
-		);
+	if ( mob.type == "CENTIPEDE" || mob.type == "CENTIPEDE_EVIL") {
+		let offset = 0.24;
+		ctx.rotate(mob.dir);
+		ctx.translate(0, renderRadius * -offset);
+		if ( width <= height ) {
+			ctx.drawImage(
+				asset,
+				- renderRadius,
+				- renderRadius / width * height,
+				renderRadius * 2,
+				renderRadius / width * height * 2,
+			);
+		} else {
+			ctx.drawImage(
+				asset,
+				- renderRadius / height * width,
+				- renderRadius,
+				renderRadius / height * width * 2,
+				renderRadius * 2,
+			);
+		}
+		ctx.translate(0, -renderRadius * -offset);
+		ctx.rotate(-mob.dir);
 	} else {
-		ctx.drawImage(
-			asset,
-			- renderRadius / height * width,
-			- renderRadius,
-			renderRadius / height * width * 2,
-			renderRadius * 2,
-		);
+		ctx.rotate(mob.dir);
+		if ( width <= height ) {
+			ctx.drawImage(
+				asset,
+				- renderRadius,
+				- renderRadius / width * height,
+				renderRadius * 2,
+				renderRadius / width * height * 2,
+			);
+		} else {
+			ctx.drawImage(
+				asset,
+				- renderRadius / height * width,
+				- renderRadius,
+				renderRadius / height * width * 2,
+				renderRadius * 2,
+			);
+		}
+		ctx.rotate(-mob.dir);
+	}
+	
+	if ( debugOptions[0] ) {
+		renderHitbox(mob.radius * hpx);
 	}
 
-	ctx.restore();
+	if ( debugOptions[1] ) {
+		renderText(1, `hp:${mob.hp.toFixed(1)}`, 0, hpx * 25, hpx * 18, 'center');
+	}
 
-	// renderText(mobLayer, 1, mob.id, canvasX, canvasY - hpx * 35, hpx * 20, 'center');
-	// renderText(mobLayer, 1, `hp:${mob.hp}`, canvasX, canvasY + hpx * 65, hpx * 18, 'center');
+	ctx.translate(-canvasX, -canvasY);
 }
 
 function renderLeaderboardRank(rank, leaderboardRankBaseLength, leaderboardRankOutlineWidth, leaderboardRankBaseWidth, rankTopScore,
 	leaderboardHeadHeight, leaderboardHeightPerPlayer, rankOnLeaderboard, leaderboardRank, baseX, baseY) { // render the current rank on leaderboard
 
-	ctx = getCtx(UILayer);
+	ctx = getCtx(UILayer[0]);
 
 	baseX += 0;
 	baseY += leaderboardHeadHeight + rank * leaderboardHeightPerPlayer;
@@ -924,11 +996,11 @@ function renderLeaderboardRank(rank, leaderboardRankBaseLength, leaderboardRankO
 
 	const leaderboardDisplay = `${leaderboardRank.username} - ${score}`;
 
-	renderText(UILayer, 1, leaderboardDisplay, baseX + hpx * 0, baseY + hpx * 5, hpx * 15, 'center');
+	renderText(1, leaderboardDisplay, baseX + hpx * 0, baseY + hpx * 5, hpx * 15, 'center');
 }
 
 function renderLeaderboard(leaderboard, playerCount, me, rankOnLeaderboard) {
-	ctx = getCtx(UILayer);
+	ctx = getCtx(UILayer[0]);
 	const leaderboardOutlineWidth = hpx * 5;
 
 	const leaderboardBorderGap = hpx * 20;
@@ -950,7 +1022,7 @@ function renderLeaderboard(leaderboard, playerCount, me, rankOnLeaderboard) {
 	ctx.fillRect(position.x + leaderboardOutlineWidth / 2, position.y + leaderboardOutlineWidth / 2,
 	leaderboardWidth - leaderboardOutlineWidth / 2, leaderboardHeight - leaderboardOutlineWidth / 2);
 	
-	renderRoundRect(UILayer, position.x, position.y, leaderboardWidth, leaderboardHeight, leaderboardRoundCornerRadius, true, true, true, true);
+	renderRoundRect(position.x, position.y, leaderboardWidth, leaderboardHeight, leaderboardRoundCornerRadius, true, true, true, true);
 	ctx.lineWidth = leaderboardOutlineWidth;
 	ctx.strokeStyle = "rgb(69, 69, 69)";
 	ctx.stroke();
@@ -959,7 +1031,7 @@ function renderLeaderboard(leaderboard, playerCount, me, rankOnLeaderboard) {
 	ctx.fillRect(position.x + leaderboardOutlineWidth / 2, position.y + leaderboardOutlineWidth / 2, 
 	leaderboardWidth - leaderboardOutlineWidth / 2, leaderboardHeadHeight - leaderboardOutlineWidth / 2);
 	
-	renderRoundRect(UILayer, position.x, position.y, leaderboardWidth, leaderboardHeadHeight, leaderboardRoundCornerRadius, true, true, false, false);
+	renderRoundRect(position.x, position.y, leaderboardWidth, leaderboardHeadHeight, leaderboardRoundCornerRadius, true, true, false, false);
 	ctx.lineWidth = leaderboardOutlineWidth;
 	ctx.strokeStyle = "rgb(69, 151, 69)";
 	ctx.stroke();
@@ -968,9 +1040,9 @@ function renderLeaderboard(leaderboard, playerCount, me, rankOnLeaderboard) {
 	var baseY = position.y;
 
 	if ( playerCount > 1 ) {
-		renderText(UILayer, 1, `${playerCount} Flowers`, baseX + hpx * 0, baseY + leaderboardHeadHeight / 2 + leaderboardOutlineWidth, hpx * 18, 'center');
+		renderText(1, `${playerCount} Flowers`, baseX + hpx * 0, baseY + leaderboardHeadHeight / 2 + leaderboardOutlineWidth, hpx * 18, 'center');
 	} else {
-		renderText(UILayer, 1, '1 Flower', baseX + hpx * 0, baseY + leaderboardHeadHeight / 2 + leaderboardOutlineWidth, hpx * 18, 'center');
+		renderText(1, '1 Flower', baseX + hpx * 0, baseY + leaderboardHeadHeight / 2 + leaderboardOutlineWidth, hpx * 18, 'center');
 	}
 	const rankTopScore = leaderboard[1].score;
 
@@ -1003,10 +1075,10 @@ export function startRenderingMenu() { // render menu
 }
 
 function renderMainMenu() {
-	for (let i = 0; i <= 3; i ++ ) {
-		ctx = getCtx(i);
+	menuLayer.forEach(layer => {
+		ctx = getCtx(layer);
 		ctx.clearRect(0, 0, W, H);
-	}
+	});
 
 	alphaConnecting -= 0.01;
 	alphaConnecting = Math.max(0, alphaConnecting);
@@ -1021,20 +1093,22 @@ function renderMainMenu() {
 		}
 	}
 
-	fillBackground(0, "#1EA761");
-	renderText(0, 1, "floria.io", W / 2, H / 2 - hpx * 220, hpx * 85, 'center');
-	renderText(0, 1, "How to play", W / 2, H / 2 + hpx * 100, hpx * 30, 'center');
-	renderText(0, 1, "Use Mouse or [W] [S] [A] [D] to move", W / 2, H / 2 + hpx * 140, hpx * 15, 'center');
-	renderText(0, 1, "Left click or [Space] to attack", W / 2, H / 2 + hpx * 165, hpx * 15, 'center');
-	renderText(0, 1, "Right click or [LShift] to defend", W / 2, H / 2 + hpx * 190, hpx * 15, 'center');
-	renderText(0, 1, "Press [K] to toggle keyboard movement", W / 2, H / 2 + hpx * 215, hpx * 15, 'center');
+	ctx = getCtx(menuLayer[0]);
+	fillBackground("#1EA761");
+	renderText(1, "floria.io", W / 2, H / 2 - hpx * 220, hpx * 85, 'center');
+	renderText(1, "How to play", W / 2, H / 2 + hpx * 100, hpx * 30, 'center');
+	renderText(1, "Use Mouse or [W] [S] [A] [D] to move", W / 2, H / 2 + hpx * 140, hpx * 15, 'center');
+	renderText(1, "Left click or [Space] to attack", W / 2, H / 2 + hpx * 165, hpx * 15, 'center');
+	renderText(1, "Right click or [LShift] to defend", W / 2, H / 2 + hpx * 190, hpx * 15, 'center');
+	renderText(1, "Press [K] to toggle keyboard movement", W / 2, H / 2 + hpx * 215, hpx * 15, 'center');
 	
 	if ( textConnectingPos >= -1000 ) { // connecting... text animation
 		if ( connected ) {
 			textConnectingVelocity += 5;
 			textConnectingPos -= textConnectingVelocity;
 		}
-		renderText(1, alphaConnecting, "Connecting...", W / 2, H / 2 + hpx * textConnectingPos, hpx * 50, 'center');
+		ctx = getCtx(menuLayer[1]);
+		renderText(alphaConnecting, "Connecting...", W / 2, H / 2 + hpx * textConnectingPos, hpx * 50, 'center');
 	}
 
 	if ( connected ) { // handle input box animation
@@ -1044,11 +1118,11 @@ function renderMainMenu() {
 		}
 		inputBoxPos -= inputBoxVelocity;
 		inputBoxPos = Math.max(0, inputBoxPos);
-		renderInputBox(2, alphaInputBox);
+		renderInputBox(menuLayer[2], alphaInputBox);
 	}
 
 	if ( startup ) {
-		ctx = getCtx(3);
+		ctx = getCtx(menuLayer[3]);
 		ctx.globalAlpha = alphaBlack;
 		ctx.fillStyle = 'black';
 		ctx.fillRect(0, 0, W, H);
@@ -1064,32 +1138,34 @@ export function startRenderGameEnter() {
 }
 
 function renderGameEnter() {
-	for (let i = 0; i <= 3; i ++ ) {
-		ctx = getCtx(i);
+	menuLayer.forEach(layer => {
+		ctx = getCtx(layer);
 		ctx.clearRect(0, 0, W, H);
-	}
+	});
 	
-	fillBackground(0, "#1EA761");
-	renderText(0, 1, "floria.io", W / 2, H / 2 - hpx * 220, hpx * 85, 'center');
-	renderText(0, 1, "How to play", W / 2, H / 2 + hpx * 100, hpx * 30, 'center');
-	renderText(0, 1, "Use Mouse or [W] [S] [A] [D] to move", W / 2, H / 2 + hpx * 140, hpx * 15, 'center');
-	renderText(0, 1, "Left click or [Space] to attack", W / 2, H / 2 + hpx * 165, hpx * 15, 'center');
-	renderText(0, 1, "Right click or [LShift] to defend", W / 2, H / 2 + hpx * 190, hpx * 15, 'center');
-	renderText(0, 1, "Press [K] to toggle keyboard movement", W / 2, H / 2 + hpx * 215, hpx * 15, 'center');
+	ctx = getCtx(menuLayer[0]);
+	fillBackground("#1EA761");
+	renderText(1, "floria.io", W / 2, H / 2 - hpx * 220, hpx * 85, 'center');
+	renderText(1, "How to play", W / 2, H / 2 + hpx * 100, hpx * 30, 'center');
+	renderText(1, "Use Mouse or [W] [S] [A] [D] to move", W / 2, H / 2 + hpx * 140, hpx * 15, 'center');
+	renderText(1, "Left click or [Space] to attack", W / 2, H / 2 + hpx * 165, hpx * 15, 'center');
+	renderText(1, "Right click or [LShift] to defend", W / 2, H / 2 + hpx * 190, hpx * 15, 'center');
+	renderText(1, "Press [K] to toggle keyboard movement", W / 2, H / 2 + hpx * 215, hpx * 15, 'center');
 
 	if ( textConnectingPos >= -1000 ) {
 		if ( connected ) {
 			textConnectingVelocity += 5;
 			textConnectingPos -= textConnectingVelocity;
 		}
-		renderText(1, alphaConnecting, "Connecting...", W / 2, H / 2 + hpx * textConnectingPos, hpx * 50, 'center');
+		ctx = getCtx(menuLayer[1]);
+		renderText(alphaConnecting, "Connecting...", W / 2, H / 2 + hpx * textConnectingPos, hpx * 50, 'center');
 	}
 
 	if ( inputBoxPos <= 1000 ) {
 		inputBoxVelocity += 5;
 		inputBoxPos += inputBoxVelocity;
 		alphaInputBox -= 0.01;
-		renderInputBox(2, alphaInputBox);
+		renderInputBox(menuLayer[2], alphaInputBox);
 	}
 
 	if ( startup ) {
@@ -1099,17 +1175,17 @@ function renderGameEnter() {
 			alphaBlack = 0;
 			startup = false;
 		}
-		ctx = getCtx(3);
+		ctx = getCtx(menuLayer[3]);
 		ctx.globalAlpha = alphaBlack;
 		ctx.fillStyle = 'black';
 		ctx.fillRect(0, 0, W, H);
 	}
 
 	if ( (textConnectingPos < -1000) && (inputBoxPos > 1000) && (!startup) ) {
-		for(let i = 0; i <= 3; i ++ ) {
-			ctx = getCtx(i);
+		menuLayer.forEach(layer => {
+			ctx = getCtx(layer);
 			ctx.globalAlpha = 1;
-		}
+		});
 		render(renderGame);
 		startCapturingInput();
 	} else {
@@ -1122,9 +1198,10 @@ function renderInputBox(layer, alpha) {
 	ctx.globalAlpha = alpha;
 	let textOffset = -45;
 	let textFontSize = 20;
-	renderText(2, alpha, "This pretty little flower is called...", W / 2, H / 2 + hpx * (textOffset - inputBoxPos), hpx * textFontSize, 'center');
+	renderText(alpha, "This pretty little flower is called...", W / 2, H / 2 + hpx * (textOffset - inputBoxPos), hpx * textFontSize, 'center');
 
 	let inputBox = document.getElementById("username-input");
+	inputBox.style['z-index'] = layer;
 	inputBox.style['top'] = `${(H / 2 - hpx * inputBoxPos - hpx * 10) / H * window.innerHeight}px`;
 	inputBox.style['outline-color'] = `rgba(0, 0, 0, ${alpha})`;
 	inputBox.style['backgroundColor'] = `rgba(238, 238, 238, ${alpha})`;
@@ -1132,21 +1209,19 @@ function renderInputBox(layer, alpha) {
 
 	textOffset = 32;
 	textFontSize = 13;
-	renderText(2, alpha, "(press [Enter] to spawn)", W / 2, H / 2 + hpx * (textOffset - inputBoxPos), hpx * textFontSize, 'center');
+	renderText(alpha, "(press [Enter] to spawn)", W / 2, H / 2 + hpx * (textOffset - inputBoxPos), hpx * textFontSize, 'center');
 }
 
 export function renderConnected() { // called when connected to server
 	connected = true;
 }
 
-function fillBackground(layer, fillStyle) {
-	ctx = getCtx(layer);
+function fillBackground(fillStyle) {
 	ctx.fillStyle = fillStyle;
 	ctx.fillRect(0, 0, W, H);
 }
 
-function renderRoundRect(layer, x, y, w, h, r, r4, r1, r2, r3) { // r1 -> r4 clockwise, r1: top right | NOTE: path ONLY, no STROKE
-	ctx = getCtx(layer);
+function renderRoundRect(x, y, w, h, r, r4, r1, r2, r3) { // r1 -> r4 clockwise, r4: top left | NOTE: path ONLY, no STROKE
 	if ( w < 2 * r ) {
 		w = 2 * r;
 	}
@@ -1178,8 +1253,7 @@ function renderRoundRect(layer, x, y, w, h, r, r4, r1, r2, r3) { // r1 -> r4 clo
 	ctx.closePath();
 }
 
-function renderText(layer, alpha, text, x, y, fontSize, textAlign) {
-	ctx = getCtx(layer);
+function renderText(alpha, text, x, y, fontSize, textAlign) {
 	if ( fontSize ) {
 		ctx.lineWidth = fontSize * 0.125;
 		ctx.font = `${fontSize}px Ubuntu`;
@@ -1286,13 +1360,15 @@ function renderDiedEntities(me) {
 		ctx.globalAlpha = alpha;
 		const sz = entity.size * size;
 
-		diedEntities[index][1] *= 0.7;
-		diedEntities[index][2] *= 1.1;
+		diedEntities[index][1] *= 0.75;
+		diedEntities[index][2] *= 1.05;
 		if (diedEntities[index][1] <= 0.05) {
 			diedEntities.splice(index, 1);
 			return ;
 		}
 
+		entity.x += Math.cos(entity.vdir) * (10 / Constants.TICK_PER_SECOND);
+		entity.y += Math.sin(entity.vdir) * (10 / Constants.TICK_PER_SECOND);
 		let x = W / 2 + (entity.x - me.x) * hpx;
 		let y = H / 2 + (entity.y - me.y) * hpx;
 		
@@ -1324,17 +1400,13 @@ function renderDiedEntities(me) {
 		);
 
 		ctx.restore();
-
-		// entity.x += Math.min(100, entity.movement.speed) * 0.025 * Math.sin(entity.movement.direction);
-		// entity.y += Math.min(100, entity.movement.speed) * 0.025 * Math.cos(entity.movement.direction);
-		// entity.size += entity.size * 0.0125;
 	});
 
 	ctx.globalAlpha = 1;
 }
 
 function renderDrops(drops,me) {
-	let ctx = getCtx(dropLayer);
+	let ctx = getCtx(dropLayer[0]);
 	
 	drops.forEach((entity) => {
 		ctx.globalAlpha = 0.88;
@@ -1357,7 +1429,7 @@ function renderDrops(drops,me) {
 		let outlineWidth = displayLength * PETAL_OUTLINE_WIDTH_PERCENTAGE;
 		ctx.strokeStyle = Constants.RARITY_COLOR_DARKEN[PetalAttributes[entity.type].RARITY];
 		ctx.lineWidth = outlineWidth * 10;
-		renderRoundRect(dropLayer, x - (displayLength + outlineWidth * 50) / 2, y - (displayLength + outlineWidth * 50) / 2,
+		renderRoundRect(x - (displayLength + outlineWidth * 50) / 2, y - (displayLength + outlineWidth * 50) / 2,
 		displayLength + outlineWidth * 50, displayLength + outlineWidth * 50, hpx * 1, true, true, true, true);
 		
 		let fillSize = displayLength * 1.6;
@@ -1372,9 +1444,9 @@ function renderDrops(drops,me) {
 		let textOffset = displayLength * 1.5;
 		let textFont = displayLength * 0.95;
 
-		renderText(dropLayer, 0.88, name.charAt(0).toUpperCase() + name.slice(1), x, y + textOffset, textFont, 'center');
+		renderText(0.88, name.charAt(0).toUpperCase() + name.slice(1), x, y + textOffset, textFont, 'center');
 
-		renderText(dropLayer, 0.88, name.charAt(0).toUpperCase() + name.slice(1), x, y + textOffset, textFont, 'center');
+		renderText(0.88, name.charAt(0).toUpperCase() + name.slice(1), x, y + textOffset, textFont, 'center');
 
 		ctx.globalAlpha = 1;
 		
@@ -1383,18 +1455,18 @@ function renderDrops(drops,me) {
 }
 
 function renderWarning(me) {
-	const ctx = getCtx(UILayer);
+	const ctx = getCtx(UILayer[0]);
 	if (getAreaNameByEntityPosition(me.x, me.y) == `OCEAN`) {
 		ctx.fillStyle = `black`
 		ctx.globalAlpha = 0.5;
-		renderRoundRect(UILayer, W / 2 - 200, H / 4 - 100, 400, 150, 16, true, true, true, true);
+		renderRoundRect(W / 2 - 200, H / 4 - 100, 400, 150, 16, true, true, true, true);
 		ctx.fill();
 		ctx.stroke();
 		ctx.globalAlpha = 1;
-		renderText(UILayer, 0.88, `Warning: suffocate`, W / 2 - 100, H / 4 - 65, 16, 'left');
-		renderText(UILayer, 0.88, `in water, you will keep losing oxygen`, W / 2 - 100, H / 4 - 35, 16, 'left');
-		renderText(UILayer, 0.88, `when oxygen is zero,`, W / 2 - 100, H / 4 - 5, 16, 'left');
-		renderText(UILayer, 0.88, `you will keep reciving damage`, W / 2 - 100, H / 4 + 25, 16, 'left');
+		renderText(0.88, `Warning: suffocate`, W / 2 - 100, H / 4 - 65, 16, 'left');
+		renderText(0.88, `in water, you will keep losing oxygen`, W / 2 - 100, H / 4 - 35, 16, 'left');
+		renderText(0.88, `when oxygen is zero,`, W / 2 - 100, H / 4 - 5, 16, 'left');
+		renderText(0.88, `you will keep reciving damage`, W / 2 - 100, H / 4 + 25, 16, 'left');
 		let asset = getAsset(`player_suffocate.svg`);
 		ctx.drawImage(asset, W / 2 - 170, H / 4 - 60, asset.naturalWidth / 2.6, asset.naturalHeight / 2.6);
 	}
@@ -1410,4 +1482,29 @@ function getAreaNameByEntityPosition(x, y) {
 		return attribute.START_WIDTH <= x && x <= attribute.START_WIDTH + attribute.WIDTH && attribute.START_HEIGHT <= y && y <= attribute.START_HEIGHT + attribute.HEIGHT;
 	});
 	return result[0]
+}
+
+export function setCmdLayer() {
+	document.getElementById("cmd-input").style['z-index'] = UILayer[0];
+}
+
+export function setCmdColor(color) {
+	cmdColor = color;
+}
+
+export function clearCmdLog() {
+	cmdLog = [];
+}
+
+export function toggleDebugOption(optionID, value) {
+	debugOptions[optionID] = value;
+}
+
+function renderHitbox(radius) {
+	ctx.beginPath();
+	ctx.arc(0, 0, radius, 0, 2 * Math.PI);
+	ctx.closePath();
+	ctx.strokeStyle = '#242424';
+	ctx.lineWidth = hpx * 1;
+	ctx.stroke();
 }

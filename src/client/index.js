@@ -1,8 +1,9 @@
 import { connect, play } from './networking';
 import { startRenderingMenu, startRenderGameEnter, renderConnected, renderInit, renderStartup } from './render';
-import { startCapturingInput, stopCapturingInput } from './input';
+import { stopCapturingInput } from './input';
 import { downloadAssets } from './assets';
 import { initState } from './state';
+import { initCmd } from './cmd';
 
 import './css/main.css';
 
@@ -48,6 +49,7 @@ function loadMenu() {
 							play('Random Flower');
 						inGame = true;
 						initState();
+						initCmd();
 						startRenderGameEnter();
 					}
 				}
