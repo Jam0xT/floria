@@ -238,7 +238,7 @@ class Game {
 							y: petal.y,
 							vdir: Math.atan2(petal.velocity.y, petal.velocity.x),
 							type: petal.type,
-							size: petal.attributes.RENDER_RADIUS,
+							size: petal.attributes.RADIUS * petal.attributes.RENDER_RADIUS,
 							dir: petal.direction,
 						});
 						petal.chunks.forEach(chunk => {

@@ -38,6 +38,7 @@ class Petal extends Entity {
 	serializeForUpdate() {
 		return {
 			...(super.serializeForUpdate()),
+			size: this.attributes.RADIUS * this.attributes.RENDER_RADIUS,
 			type: this.type,
 			dir: this.direction,
 			isHide: this.isHide,
