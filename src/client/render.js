@@ -845,13 +845,25 @@ function renderPlayer(me, player) {
 		renderRadius * 2,
 		renderRadius * 2,
 	);
+	
+	const hitboxRadius = player.radius * hpx;
 
 	if ( debugOptions[0] ) {
-		renderHitbox(player.radius * hpx);
+		renderHitbox(hitboxRadius);
 	}
 	
 	if ( debugOptions[1] ) {
 		renderText(1, `hp:${player.hp.toFixed(1)}`, 0, hpx * 25, hpx * 18, 'center');
+	}
+
+	if ( debugOptions[2] ) {
+		ctx.beginPath();
+		ctx.moveTo(0, 0);
+		ctx.lineTo(hitboxRadius * Math.sin(player.dir), -hitboxRadius * Math.cos(player.dir));
+		ctx.closePath();
+		ctx.strokeStyle = '#fc0f5e';
+		ctx.lineWidth = hpx * 1;
+		ctx.stroke();
 	}
 
 	ctx.translate(-canvasX, -canvasY);
@@ -923,12 +935,27 @@ function renderPlayer(me, player) {
 		ctx.translate(-(canvasX + (petal.x - player.x) * hpx), -(canvasY + (petal.y - player.y) * hpx));
 		ctx = getCtx(petalLayer[1]);
 		ctx.translate(canvasX + (petal.x - player.x) * hpx, canvasY + (petal.y - player.y) * hpx);
+
+		const petalHitboxRadius = petal.radius * hpx;
+
 		if ( debugOptions[0] ) {
-			renderHitbox(PetalAttributes[petal.type].RADIUS * hpx);
+			renderHitbox(petalHitboxRadius);
 		}
+
 		if ( debugOptions[1] ) {
 			renderText(1, `hp:${petal.hp.toFixed(1)}`, 0, hpx * 25, hpx * 18, 'center');
 		}
+
+		if ( debugOptions[2] ) {
+			ctx.beginPath();
+			ctx.moveTo(0, 0);
+			ctx.lineTo(petalHitboxRadius * Math.sin(petal.dir), -petalHitboxRadius * Math.cos(petal.dir));
+			ctx.closePath();
+			ctx.strokeStyle = '#fc0f5e';
+			ctx.lineWidth = hpx * 1;
+			ctx.stroke();
+		}
+
 		ctx.translate(-(canvasX + (petal.x - player.x) * hpx), -(canvasY + (petal.y - player.y) * hpx));
 		ctx = getCtx(petalLayer[0]);
 	});
@@ -988,13 +1015,25 @@ function renderMob(me, mob) {
 		}
 		ctx.rotate(-mob.dir);
 	}
+
+	const hitboxRadius = mob.radius * hpx;
 	
 	if ( debugOptions[0] ) {
-		renderHitbox(mob.radius * hpx);
+		renderHitbox(hitboxRadius);
 	}
 
 	if ( debugOptions[1] ) {
 		renderText(1, `hp:${mob.hp.toFixed(1)}`, 0, hpx * 25, hpx * 18, 'center');
+	}
+
+	if ( debugOptions[2] ) {
+		ctx.beginPath();
+		ctx.moveTo(0, 0);
+		ctx.lineTo(hitboxRadius * Math.sin(mob.dir), -hitboxRadius * Math.cos(mob.dir));
+		ctx.closePath();
+		ctx.strokeStyle = '#fc0f5e';
+		ctx.lineWidth = hpx * 1;
+		ctx.stroke();
 	}
 
 	ctx.translate(-canvasX, -canvasY);

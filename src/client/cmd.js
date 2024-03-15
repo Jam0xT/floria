@@ -1,6 +1,7 @@
 import { setCmdLayer, addCmdLog, setCmdColor, clearCmdLog, toggleDebugOption } from './render';
 
 let cmd;
+let cmdPrev = '';
 let defaultCmdColor;
 
 export function initCmd() {
@@ -15,9 +16,14 @@ export function focusCmd() {
 	cmd.focus();
 }
 
+export function cmdSetPrev() {
+	cmd.value = cmdPrev;
+}
+
 let command = '', options = [];
 
 export function cmdExecute() {
+	cmdPrev = cmd.value;
 	options = cmd.value.toLowerCase().split(' ');
 	command = options.shift();
 
@@ -25,6 +31,7 @@ export function cmdExecute() {
 		if ( command == '' ) {
 			return ;
 		}
+		log('');
 		if ( command == 'hi' ) {
 			cmd_hi();
 			return ;
@@ -43,6 +50,10 @@ export function cmdExecute() {
 		}
 		if ( command == 'clear') {
 			cmd_clear();
+			return ;
+		}
+		if ( command == 'inv') {
+			cmd_inv();
 			return ;
 		}
 		cmd_help();
@@ -67,7 +78,7 @@ function cmd_debug() {
 		log('use "debug [option]=<para>" to toggle/modify an option');
 		log('only ONE option can be toggled at a time');
 	} else if ( options[0] == 'options' ) {
-		log(`showHitbox, showHP`);
+		log(`showHitbox, showHP, showDir`);
 	} else {
 		options[0] = options[0].split('=');
 		if ( options[0][0] == 'help' ) {
@@ -77,6 +88,9 @@ function cmd_debug() {
 			} else if ( options[0][1] == 'showhp' ) {
 				log('usage: debug showHP=<on/off>');
 				log('shows hp of all entities');
+			} else if ( options[0][1] == 'showdir' ) {
+				log('usage: debug showDir=<on/off>');
+				log('shows direction of all entities');
 			} else {
 				log('not an available option');
 				log('use "debug options" for a list of available options');
@@ -101,6 +115,16 @@ function cmd_debug() {
 			} else {
 				log('invalid parameter');
 			}
+		} else if ( options[0][0] == 'showdir') { // id: 2
+			if ( options[0][1] == 'on' ) {
+				log('showDir enabled');
+				toggleDebugOption(2, true);
+			} else if ( options[0][1] == 'off' ) {
+				log('showDir disabled');
+				toggleDebugOption(2, false);
+			} else {
+				log('invalid parameter');
+			}
 		} else {
 			log('invalid usage');
 		}
@@ -112,11 +136,12 @@ function cmd_help() {
 	log('"command action" or simply "command" if there\'s such usage');
 	log('use "command help" for more information on a specific command');
 	log('use "cmdlist" for a list of available commands');
+	log('use the up arrow key to fill in the previous command');
 	log('commands are NOT case sensitive');
 }
 
 function cmd_cmdlist() {
-	log('available commands: hi, debug, color, cmdlist, clear');
+	log('available commands: hi, debug, color, cmdlist, clear, inv');
 }
 
 function cmd_color() {
@@ -162,4 +187,25 @@ function cmd_color() {
 
 function cmd_clear() {
 	clearCmdLog();
+}
+
+function cmd_inv() {
+	if ( options[0] == "help" || !options[0] ) {
+		log('use "inv sel=<row>,<colume> to select a slot');
+		log('row/column number starts from 1');
+		log('use "inv sel=-1 to deselect the selected slot(s)');
+		log('use "inv del" to remove the petal in the selected slot(s)');
+		log('use "inv set=<petal>" to set the petal in the selected slot(s)');
+	} else if ( options[0] == "del" ) {
+		// delete
+	} else {
+		options[0] = options[0].split('=');
+		if ( options[0][0] == 'sel' ) {
+
+		} else if ( options[0][0] == 'set' ) {
+
+		} else {
+			log('invalid usage');
+		}
+	}
 }

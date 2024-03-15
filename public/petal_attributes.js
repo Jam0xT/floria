@@ -12,6 +12,7 @@ module.exports = Object.freeze({
 		MULTIPLE: false,
 		CLUSTER: false,
 		COUNT: 1,
+		TRIGGERS: {},
 	},
 	BASIC: {
 		TYPE: 'BASIC', // 类型
@@ -26,39 +27,44 @@ module.exports = Object.freeze({
 		MULTIPLE: false, // 是否为多子
 		CLUSTER: false, // 是否为团簇
 		COUNT: 1,
+		TRIGGERS: {},
 		EXTRA: [ // 额外功能
 			{ // 功能 1
-				req: { // 要求
-					status_req: { // 状态要求 不写/false为无要求
-						required: { // 必须全部满足项
-							loaded: false, // 使用中
-							exist: false, // 存活中
-							left_click: false, // 0 否 1 是
-							right_click: false,
-							"age>": false, // 存活时间大于
-							"age<": false, // 存活时间小于
-						},
-						optional: [ // 选择性满足项 每一组至少满足其一
-							{ // 选项组 1
-
-							},
-							{ // 选项组 2
-								
-							},
-						]
+				req: { // 状态要求 不写/false为无要求
+					required: { // 必须全部满足项
+						loaded: false, // 使用中
+						exist: false, // 存活中
+						left_click: false, // 0 否 1 是
+						right_click: false,
+						"age>": false, // 存活时间大于
+						"age<": false, // 存活时间小于
 					},
-					event_req: { // 事件要求 满足任意一项
-						load: false, // 使用
-						spawn: false, // 花瓣出生 0 任意 1 首次
-						hit: false, // 击中目标
-						death: false, // 死亡
-						unload: false, // 取消使用
-					}
+					optional: [ // 选择性满足项 每一组至少满足其一
+						{ // 选项组 1
+
+						},
+						{ // 选项组 2
+							
+						},
+					]
 				},
 				action: [ // 行为
-					{
-						delay: 0,
+					{ // 行为 1
+						delay: 0, // 状态满足且需求事件发生后该行为的延迟
+						random: .1, // 概率发生
+						event_req: "load", // 需求事件
+						/*
+							load 使用
+							spawn 出生
+							first_spawn 首次出生
+							hit 击中
+							death 死亡
+							unload 取消使用
+						*/
 						
+					}, // 行为 2
+					{
+
 					}
 				]
 			},

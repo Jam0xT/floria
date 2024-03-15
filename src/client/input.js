@@ -1,6 +1,6 @@
 import { sendMovement, sendMouseDownEvent, sendMouseUpEvent, sendPetalSwitchEvent } from './networking';
 import { select, deSelect, drag, target, switchPetals } from './render';
-import { focusCmd, cmdExecute } from './cmd';
+import { focusCmd, cmdExecute, cmdSetPrev } from './cmd';
 
 var keyDown = {
 	'w': false,
@@ -191,6 +191,9 @@ function handleKeyDownInput(e) {
 		if ( e.code == 'Enter' ) {
 			cmdExecute();
 			cmdInput = false;
+		}
+		if ( e.code == 'ArrowUp' ) {
+			cmdSetPrev();
 		}
 		return ;
 	}
