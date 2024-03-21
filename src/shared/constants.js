@@ -3,7 +3,7 @@ module.exports = Object.freeze({
 
 	SPEED_ATTENUATION_COEFFICIENT: 0.7, // velocity *= X every tick
 
-	MSG_TYPES: { // socket.io communication
+	MSG_TYPES: { // socket.io 交流
 		JOIN_GAME: 'join_game',
 		GAME_UPDATE: 'update',
 		MOVEMENT: 'movement',
@@ -11,8 +11,8 @@ module.exports = Object.freeze({
 		MOUSE_UP: 'mouse_up',
 		GAME_OVER: 'dead',
 		PETAL_SWITCH: 'petal_switch',
-		PETAL_DISABLE: 'petal_disable',
 		LIGHTNING_PATH: 'lightning_path',
+		CMD_INV: 'cmd_inv',
 	},
 
 	MAP_WIDTH: 20000, // width of the map
@@ -119,7 +119,7 @@ module.exports = Object.freeze({
 	PETAL_MULTIPLE_MAX: 5, //多子花瓣最多拥有的数量
 	PETAL_MULTIPLE_OFFSET_DISTANCE: 12, //多子花瓣远离距离
 
-	RARITY_COLOR: [ // rarity color
+	RARITY_COLOR: [ // 稀有度颜色
 		'rgb(126, 239, 109)', // common
 		'rgb(255, 230, 93)', // unusual
 		'rgb(77, 82, 227)', // rare
@@ -129,7 +129,7 @@ module.exports = Object.freeze({
 		'rgb(255, 43, 117)', // unique
 	],
 
-	RARITY_COLOR_DARKEN: [ // darkened rarity color
+	RARITY_COLOR_DARKEN: [ // 稀有度颜色 深色版
 		'rgb(102, 194, 88)',
 		'rgb(207, 186, 75)',
 		'rgb(62, 66, 184)',
@@ -139,7 +139,7 @@ module.exports = Object.freeze({
 		'rgb(207, 35, 95)',
 	],
 
-	PETAL_SYNC_INTERVAL: 25, // tick
+	PETAL_SYNC_INTERVAL: 25, // 客户端花瓣同步周期
 
 	PETAL_OUTLINE_WIDTH_PERCENTAGE: 0.05,
 	

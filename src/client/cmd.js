@@ -1,4 +1,5 @@
 import { setCmdLayer, addCmdLog, setCmdColor, clearCmdLog, toggleDebugOption } from './render';
+import { sendCmdInv } from './networking';
 
 let cmd;
 let cmdPrev = '';
@@ -189,6 +190,8 @@ function cmd_clear() {
 	clearCmdLog();
 }
 
+let invSet = new Set(), invPetal = '';
+
 function cmd_inv() {
 	if ( options[0] == "help" || !options[0] ) {
 		log('use "inv sel=<row>,<colume> to select a slot');
@@ -196,14 +199,33 @@ function cmd_inv() {
 		log('use "inv sel=-1 to deselect the selected slot(s)');
 		log('use "inv del" to remove the petal in the selected slot(s)');
 		log('use "inv set=<petal>" to set the petal in the selected slot(s)');
-	} else if ( options[0] == "del" ) {
+		log('use "inv check" to check selected slot(s)')
+	} else if ( options[0] == 'del' ) {
+		invPetal = 'EMPTY';
+		sendCmdInv(invSet, invPetal);
 		// delete
+	} else if ( options[0] == 'check') {
+		log()
 	} else {
 		options[0] = options[0].split('=');
 		if ( options[0][0] == 'sel' ) {
-
+			if ( options[0][1] == '-1' ) {
+				invSet.clear();
+			} else {
+				options[0][1] = options[0][1].split(',');
+				let r = options[0][1][0], c = options[0][1][1];
+				if ( !r || !c ) {
+					log('invalid parameters');
+				} else {
+					invSet.add({
+						r: options[0][1][0],
+						c: options[0][1][1],
+					});
+				}
+			}
 		} else if ( options[0][0] == 'set' ) {
-
+			invPetal = options[0][1];
+			sendCmdInv(invSet, invPetal);
 		} else {
 			log('invalid usage');
 		}
