@@ -30,13 +30,13 @@ const layerCount = 15;
 
 let backgroundLayer = [1],
 	dropLayer = [2],
-	petalLayer = [3],
-	mobLayer = [4],
-	playerLayer = [5],
-	effectLayer = [6],
-	shadeLayer = [7],
-	UILayer = [8],
-	menuLayer = [9, 10, 11, 12];
+	petalLayer = [3, 4],
+	mobLayer = [5],
+	playerLayer = [6],
+	effectLayer = [7],
+	shadeLayer = [8],
+	UILayer = [9],
+	menuLayer = [10, 11, 12, 13];
 
 let primarySlotDisplayLength = 60, primarySlotHitboxLength = 92, primarySlotCenterY = 850;
 let secondarySlotDisplayLength = 45, secondarySlotHitboxLength = 70, secondarySlotCenterY = 930;
@@ -99,12 +99,14 @@ class Petal { // the petal item which you can operate on
 
 	render(length) {
 		if ( this.type != 'NONE' ) {
-			this.x += (this.targetX - this.x) * 0.15;
+			const followSpeed = 0.2;
+
+			this.x += (this.targetX - this.x) * followSpeed;
 			if ( Math.abs(this.targetX - this.x) < 0.5 ) {
 				this.x = this.targetX;
 			}
 
-			this.y += (this.targetY - this.y) * 0.15;
+			this.y += (this.targetY - this.y) * followSpeed;
 			if ( Math.abs(this.targetY - this.y) < 0.5 ) {
 				this.y = this.targetY;
 			}
@@ -842,13 +844,25 @@ function renderPlayer(me, player) {
 		renderRadius * 2,
 		renderRadius * 2,
 	);
+	
+	const hitboxRadius = player.radius * hpx;
 
 	if ( debugOptions[0] ) {
-		renderHitbox(player.radius * hpx);
+		renderHitbox(hitboxRadius);
 	}
 	
 	if ( debugOptions[1] ) {
 		renderText(1, `hp:${player.hp.toFixed(1)}`, 0, hpx * 25, hpx * 18, 'center');
+	}
+
+	if ( debugOptions[2] ) {
+		ctx.beginPath();
+		ctx.moveTo(0, 0);
+		ctx.lineTo(hitboxRadius * Math.sin(player.dir), -hitboxRadius * Math.cos(player.dir));
+		ctx.closePath();
+		ctx.strokeStyle = '#fc0f5e';
+		ctx.lineWidth = hpx * 1;
+		ctx.stroke();
 	}
 
 	ctx.translate(-canvasX, -canvasY);
@@ -893,7 +907,7 @@ function renderPlayer(me, player) {
 	player.petals.forEach(petal => {
 		if (petal.isHide) return;
 		
-		const renderRadius = PetalAttributes[petal.type].RENDER_RADIUS * hpx;
+		const renderRadius = petal.size * hpx;
 		const asset = getAsset(`petals/${petal.type.toLowerCase()}.svg`);
 		const width = asset.naturalWidth, height = asset.naturalHeight;
 
@@ -917,13 +931,32 @@ function renderPlayer(me, player) {
 			);
 		}
 		ctx.rotate(-petal.dir);
+		ctx.translate(-(canvasX + (petal.x - player.x) * hpx), -(canvasY + (petal.y - player.y) * hpx));
+		ctx = getCtx(petalLayer[1]);
+		ctx.translate(canvasX + (petal.x - player.x) * hpx, canvasY + (petal.y - player.y) * hpx);
+
+		const petalHitboxRadius = petal.radius * hpx;
+
 		if ( debugOptions[0] ) {
-			renderHitbox(PetalAttributes[petal.type].RADIUS * hpx);
+			renderHitbox(petalHitboxRadius);
 		}
+
 		if ( debugOptions[1] ) {
 			renderText(1, `hp:${petal.hp.toFixed(1)}`, 0, hpx * 25, hpx * 18, 'center');
 		}
+
+		if ( debugOptions[2] ) {
+			ctx.beginPath();
+			ctx.moveTo(0, 0);
+			ctx.lineTo(petalHitboxRadius * Math.sin(petal.dir), -petalHitboxRadius * Math.cos(petal.dir));
+			ctx.closePath();
+			ctx.strokeStyle = '#fc0f5e';
+			ctx.lineWidth = hpx * 1;
+			ctx.stroke();
+		}
+
 		ctx.translate(-(canvasX + (petal.x - player.x) * hpx), -(canvasY + (petal.y - player.y) * hpx));
+		ctx = getCtx(petalLayer[0]);
 	});
 }
 
@@ -981,19 +1014,31 @@ function renderMob(me, mob) {
 		}
 		ctx.rotate(-mob.dir);
 	}
+
+	const hitboxRadius = mob.radius * hpx;
 	
 	if ( debugOptions[0] ) {
-		renderHitbox(mob.radius * hpx);
+		renderHitbox(hitboxRadius);
 	}
 
 	if ( debugOptions[1] ) {
 		renderText(1, `hp:${mob.hp.toFixed(1)}`, 0, hpx * 25, hpx * 18, 'center');
 	}
 
+	if ( debugOptions[2] ) {
+		ctx.beginPath();
+		ctx.moveTo(0, 0);
+		ctx.lineTo(hitboxRadius * Math.sin(mob.dir), -hitboxRadius * Math.cos(mob.dir));
+		ctx.closePath();
+		ctx.strokeStyle = '#fc0f5e';
+		ctx.lineWidth = hpx * 1;
+		ctx.stroke();
+	}
+
 	ctx.translate(-canvasX, -canvasY);
 }
 
-function renderDecorate(me, decorate, mob) {
+function renderDecorate(me, decorate, mob) { // 大粪，有待重写
 	const ctx = getCtx(mobLayer);
 	ctx.globalAlpha = 1;
 	const canvasX = W / 2 + (mob.x - me.x) * hpx;
