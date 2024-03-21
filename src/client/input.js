@@ -1,5 +1,5 @@
 import { sendMovement, sendMouseDownEvent, sendMouseUpEvent, sendPetalSwitchEvent } from './networking';
-import { select, deSelect, drag, target, switchPetals } from './render';
+import { select, deSelect, drag, target, switchPetals, toggleKeyboardMovement } from './render';
 import { focusCmd, cmdExecute } from './cmd';
 
 var keyDown = {
@@ -230,6 +230,7 @@ function handleKeyDownInput(e) {
 	}
 	if ( e.key == 'k' ) {
 		keyboardMovement = !keyboardMovement;
+		toggleKeyboardMovement(keyboardMovement);
 		sendMovement({
 			direction: 0,
 			magnitude: 0,
@@ -334,8 +335,4 @@ export function updateSlotsData(W_, hpx_, primarySlotHitboxLength_, primarySlotD
 	secondarySlotDisplayLength = secondarySlotDisplayLength_;
 	secondarySlotCenterY = secondarySlotCenterY_;
 	secondarySlotCount = secondarySlotCount_;
-}
-
-export function isKeyboardMovement() {
-	return keyboardMovement;
 }
