@@ -1,6 +1,6 @@
 import { getAsset } from './assets';
 import { getCurrentState } from './state';
-import { startCapturingInput, updateSlotsData, isKeyboardMovement } from './input';
+import { startCapturingInput, updateSlotsData } from './input';
 const Constants = require('../shared/constants');
 const { MAP_WIDTH, MAP_HEIGHT, RATED_WIDTH, RATED_HEIGHT } = Constants;
 const EntityAttributes = require('../../public/entity_attributes');
@@ -44,6 +44,8 @@ let primarySlotCount = Constants.PRIMARY_SLOT_COUNT_BASE;
 let secondarySlotCount = Constants.SECONDARY_SLOT_COUNT_BASE;
 let selectedSize = 1.2;
 
+let isKeyboardMovement = false;
+
 // let initPetals = false;
 
 let petalSwing = Math.PI * 0.03;
@@ -65,10 +67,6 @@ let lightningPaths = [];
 let diedEntities = [];
 
 let time = 0; //页面运行的时间
-
-export function toggleKeyboardMovement(isKeyboardMovement) {
-	keyboardMovement = isKeyboardMovement;
-}
 
 class Petal { // the petal item which you can operate on
 	constructor(x, y, type) {
@@ -566,11 +564,12 @@ function renderGame() {
 let expBarLength = 0;
 
 function renderUI(me) {
-	ctx = getCtx(UILayer);
+	ctx = getCtx(UILayer[0]);
 
 	renderExpBar(me); // exp bar
 
-	if ( !isKeyboardMovement() ) { // render movement helper
+	if ( !isKeyboardMovement ) { // render movement helper
+		// 每次都询问效率太低，应该改成切换的形式
 		renderMovementHelper();
 	}
 
@@ -1657,4 +1656,8 @@ function renderHitbox(radius) {
 	ctx.strokeStyle = '#242424';
 	ctx.lineWidth = hpx * 1;
 	ctx.stroke();
+}
+
+export function toggleKeyboardMovement(val) {
+	isKeyboardMovement = val;
 }
