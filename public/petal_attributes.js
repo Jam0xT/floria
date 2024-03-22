@@ -76,7 +76,7 @@ module.exports = Object.freeze({
 	BUBBLE: {
 	  TYPE: 'BUBBLE',
 	  RADIUS: 14,
-	  RENDER_RADIUS: 14,
+	  RENDER_RADIUS: 1,
 	  RARITY: 6,
 	  RELOAD: 0.1,
 	  DAMAGE: 0,
@@ -91,7 +91,7 @@ module.exports = Object.freeze({
 	CACTUS: {
 	  TYPE: 'CACTUS',
 	  RADIUS: 20,
-	  RENDER_RADIUS: 20,
+	  RENDER_RADIUS: 1,
 	  RARITY: 3,
 	  RELOAD: 1,
 	  DAMAGE: 5,
@@ -106,7 +106,7 @@ module.exports = Object.freeze({
 	CACTUS_TOXIC: {
 	  TYPE: 'CACTUS_TOXIC',
 	  RADIUS: 20,
-	  RENDER_RADIUS: 20,
+	  RENDER_RADIUS: 1,
 	  RARITY: 3,
 	  RELOAD: 1,
 	  DAMAGE: 5,
@@ -121,7 +121,7 @@ module.exports = Object.freeze({
 	CARAMBOLA: {
 	  TYPE: 'CARAMBOLA',
 	  RADIUS: 19,
-	  RENDER_RADIUS: 19,
+	  RENDER_RADIUS: 1,
 	  RARITY: 2,
 	  RELOAD: 3,
 	  DAMAGE: 15,
@@ -142,7 +142,7 @@ module.exports = Object.freeze({
 	DAHLIA: {
 	  TYPE: 'DAHLIA',
 	  RADIUS: 8,
-	  RENDER_RADIUS: 8,
+	  RENDER_RADIUS: 1,
 	  RARITY: 2,
 	  RELOAD: 3.5,
 	  DAMAGE: 5,
@@ -157,7 +157,7 @@ module.exports = Object.freeze({
 	EGG: {
 	  TYPE: 'EGG',
 	  RADIUS: 14,
-	  RENDER_RADIUS: 14,
+	  RENDER_RADIUS: 1,
 	  RARITY: 4,
 	  RELOAD: 1.5,
 	  DAMAGE: 2,
@@ -172,7 +172,7 @@ module.exports = Object.freeze({
 	FANGS: {
 	  TYPE: 'FANGS',
 	  RADIUS: 8,
-	  RENDER_RADIUS: 8,
+	  RENDER_RADIUS: 1,
 	  RARITY: 2,
 	  RELOAD: 2,
 	  DAMAGE: 15,
@@ -193,7 +193,7 @@ module.exports = Object.freeze({
 	FAST: {
 	  TYPE: 'FAST',
 	  RADIUS: 7,
-	  RENDER_RADIUS: 7,
+	  RENDER_RADIUS: 1,
 	  RARITY: 0,
 	  RELOAD: 1,
 	  DAMAGE: 8,
@@ -208,7 +208,7 @@ module.exports = Object.freeze({
 	HEAVY: {
 		TYPE: 'HEAVY',
 		RADIUS: 10,
-		RENDER_RADIUS: 10,
+		RENDER_RADIUS: 1,
 		RARITY: 2,
 		RELOAD: 5,
 		DAMAGE: 5,
@@ -223,7 +223,7 @@ module.exports = Object.freeze({
 	HONEY: {
 	  TYPE: 'HONEY',
 	  RADIUS: 8,
-	  RENDER_RADIUS: 8,
+	  RENDER_RADIUS: 1,
 	  RARITY: 2,
 	  RELOAD: 1.7,
 	  DAMAGE: 10,
@@ -238,7 +238,7 @@ module.exports = Object.freeze({
 	LIGHTNING: {
 	  TYPE: 'LIGHTNING',
 	  RADIUS: 19,
-	  RENDER_RADIUS: 25,
+	  RENDER_RADIUS: 1.3,
 	  RARITY: 5,
 	  RELOAD: 2,
 	  DAMAGE: 0,
@@ -259,7 +259,7 @@ module.exports = Object.freeze({
 	PEAS: {
 	  TYPE: 'PEAS',
 	  RADIUS: 16,
-	  RENDER_RADIUS: 16,
+	  RENDER_RADIUS: 1,
 	  RARITY: 2,
 	  RELOAD: 1.5,
 	  DAMAGE: 12,
@@ -282,7 +282,7 @@ module.exports = Object.freeze({
 	PEAS_SINGLE: {
 		TYPE: 'PEAS_SINGLE',
 		RADIUS: 7,
-		RENDER_RADIUS: 7,
+		RENDER_RADIUS: 1,
 		RARITY: 2,
 		RELOAD: 1.5,
 		DAMAGE: 10,
@@ -300,7 +300,7 @@ module.exports = Object.freeze({
 	PEAS_TOXIC: {
 	  TYPE: 'PEAS_TOXIC',
 	  RADIUS: 16,
-	  RENDER_RADIUS: 16,
+	  RENDER_RADIUS: 1,
 	  RARITY: 3,
 	  RELOAD: 1.5,
 	  DAMAGE: 12,
@@ -325,7 +325,7 @@ module.exports = Object.freeze({
 	PEAS_TOXIC_SINGLE: {
 		TYPE: 'PEAS_TOXIC_SINGLE',
 		RADIUS: 7,
-		RENDER_RADIUS: 7,
+		RENDER_RADIUS: 1,
 		RARITY: 3,
 		RELOAD: 1.5,
 		DAMAGE: 10,
@@ -345,7 +345,7 @@ module.exports = Object.freeze({
 	PEAS_LEGENDARY: {
 	  TYPE: 'PEAS_LEGENDARY',
 	  RADIUS: 20,
-	  RENDER_RADIUS: 20,
+	  RENDER_RADIUS: 1,
 	  RARITY: 4,
 	  RELOAD: 1.5,
 	  DAMAGE: 12,
@@ -370,7 +370,7 @@ module.exports = Object.freeze({
 	PEAS_LEGENDARY_SINGLE: {
 		TYPE: 'PEAS_LEGENDARY_SINGLE',
 		RADIUS: 10,
-		RENDER_RADIUS: 10,
+		RENDER_RADIUS: 1,
 		RARITY: 4,
 		RELOAD: 1.5,
 		DAMAGE: 10,
@@ -390,7 +390,7 @@ module.exports = Object.freeze({
 	PENTA: {
 	  TYPE: 'PENTA',
 	  RADIUS: 7,
-	  RENDER_RADIUS: 7,
+	  RENDER_RADIUS: 1,
 	  RARITY: 4,
 	  RELOAD: 1,
 	  DAMAGE: 8,
@@ -405,7 +405,7 @@ module.exports = Object.freeze({
 	ROCK: {
 	  TYPE: 'ROCK',
 	  RADIUS: 11,
-	  RENDER_RADIUS: 11,
+	  RENDER_RADIUS: 1,
 	  RARITY: 2,
 	  RELOAD: 10,
 	  DAMAGE: 10,
@@ -420,7 +420,7 @@ module.exports = Object.freeze({
 	ROSE: {
 	  TYPE: 'ROSE',
 	  RADIUS: 11,
-	  RENDER_RADIUS: 11,
+	  RENDER_RADIUS: 1,
 	  RARITY: 1,
 	  RELOAD: 3.5,
 	  DAMAGE: 5,
@@ -435,7 +435,7 @@ module.exports = Object.freeze({
 	STINGER: {
 	  TYPE: 'STINGER',
 	  RADIUS: 7,
-	  RENDER_RADIUS: 7,
+	  RENDER_RADIUS: 1,
 	  RARITY: 1,
 	  RELOAD: 4,
 	  DAMAGE: 35,
@@ -450,7 +450,7 @@ module.exports = Object.freeze({
 	TRI_CACTUS: {
 	  TYPE: 'TRI_CACTUS',
 	  RADIUS: 20,
-	  RENDER_RADIUS: 20,
+	  RENDER_RADIUS: 1,
 	  RARITY: 4,
 	  RELOAD: 1,
 	  DAMAGE: 5,
@@ -465,7 +465,7 @@ module.exports = Object.freeze({
 	TRI_STINGER: {
 	  TYPE: 'TRI_STINGER',
 	  RADIUS: 7,
-	  RENDER_RADIUS: 7,
+	  RENDER_RADIUS: 1,
 	  RARITY: 4,
 	  RELOAD: 4,
 	  DAMAGE: 35,
@@ -480,7 +480,7 @@ module.exports = Object.freeze({
 	TRIPLET: {
 	  TYPE: 'TRIPLET',
 	  RADIUS: 7,
-	  RENDER_RADIUS: 7,
+	  RENDER_RADIUS: 1,
 	  RARITY: 3,
 	  RELOAD: 1,
 	  DAMAGE: 8,
@@ -495,7 +495,7 @@ module.exports = Object.freeze({
 	TWIN: {
 	  TYPE: 'TWIN',
 	  RADIUS: 7,
-	  RENDER_RADIUS: 7,
+	  RENDER_RADIUS: 1,
 	  RARITY: 1,
 	  RELOAD: 1,
 	  DAMAGE: 8,
@@ -510,7 +510,7 @@ module.exports = Object.freeze({
 	DANDELION: {
 	  TYPE: 'DANDELION',
 	  RADIUS: 11,
-	  RENDER_RADIUS: 11,
+	  RENDER_RADIUS: 1,
 	  RARITY: 2,
 	  RELOAD: 2,
 	  DAMAGE: 5,
@@ -530,7 +530,7 @@ module.exports = Object.freeze({
 	MISSILE: {
 	  TYPE: 'MISSILE',
 	  RADIUS: 8,
-	  RENDER_RADIUS: 8,
+	  RENDER_RADIUS: 1,
 	  RARITY: 2,
 	  RELOAD: 3,
 	  DAMAGE: 35,
@@ -545,7 +545,7 @@ module.exports = Object.freeze({
 	ROSE_ADVANCED: {
 	  TYPE: 'ROSE_ADVANCED',
 	  RADIUS: 11,
-	  RENDER_RADIUS: 11,
+	  RENDER_RADIUS: 1,
 	  RARITY: 3,
 	  RELOAD: 3.5,
 	  DAMAGE: 5,
@@ -560,7 +560,7 @@ module.exports = Object.freeze({
 	SALT: {
 	  TYPE: 'SALT',
 	  RADIUS: 11,
-	  RENDER_RADIUS: 11,
+	  RENDER_RADIUS: 1,
 	  RARITY: 2,
 	  RELOAD: 4,
 	  DAMAGE: 10,
@@ -575,7 +575,7 @@ module.exports = Object.freeze({
 	IRIS: {
 	  TYPE: 'IRIS',
 	  RADIUS: 7,
-	  RENDER_RADIUS: 7,
+	  RENDER_RADIUS: 1,
 	  RARITY: 1,
 	  RELOAD: 6,
 	  DAMAGE: 5,
@@ -590,7 +590,7 @@ module.exports = Object.freeze({
 	RICE: {
 	  TYPE: 'RICE',
 	  RADIUS: 14,
-	  RENDER_RADIUS: 20,
+	  RENDER_RADIUS: 1,
 	  RARITY: 3,
 	  RELOAD: 0,
 	  DAMAGE: 5,
@@ -605,7 +605,7 @@ module.exports = Object.freeze({
 	YINYANG: {
 	  TYPE: 'YINYANG',
 	  RADIUS: 14,
-	  RENDER_RADIUS: 14,
+	  RENDER_RADIUS: 1,
 	  RARITY: 3,
 	  RELOAD: 1,
 	  DAMAGE: 15,
@@ -620,7 +620,7 @@ module.exports = Object.freeze({
 	FASTER: {
 	  TYPE: 'FASTER',
 	  RADIUS: 14,
-	  RENDER_RADIUS: 9,
+	  RENDER_RADIUS: 1,
 	  RARITY: 2,
 	  RELOAD: 0.5,
 	  DAMAGE: 5,
@@ -635,7 +635,7 @@ module.exports = Object.freeze({
 	LEAF: {
 	  TYPE: 'LEAF',
 	  RADIUS: 12,
-	  RENDER_RADIUS: 12,
+	  RENDER_RADIUS: 1,
 	  RARITY: 1,
 	  RELOAD: 1,
 	  DAMAGE: 8,
@@ -650,7 +650,7 @@ module.exports = Object.freeze({
 	POLLEN: {
 	  TYPE: 'POLLEN',
 	  RADIUS: 8,
-	  RENDER_RADIUS: 8,
+	  RENDER_RADIUS: 1,
 	  RARITY: 3,
 	  RELOAD: 1,
 	  DAMAGE: 8,
@@ -665,7 +665,7 @@ module.exports = Object.freeze({
 	GLASS: {
 	  TYPE: 'GLASS',
 	  RADIUS: 14,
-	  RENDER_RADIUS: 14,
+	  RENDER_RADIUS: 1,
 	  RARITY: 4,
 	  RELOAD: 3.5,
 	  DAMAGE: 5,
@@ -680,7 +680,7 @@ module.exports = Object.freeze({
 	WING: {
 	  TYPE: 'WING',
 	  RADIUS: 14,
-	  RENDER_RADIUS: 14,
+	  RENDER_RADIUS: 1,
 	  RARITY: 2,
 	  RELOAD: 1.25,
 	  DAMAGE: 15,
@@ -695,7 +695,7 @@ module.exports = Object.freeze({
 	YUCCA: {
 	  TYPE: 'YUCCA',
 	  RADIUS: 14,
-	  RENDER_RADIUS: 9,
+	  RENDER_RADIUS: 1,
 	  RARITY: 1,
 	  RELOAD: 1,
 	  DAMAGE: 8,
@@ -710,7 +710,7 @@ module.exports = Object.freeze({
 	ANTENNAE: {
 		TYPE: 'ANTENNAE',
 		RADIUS: 10,
-		RENDER_RADIUS: 10,
+		RENDER_RADIUS: 1,
 		RARITY: 1,
 		RELOAD: 1,
 		DAMAGE: 1,
