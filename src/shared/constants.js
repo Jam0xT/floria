@@ -119,26 +119,6 @@ module.exports = Object.freeze({
 	PETAL_MULTIPLE_MAX: 5, //多子花瓣最多拥有的数量
 	PETAL_MULTIPLE_OFFSET_DISTANCE: 12, //多子花瓣远离距离
 
-	RARITY_COLOR: [ // rarity color
-		'rgb(126, 239, 109)', // common
-		'rgb(255, 230, 93)', // unusual
-		'rgb(77, 82, 227)', // rare
-		'rgb(134, 31, 222)', // epic
-		'rgb(222, 31, 31)', // legendary
-		'rgb(31, 219, 222)', // mythic
-		'rgb(255, 43, 117)', // unique
-	],
-
-	RARITY_COLOR_DARKEN: [ // darkened rarity color
-		'rgb(102, 194, 88)',
-		'rgb(207, 186, 75)',
-		'rgb(62, 66, 184)',
-		'rgb(109, 25, 180)',
-		'rgb(180, 25, 25)',
-		'rgb(25, 177, 180)',
-		'rgb(207, 35, 95)',
-	],
-
 	PETAL_SYNC_INTERVAL: 25, // tick
 
 	PETAL_OUTLINE_WIDTH_PERCENTAGE: 0.05,

@@ -1,5 +1,6 @@
 import { connect, play } from './networking';
-import { startRenderingMenu, startRenderGameEnter, renderConnected, renderInit, renderStartup } from './render';
+// import { startRenderingMenu, startRenderGameEnter, renderConnected, renderInit, renderStartup } from './render';
+import * as render from './render';
 import { stopCapturingInput } from './input';
 import { downloadAssets } from './assets';
 import { initState } from './state';
@@ -16,7 +17,7 @@ window.onload = () => {
 		event.preventDefault();
 	}
 	document.getElementById('username-input').value = window.localStorage.getItem('username') || '';
-	renderStartup();
+	render.renderStartup();
 	Promise.all([downloadAssets(),]).then(() => {
 		loadMenu();
 	});
@@ -32,12 +33,12 @@ function onGameOver() {
 function loadMenu() {
 	if ( needMenu ) {
 		needMenu = false;
-		renderInit();
-		startRenderingMenu();
+		render.renderInit();
+		render.startRenderingMenu();
 		Promise.all([
 			connect(onGameOver),
 		]).then(() => {
-			renderConnected();
+			render.renderConnected();
 			window.onkeydown = e => {
 				if ( e.key == 'Enter' ) {
 					if ( inGame == false ) {
@@ -50,7 +51,7 @@ function loadMenu() {
 						inGame = true;
 						initState();
 						initCmd();
-						startRenderGameEnter();
+						render.startRenderGameEnter();
 					}
 				}
 			}
