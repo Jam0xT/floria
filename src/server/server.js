@@ -31,7 +31,7 @@ io.on('connection', socket => {
 	socket.on(Constants.MSG_TYPES.MOUSE_DOWN, handleMouseDown);
 	socket.on(Constants.MSG_TYPES.MOUSE_UP, handleMouseUp);
 	socket.on(Constants.MSG_TYPES.PETAL_SWITCH, handlePetalSwitch);
-	socket.on(Constants.MSG_TYPES.PETAL_DISABLE, handlePetalDisable);
+	socket.on(Constants.MSG_TYPES.CMD_INV, handleCmdInv)
 	socket.on('disconnect', onDisconnect);
 });
 
@@ -42,6 +42,10 @@ function joinGame(username) {
 		console.log(`Player Joined Game with Username: ${username}`);
 		game.addPlayer(this, username);
 	}
+}
+
+function onDisconnect() {
+	game.onPlayerDisconnect(this);
 }
 
 function handleMovement(movement) {
@@ -60,10 +64,6 @@ function handlePetalSwitch(petalA, petalB, implement) {
 	game.handlePetalSwitch(this, petalA, petalB, implement);
 }
 
-function handlePetalDisable(petal) {
-	game.handlePetalDisable(this, petal);
-}
-
-function onDisconnect() {
-	game.onPlayerDisconnect(this);
+function handleCmdInv(sel, petal) {
+	game.cmdInv(sel, petal);
 }

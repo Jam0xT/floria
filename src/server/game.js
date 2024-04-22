@@ -154,6 +154,12 @@ class Game {
 		}
 	}
 
+	// cmd
+
+	cmdInv(sel, petal) {
+		
+	}
+
 	// leaderboard
 
 	getRankOnLeaderboard(playerID) { // find the rank of a player

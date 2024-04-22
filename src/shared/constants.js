@@ -3,7 +3,7 @@ module.exports = Object.freeze({
 
 	SPEED_ATTENUATION_COEFFICIENT: 0.7, // velocity *= X every tick
 
-	MSG_TYPES: { // socket.io communication
+	MSG_TYPES: { // socket.io 交流
 		JOIN_GAME: 'join_game',
 		GAME_UPDATE: 'update',
 		MOVEMENT: 'movement',
@@ -11,8 +11,8 @@ module.exports = Object.freeze({
 		MOUSE_UP: 'mouse_up',
 		GAME_OVER: 'dead',
 		PETAL_SWITCH: 'petal_switch',
-		PETAL_DISABLE: 'petal_disable',
 		LIGHTNING_PATH: 'lightning_path',
+		CMD_INV: 'cmd_inv',
 	},
 
 	MAP_WIDTH: 20000, // width of the map
