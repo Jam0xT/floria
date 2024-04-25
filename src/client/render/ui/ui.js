@@ -1,3 +1,11 @@
+const PETAL_OUTLINE_WIDTH_PERCENTAGE = 0.05;
+
+let primarySlotDisplayLength = 60, primarySlotHitboxLength = 92, primarySlotCenterY = 850;
+let secondarySlotDisplayLength = 45, secondarySlotHitboxLength = 70, secondarySlotCenterY = 930;
+let primarySlotCount = Constants.PRIMARY_SLOT_COUNT_BASE;
+let secondarySlotCount = Constants.SECONDARY_SLOT_COUNT_BASE;
+let selectedSize = 1.2;
+
 export function renderUI(me) {
 	ctx = getCtx(UILayer);
 

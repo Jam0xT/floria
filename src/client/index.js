@@ -17,8 +17,10 @@ window.onload = () => {
 		event.preventDefault();
 	}
 	document.getElementById('username-input').value = window.localStorage.getItem('username') || '';
-	render.renderStartup();
-	Promise.all([downloadAssets(),]).then(() => {
+	Promise.all([
+		downloadAssets(),
+		render.init(),
+	]).then(() => {
 		loadMenu();
 	});
 }
@@ -33,12 +35,12 @@ function onGameOver() {
 function loadMenu() {
 	if ( needMenu ) {
 		needMenu = false;
-		render.renderInit();
-		render.startRenderingMenu();
+		// render.renderInit();
+		// render.startRenderingMenu();
 		Promise.all([
 			connect(onGameOver),
 		]).then(() => {
-			render.renderConnected();
+			// render.renderConnected();
 			window.onkeydown = e => {
 				if ( e.key == 'Enter' ) {
 					if ( inGame == false ) {
@@ -51,7 +53,7 @@ function loadMenu() {
 						inGame = true;
 						initState();
 						initCmd();
-						render.startRenderGameEnter();
+						// render.startRenderGameEnter();
 					}
 				}
 			}
