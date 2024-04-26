@@ -1,4 +1,4 @@
-import animation from './animation.js';
+import animation from '../animation.js';
 
 export function renderGame() {
 	for ( let i = 1; i <= layerCount; i ++ ) {

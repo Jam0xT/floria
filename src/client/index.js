@@ -1,5 +1,4 @@
 import { connect, play } from './networking';
-// import { startRenderingMenu, startRenderGameEnter, renderConnected, renderInit, renderStartup } from './render';
 import * as render from './render';
 import { stopCapturingInput } from './input';
 import { downloadAssets } from './assets';
@@ -7,9 +6,6 @@ import { initState } from './state';
 import { initCmd } from './cmd';
 
 import './css/main.css';
-
-var inGame = false;
-var needMenu = true;
 
 window.onload = () => {
 	document.body.style.cursor = "default";
@@ -21,45 +17,50 @@ window.onload = () => {
 		downloadAssets(),
 		render.init(),
 	]).then(() => {
-		loadMenu();
+		render.load();
 	});
 }
 
 function onGameOver() {
 	stopCapturingInput();
-	inGame = false;
-	needMenu = true;
-	loadMenu();
+	// loadMenu();
 }
 
-function loadMenu() {
-	if ( needMenu ) {
-		needMenu = false;
-		// render.renderInit();
-		// render.startRenderingMenu();
-		Promise.all([
-			connect(onGameOver),
-		]).then(() => {
-			// render.renderConnected();
-			window.onkeydown = e => {
-				if ( e.key == 'Enter' ) {
-					if ( inGame == false ) {
-						let username = document.getElementById('username-input').value;
-						window.localStorage.setItem('username', username);
-						if ( username != '' )
-							play(username);
-						else
-							play('Random Flower');
-						inGame = true;
-						initState();
-						initCmd();
-						// render.startRenderGameEnter();
-					}
-				}
+function connectToServer() {
+	Promise.all([
+		connect(onGameOver),
+	]).then(() => {
+		// ...
+	}).catch(() => {
+		console.log('Connect failed.');
+		// window.setTimeout(loadMenu, 1000);
+	});
+}
+
+function joinGame() {
+	Promise.all([
+		initState(),
+		initCmd(),
+	]).then(() => {
+		let username = document.getElementById('username-input').value;
+		window.localStorage.setItem('username', username);
+		if ( username != '' )
+			play(username);
+		else
+			play('Random Flower');
+	}).catch(() => {
+		console.log('Error 0');
+	})
+}
+
+function waitForKeyPress(key) {
+	return new Promise(resolve => {
+		window.addEventListener('keydown', keyPressHandler);
+		let keyPressHandler = e => {
+			if ( e.key == key ) {
+				window.removeEventListener('keydown', keyPressHandler);
+				resolve();
 			}
-		}).catch(() => {
-			console.log('Connect failed.');
-			window.setTimeout(loadMenu, 1000);
-		});
-	}
+		}
+	});
 }

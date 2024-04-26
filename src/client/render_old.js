@@ -81,8 +81,6 @@ export function renderInit() {
 	}
 }
 
-window.addEventListener('resize', setCanvasDimensions);
-
 function setCanvasDimensions() {
 	let devicePixelRatio = window.devicePixelRatio || 1;
 	W = window.innerWidth * devicePixelRatio;
