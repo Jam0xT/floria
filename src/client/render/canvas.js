@@ -1,4 +1,4 @@
-import { setPetalPosition } from './ui/ui.js';
+// import { setPetalPosition } from './ui/ui.js';
 const layerCount = 15;
 let canvas = [0]; // canvas编号从1开始，这个0用于占位
 let W, H, wUnit, hUnit;
@@ -25,7 +25,7 @@ export {
 	setCanvasDimensions,
 };
 
-main()
+main();
 
 function getCtx(layer) {
 	return canvas[layer].getContext('2d');
@@ -58,7 +58,7 @@ function setCanvasDimensions() {
 		canvas[i].style.width = window.innerWidth + `px`;
 		canvas[i].style.height = window.innerHeight + `px`;
 	}
-	setPetalPosition();
+	// setPetalPosition();
 }
 
 function main() {
