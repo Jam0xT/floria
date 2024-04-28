@@ -108,24 +108,28 @@ const generators = {
 			yield i;
 			i -= k;
 		}
+		yield n;
 	},
 	linear_increase: function* (i, n, k) { // 从i开始每次+k直到n
 		while ( i <= n ) {
 			yield i;
 			i += k;
 		}
+		yield n;
 	},
-	exponential_decrease: function* (i, n, k) { // 从i开始每次*=k直到小于n
-		while ( i >= n ) {
+	exponential_decrease: function* (i, n, k) { // 从i开始每次*=k直到接近n
+		while ( i >= n + 0.01 ) {
 			yield i;
 			i *= k;
 		}
+		yield n;
 	},
 	exponential_increase: function* (i, n, k) { // 从i开始每次*=k直到大于n
 		while ( i <= n ) {
 			yield i;
 			i *= k;
 		}
+		yield n;
 	},
 }
 
