@@ -14,6 +14,10 @@ export function fillBackground(ctx, fillStyle) {
 	ctx.fillRect(0, 0, W, H);
 }
 
+export function clear(ctx) {
+	ctx.clearRect(0, 0, W, H);
+}
+
 export function renderRoundRect(ctx, x, y, w, h, r, r4, r1, r2, r3) { // r1 -> r4 clockwise, r4: top left | NOTE: path ONLY, no STROKE
 	if ( w < 2 * r ) {
 		w = 2 * r;
@@ -97,3 +101,32 @@ export function getNumberDisplay(x) { // 1000 -> 1.0k etc.
 export function random(min, max) {
 	return Math.floor(Math.random() * (max - min + 1)) + min;
 }
+
+const generators = {
+	linear_decrease: function* (i, n, k) { // 从i开始每次-k直到n
+		while ( i >= n ) {
+			yield i;
+			i -= k;
+		}
+	},
+	linear_increase: function* (i, n, k) { // 从i开始每次+k直到n
+		while ( i <= n ) {
+			yield i;
+			i += k;
+		}
+	},
+	exponential_decrease: function* (i, n, k) { // 从i开始每次*=k直到小于n
+		while ( i >= n ) {
+			yield i;
+			i *= k;
+		}
+	},
+	exponential_increase: function* (i, n, k) { // 从i开始每次*=k直到大于n
+		while ( i <= n ) {
+			yield i;
+			i *= k;
+		}
+	},
+}
+
+export { generators as gen };

@@ -33,6 +33,7 @@ function getCtx(layer) {
 
 function init() { // 初始化
 	create();
+	setCanvasDimensions();
 }
 
 function create() { // 创建canvas

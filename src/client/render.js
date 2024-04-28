@@ -6,5 +6,6 @@ export function init() {
 }
 
 export function loadStartScreen() {
+	animation.stop();
 	animation.play(startScreen.main);
 }
