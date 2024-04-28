@@ -17,7 +17,7 @@ window.onload = () => {
 		downloadAssets(),
 		render.init(),
 	]).then(() => {
-		render.load();
+		render.loadStartScreen();
 	});
 }
 

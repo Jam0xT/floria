@@ -1,3 +1,5 @@
+import {W, H} from './canvas.js';
+
 export function renderHitbox(radius) {
 	ctx.beginPath();
 	ctx.arc(0, 0, radius, 0, 2 * Math.PI);
