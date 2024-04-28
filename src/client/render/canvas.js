@@ -1,17 +1,21 @@
 import { setPetalPosition } from './ui/ui.js';
 const layerCount = 15;
-let canvas = [0];
+let canvas = [0]; // canvas编号从1开始，这个0用于占位
 let W, H, wUnit, hUnit;
 let layerSettings = { 
-	backgroundLayer: [1],
-	dropLayer: [2],
-	petalLayer: [3, 4],
-	mobLayer: [5],
-	playerLayer: [6],
-	effectLayer: [7],
-	shadeLayer: [8],
-	UILayer: [9],
-	menuLayer: [10, 11, 12, 13],
+	game: {
+		background: [1],
+		drop: [2],
+		petal: [3, 4],
+		mob: [5],
+		player: [6],
+		effect: [7],
+		shade: [8],
+		UI: [9],
+	},
+	startScreen: {
+		background: [1],
+	}
 };
 export {
 	layerSettings,

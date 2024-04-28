@@ -1,6 +1,6 @@
 import {W, H} from './canvas.js';
 
-export function renderHitbox(radius) {
+export function renderHitbox(ctx, radius) {
 	ctx.beginPath();
 	ctx.arc(0, 0, radius, 0, 2 * Math.PI);
 	ctx.closePath();
@@ -9,12 +9,12 @@ export function renderHitbox(radius) {
 	ctx.stroke();
 }
 
-export function fillBackground(fillStyle) {
+export function fillBackground(ctx, fillStyle) {
 	ctx.fillStyle = fillStyle;
 	ctx.fillRect(0, 0, W, H);
 }
 
-export function renderRoundRect(x, y, w, h, r, r4, r1, r2, r3) { // r1 -> r4 clockwise, r4: top left | NOTE: path ONLY, no STROKE
+export function renderRoundRect(ctx, x, y, w, h, r, r4, r1, r2, r3) { // r1 -> r4 clockwise, r4: top left | NOTE: path ONLY, no STROKE
 	if ( w < 2 * r ) {
 		w = 2 * r;
 	}
@@ -46,7 +46,7 @@ export function renderRoundRect(x, y, w, h, r, r4, r1, r2, r3) { // r1 -> r4 clo
 	ctx.closePath();
 }
 
-export function renderText(alpha, text, x, y, fontSize, textAlign) {
+export function renderText(ctx, alpha, text, x, y, fontSize, textAlign) {
 	if ( fontSize ) {
 		ctx.lineWidth = fontSize * 0.125;
 		ctx.font = `${fontSize}px Ubuntu`;
