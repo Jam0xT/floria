@@ -24,8 +24,6 @@ class Menu {
 		this.transparency = transparency;
 
 		this.transparencyGen = undefined;
-
-		// this.test = 1;
 	}
 
 	append(child) {
@@ -36,7 +34,6 @@ class Menu {
 		this.translate(ctx);
 		let alpha = ctx.globalAlpha;
 
-		// console.log(this.transparencyGen);
 		if ( this.transparencyGen ) {
 			this.transparencyGen.val = this.transparencyGen.gen.next();
 			if ( !this.transparencyGen.val.done ) {
@@ -60,7 +57,6 @@ class Menu {
 		});
 
 		ctx.globalAlpha = alpha;
-		// this.translate(ctx, true);
 	}
 
 	translate(ctx, revert = false) {

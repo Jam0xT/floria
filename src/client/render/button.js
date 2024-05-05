@@ -113,7 +113,6 @@ class Button {
 		ctx.fillStyle = this.fillColor;
 		ctx.fill();
 		this.renderFn(this.x, this.y);
-		// this.translate(ctx, true);
 	}
 
 	translate(ctx, revert = false) {
