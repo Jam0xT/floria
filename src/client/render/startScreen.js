@@ -27,42 +27,7 @@ function init() {
         gen: util.gen.exponential_decrease(100, 0, 0.85),
         val: {},
     };
-	buttons = {
-		tutorial: new Button(
-			Length.w(1).sub(Length.u(20)), Length.h(1).sub(Length.u(20)),
-			{x: 'center', y: 'center'},
-			Length.u(10), Length.u(10),
-			((x, y) => {
-				util.renderText(ctx, ctx.globalAlpha, '?', x, y.add(Length.u(7)), Length.u(20));
-			}),
-		),
-	};
-	menus = {
-		tutorial: new Menu(
-			Length.w(1).sub(Length.u(20)), Length.h(1).sub(Length.u(50)),
-			{x: 'center', y: 'end'},
-			Length.u(10), Length.u(10),
-			((x, y) => {
-				util.renderText(ctx, ctx.globalAlpha, '?', x, y.add(Length.u(7)), Length.u(20));
-			}),
-			styles.menu.default,
-			function() {
-				this.transparencyGen = {
-					gen: util.gen.exponential_decrease(this.transparency, 0, 0.8),
-					val: {},
-				};
-			},
-			function() {
-				this.transparencyGen = {
-					gen: util.gen.logarithmic_increase(this.transparency, 100, 0.8),
-					val: {},
-				};	
-			},
-			100
-		),
-	};
-	buttons.tutorial.setOnHoverFn(menus.tutorial.onOpenFn.bind(menus.tutorial),
-		menus.tutorial.onCloseFn.bind(menus.tutorial));
+	initTutorial();
 }
 
 function main() {
@@ -88,4 +53,39 @@ function main() {
 	});
 
     animation.play(main);
+}
+
+function initTutorial() {
+	buttons.tutorial = new Button(
+		Length.w(1).sub(Length.u(20)), Length.h(1).sub(Length.u(20)),
+		{x: 'center', y: 'center'},
+		Length.u(10), Length.u(10),
+		((x, y) => {
+			util.renderText(ctx, ctx.globalAlpha, '?', x, y.add(Length.u(7)), Length.u(20));
+		}),
+	),
+	menus.tutorial = new Menu(
+		Length.w(1).sub(Length.u(20)), Length.h(1).sub(Length.u(50)),
+		{x: 'center', y: 'end'},
+		Length.u(10), Length.u(10),
+		((x, y) => {
+			util.renderText(ctx, ctx.globalAlpha, '?', x, y.add(Length.u(7)), Length.u(20));
+		}),
+		styles.menu.default,
+		function() {
+			this.transparencyGen = {
+				gen: util.gen.exponential_decrease(this.transparency, 0, 0.8),
+				val: {},
+			};
+		},
+		function() {
+			this.transparencyGen = {
+				gen: util.gen.logarithmic_increase(this.transparency, 100, 0.8),
+				val: {},
+			};	
+		},
+		100
+	),
+	buttons.tutorial.setOnHoverFn(menus.tutorial.onOpenFn.bind(menus.tutorial),
+		menus.tutorial.onCloseFn.bind(menus.tutorial));
 }
