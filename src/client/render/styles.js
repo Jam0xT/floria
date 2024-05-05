@@ -3,6 +3,26 @@ export default {
 		background: "#1EA761",
 	},
 
+	button: {
+		default: {
+			fill: 'rgb(196, 196, 196)', // 一种灰色
+			outline: 'rgb(100, 100, 100)', // 深灰色
+			hover: 'rgb(210, 210, 210)', // 浅一点的灰色
+			click: 'rgb(150, 150, 150)', // 有点深的灰色
+			outline_width: 5, // 单位：u
+			arcRadius: 5, // 单位：u
+		},
+	},
+
+	menu: {
+		default: { // 纯透明
+			fill: 'rgba(0, 0, 0)',
+			outline: 'rgb(0, 0, 0)',
+			outline_width: 0, // 单位：u
+			arcRadius: 3, // 单位：u
+		},
+	},
+
 	rarity_color: [ // 稀有度颜色
 		'rgb(126, 239, 109)', // common
 		'rgb(255, 230, 93)', // unusual

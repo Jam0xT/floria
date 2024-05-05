@@ -1,24 +1,40 @@
-import {W, H} from './canvas.js';
+import { W, H, Length } from './render/canvas.js';
 
-export function renderHitbox(ctx, radius) {
+export {
+	renderHitbox,
+	fillBackground,
+	clear,
+	renderRoundRect,
+	renderText,
+	getNumberDisplay,
+	random,
+	inRange,
+	generators as gen,
+	setCursorStyle,
+	nop,
+	parseTransparency,
+}
+
+function renderHitbox(ctx, radius) { // 不应该在这个文件
 	ctx.beginPath();
 	ctx.arc(0, 0, radius, 0, 2 * Math.PI);
 	ctx.closePath();
 	ctx.strokeStyle = '#242424';
-	ctx.lineWidth = hpx * 1;
+	ctx.lineWidth = 1;
 	ctx.stroke();
 }
 
-export function fillBackground(ctx, fillStyle) {
+function fillBackground(ctx, fillStyle) {
 	ctx.fillStyle = fillStyle;
 	ctx.fillRect(0, 0, W, H);
 }
 
-export function clear(ctx) {
+function clear(ctx) {
 	ctx.clearRect(0, 0, W, H);
 }
 
-export function renderRoundRect(ctx, x, y, w, h, r, r4, r1, r2, r3) { // r1 -> r4 clockwise, r4: top left | NOTE: path ONLY, no STROKE
+function renderRoundRect(ctx, x, y, w, h, r, r4 = true, r1 = true, r2 = true, r3 = true) { // r1 -> r4 顺时针, r4: 左上, 只有path, r1-4表示这些角是否为圆角
+	[x, y, w, h, r] = Length.parseAll([x, y, w, h, r]);
 	if ( w < 2 * r ) {
 		w = 2 * r;
 	}
@@ -50,7 +66,9 @@ export function renderRoundRect(ctx, x, y, w, h, r, r4, r1, r2, r3) { // r1 -> r
 	ctx.closePath();
 }
 
-export function renderText(ctx, alpha, text, x, y, fontSize, textAlign) {
+function renderText(ctx, alpha, text, x, y, fontSize, textAlign = 'center', style = 'white') {
+	[x, y, fontSize] = Length.parseAll([x, y, fontSize]);
+
 	if ( fontSize ) {
 		ctx.lineWidth = fontSize * 0.125;
 		ctx.font = `${fontSize}px Ubuntu`;
@@ -63,24 +81,19 @@ export function renderText(ctx, alpha, text, x, y, fontSize, textAlign) {
 	ctx.strokeStyle = "black";
 	ctx.strokeText(text, x, y);
 
-	if (alpha == 0) {
-		ctx.globalAlpha = alpha;
-	} else {
-		ctx.globalAlpha = 1;
-	}
+	ctx.globalAlpha = alpha;
+	
 	ctx.globalCompositeOperation = 'destination-out';
 	ctx.fillStyle = "white";
 	ctx.fillText(text, x, y);
 
 	ctx.globalAlpha = alpha;
 	ctx.globalCompositeOperation = 'source-over';
-	ctx.fillStyle = "white";
+	ctx.fillStyle = style;
 	ctx.fillText(text, x, y);
-
-	ctx.globalAlpha = 1;
 }
 
-export function getNumberDisplay(x) { // 1000 -> 1.0k etc.
+function getNumberDisplay(x) { // 1000 -> 1.0k etc.
 	if ( x >= 10**10 ) {
 		const digitNumber = Math.floor(Math.log10(x));
 		x = Math.floor(x / 10**(digitNumber - 1)) / 10;
@@ -98,8 +111,12 @@ export function getNumberDisplay(x) { // 1000 -> 1.0k etc.
 	return x;
 }
 
-export function random(min, max) {
+function random(min, max) {
 	return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function inRange(x, l, r) {
+	return ( x >= l ) && ( x <= r );
 }
 
 const generators = {
@@ -125,12 +142,31 @@ const generators = {
 		yield n;
 	},
 	exponential_increase: function* (i, n, k) { // 从i开始每次*=k直到大于n
+		if ( i == 0 ) {
+			i = 0.01;
+		}
 		while ( i <= n ) {
 			yield i;
 			i *= k;
 		}
 		yield n;
 	},
+	logarithmic_increase: function* (i, n, k) { // 对数增长（把指数衰减翻转）
+		while ( i <= n ) {
+			yield i;
+			i = n - (n - i) * k;
+		}
+		yield n;
+	},
 }
 
-export { generators as gen };
+function setCursorStyle(style) {
+	// default, pointer, wait, crosshair, not-allowed, zoom-in, grab
+	document.body.style.cursor = style;
+}
+
+function nop() {}
+
+function parseTransparency(transparency) {
+	return (1.00 - transparency * 0.01);
+}

@@ -1,31 +1,20 @@
 // import { setPetalPosition } from './ui/ui.js';
-const layerCount = 15;
+import Constants from './constants.js';
+
+const layerCount = Constants.canvas.layerCount;
+const layerSettings = Constants.canvas.layerSettings;
+
 let canvas = [0]; // canvas编号从1开始，这个0用于占位
-let W, H, wUnit, hUnit;
-let layerSettings = { 
-	game: {
-		background: [1],
-		drop: [2],
-		petal: [3, 4],
-		mob: [5],
-		player: [6],
-		effect: [7],
-		shade: [8],
-		UI: [9],
-	},
-	startScreen: {
-		background: [1],
-	}
-};
+let W, H, unitLength;
+
 export {
 	layerSettings,
-	W, H, wUnit, hUnit,
+	W, H, unitLength,
 	getCtx,
 	init,
 	setCanvasDimensions,
+	Length
 };
-
-main();
 
 function getCtx(layer) {
 	return canvas[layer].getContext('2d');
@@ -34,6 +23,7 @@ function getCtx(layer) {
 function init() { // 初始化
 	create();
 	setCanvasDimensions();
+	window.addEventListener('resize', setCanvasDimensions);
 }
 
 function create() { // 创建canvas
@@ -48,20 +38,54 @@ function create() { // 创建canvas
 }
 
 function setCanvasDimensions() {
-	let devicePixelRatio = window.devicePixelRatio || 1;
+	const devicePixelRatio = window.devicePixelRatio || 1;
 	W = window.innerWidth * devicePixelRatio;
 	H = window.innerHeight * devicePixelRatio;
-	wUnit = W / 1000;
-	hUnit = H / 1000;
+	unitLength = Math.max(0.5, W / 1000, H / 1000);
 	for ( let i = 1; i <= layerCount; i ++ ) {
 		canvas[i].width = W;
 		canvas[i].height = H;
 		canvas[i].style.width = window.innerWidth + `px`;
 		canvas[i].style.height = window.innerHeight + `px`;
 	}
-	// setPetalPosition();
 }
 
-function main() {
-	window.addEventListener('resize', setCanvasDimensions);
+class Length {
+	constructor(W_, H_, unitLength_ = 0) {
+		this.w = W_;
+		this.h = H_;
+		this.unitLength = unitLength_;
+	}
+
+	parse() {
+		return this.w * W + this.h * H + this.unitLength * unitLength;
+	}
+
+	static parseAll(arr) {
+		return arr.map(l => l.parse());
+	}
+
+	static u(unitLength_ = 0) {
+		return new Length(0, 0, unitLength_);
+	}
+	
+	static w(W_, unitLength_ = 0) {
+		return new Length(W_, 0, unitLength_);
+	}
+
+	static h(H_, unitLength_ = 0) {
+		return new Length(0, H_, unitLength_);
+	}
+
+	add(l) {
+		return new Length(this.w + l.w, this.h + l.h, this.unitLength + l.unitLength);
+	}
+
+	sub(l) {
+		return new Length(this.w - l.w, this.h - l.h, this.unitLength - l.unitLength);
+	}
+
+	mul(k) {
+		return new Length(this.w * k, this.h * k, this.unitLength * k);
+	}
 }

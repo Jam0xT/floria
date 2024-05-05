@@ -1,8 +1,13 @@
 import { connect, play } from './networking';
+
 import * as render from './render';
+
 import { stopCapturingInput } from './input';
+
 import { downloadAssets } from './assets';
+
 import { initState } from './state';
+
 import { initCmd } from './cmd';
 
 import './css/main.css';
@@ -17,6 +22,7 @@ window.onload = () => {
 		downloadAssets(),
 		render.init(),
 	]).then(() => {
+		document.getElementById('text-loading').classList.add('hidden');
 		render.loadStartScreen();
 	});
 }
