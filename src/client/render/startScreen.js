@@ -77,7 +77,7 @@ function initTutorial() {
 		{x: 'end', y: 'end'},
 		Length.u(60), Length.u(40),
 		function(ctx_) { // 渲染函数
-			util.Tf(ctx, this.x.sub(this.rx.mul(2)).add(Length.u(5)), this.y.sub(this.ry.mul(2)).add(Length.u(13)));
+			util.Tl(ctx, this.x.sub(this.rx).add(Length.u(5)), this.y.sub(this.ry).add(Length.u(13)));
 			util.renderText(ctx_, ctx_.globalAlpha,
 				'Tutorial',
 				Length.u(0), Length.u(0),
@@ -85,7 +85,7 @@ function initTutorial() {
 				'left',
 				'yellow',
 			);
-			util.Tf(ctx, this.x.sub(this.rx.mul(2)).add(Length.u(5)), this.y.sub(this.ry.mul(2)).add(Length.u(23)));
+			util.Tl(ctx, Length.u(0), Length.u(10));
 			util.renderText(ctx_, ctx_.globalAlpha,
 				'Is for nobs. hehe',
 				Length.u(0), Length.u(0),

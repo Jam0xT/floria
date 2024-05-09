@@ -96,6 +96,6 @@ class Menu {
 			translateX.mul(-1)
 			translateY.mul(-1);
 		}
-		util.Tf(ctx, translateX, translateY);
+		util.Tl(ctx, translateX, translateY);
 	}
 }
