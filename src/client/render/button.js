@@ -103,15 +103,21 @@ class Button {
 
 	render(ctx) {
 		this.translate(ctx);
+
 		util.renderRoundRect(ctx,
 			this.x.sub(this.rx), this.y.sub(this.ry),
 			this.rx.mul(2), this.ry.mul(2),
-			Length.u(this.style.arcRadius),
+			[Length.u(this.style.arcRadius)],
 		);
-		ctx.lineWidth = this.style.outline_width;
-		ctx.stroke();
+
+		if ( this.style.outline_width != 0 ) {
+			ctx.lineWidth = this.style.outline_width;
+			ctx.stroke();
+		}
+
 		ctx.fillStyle = this.fillColor;
 		ctx.fill();
+		
 		this.renderFn(this.x, this.y);
 	}
 
@@ -129,6 +135,6 @@ class Button {
 			translateX = -translateX;
 			translateY = -translateY;
 		}
-		ctx.translate(translateX, translateY);
+		ctx.transform(1, 0, 0, 1, translateX, translateY);
 	}
 }

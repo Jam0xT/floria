@@ -31,8 +31,8 @@ class Menu {
 	}
 
 	render(ctx) {
-		this.translate(ctx);
 		let alpha = ctx.globalAlpha;
+		this.translate(ctx);
 
 		if ( this.transparencyGen ) {
 			this.transparencyGen.val = this.transparencyGen.gen.next();
@@ -45,12 +45,17 @@ class Menu {
 		util.renderRoundRect(ctx,
 			this.x.sub(this.rx), this.y.sub(this.ry),
 			this.rx.mul(2), this.ry.mul(2),
-			Length.u(this.style.arcRadius),
+			[Length.u(this.style.arcRadius)],
 		);
-		ctx.lineWidth = this.style.outline_width;
-		ctx.stroke();
+
+		if ( this.style.outline_width != 0 ) {
+			ctx.lineWidth = this.style.outline_width;
+			ctx.stroke();
+		}
+
 		ctx.fillStyle = this.fillColor;
 		ctx.fill();
+		
 		this.renderFn(this.x, this.y);
 		this.children.forEach(child => {
 			child.render();
@@ -73,6 +78,6 @@ class Menu {
 			translateX = -translateX;
 			translateY = -translateY;
 		}
-		ctx.translate(translateX, translateY);
+		ctx.transform(1, 0, 0, 1, translateX, translateY);
 	}
 }

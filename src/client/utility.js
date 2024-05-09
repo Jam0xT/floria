@@ -33,37 +33,11 @@ function clear(ctx) {
 	ctx.clearRect(0, 0, W, H);
 }
 
-function renderRoundRect(ctx, x, y, w, h, r, r4 = true, r1 = true, r2 = true, r3 = true) { // r1 -> r4 顺时针, r4: 左上, 只有path, r1-4表示这些角是否为圆角
-	[x, y, w, h, r] = Length.parseAll([x, y, w, h, r]);
-	if ( w < 2 * r ) {
-		w = 2 * r;
-	}
-	if ( h < 2 * r ) {
-		h = 2 * r;
-	}
+function renderRoundRect(ctx, x, y, w, h, r) {
+	[x, y, w, h] = Length.parseAll([x, y, w, h]);
+	r = Length.parseAll(r);
 	ctx.beginPath();
-	ctx.moveTo(x+r, y);
-	if ( r1 ) {
-	    ctx.arcTo(x+w, y, x+w, y+h, r);
-	} else {
-		ctx.lineTo(x+w, y);
-	}
-	if ( r2 ) {
-		ctx.arcTo(x+w, y+h, x, y+h, r);
-	} else {
-		ctx.lineTo(x+w, y+h);
-	}
-	if ( r3 ) {
-    	ctx.arcTo(x, y+h, x, y, r);
-	} else {
-		ctx.lineTo(x, y+h);
-	}
-	if ( r4 ) {
-    	ctx.arcTo(x, y, x+w, y, r);
-	} else {
-		ctx.lineTo(x, y);
-	}
-	ctx.closePath();
+	ctx.roundRect(x, y, w, h, r);
 }
 
 function renderText(ctx, alpha, text, x, y, fontSize, textAlign = 'center', style = 'white') {

@@ -15,8 +15,8 @@ export default {
 	},
 
 	menu: {
-		default: { // 纯透明
-			fill: 'rgba(0, 0, 0)',
+		black: { // 半透明黑
+			fill: 'rgba(0, 0, 0, 0.7)',
 			outline: 'rgb(0, 0, 0)',
 			outline_width: 0, // 单位：u
 			arcRadius: 3, // 单位：u

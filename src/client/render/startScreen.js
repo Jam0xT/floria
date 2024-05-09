@@ -71,7 +71,7 @@ function initTutorial() {
 		((x, y) => {
 			util.renderText(ctx, ctx.globalAlpha, '?', x, y.add(Length.u(7)), Length.u(20));
 		}),
-		styles.menu.default,
+		styles.menu.black,
 		function() {
 			this.transparencyGen = {
 				gen: util.gen.exponential_decrease(this.transparency, 0, 0.8),
