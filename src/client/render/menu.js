@@ -55,25 +55,26 @@ class Menu {
 
 		ctx.fillStyle = this.fillColor;
 		ctx.fill();
-		
-		this.renderFn(this.x, this.y);
+
+		this.renderFn.bind(this)();
 		this.children.forEach(child => {
 			child.render();
 		});
 
 		ctx.globalAlpha = alpha;
+		this.translate(ctx, true);
 	}
 
 	translate(ctx, revert = false) {
 		let translateX = 0, translateY = 0;
 		if ( this.align.x == 'start' )
-			translateX = this.rx;
+			translateX = this.rx.parse();
 		if ( this.align.x == 'end' )
-			translateX = -this.rx;
+			translateX = -this.rx.parse();
 		if ( this.align.y == 'start' )
-			translateY = this.ry;
+			translateY = this.ry.parse();
 		if ( this.align.y == 'end' )
-			translateY = -this.ry;
+			translateY = -this.ry.parse();
 		if ( revert ) {
 			translateX = -translateX;
 			translateY = -translateY;

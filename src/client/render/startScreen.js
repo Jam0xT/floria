@@ -60,17 +60,27 @@ function initTutorial() {
 		Length.w(1).sub(Length.u(20)), Length.h(1).sub(Length.u(20)),
 		{x: 'center', y: 'center'},
 		Length.u(10), Length.u(10),
-		((x, y) => {
-			util.renderText(ctx, ctx.globalAlpha, '?', x, y.add(Length.u(7)), Length.u(20));
-		}),
+		function() {
+			util.renderText(ctx, ctx.globalAlpha,
+				'?',
+				this.x, this.y.add(Length.u(7)),
+				Length.u(20),
+			);
+		},
 	),
 	menus.tutorial = new Menu(
-		Length.w(1).sub(Length.u(20)), Length.h(1).sub(Length.u(50)),
-		{x: 'center', y: 'end'},
-		Length.u(10), Length.u(10),
-		((x, y) => {
-			util.renderText(ctx, ctx.globalAlpha, '?', x, y.add(Length.u(7)), Length.u(20));
-		}),
+		Length.w(1).sub(Length.u(10)), Length.h(1).sub(Length.u(40)),
+		{x: 'end', y: 'end'},
+		Length.u(60), Length.u(40),
+		function() {
+			util.renderText(ctx, ctx.globalAlpha,
+				'Tutorial',
+				this.x.sub(this.rx).add(Length.u(5)), this.y.sub(this.ry).add(Length.u(15)),
+				Length.u(10),
+				'left',
+				'yellow',
+			);
+		},
 		styles.menu.black,
 		function() {
 			this.transparencyGen = {
