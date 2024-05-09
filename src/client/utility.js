@@ -13,6 +13,8 @@ export {
 	setCursorStyle,
 	nop,
 	parseTransparency,
+	Tf, Tf0,
+	
 }
 
 function renderHitbox(ctx, radius) { // 不应该在这个文件
@@ -143,4 +145,13 @@ function nop() {}
 
 function parseTransparency(transparency) {
 	return (1.00 - transparency * 0.01);
+}
+
+function Tf(ctx, x, y) {
+	[x, y] = Length.parseAll([x, y]);
+	ctx.setTransform(1, 0, 0, 1, x, y);
+}
+
+function Tf0(ctx) {
+	ctx.setTransform(1, 0, 0, 1, 0, 0);
 }

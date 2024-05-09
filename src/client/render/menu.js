@@ -24,6 +24,8 @@ class Menu {
 		this.transparency = transparency;
 
 		this.transparencyGen = undefined;
+		this.xGen = undefined;
+		this.yGen = undefined;
 	}
 
 	append(child) {
@@ -32,7 +34,7 @@ class Menu {
 
 	render(ctx) {
 		let alpha = ctx.globalAlpha;
-		this.translate(ctx);
+		this.alignCenter(ctx);
 
 		if ( this.transparencyGen ) {
 			this.transparencyGen.val = this.transparencyGen.gen.next();
@@ -40,6 +42,21 @@ class Menu {
 				this.transparency = this.transparencyGen.val.value;
 			}
 		}
+
+		if ( this.xGen ) {
+			this.xGen.val = this.xGen.gen.next();
+			if ( !this.xGen.val.done ) {
+				this.x = this.xGen.val.value;
+			}
+		}
+
+		if ( this.yGen ) {
+			this.yGen.val = this.yGen.gen.next();
+			if ( !this.yGen.val.done ) {
+				this.y = this.yGen.val.value;
+			}
+		}
+
 		ctx.globalAlpha = util.parseTransparency(this.transparency);
 
 		util.renderRoundRect(ctx,
@@ -56,29 +73,29 @@ class Menu {
 		ctx.fillStyle = this.fillColor;
 		ctx.fill();
 
-		this.renderFn.bind(this)();
+		this.renderFn.bind(this)(ctx);
 		this.children.forEach(child => {
 			child.render();
 		});
 
 		ctx.globalAlpha = alpha;
-		this.translate(ctx, true);
+		util.Tf0(ctx);
 	}
 
-	translate(ctx, revert = false) {
-		let translateX = 0, translateY = 0;
+	alignCenter(ctx, revert = false) {
+		let translateX = Length.u(0), translateY = Length.u(0);
 		if ( this.align.x == 'start' )
-			translateX = this.rx.parse();
+			translateX = this.rx;
 		if ( this.align.x == 'end' )
-			translateX = -this.rx.parse();
+			translateX = this.rx.mul(-1);
 		if ( this.align.y == 'start' )
-			translateY = this.ry.parse();
+			translateY = this.ry;
 		if ( this.align.y == 'end' )
-			translateY = -this.ry.parse();
+			translateY = this.ry.mul(-1);
 		if ( revert ) {
-			translateX = -translateX;
-			translateY = -translateY;
+			translateX.mul(-1)
+			translateY.mul(-1);
 		}
-		ctx.transform(1, 0, 0, 1, translateX, translateY);
+		util.Tf(ctx, translateX, translateY);
 	}
 }

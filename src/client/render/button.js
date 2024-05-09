@@ -1,28 +1,21 @@
 import styles from './styles.js';
 import { Length } from './canvas.js';
+import { Menu } from './menu.js';
 import * as util from '../utility.js';
 
 export {
 	Button
 };
 
-class Button {
-	constructor(x, y, align, rx, ry, renderFn, style = styles.button.default) {
-		this.x = x;
-		this.y = y; // 坐标
-		this.align = align; // 对齐方式
-		this.rx = rx; // 横向半径
-		this.ry = ry; // 竖向半径
-		this.renderFn = renderFn; // 渲染除了纯色填充之外的图案
-		this.style = style; // 样式
-
+class Button extends Menu {
+	constructor(x, y, align, rx, ry, renderFn, style, onOpenFn, onCloseFn, transparency = 0) {
+		super(x, y, align, rx, ry, renderFn, style, onOpenFn, onCloseFn, transparency);
 		this.isTrigger = false; // 是否为开关式按钮
 		this.onTriggerFn = util.nop; // 触发/开关式按钮开启
 		this.offTriggerFn = util.nop; // 开关式按钮关闭
 		this.onHoverFn = util.nop;
 		this.offHoverFn = util.nop;
 
-		this.fillColor = this.style.fill; // 填充颜色
 		this.on = false; // 切换式按钮是否按下
 		this.hover = false;
 		this.init();
@@ -102,40 +95,6 @@ class Button {
 	}
 
 	render(ctx) {
-		this.translate(ctx);
-
-		util.renderRoundRect(ctx,
-			this.x.sub(this.rx), this.y.sub(this.ry),
-			this.rx.mul(2), this.ry.mul(2),
-			[Length.u(this.style.arcRadius)],
-		);
-
-		if ( this.style.outline_width != 0 ) {
-			ctx.lineWidth = this.style.outline_width;
-			ctx.stroke();
-		}
-
-		ctx.fillStyle = this.fillColor;
-		ctx.fill();
-
-		this.renderFn.bind(this)();
-		this.translate(ctx, true);
-	}
-
-	translate(ctx, revert = false) {
-		let translateX = 0, translateY = 0;
-		if ( this.align.x == 'start' )
-			translateX = this.rx.parse();
-		if ( this.align.x == 'end' )
-			translateX = -this.rx.parse();
-		if ( this.align.y == 'start' )
-			translateY = this.ry.parse();
-		if ( this.align.y == 'end' )
-			translateY = -this.ry.parse();
-		if ( revert ) {
-			translateX = -translateX;
-			translateY = -translateY;
-		}
-		ctx.transform(1, 0, 0, 1, translateX, translateY);
+		super.render(ctx);
 	}
 }

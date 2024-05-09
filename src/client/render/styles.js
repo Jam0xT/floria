@@ -4,13 +4,13 @@ export default {
 	},
 
 	button: {
-		default: {
+		tutorial: {
 			fill: 'rgb(196, 196, 196)', // 一种灰色
 			outline: 'rgb(100, 100, 100)', // 深灰色
 			hover: 'rgb(210, 210, 210)', // 浅一点的灰色
 			click: 'rgb(150, 150, 150)', // 有点深的灰色
-			outline_width: 5, // 单位：u
-			arcRadius: 5, // 单位：u
+			outline_width: 6, // 单位：u
+			arcRadius: 2, // 单位：u
 		},
 	},
 

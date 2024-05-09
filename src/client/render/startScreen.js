@@ -60,26 +60,40 @@ function initTutorial() {
 		Length.w(1).sub(Length.u(20)), Length.h(1).sub(Length.u(20)),
 		{x: 'center', y: 'center'},
 		Length.u(10), Length.u(10),
-		function() {
-			util.renderText(ctx, ctx.globalAlpha,
+		function(ctx_) {
+			util.renderText(ctx_, ctx_.globalAlpha,
 				'?',
 				this.x, this.y.add(Length.u(7)),
 				Length.u(20),
 			);
 		},
+		styles.button.tutorial,
+		util.nop(),
+		util.nop(),
+		0,
 	),
 	menus.tutorial = new Menu(
 		Length.w(1).sub(Length.u(10)), Length.h(1).sub(Length.u(40)),
 		{x: 'end', y: 'end'},
 		Length.u(60), Length.u(40),
-		function() {
-			util.renderText(ctx, ctx.globalAlpha,
+		function(ctx_) { // 渲染函数
+			util.Tf(ctx, this.x.sub(this.rx.mul(2)).add(Length.u(5)), this.y.sub(this.ry.mul(2)).add(Length.u(13)));
+			util.renderText(ctx_, ctx_.globalAlpha,
 				'Tutorial',
-				this.x.sub(this.rx).add(Length.u(5)), this.y.sub(this.ry).add(Length.u(15)),
+				Length.u(0), Length.u(0),
 				Length.u(10),
 				'left',
 				'yellow',
 			);
+			util.Tf(ctx, this.x.sub(this.rx.mul(2)).add(Length.u(5)), this.y.sub(this.ry.mul(2)).add(Length.u(23)));
+			util.renderText(ctx_, ctx_.globalAlpha,
+				'Is for nobs. hehe',
+				Length.u(0), Length.u(0),
+				Length.u(8),
+				'left',
+				'white',
+			);
+			util.Tf0(ctx);
 		},
 		styles.menu.black,
 		function() {
