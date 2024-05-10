@@ -33,29 +33,9 @@ class Menu {
 	}
 
 	render(ctx) {
-		let alpha = ctx.globalAlpha;
+		ctx.save();
 		this.alignCenter(ctx);
-
-		if ( this.transparencyGen ) {
-			this.transparencyGen.val = this.transparencyGen.gen.next();
-			if ( !this.transparencyGen.val.done ) {
-				this.transparency = this.transparencyGen.val.value;
-			}
-		}
-
-		if ( this.xGen ) {
-			this.xGen.val = this.xGen.gen.next();
-			if ( !this.xGen.val.done ) {
-				this.x = this.xGen.val.value;
-			}
-		}
-
-		if ( this.yGen ) {
-			this.yGen.val = this.yGen.gen.next();
-			if ( !this.yGen.val.done ) {
-				this.y = this.yGen.val.value;
-			}
-		}
+		this.handleGen();
 
 		ctx.globalAlpha = util.parseTransparency(this.transparency);
 
@@ -78,8 +58,7 @@ class Menu {
 			child.render();
 		});
 
-		ctx.globalAlpha = alpha;
-		util.Tf0(ctx);
+		ctx.restore();
 	}
 
 	alignCenter(ctx, revert = false) {
@@ -93,9 +72,33 @@ class Menu {
 		if ( this.align.y == 'end' )
 			translateY = this.ry.mul(-1);
 		if ( revert ) {
-			translateX.mul(-1)
+			translateX.mul(-1);
 			translateY.mul(-1);
 		}
 		util.Tl(ctx, translateX, translateY);
+	}
+
+	handleGen() {
+		if ( this.transparencyGen ) {
+			this.transparencyGen.val = this.transparencyGen.gen.next();
+			if ( !this.transparencyGen.val.done ) {
+				this.transparency = this.transparencyGen.val.value;
+			}
+		}
+
+		if ( this.xGen ) {
+			this.xGen.val = this.xGen.gen.next();
+			if ( !this.xGen.val.done ) {
+				this.x.unitLength = this.xGen.val.value;
+			}
+		}
+
+		if ( this.yGen ) {
+			this.yGen.val = this.yGen.gen.next();
+			if ( !this.yGen.val.done ) {
+				this.y.unitLength = this.yGen.val.value;
+				console.log(this.yGen, this.y.unitLength);
+			}
+		}
 	}
 }

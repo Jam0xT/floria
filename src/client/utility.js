@@ -13,7 +13,7 @@ export {
 	setCursorStyle,
 	nop,
 	parseTransparency,
-	Tl, Tf0,
+	Tl, Tf, Tf0,
 }
 
 function renderHitbox(ctx, radius) { // 不应该在这个文件
@@ -109,20 +109,10 @@ const generators = {
 		}
 		yield n;
 	},
-	exponential_decrease: function* (i, n, k) { // 从i开始每次*=k直到接近n
-		while ( i >= n + 0.01 ) {
+	exponential_decrease: function* (i, n, k) { // 指数衰减
+		while ( i - n >= 0.01 ) {
 			yield i;
-			i *= k;
-		}
-		yield n;
-	},
-	exponential_increase: function* (i, n, k) { // 从i开始每次*=k直到大于n
-		if ( i == 0 ) {
-			i = 0.01;
-		}
-		while ( i <= n ) {
-			yield i;
-			i *= k;
+			i = n + (i - n) * k;
 		}
 		yield n;
 	},
@@ -149,6 +139,10 @@ function parseTransparency(transparency) {
 function Tl(ctx, x, y) {
 	[x, y] = Length.parseAll([x, y]);
 	ctx.translate(x, y);
+}
+
+function Tf(ctx, x, y) {
+	ctx.transform(1, 0, 0, 1, x, y);
 }
 
 function Tf0(ctx) {

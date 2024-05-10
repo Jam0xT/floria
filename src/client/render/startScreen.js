@@ -24,7 +24,7 @@ export {
 
 function init() {
     transparency = {
-        gen: util.gen.exponential_decrease(100, 0, 0.85),
+        gen: util.gen.exponential_decrease(100, 0, 0.9),
         val: {},
     };
 	initTutorial();
@@ -57,7 +57,7 @@ function main() {
 
 function initTutorial() {
 	buttons.tutorial = new Button(
-		Length.w(1).sub(Length.u(20)), Length.h(1).sub(Length.u(20)),
+		Length.w(1).sub(Length.u(20)), Length.h(1).add(Length.u(20)),
 		{x: 'center', y: 'center'},
 		Length.u(10), Length.u(10),
 		function(ctx_) {
@@ -68,8 +68,18 @@ function initTutorial() {
 			);
 		},
 		styles.button.tutorial,
-		util.nop(),
-		util.nop(),
+		function() {
+			this.yGen = {
+				gen: util.gen.exponential_decrease(this.y.unitLength, -20, 0.85),
+				val: {},
+			};
+		},
+		function() {
+			this.yGen = {
+				gen: util.gen.logarithmic_increase(this.y.unitLength, 20, 0.85),
+				val: {},
+			};	
+		},
 		0,
 	),
 	menus.tutorial = new Menu(
@@ -77,7 +87,8 @@ function initTutorial() {
 		{x: 'end', y: 'end'},
 		Length.u(60), Length.u(40),
 		function(ctx_) { // 渲染函数
-			util.Tl(ctx, this.x.sub(this.rx).add(Length.u(5)), this.y.sub(this.ry).add(Length.u(13)));
+			ctx_.save();
+			util.Tl(ctx_, this.x.sub(this.rx).add(Length.u(5)), this.y.sub(this.ry).add(Length.u(13)));
 			util.renderText(ctx_, ctx_.globalAlpha,
 				'Tutorial',
 				Length.u(0), Length.u(0),
@@ -85,7 +96,7 @@ function initTutorial() {
 				'left',
 				'yellow',
 			);
-			util.Tl(ctx, Length.u(0), Length.u(10));
+			util.Tl(ctx_, Length.u(0), Length.u(10));
 			util.renderText(ctx_, ctx_.globalAlpha,
 				'Is for nobs. hehe',
 				Length.u(0), Length.u(0),
@@ -93,7 +104,7 @@ function initTutorial() {
 				'left',
 				'white',
 			);
-			util.Tf0(ctx);
+			ctx_.restore();
 		},
 		styles.menu.black,
 		function() {
@@ -112,4 +123,5 @@ function initTutorial() {
 	),
 	buttons.tutorial.setOnHoverFn(menus.tutorial.onOpenFn.bind(menus.tutorial),
 		menus.tutorial.onCloseFn.bind(menus.tutorial));
+	buttons.tutorial.onOpenFn();
 }
