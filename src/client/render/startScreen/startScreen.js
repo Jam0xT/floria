@@ -1,11 +1,11 @@
-import * as canvas from './canvas.js';
-import Length from './length.js';
+import * as canvas from '../canvas.js';
+import Length from '../length.js';
 
-import * as util from '../utility.js';
+import * as util from '../../utility.js';
 
-import * as animation from './animation.js';
+import * as animation from '../animation.js';
 
-import styles from './styles.js';
+import styles from '../styles.js';
 
 import getButtons from './buttons.js';
 import getMenus from './menus.js';

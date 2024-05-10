@@ -1,10 +1,10 @@
-import Length from './length.js';
+import Length from '../length.js';
 
-import styles from './styles.js';
+import styles from '../styles.js';
 
-import Button from './button.js';
+import Button from '../button.js';
 
-import * as util from '../utility.js';
+import * as util from '../../utility.js';
 
 export default function getButtons() {
 	return {
