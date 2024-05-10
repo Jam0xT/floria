@@ -104,7 +104,7 @@ function initTutorial() {
 		},
 		function() {
 			this.transparencyGen = {
-				gen: util.gen.logarithmic_increase(this.transparency, 100, 0.8),
+				gen: util.gen.logarithmic_increase(this.transparency, 100, 0.75),
 				val: {},
 			};	
 		},

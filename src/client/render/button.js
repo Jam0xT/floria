@@ -93,8 +93,4 @@ class Button extends Menu {
 			}
 		}
 	}
-
-	render(ctx) {
-		super.render(ctx);
-	}
 }
