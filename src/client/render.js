@@ -4,11 +4,16 @@ import * as animation from './render/animation.js';
 
 import * as	startScreen from './render/startScreen.js';
 
-export function init() {
+export default {
+	init,
+	loadStartScreen,
+}
+
+function init() {
 	canvas.init();
 }
 
-export function loadStartScreen() {
+function loadStartScreen() {
 	animation.stop();
 	startScreen.init();
 	animation.play(startScreen.main);

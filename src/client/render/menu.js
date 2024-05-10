@@ -1,11 +1,7 @@
-import { Length } from './canvas.js';
+import Length from './length.js';
 import * as util from '../utility.js';
 
-export {
-	Menu
-};
-
-class Menu {
+export default class Menu {
 	constructor(x, y, align, rx, ry, renderFn, style, onOpenFn, onCloseFn, transparency = 0) {
 		this.x = x;
 		this.y = y;
@@ -34,25 +30,28 @@ class Menu {
 
 	render(ctx) {
 		ctx.save();
+
 		this.alignCenter(ctx);
+		util.Tl(ctx, this.x, this.y); // o中心
 		this.handleGen();
 
-		ctx.globalAlpha = util.parseTransparency(this.transparency);
+		util.blendAlpha(ctx, util.parseTransparency(this.transparency));
 
 		util.renderRoundRect(ctx,
-			this.x.sub(this.rx), this.y.sub(this.ry),
+			this.rx.mul(-1), this.ry.mul(-1),
 			this.rx.mul(2), this.ry.mul(2),
 			[Length.u(this.style.arcRadius)],
 		);
 
 		if ( this.style.outline_width != 0 ) {
-			ctx.lineWidth = this.style.outline_width;
+			ctx.lineWidth = Length.u(this.style.outline_width).parse();
 			ctx.stroke();
 		}
 
 		ctx.fillStyle = this.fillColor;
 		ctx.fill();
 
+		util.Tl(ctx, this.rx.mul(-1), this.ry.mul(-1)); // o左上角
 		this.renderFn.bind(this)(ctx);
 		this.children.forEach(child => {
 			child.render();
@@ -97,7 +96,6 @@ class Menu {
 			this.yGen.val = this.yGen.gen.next();
 			if ( !this.yGen.val.done ) {
 				this.y.unitLength = this.yGen.val.value;
-				console.log(this.yGen, this.y.unitLength);
 			}
 		}
 	}

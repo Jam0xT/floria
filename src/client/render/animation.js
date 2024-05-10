@@ -1,9 +1,14 @@
 let animationFrameRequestId;
 
-export function stop() {
+export {
+	stop,
+	play,
+}
+
+function stop() {
     cancelAnimationFrame(animationFrameRequestId);
 }
 
-export function play(renderFunction) {
+function play(renderFunction) {
     animationFrameRequestId = requestAnimationFrame(renderFunction);
 }

@@ -1,13 +1,7 @@
-import styles from './styles.js';
-import { Length } from './canvas.js';
-import { Menu } from './menu.js';
+import Menu from './menu.js';
 import * as util from '../utility.js';
 
-export {
-	Button
-};
-
-class Button extends Menu {
+export default class Button extends Menu {
 	constructor(x, y, align, rx, ry, renderFn, style, onOpenFn, onCloseFn, transparency = 0) {
 		super(x, y, align, rx, ry, renderFn, style, onOpenFn, onCloseFn, transparency);
 		this.isTrigger = false; // 是否为开关式按钮

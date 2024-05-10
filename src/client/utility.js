@@ -1,4 +1,5 @@
-import { W, H, Length } from './render/canvas.js';
+import { W, H } from './render/canvas.js';
+import Length from './render/length.js';
 
 export {
 	renderHitbox,
@@ -14,6 +15,7 @@ export {
 	nop,
 	parseTransparency,
 	Tl, Tf, Tf0,
+	blendAlpha,
 }
 
 function renderHitbox(ctx, radius) { // 不应该在这个文件
@@ -42,6 +44,9 @@ function renderRoundRect(ctx, x, y, w, h, r) {
 }
 
 function renderText(ctx, alpha, text, x, y, fontSize, textAlign = 'center', style = 'white') {
+	if ( alpha == 0 )
+		return ;
+
 	[x, y, fontSize] = Length.parseAll([x, y, fontSize]);
 
 	if ( fontSize ) {
@@ -56,13 +61,12 @@ function renderText(ctx, alpha, text, x, y, fontSize, textAlign = 'center', styl
 	ctx.strokeStyle = "black";
 	ctx.strokeText(text, x, y);
 
-	ctx.globalAlpha = alpha;
-	
+	// ctx.globalAlpha = 1;
 	ctx.globalCompositeOperation = 'destination-out';
 	ctx.fillStyle = "white";
 	ctx.fillText(text, x, y);
 
-	ctx.globalAlpha = alpha;
+	// ctx.globalAlpha = alpha;
 	ctx.globalCompositeOperation = 'source-over';
 	ctx.fillStyle = style;
 	ctx.fillText(text, x, y);
@@ -132,7 +136,7 @@ function setCursorStyle(style) {
 
 function nop() {}
 
-function parseTransparency(transparency) {
+function parseTransparency(transparency) { // 0-100
 	return (1.00 - transparency * 0.01);
 }
 
@@ -142,9 +146,14 @@ function Tl(ctx, x, y) {
 }
 
 function Tf(ctx, x, y) {
+	[x, y] = Length.parseAll([x, y]);
 	ctx.transform(1, 0, 0, 1, x, y);
 }
 
 function Tf0(ctx) {
 	ctx.setTransform(1, 0, 0, 1, 0, 0);
+}
+
+function blendAlpha(ctx, alpha) {
+	ctx.globalAlpha = ctx.globalAlpha * alpha;
 }

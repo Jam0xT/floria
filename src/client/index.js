@@ -1,6 +1,6 @@
 import { connect, play } from './networking';
 
-import * as render from './render';
+import render from './render';
 
 import { stopCapturingInput } from './input';
 
