@@ -29,7 +29,7 @@ export default function getMenus() {
 			0,
 		),
 		start_tutorial: new Menu(
-			Length.u(-10), Length.u(-30),
+			Length.u(-50), Length.u(-60),
 			Length.u(60), Length.u(40),
 			function(ctx) { // 渲染函数
 				ctx.save();
@@ -71,7 +71,7 @@ export default function getMenus() {
 		),
 		start_title: new Menu(
 			Length.w(0.5), Length.h(0).sub(Length.u(50)),
-			Length.u(0), Length.u(40),
+			Length.u(0), Length.u(0),
 			function(ctx) {
 				util.renderText(ctx, ctx.globalAlpha,
 					'floria.io',
@@ -84,7 +84,7 @@ export default function getMenus() {
 			styles.menu.invisible,
 			function() {
 				this.yGen = {
-					gen: util.gen.logarithmic_increase(this.y.parse(), Length.h(0.4).parse(), 0.85),
+					gen: util.gen.logarithmic_increase(this.y.parse(), Length.h(0.3).parse(), 0.85),
 					val: {},
 				};
 			},
@@ -271,6 +271,42 @@ export default function getMenus() {
 			'arena_room',
 			false,
 			true,
+			0,
+		),
+		arena_title: new Menu(
+			Length.u(45), Length.h(0).sub(Length.u(50)),
+			Length.u(0), Length.u(0),
+			function(ctx) {
+				ctx.save();
+
+				util.blendAlpha(ctx, 0.7);
+
+				util.renderText(ctx, ctx.globalAlpha,
+					'floria.io',
+					Length.u(0), Length.u(0),
+					Length.u(20),
+					'center',
+					'white',
+				);
+				
+				ctx.restore();
+			},
+			styles.menu.invisible,
+			function() {
+				this.yGen = {
+					gen: util.gen.logarithmic_increase(this.y.parse(), Length.u(25).parse(), 0.85),
+					val: {},
+				};
+			},
+			function() {
+				this.yGen = {
+					gen: util.gen.exponential_decrease(this.y.parse(), Length.h(0).sub(Length.u(50)).parse(), 0.85),
+					val: {},
+				};	
+			},
+			'arena',
+			false,
+			false,
 			0,
 		),
 	}

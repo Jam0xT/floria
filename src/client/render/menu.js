@@ -79,6 +79,8 @@ export default class Menu {
 			this.renderFn.bind(this)(ctx);
 		}
 
+		util.Tl(ctx, this.rx, this.ry); // o左上角
+
 		this.children.forEach(child => {
 			child.render(ctx);
 		});
