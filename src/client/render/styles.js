@@ -1,10 +1,10 @@
 export default {
-	startScreen: {
-		background: "#1EA761",
+	background: {
+		screen: "#1EA761",
 	},
 
 	button: {
-		tutorial: {
+		default: {
 			fill: 'rgb(196, 196, 196)', // 一种灰色
 			outline: 'rgb(100, 100, 100)', // 深灰色
 			hover: 'rgb(210, 210, 210)', // 浅一点的灰色
@@ -15,12 +15,18 @@ export default {
 	},
 
 	menu: {
-		black: { // 半透明黑
+		default: { // 半透明黑
 			fill: 'rgba(0, 0, 0, 0.7)',
 			outline: 'rgb(0, 0, 0)',
 			outline_width: 0, // 单位：u
 			arcRadius: 3, // 单位：u
 		},
+		invisible: {
+			fill: 'rgba(0, 0, 0, 0)',
+			outline: 'rgb(0, 0, 0)',
+			outline_width: 0, // 单位：u
+			arcRadius: 0, // 单位：u
+		}
 	},
 
 	rarity_color: [ // 稀有度颜色

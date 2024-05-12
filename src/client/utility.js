@@ -1,5 +1,6 @@
 import { W, H } from './render/canvas.js';
 import Length from './render/length.js';
+import * as canvas from './render/canvas.js';
 
 export {
 	renderHitbox,
@@ -43,33 +44,51 @@ function renderRoundRect(ctx, x, y, w, h, r) {
 	ctx.roundRect(x, y, w, h, r);
 }
 
-function renderText(ctx, alpha, text, x, y, fontSize, textAlign = 'center', style = 'white') {
-	if ( alpha == 0 )
-		return ;
+function renderText(ctx_, alpha, text, x, y, fontSize, textAlign = 'center', style = 'white') {
+	ctx_.save(); // 保存主 ctx
+	Tl(ctx_, x, y); // o(x, y)
+
+	let ctx = canvas.getTmpCtx(); // 获取临时 ctx
 
 	[x, y, fontSize] = Length.parseAll([x, y, fontSize]);
 
-	if ( fontSize ) {
-		ctx.lineWidth = fontSize * 0.125;
-		ctx.font = `${fontSize}px Ubuntu`;
+	const outlineWidth = fontSize * 0.125;
 
-		ctx.textAlign = textAlign;
+	ctx.lineWidth = outlineWidth;
+	ctx.font = `${fontSize}px Ubuntu`;
+
+	ctx.textAlign = textAlign;
+
+	let offsetX = 0, offsetY = fontSize * 1.5; // 防止文本超出临时ctx范围
+
+	if ( textAlign == 'left' ) {
+		offsetX = outlineWidth;
+	} else if ( textAlign == 'center' ) {
+		offsetX = H * 0.5;
 	}
+	ctx.translate(offsetX, offsetY);
 
-	ctx.globalAlpha = alpha;
-	ctx.globalCompositeOperation = 'source-over';
+	ctx.globalCompositeOperation = 'source-over'; // 渲染文本
 	ctx.strokeStyle = "black";
-	ctx.strokeText(text, x, y);
+	ctx.strokeText(text, 0, 0);
 
-	// ctx.globalAlpha = 1;
 	ctx.globalCompositeOperation = 'destination-out';
 	ctx.fillStyle = "white";
-	ctx.fillText(text, x, y);
+	ctx.fillText(text, 0, 0);
 
-	// ctx.globalAlpha = alpha;
 	ctx.globalCompositeOperation = 'source-over';
 	ctx.fillStyle = style;
-	ctx.fillText(text, x, y);
+	ctx.fillText(text, 0, 0);
+
+	// 粘贴到主 ctx
+
+	ctx_.globalAlpha = alpha;
+	canvas.draw(ctx, ctx_, -offsetX, -offsetY, true);
+	ctx_.globalAlpha = 1;
+
+	// 恢复主 ctx
+
+	ctx_.restore();
 }
 
 function getNumberDisplay(x) { // 1000 -> 1.0k etc.

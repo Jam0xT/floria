@@ -2,7 +2,7 @@ import Length from './length.js';
 import * as util from '../utility.js';
 
 export default class Menu {
-	constructor(x, y, align, rx, ry, renderFn, style, onOpenFn, onCloseFn, transparency = 0) {
+	constructor(x, y, align, rx, ry, renderFn, style, onOpenFn, onCloseFn, parent, isInitialHiding, transparency = 0) {
 		this.x = x;
 		this.y = y;
 		this.align = align;
@@ -17,6 +17,11 @@ export default class Menu {
 		this.fillColor = this.style.fill; // 填充颜色
 		this.on = false; // 菜单是否打开
 		this.children = [];
+
+		this.parent = parent;
+
+		this.isInitialHiding = isInitialHiding;
+
 		this.transparency = transparency;
 
 		this.transparencyGen = undefined;
@@ -24,8 +29,14 @@ export default class Menu {
 		this.yGen = undefined;
 	}
 
-	append(child) {
-		this.children.push(child);
+	append(children, array = false) {
+		if ( array ) {
+			children.forEach(child => {
+				this.children.push(child);
+			});
+		} else {
+			this.children.push(children);
+		}
 	}
 
 	render(ctx) {
@@ -52,9 +63,13 @@ export default class Menu {
 		ctx.fill();
 
 		util.Tl(ctx, this.rx.mul(-1), this.ry.mul(-1)); // o左上角
-		this.renderFn.bind(this)(ctx);
+
+		if ( this.renderFn ) { // 防止无渲染函数因为undefined.bind报错
+			this.renderFn.bind(this)(ctx);
+		}
+
 		this.children.forEach(child => {
-			child.render();
+			child.render(ctx);
 		});
 
 		ctx.restore();
@@ -98,5 +113,15 @@ export default class Menu {
 				this.y.unitLength = this.yGen.val.value;
 			}
 		}
+	}
+
+	open(initial = false) {
+		if ( !(this.isInitialHiding && initial) ) {
+			this.onOpenFn();
+		}
+	}
+
+	close() {
+		this.onCloseFn();
 	}
 }

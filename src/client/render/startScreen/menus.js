@@ -8,31 +8,51 @@ import * as util from '../../utility.js';
 
 export default function getMenus() {
 	return {
-		tutorial: new Menu(
+		start: new Menu(
+			Length.w(0), Length.h(0),
+			{x: 'center', y: 'center'}	,
+			Length.u(0), Length.u(0),
+			util.nop(),
+			styles.menu.invisible,
+			function() {
+				this.children.forEach(child => {
+					child.open(true);
+				});
+			},
+			function() {
+				this.children.forEach(child => {
+					child.close();
+				});
+			},
+			'root',
+			true,
+			0,
+		),
+		start_tutorial: new Menu(
 			Length.w(1).sub(Length.u(10)), Length.h(1).sub(Length.u(40)),
 			{x: 'end', y: 'end'},
 			Length.u(60), Length.u(40),
-			function(ctx_) { // 渲染函数
-				ctx_.save();
-				util.Tl(ctx_, Length.u(5), Length.u(13));
-				util.renderText(ctx_, ctx_.globalAlpha,
+			function(ctx) { // 渲染函数
+				ctx.save();
+				util.Tl(ctx, Length.u(5), Length.u(13));
+				util.renderText(ctx, ctx.globalAlpha,
 					'Tutorial',
 					Length.u(0), Length.u(0),
 					Length.u(10),
 					'left',
 					'yellow',
 				);
-				util.Tl(ctx_, Length.u(0), Length.u(10));
-				util.renderText(ctx_, ctx_.globalAlpha,
+				util.Tl(ctx, Length.u(0), Length.u(10));
+				util.renderText(ctx, ctx.globalAlpha,
 					'Is for nobs. hehe',
 					Length.u(0), Length.u(0),
 					Length.u(8),
 					'left',
 					'white',
 				);
-				ctx_.restore();
+				ctx.restore();
 			},
-			styles.menu.black,
+			styles.menu.default,
 			function() {
 				this.transparencyGen = {
 					gen: util.gen.exponential_decrease(this.transparency, 0, 0.8),
@@ -45,7 +65,59 @@ export default function getMenus() {
 					val: {},
 				};	
 			},
-			100
+			'start',
+			true,
+			100,
+		),
+		start_title: new Menu(
+			Length.w(0.5), Length.h(0.4).sub(Length.u(200)),
+			{x: 'center', y: 'center'},
+			Length.u(0), Length.u(40),
+			function(ctx) {
+				util.renderText(ctx, ctx.globalAlpha,
+					'floria.io',
+					Length.u(0), Length.u(0),
+					Length.u(50),
+					'center',
+					'white',
+				);
+			},
+			styles.menu.invisible,
+			function() {
+				this.yGen = {
+					gen: util.gen.logarithmic_increase(this.y.unitLength, 0, 0.85),
+					val: {},
+				};
+			},
+			function() {
+				this.yGen = {
+					gen: util.gen.exponential_decrease(this.y.unitLength, -200, 0.85),
+					val: {},
+				};	
+			},
+			'start',
+			false,
+			0,
+		),
+		arena: new Menu(
+			Length.w(0), Length.h(0),
+			{x: 'center', y: 'center'}	,
+			Length.u(0), Length.u(0),
+			util.nop(),
+			styles.menu.invisible,
+			function() {
+				this.children.forEach(child => {
+					child.open(true);
+				});
+			},
+			function() {
+				this.children.forEach(child => {
+					child.close();
+				});
+			},
+			'root',
+			false,
+			0,
 		),
 	}
 }

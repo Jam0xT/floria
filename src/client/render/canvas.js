@@ -1,10 +1,12 @@
 // import { setPetalPosition } from './ui/ui.js';
 
 let canvas; // 主画布
+let ctxMain;
 let W, H, unitLength;
 
 export {
 	W, H, unitLength,
+	ctxMain,
 	init,
 	getTmpCtx,
 	draw, 
@@ -12,18 +14,20 @@ export {
 
 function init() { // 初始化
 	canvas = createCanvas('canvas');
+	ctxMain = canvas.getContext('2d');
 	handleWindowResize();
 	window.addEventListener('resize', handleWindowResize);
 }
 
-function getTmpCtx() { // 返回临时画布
+function getTmpCtx(w = W, h = H) { // 返回临时画布
 	let newCanvas = createCanvas();
-	setCanvasDimensions(newCanvas);
+	newCanvas.width = w;
+	newCanvas.height = h;
 	return newCanvas.getContext('2d');
 }
 
-function draw(ctx, remove = true) {
-	canvas.getContext('2d').drawImage(ctx.canvas, 0, 0);
+function draw(ctx, onCtx = ctxMain, x = 0, y = 0, remove = true) {
+	onCtx.drawImage(ctx.canvas, x, y);
 	if ( remove ) {
 		ctx.canvas.remove();
 	}

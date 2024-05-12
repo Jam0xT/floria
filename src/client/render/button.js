@@ -2,8 +2,8 @@ import Menu from './menu.js';
 import * as util from '../utility.js';
 
 export default class Button extends Menu {
-	constructor(x, y, align, rx, ry, renderFn, style, onOpenFn, onCloseFn, transparency = 0) {
-		super(x, y, align, rx, ry, renderFn, style, onOpenFn, onCloseFn, transparency);
+	constructor(x, y, align, rx, ry, renderFn, style, onOpenFn, onCloseFn, parent, isInitialHiding, transparency = 0) {
+		super(x, y, align, rx, ry, renderFn, style, onOpenFn, onCloseFn, parent, isInitialHiding, transparency);
 		this.isTrigger = false; // 是否为开关式按钮
 		this.onTriggerFn = util.nop; // 触发/开关式按钮开启
 		this.offTriggerFn = util.nop; // 开关式按钮关闭
