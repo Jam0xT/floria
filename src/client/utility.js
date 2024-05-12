@@ -133,14 +133,14 @@ const generators = {
 		yield n;
 	},
 	exponential_decrease: function* (i, n, k) { // 指数衰减
-		while ( i - n >= 0.01 ) {
+		while ( i - n >= 0.1 ) {
 			yield i;
 			i = n + (i - n) * k;
 		}
 		yield n;
 	},
 	logarithmic_increase: function* (i, n, k) { // 对数增长（把指数衰减翻转）
-		while ( i <= n ) {
+		while ( i <= n - 0.1 ) {
 			yield i;
 			i = n - (n - i) * k;
 		}

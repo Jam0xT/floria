@@ -7,12 +7,11 @@ import * as animation from '../animation.js';
 
 import styles from '../styles.js';
 
-import getButtons from './buttons.js';
 import getMenus from './menus.js';
 
 let ctx;
 let transparency;
-const buttons = getButtons(), menus = getMenus();
+const menus = getMenus();
 
 export {
 	init,
@@ -24,32 +23,27 @@ function init() {
         gen: util.gen.exponential_decrease(100, 0, 0.93),
         val: {},
     };
-	buttons.start_tutorial.setOnHoverFn(
+	menus.start_tutorial_button.setOnHoverFn(
 		menus.start_tutorial.onOpenFn.bind(menus.start_tutorial),
 		menus.start_tutorial.onCloseFn.bind(menus.start_tutorial)
 	);
-	buttons.start_arena.setOnTriggerFn(
+	menus.start_arena_button.setOnTriggerFn(
 		function() {
 			unload('start');
 			load('arena');
 		}
 	);
-	buttons.arena_back.setOnTriggerFn(
+	menus.arena_back_button.setOnTriggerFn(
 		function() {
 			unload('arena');
 			load('start');
 		}
 	);
+
 	Object.values(menus).filter(
 		(menu) => (menu.parent != 'root')
 	).forEach((menu) => {
 		menus[menu.parent].append(menu);
-	});
-
-	Object.values(buttons).filter(
-		(button) => (button.parent != 'root') // 尽管目前button不应该作为root
-	).forEach((button) => {
-		menus[button.parent].append(button);
 	});
 }
 

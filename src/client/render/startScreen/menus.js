@@ -26,10 +26,11 @@ export default function getMenus() {
 			},
 			'root',
 			true,
+			false,
 			0,
 		),
 		start_tutorial: new Menu(
-			Length.w(1).sub(Length.u(10)), Length.h(1).sub(Length.u(40)),
+			Length.u(20), Length.u(-10),
 			{x: 'end', y: 'end'},
 			Length.u(60), Length.u(40),
 			function(ctx) { // 渲染函数
@@ -65,12 +66,13 @@ export default function getMenus() {
 					val: {},
 				};	
 			},
-			'start',
+			'start_tutorial_button',
 			true,
+			false,
 			100,
 		),
 		start_title: new Menu(
-			Length.w(0.5), Length.h(0.4).sub(Length.u(200)),
+			Length.w(0.5), Length.h(0).sub(Length.u(50)),
 			{x: 'center', y: 'center'},
 			Length.u(0), Length.u(40),
 			function(ctx) {
@@ -85,18 +87,77 @@ export default function getMenus() {
 			styles.menu.invisible,
 			function() {
 				this.yGen = {
-					gen: util.gen.logarithmic_increase(this.y.unitLength, 0, 0.85),
+					gen: util.gen.logarithmic_increase(this.y.parse(), Length.h(0.4).parse(), 0.85),
 					val: {},
 				};
 			},
 			function() {
 				this.yGen = {
-					gen: util.gen.exponential_decrease(this.y.unitLength, -200, 0.85),
+					gen: util.gen.exponential_decrease(this.y.parse(), Length.h(0).sub(Length.u(50)).parse(), 0.85),
 					val: {},
 				};	
 			},
 			'start',
 			false,
+			false,
+			0,
+		),
+		start_tutorial_button: new Menu(
+			Length.w(1).sub(Length.u(20)), Length.h(1).add(Length.u(20)),
+			{x: 'center', y: 'center'},
+			Length.u(10), Length.u(10),
+			function(ctx) {
+				util.renderText(ctx, ctx.globalAlpha,
+					'?',
+					this.rx, this.ry.add(Length.u(7)),
+					Length.u(20),
+				);
+			},
+			styles.button.default,
+			function() {
+				this.yGen = {
+					gen: util.gen.exponential_decrease(this.y.parse(), Length.h(1).sub(Length.u(20)).parse(), 0.85),
+					val: {},
+				};
+			},
+			function() {
+				this.yGen = {
+					gen: util.gen.logarithmic_increase(this.y.parse(), Length.h(1).add(Length.u(20)).parse(), 0.85),
+					val: {},
+				};	
+			},
+			'start',
+			false,
+			true,
+			0,
+		),
+		start_arena_button: new Menu(
+			Length.w(0.5), Length.h(0).sub(Length.u(50)),
+			{x: 'center', y: 'center'},
+			Length.u(75), Length.u(15),
+			function(ctx_) {
+				util.renderText(ctx_, ctx_.globalAlpha,
+					'Arena',
+					this.rx, this.ry.add(Length.u(7)),
+					Length.u(20),
+				);
+			},
+			styles.button.default,
+			function() {
+				this.yGen = {
+					gen: util.gen.logarithmic_increase(this.y.parse(), Length.h(0.4).parse(), 0.85),
+					val: {},
+				};
+			},
+			function() {
+				this.yGen = {
+					gen: util.gen.exponential_decrease(this.y.parse(), Length.h(0).sub(Length.u(50)).parse(), 0.85),
+					val: {},
+				};
+			},
+			'start',
+			false,
+			true,
 			0,
 		),
 		arena: new Menu(
@@ -117,6 +178,67 @@ export default function getMenus() {
 			},
 			'root',
 			false,
+			false,
+			0,
+		),
+		arena_room: new Menu(
+			Length.w(1).add(Length.u(100)), Length.h(0.3),
+			{x: 'center', y: 'center'},
+			Length.u(0), Length.u(40),
+			function(ctx) {
+				util.renderText(ctx, ctx.globalAlpha,
+					'Room',
+					Length.u(0), Length.u(0),
+					Length.u(30),
+					'center',
+					'white',
+				);
+			},
+			styles.menu.invisible,
+			function() {
+				this.xGen = {
+					gen: util.gen.exponential_decrease(this.x.parse(), Length.w(0.7).parse(), 0.85),
+					val: {},
+				};	
+			},
+			function() {
+				this.xGen = {
+					gen: util.gen.logarithmic_increase(this.x.parse(), Length.w(1).add(Length.u(100)).parse(), 0.85),
+					val: {},
+				};
+			},
+			'arena',
+			false,
+			false,
+			0,
+		),
+		arena_back_button: new Menu(
+			Length.w(0).add(Length.u(20)), Length.h(1).add(Length.u(20)),
+			{x: 'center', y: 'center'},
+			Length.u(10), Length.u(10),
+			function(ctx_) {
+				util.renderText(ctx_, ctx_.globalAlpha,
+					'<',
+					this.rx, this.ry.add(Length.u(6)),
+					Length.u(20),
+				);
+			},
+			styles.button.default,
+			function() {
+				this.yGen = {
+					gen: util.gen.exponential_decrease(this.y.parse(), Length.h(1).sub(Length.u(20)).parse(), 0.85),
+					val: {},
+				};
+			},
+			function() {
+				this.yGen = {
+					gen: util.gen.logarithmic_increase(this.y.parse(), Length.h(1).add(Length.u(20)).parse(), 0.85),
+					val: {},
+				};	
+			},
+			'arena',
+			false,
+			true,
 			0,
 		),
 	}

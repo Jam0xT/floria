@@ -11,6 +11,10 @@ export default class Length {
 		return this.w * W + this.h * H + this.unitLength * unitLength;
 	}
 
+	static parseVal(val) {
+		return Length.u(val / unitLength);
+	}
+
 	static parseAll(arr) {
 		return arr.map(l => l.parse());
 	}
