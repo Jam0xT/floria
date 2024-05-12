@@ -2,10 +2,9 @@ import Length from './length.js';
 import * as util from '../utility.js';
 
 export default class Menu {
-	constructor(x, y, align, rx, ry, renderFn, style, onOpenFn, onCloseFn, parent, isInitialHiding, isButton, transparency = 0) {
+	constructor(x, y, rx, ry, renderFn, style, onOpenFn, onCloseFn, parent, isInitialHiding, isButton, transparency = 0) {
 		this.x = x;
 		this.y = y;
-		this.align = align;
 		this.rx = rx; // 横向半径
 		this.ry = ry; // 竖向半径
 		this.renderFn = renderFn; // 渲染除了纯色填充之外的图案
@@ -19,6 +18,7 @@ export default class Menu {
 		this.children = [];
 
 		this.parent = parent;
+		this.parentMenu = undefined;
 
 		this.isInitialHiding = isInitialHiding;
 
@@ -54,7 +54,6 @@ export default class Menu {
 	render(ctx) {
 		ctx.save();
 
-		this.alignCenter(ctx);
 		this.handleGen();
 		util.Tl(ctx, this.x, this.y); // o中心
 
@@ -85,23 +84,6 @@ export default class Menu {
 		});
 
 		ctx.restore();
-	}
-
-	alignCenter(ctx, revert = false) {
-		let translateX = Length.u(0), translateY = Length.u(0);
-		if ( this.align.x == 'start' )
-			translateX = this.rx;
-		if ( this.align.x == 'end' )
-			translateX = this.rx.mul(-1);
-		if ( this.align.y == 'start' )
-			translateY = this.ry;
-		if ( this.align.y == 'end' )
-			translateY = this.ry.mul(-1);
-		if ( revert ) {
-			translateX.mul(-1);
-			translateY.mul(-1);
-		}
-		util.Tl(ctx, translateX, translateY);
 	}
 
 	handleGen() {
@@ -160,8 +142,8 @@ export default class Menu {
 	onHover(e) {
 		const dpr = window.devicePixelRatio;
 		const x = e.clientX * dpr, y = e.clientY * dpr;
-		if ( util.inRange(x, this.x.sub(this.rx).parse(), this.x.add(this.rx).parse())
-			&& util.inRange(y, this.y.sub(this.ry).parse(), this.y.add(this.ry).parse()) ) {
+		if ( util.inRange(x, this.getX().sub(this.rx).parse(), this.getX().add(this.rx).parse())
+			&& util.inRange(y, this.getY().sub(this.ry).parse(), this.getY().add(this.ry).parse()) ) {
 			if ( !this.hover ) {
 				util.setCursorStyle('pointer');
 				if ( !this.on ) {
@@ -185,8 +167,8 @@ export default class Menu {
 	onMouseDown(e) {
 		const dpr = window.devicePixelRatio;
 		const x = e.clientX * dpr, y = e.clientY * dpr;
-		if ( util.inRange(x, this.x.sub(this.rx).parse(), this.x.add(this.rx).parse())
-			&& util.inRange(y, this.y.sub(this.ry).parse(), this.y.add(this.ry).parse()) ) {
+		if ( util.inRange(x, this.getX().sub(this.rx).parse(), this.getX().add(this.rx).parse())
+			&& util.inRange(y, this.getY().sub(this.ry).parse(), this.getY().add(this.ry).parse()) ) {
 			if ( this.isTrigger ) {
 				if ( this.on ) {
 					this.offTriggerFn();
@@ -202,11 +184,25 @@ export default class Menu {
 	onMouseUp(e) {
 		const dpr = window.devicePixelRatio;
 		const x = e.clientX * dpr, y = e.clientY * dpr;
-		if ( util.inRange(x, this.x.sub(this.rx).parse(), this.x.add(this.rx).parse())
-			&& util.inRange(y, this.y.sub(this.ry).parse(), this.y.add(this.ry).parse()) ) {
+		if ( util.inRange(x, this.getX().sub(this.rx).parse(), this.getX().add(this.rx).parse())
+			&& util.inRange(y, this.getY().sub(this.ry).parse(), this.getY().add(this.ry).parse()) ) {
 			if ( !(this.isTrigger && this.on) ) {
 				this.fillColor = this.style.hover;
 			}
 		}
+	}
+
+	getX() {
+		if ( this.parent == 'root' )
+			return this.x;
+		else
+			return this.parentMenu.x.add(this.x);
+	}
+
+	getY() {
+		if ( this.parent == 'root' )
+			return this.y;
+		else
+			return this.parentMenu.y.add(this.y);
 	}
 }

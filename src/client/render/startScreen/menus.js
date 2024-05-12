@@ -10,7 +10,6 @@ export default function getMenus() {
 	return {
 		start: new Menu(
 			Length.w(0), Length.h(0),
-			{x: 'center', y: 'center'}	,
 			Length.u(0), Length.u(0),
 			util.nop(),
 			styles.menu.invisible,
@@ -30,8 +29,7 @@ export default function getMenus() {
 			0,
 		),
 		start_tutorial: new Menu(
-			Length.u(20), Length.u(-10),
-			{x: 'end', y: 'end'},
+			Length.u(-10), Length.u(-30),
 			Length.u(60), Length.u(40),
 			function(ctx) { // 渲染函数
 				ctx.save();
@@ -73,7 +71,6 @@ export default function getMenus() {
 		),
 		start_title: new Menu(
 			Length.w(0.5), Length.h(0).sub(Length.u(50)),
-			{x: 'center', y: 'center'},
 			Length.u(0), Length.u(40),
 			function(ctx) {
 				util.renderText(ctx, ctx.globalAlpha,
@@ -104,7 +101,6 @@ export default function getMenus() {
 		),
 		start_tutorial_button: new Menu(
 			Length.w(1).sub(Length.u(20)), Length.h(1).add(Length.u(20)),
-			{x: 'center', y: 'center'},
 			Length.u(10), Length.u(10),
 			function(ctx) {
 				util.renderText(ctx, ctx.globalAlpha,
@@ -133,7 +129,6 @@ export default function getMenus() {
 		),
 		start_arena_button: new Menu(
 			Length.w(0.5), Length.h(0).sub(Length.u(50)),
-			{x: 'center', y: 'center'},
 			Length.u(75), Length.u(15),
 			function(ctx_) {
 				util.renderText(ctx_, ctx_.globalAlpha,
@@ -162,7 +157,6 @@ export default function getMenus() {
 		),
 		arena: new Menu(
 			Length.w(0), Length.h(0),
-			{x: 'center', y: 'center'}	,
 			Length.u(0), Length.u(0),
 			util.nop(),
 			styles.menu.invisible,
@@ -183,8 +177,7 @@ export default function getMenus() {
 		),
 		arena_room: new Menu(
 			Length.w(1).add(Length.u(100)), Length.h(0.3),
-			{x: 'center', y: 'center'},
-			Length.u(0), Length.u(40),
+			Length.u(0), Length.u(0),
 			function(ctx) {
 				util.renderText(ctx, ctx.globalAlpha,
 					'Room',
@@ -214,7 +207,6 @@ export default function getMenus() {
 		),
 		arena_back_button: new Menu(
 			Length.w(0).add(Length.u(20)), Length.h(1).add(Length.u(20)),
-			{x: 'center', y: 'center'},
 			Length.u(10), Length.u(10),
 			function(ctx_) {
 				util.renderText(ctx_, ctx_.globalAlpha,
@@ -237,6 +229,46 @@ export default function getMenus() {
 				};	
 			},
 			'arena',
+			false,
+			true,
+			0,
+		),
+		arena_room_create_button: new Menu(
+			Length.u(0), Length.u(25),
+			Length.u(40), Length.u(10),
+			function(ctx) {
+				util.renderText(ctx, ctx.globalAlpha,
+					'Create',
+					this.rx, this.ry.add(Length.u(7)),
+					Length.u(20),
+				);
+			},
+			styles.button.default,
+			function() {
+			},
+			function() {
+			},
+			'arena_room',
+			false,
+			true,
+			0,
+		),
+		arena_room_join_button: new Menu(
+			Length.u(0), Length.u(55),
+			Length.u(40), Length.u(10),
+			function(ctx) {
+				util.renderText(ctx, ctx.globalAlpha,
+					'Join',
+					this.rx, this.ry.add(Length.u(7)),
+					Length.u(20),
+				);
+			},
+			styles.button.default,
+			function() {
+			},
+			function() {
+			},
+			'arena_room',
 			false,
 			true,
 			0,

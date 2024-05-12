@@ -16,6 +16,7 @@ const menus = getMenus();
 export {
 	init,
 	load,
+	menus,
 }
 
 function init() {
@@ -44,6 +45,7 @@ function init() {
 		(menu) => (menu.parent != 'root')
 	).forEach((menu) => {
 		menus[menu.parent].append(menu);
+		menu.parentMenu = menus[menu.parent];
 	});
 }
 
