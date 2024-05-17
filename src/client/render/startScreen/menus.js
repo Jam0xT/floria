@@ -4,6 +4,8 @@ import styles from '../styles.js';
 
 import Menu from '../menu.js';
 
+import Button from '../button.js';
+
 import * as util from '../../utility.js';
 
 export default function getMenus() {
@@ -25,7 +27,6 @@ export default function getMenus() {
 			},
 			'root',
 			true,
-			false,
 			0,
 		),
 		start_tutorial: new Menu(
@@ -66,7 +67,6 @@ export default function getMenus() {
 			},
 			'start_tutorial_button',
 			true,
-			false,
 			100,
 		),
 		start_title: new Menu(
@@ -96,10 +96,9 @@ export default function getMenus() {
 			},
 			'start',
 			false,
-			false,
 			0,
 		),
-		start_tutorial_button: new Menu(
+		start_tutorial_button: new Button(
 			Length.w(1).sub(Length.u(20)), Length.h(1).add(Length.u(20)),
 			Length.u(10), Length.u(10),
 			function(ctx) {
@@ -124,10 +123,9 @@ export default function getMenus() {
 			},
 			'start',
 			false,
-			true,
 			0,
 		),
-		start_arena_button: new Menu(
+		start_arena_button: new Button(
 			Length.w(0.5), Length.h(0).sub(Length.u(50)),
 			Length.u(75), Length.u(15),
 			function(ctx_) {
@@ -152,7 +150,6 @@ export default function getMenus() {
 			},
 			'start',
 			false,
-			true,
 			0,
 		),
 		arena: new Menu(
@@ -171,7 +168,6 @@ export default function getMenus() {
 				});
 			},
 			'root',
-			false,
 			false,
 			0,
 		),
@@ -202,10 +198,9 @@ export default function getMenus() {
 			},
 			'arena',
 			false,
-			false,
 			0,
 		),
-		arena_back_button: new Menu(
+		arena_back_button: new Button(
 			Length.w(0).add(Length.u(20)), Length.h(1).add(Length.u(20)),
 			Length.u(10), Length.u(10),
 			function(ctx_) {
@@ -230,10 +225,9 @@ export default function getMenus() {
 			},
 			'arena',
 			false,
-			true,
 			0,
 		),
-		arena_room_create_button: new Menu(
+		arena_room_create_button: new Button(
 			Length.u(0), Length.u(25),
 			Length.u(40), Length.u(10),
 			function(ctx) {
@@ -250,10 +244,9 @@ export default function getMenus() {
 			},
 			'arena_room',
 			false,
-			true,
 			0,
 		),
-		arena_room_join_button: new Menu(
+		arena_room_join_button: new Button(
 			Length.u(0), Length.u(55),
 			Length.u(40), Length.u(10),
 			function(ctx) {
@@ -270,7 +263,6 @@ export default function getMenus() {
 			},
 			'arena_room',
 			false,
-			true,
 			0,
 		),
 		arena_title: new Menu(
@@ -305,7 +297,6 @@ export default function getMenus() {
 				};	
 			},
 			'arena',
-			false,
 			false,
 			0,
 		),

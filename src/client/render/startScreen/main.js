@@ -59,6 +59,8 @@ function unload(screen) {
 	menus[screen].close();
 }
 
+let last = Date.now(), fpsList = [];
+
 function main() {
 	util.clear(canvas.ctxMain);
 
@@ -76,6 +78,35 @@ function main() {
 		menu.render(ctx);
 	});
 
+	// renderFps();
+
 	canvas.draw(ctx);
     animation.play(main);
+}
+
+function renderFps() {
+	let now = Date.now();
+	let timeElapsed = now - last;
+	last = now;
+	let fps = (1000 / timeElapsed).toFixed(1);
+	util.renderText(ctx, ctx.globalAlpha,
+		`fps:${fps}`,
+		Length.u(50), Length.u(20),
+		Length.u(20),
+		'left',
+		'red',
+	);
+	fpsList.push(fps);
+	if ( fpsList.length > 200 )
+		fpsList.shift();
+	console.log(fpsList);
+	for (let i = 0; i < fpsList.length; i ++ ) {
+		util.renderRoundRect(ctx,
+			Length.u(i * 5), Length.u(30),
+			Length.u(5), Length.u(fpsList[i]),
+			[Length.u(0)],
+		);
+		ctx.fillStyle = `rgb(255, ${50 * Math.abs(fpsList[i] - 60)}, 255)`;
+		ctx.fill();
+	}
 }
