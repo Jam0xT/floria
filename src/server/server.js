@@ -1,11 +1,11 @@
-const express = require("express");
-const webpack = require("webpack");
-const webpackDevMiddleware = require("webpack-dev-middleware");
-const socketio = require('socket.io');
+import express from "express";
+import webpack from "webpack";
+import webpackDevMiddleware from "webpack-dev-middleware";
+import * as socketio from 'socket.io';
 
-const Constants = require('../shared/constants');
-const Game = require('./game');
-const webpackConfig = require("../../webpack.dev.js");
+import Constants from '../shared/constants.js';
+import Game from './game.js';
+import webpackConfig from "../../webpack.dev.js";
 
 const app = express();
 app.use(express.static('public'));
@@ -21,7 +21,7 @@ const port = process.env.PORT || 25565;
 const server = app.listen(port);
 console.log(`Server listening on port ${port}`);
 
-const io = socketio(server);
+const io = new socketio.Socket(server);
 
 io.on('connection', socket => {
 	console.log('Player connected! ID: ', socket.id);

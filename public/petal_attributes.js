@@ -1,4 +1,4 @@
-module.exports = Object.freeze({
+export default Object.freeze({
 	EMPTY: {
 		TYPE: 'EMPTY',
 		RADIUS: 1,
