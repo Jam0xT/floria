@@ -6,6 +6,8 @@ import Menu from '../menu.js';
 
 import Button from '../button.js';
 
+import InputBox from '../inputBox.js';
+
 import * as util from '../../utility.js';
 
 export default function getMenus() {
@@ -188,7 +190,7 @@ export default function getMenus() {
 				this.xGen = {
 					gen: util.gen.exponential_decrease(this.x.parse(), Length.w(0.7).parse(), 0.85),
 					val: {},
-				};	
+				};
 			},
 			function() {
 				this.xGen = {
@@ -264,6 +266,29 @@ export default function getMenus() {
 			'arena_room',
 			false,
 			0,
+		),
+		arena_room_id_input: new InputBox(
+			Length.u(0), Length.u(0),
+			function() {
+			},
+			function() {
+			},
+			'arena_room',
+			{
+				"height": "4vh",
+				"width": "40vh",
+				"position": "absolute",
+				"z-index": "2",
+				"left": "0",
+				"top": "0",
+				"transform": "translateY(-50%) translateX(-50%)",
+				"padding": "0.1vh",
+				// "background-color": "rgba(238, 238, 238, 1)",
+				// "outline": "rgba(0, 0, 0, 1) solid 0.5vh",
+				"border-radius": "0.2vh",
+				"font-size": "3.5vh",
+				"font-family": "Ubuntu",
+			},
 		),
 		arena_title: new Menu(
 			Length.u(45), Length.h(0).sub(Length.u(50)),

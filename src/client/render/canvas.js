@@ -40,7 +40,6 @@ function createCanvas(id = undefined) { // 创建canvas
 		document.body.append(newCanvas);
 	}
 	newCanvas.classList.add('canvas');
-	// newCanvas.style['z-index'] = 1;
 	return newCanvas;
 }
 

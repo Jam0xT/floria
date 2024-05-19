@@ -38,8 +38,8 @@ export default class Button extends Menu {
 	onHover(e) {
 		const dpr = window.devicePixelRatio;
 		const x = e.clientX * dpr, y = e.clientY * dpr;
-		if ( util.inRange(x, this.x.sub(this.rx).parse(), this.x.add(this.rx).parse())
-			&& util.inRange(y, this.y.sub(this.ry).parse(), this.y.add(this.ry).parse()) ) {
+		if ( util.inRange(x, this.getX().sub(this.rx).parse(), this.getX().add(this.rx).parse())
+			&& util.inRange(y, this.getY().sub(this.ry).parse(), this.getY().add(this.ry).parse()) ) {
 			if ( !this.hover ) {
 				util.setCursorStyle('pointer');
 				if ( !this.on ) {
@@ -63,8 +63,8 @@ export default class Button extends Menu {
 	onMouseDown(e) {
 		const dpr = window.devicePixelRatio;
 		const x = e.clientX * dpr, y = e.clientY * dpr;
-		if ( util.inRange(x, this.x.sub(this.rx).parse(), this.x.add(this.rx).parse())
-			&& util.inRange(y, this.y.sub(this.ry).parse(), this.y.add(this.ry).parse()) ) {
+		if ( util.inRange(x, this.getX().sub(this.rx).parse(), this.getX().add(this.rx).parse())
+			&& util.inRange(y, this.getY().sub(this.ry).parse(), this.getY().add(this.ry).parse()) ) {
 			if ( this.isTrigger ) {
 				if ( this.on ) {
 					this.offTriggerFn();
@@ -80,8 +80,8 @@ export default class Button extends Menu {
 	onMouseUp(e) {
 		const dpr = window.devicePixelRatio;
 		const x = e.clientX * dpr, y = e.clientY * dpr;
-		if ( util.inRange(x, this.x.sub(this.rx).parse(), this.x.add(this.rx).parse())
-			&& util.inRange(y, this.y.sub(this.ry).parse(), this.y.add(this.ry).parse()) ) {
+		if ( util.inRange(x, this.getX().sub(this.rx).parse(), this.getX().add(this.rx).parse())
+			&& util.inRange(y, this.getY().sub(this.ry).parse(), this.getY().add(this.ry).parse()) ) {
 			if ( !(this.isTrigger && this.on) ) {
 				this.fillColor = this.style.hover;
 			}
