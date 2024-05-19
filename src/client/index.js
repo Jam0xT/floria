@@ -1,14 +1,14 @@
-import { connect, play } from './networking';
+import { connect, play } from './networking.js';
 
-import render from './render';
+import render from './render.js';
 
-import { stopCapturingInput } from './input';
+// import { stopCapturingInput } from './input.js';
 
-import { downloadAssets } from './assets';
+import { downloadAssets } from './assets.js';
 
-import { initState } from './state';
+import { initState } from './state.js';
 
-import { initCmd } from './cmd';
+// import { initCmd } from './cmd.js';
 
 import './css/main.css';
 
@@ -28,7 +28,7 @@ window.onload = () => {
 }
 
 function onGameOver() {
-	stopCapturingInput();
+	// stopCapturingInput();
 	// loadMenu();
 }
 
@@ -46,7 +46,7 @@ function connectToServer() {
 function joinGame() {
 	Promise.all([
 		initState(),
-		initCmd(),
+		// initCmd(),
 	]).then(() => {
 		let username = document.getElementById('username-input').value;
 		window.localStorage.setItem('username', username);

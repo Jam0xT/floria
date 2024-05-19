@@ -1,5 +1,4 @@
-import { RENDER_DELAY } from '../shared/constants';
-import { addDiedEntities } from './render';
+import Constants from '../shared/constants.js';
 
 const gameUpdates = [];
 let gameStart = 0;
@@ -25,7 +24,7 @@ export function processGameUpdate(update) {
 }
 
 function currentServerTime() {
-	return firstServerTimestamp + (Date.now() - gameStart) - RENDER_DELAY;
+	return firstServerTimestamp + (Date.now() - gameStart) - Constants.RENDER_DELAY;
 }
 
 function getBaseUpdateIndex() {

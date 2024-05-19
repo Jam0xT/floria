@@ -78,7 +78,7 @@ function main() {
 		menu.render(ctx);
 	});
 
-	// renderFps();
+	renderFps();
 
 	canvas.draw(ctx);
     animation.play(main);
@@ -99,7 +99,6 @@ function renderFps() {
 	fpsList.push(fps);
 	if ( fpsList.length > 200 )
 		fpsList.shift();
-	console.log(fpsList);
 	for (let i = 0; i < fpsList.length; i ++ ) {
 		util.renderRoundRect(ctx,
 			Length.u(i * 5), Length.u(30),

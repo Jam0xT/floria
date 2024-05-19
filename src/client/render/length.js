@@ -1,4 +1,4 @@
-import { W, H, unitLength } from './canvas';
+import { W, H, unitLength } from './canvas.js';
 
 export default class Length {
 	constructor(W_, H_, unitLength_ = 0) {

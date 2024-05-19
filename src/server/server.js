@@ -1,7 +1,7 @@
 import express from "express";
 import webpack from "webpack";
 import webpackDevMiddleware from "webpack-dev-middleware";
-import * as socketio from 'socket.io';
+import { Server } from 'socket.io';
 
 import Constants from '../shared/constants.js';
 import Game from './game.js';
@@ -21,7 +21,7 @@ const port = process.env.PORT || 25565;
 const server = app.listen(port);
 console.log(`Server listening on port ${port}`);
 
-const io = new socketio.Socket(server);
+const io = new Server(server);
 
 io.on('connection', socket => {
 	console.log('Player connected! ID: ', socket.id);

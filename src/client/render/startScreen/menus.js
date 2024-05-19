@@ -300,5 +300,63 @@ export default function getMenus() {
 			false,
 			0,
 		),
+		arena_mode: new Menu(
+			Length.w(0.5), Length.u(-100),
+			Length.u(0), Length.u(0),
+			function(ctx) {
+				util.renderText(ctx, ctx.globalAlpha,
+					'Mode',
+					Length.u(0), Length.u(0),
+					Length.u(30),
+					'center',
+					'white',
+				);
+			},
+			styles.menu.invisible,
+			function() {
+				this.yGen = {
+					gen: util.gen.logarithmic_increase(this.y.parse(), Length.h(0.3).parse(), 0.85),
+					val: {},
+				};	
+			},
+			function() {
+				this.yGen = {
+					gen: util.gen.exponential_decrease(this.y.parse(), Length.u(-100).parse(), 0.85),
+					val: {},
+				};
+			},
+			'arena',
+			false,
+			0,
+		),
+		arena_playerlist: new Menu(
+			Length.u(-100), Length.h(0.3),
+			Length.u(0), Length.u(0),
+			function(ctx) {
+				util.renderText(ctx, ctx.globalAlpha,
+					'Players',
+					Length.u(0), Length.u(0),
+					Length.u(30),
+					'center',
+					'white',
+				);
+			},
+			styles.menu.invisible,
+			function() {
+				this.xGen = {
+					gen: util.gen.logarithmic_increase(this.x.parse(), Length.w(0.3).parse(), 0.85),
+					val: {},
+				};	
+			},
+			function() {
+				this.xGen = {
+					gen: util.gen.exponential_decrease(this.x.parse(), Length.u(-100).parse(), 0.85),
+					val: {},
+				};
+			},
+			'arena',
+			false,
+			0,
+		),
 	}
 }
