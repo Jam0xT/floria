@@ -4,8 +4,9 @@ import webpackDevMiddleware from "webpack-dev-middleware";
 import { Server } from 'socket.io';
 
 import Constants from '../shared/constants.js';
-import Game from './game.js';
 import webpackConfig from "../../webpack.dev.js";
+
+import * as room from './room.js';
 
 const app = express();
 app.use(express.static('public'));
@@ -24,46 +25,46 @@ console.log(`Server listening on port ${port}`);
 const io = new Server(server);
 
 io.on('connection', socket => {
-	console.log('Player connected! ID: ', socket.id);
-
-	socket.on(Constants.MSG_TYPES.JOIN_GAME, joinGame);
-	socket.on(Constants.MSG_TYPES.MOVEMENT, handleMovement);
-	socket.on(Constants.MSG_TYPES.MOUSE_DOWN, handleMouseDown);
-	socket.on(Constants.MSG_TYPES.MOUSE_UP, handleMouseUp);
-	socket.on(Constants.MSG_TYPES.PETAL_SWITCH, handlePetalSwitch);
-	socket.on(Constants.MSG_TYPES.CMD_INV, handleCmdInv)
-	socket.on('disconnect', onDisconnect);
+	console.log(`Player ${socket.id} connected.`);
+	room.add(socket);
+	// socket.on(Constants.MSG_TYPES.JOIN_GAME, joinGame);
+	// socket.on(Constants.MSG_TYPES.MOVEMENT, handleMovement);
+	// socket.on(Constants.MSG_TYPES.MOUSE_DOWN, handleMouseDown);
+	// socket.on(Constants.MSG_TYPES.MOUSE_UP, handleMouseUp);
+	// socket.on(Constants.MSG_TYPES.PETAL_SWITCH, handlePetalSwitch);
+	// socket.on(Constants.MSG_TYPES.CMD_INV, handleCmdInv)
+	// socket.on('disconnect', onDisconnect);
 });
 
-const game = new Game();
+// const game = new Game();
 
-function joinGame(username) {
-	if ( username.length <= 20 ) {
-		console.log(`Player Joined Game with Username: ${username}`);
-		game.addPlayer(this, username);
-	}
-}
+// function joinGame(username) {
+// 	if ( username.length <= 20 ) {
+// 		console.log(`Player Joined Game with Username: ${username}`);
+// 		game.addPlayer(this, username);
+// 	}
+// }
 
-function onDisconnect() {
-	game.onPlayerDisconnect(this);
-}
+// function onDisconnect() {
+// 	game.onPlayerDisconnect(this);
+// }
 
-function handleMovement(movement) {
-	game.handleMovement(this, movement);
-}
+// function handleMovement(movement) {
+// 	game.handleMovement(this, movement);
+// }
 
-function handleMouseDown(mouseDownEvent) {
-	game.handleMouseDown(this, mouseDownEvent);
-}
+// function handleMouseDown(mouseDownEvent) {
+// 	game.handleMouseDown(this, mouseDownEvent);
+// }
 
-function handleMouseUp(mouseUpEvent) {
-	game.handleMouseUp(this, mouseUpEvent);
-}
+// function handleMouseUp(mouseUpEvent) {
+// 	game.handleMouseUp(this, mouseUpEvent);
+// }
 
-function handlePetalSwitch(petalA, petalB, implement) {
-	game.handlePetalSwitch(this, petalA, petalB, implement);
-}
+// function handlePetalSwitch(petalA, petalB, implement) {
+// 	game.handlePetalSwitch(this, petalA, petalB, implement);
+// }
 
-function handleCmdInv(sel, petal) {
-	game.cmdInv(sel, petal);
-}
+// function handleCmdInv(sel, petal) {
+// 	game.cmdInv(sel, petal);
+// }

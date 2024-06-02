@@ -59,14 +59,14 @@ function renderText(ctx_, alpha, text, x, y, fontSize, textAlign = 'center', sty
 
 	ctx.textAlign = textAlign;
 
-	let offsetX = 0, offsetY = fontSize * 1.5; // 防止文本超出临时ctx范围
+	// let offsetX = 0, offsetY = fontSize * 1.5; // 防止文本超出临时ctx范围
 
-	if ( textAlign == 'left' ) {
-		offsetX = outlineWidth;
-	} else if ( textAlign == 'center' ) {
-		offsetX = H * 0.5;
-	}
-	ctx.translate(offsetX, offsetY);
+	// if ( textAlign == 'left' ) {
+	// 	offsetX = outlineWidth;
+	// } else if ( textAlign == 'center' ) {
+	// 	offsetX = H * 0.5;
+	// }
+	// ctx.translate(offsetX, offsetY);
 
 	ctx.globalCompositeOperation = 'source-over'; // 渲染文本
 	ctx.strokeStyle = "black";
@@ -83,7 +83,8 @@ function renderText(ctx_, alpha, text, x, y, fontSize, textAlign = 'center', sty
 	// 粘贴到主 ctx
 
 	ctx_.globalAlpha = alpha;
-	canvas.draw(ctx, ctx_, -offsetX, -offsetY, true);
+	// canvas.draw(ctx, ctx_, -offsetX, -offsetY, true);
+	canvas.draw(ctx, ctx_, 0, 0, true);
 	ctx_.globalAlpha = 1;
 
 	// 恢复主 ctx
