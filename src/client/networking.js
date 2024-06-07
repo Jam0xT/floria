@@ -1,7 +1,7 @@
 import io from 'socket.io-client';
-import { processGameUpdate } from './state';
+import { processGameUpdate } from './state.js';
 
-const Constants = require('../shared/constants');
+import Constants from '../shared/constants.js';
 
 const socketProtocol = (window.location.protocol.includes('https')) ? 'wss' : 'ws';
 const socket = io(
@@ -15,7 +15,7 @@ const connectedPromise = new Promise(resolve => {
 	});
 });
 
-export const connect = onGameOver => {
+export const connect = (onGameOver) => {
 	connectedPromise.then(() => {
 		socket.on(Constants.MSG_TYPES.GAME_UPDATE, processGameUpdate);
 		socket.on(Constants.MSG_TYPES.GAME_OVER, onGameOver);

@@ -1,18 +1,19 @@
-module.exports = Object.freeze({
+export default Object.freeze({
 	TICK_PER_SECOND: 25, // server runs X updates per second
 
 	SPEED_ATTENUATION_COEFFICIENT: 0.7, // velocity *= X every tick
 
 	MSG_TYPES: { // socket.io 交流
-		JOIN_GAME: 'join_game',
-		GAME_UPDATE: 'update',
-		MOVEMENT: 'movement',
-		MOUSE_DOWN: 'mouse_down',
-		MOUSE_UP: 'mouse_up',
-		GAME_OVER: 'dead',
-		PETAL_SWITCH: 'petal_switch',
-		LIGHTNING_PATH: 'lightning_path',
-		CMD_INV: 'cmd_inv',
+		
+		// JOIN_GAME: 'join_game',
+		// GAME_UPDATE: 'update',
+		// MOVEMENT: 'movement',
+		// MOUSE_DOWN: 'mouse_down',
+		// MOUSE_UP: 'mouse_up',
+		// GAME_OVER: 'dead',
+		// PETAL_SWITCH: 'petal_switch',
+		// LIGHTNING_PATH: 'lightning_path',
+		// CMD_INV: 'cmd_inv',
 	},
 
 	MAP_WIDTH: 20000, // width of the map

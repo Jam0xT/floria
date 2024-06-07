@@ -1,5 +1,5 @@
-import { setCmdLayer, addCmdLog, setCmdColor, clearCmdLog, toggleDebugOption } from './render';
-import { sendCmdInv } from './networking';
+import { setCmdLayer, addCmdLog, setCmdColor, clearCmdLog, toggleDebugOption } from './render.js';
+import { sendCmdInv } from './networking.js';
 
 let cmd;
 let cmdPrev = '';

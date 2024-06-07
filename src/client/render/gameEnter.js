@@ -1,3 +1,6 @@
+let gameRadiusOnEnter = 0;
+let deltaGameRadiusOnEnter = 5;
+
 export function renderGameEnter() {
 	menuLayer.forEach(layer => {
 		ctx = getCtx(layer);
