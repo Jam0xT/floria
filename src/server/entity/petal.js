@@ -1,5 +1,6 @@
-import Entity from './entity.js';
-import PetalAttributes from '../../../public/petal_attributes.js';
+const Constants = require('../../shared/constants');
+const Entity = require('./entity');
+const PetalAttributes = require('../../../public/petal_attributes');
 
 class Petal extends Entity {
 	constructor(id, idx, placeHolder, x, y, parent, type, noBorderCollision, idInPlaceHolder, slot) {
@@ -37,8 +38,6 @@ class Petal extends Entity {
 	serializeForUpdate() {
 		return {
 			...(super.serializeForUpdate()),
-			size: this.attributes.RADIUS * this.attributes.RENDER_RADIUS,
-			radius: this.attributes.RADIUS,
 			type: this.type,
 			dir: this.direction,
 			isHide: this.isHide,
@@ -46,4 +45,4 @@ class Petal extends Entity {
 	}
 }
 
-export default Petal;
+module.exports = Petal;

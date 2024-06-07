@@ -1,16 +1,13 @@
-import { connect, play } from './networking.js';
-
-import render from './render.js';
-
-// import { stopCapturingInput } from './input.js';
-
-import { downloadAssets } from './assets.js';
-
-import { initState } from './state.js';
-
-// import { initCmd } from './cmd.js';
+import { connect, play } from './networking';
+import { startRenderingMenu, startRenderGameEnter, renderConnected, renderInit, renderStartup } from './render';
+import { startCapturingInput, stopCapturingInput } from './input';
+import { downloadAssets } from './assets';
+import { initState } from './state';
 
 import './css/main.css';
+
+var inGame = false;
+var needMenu = true;
 
 window.onload = () => {
 	document.body.style.cursor = "default";
@@ -18,55 +15,46 @@ window.onload = () => {
 		event.preventDefault();
 	}
 	document.getElementById('username-input').value = window.localStorage.getItem('username') || '';
-	Promise.all([
-		downloadAssets(),
-		render.init(),
-	]).then(() => {
-		document.getElementById('text-loading').classList.add('hidden');
-		render.loadStartScreen();
+	renderStartup();
+	Promise.all([downloadAssets(),]).then(() => {
+		loadMenu();
 	});
 }
 
 function onGameOver() {
-	// stopCapturingInput();
-	// loadMenu();
+	stopCapturingInput();
+	inGame = false;
+	needMenu = true;
+	loadMenu();
 }
 
-function connectToServer() {
-	Promise.all([
-		connect(onGameOver),
-	]).then(() => {
-		// ...
-	}).catch(() => {
-		console.log('Connect failed.');
-		// window.setTimeout(loadMenu, 1000);
-	});
-}
-
-function joinGame() {
-	Promise.all([
-		initState(),
-		// initCmd(),
-	]).then(() => {
-		let username = document.getElementById('username-input').value;
-		window.localStorage.setItem('username', username);
-		if ( username != '' )
-			play(username);
-		else
-			play('Random Flower');
-	}).catch(() => {
-		console.log('Error 0');
-	})
-}
-
-function waitForKeyPress(key) {
-	return new Promise(resolve => {
-		window.addEventListener('keydown', keyPressHandler);
-		let keyPressHandler = e => {
-			if ( e.key == key ) {
-				window.removeEventListener('keydown', keyPressHandler);
-				resolve();
+function loadMenu() {
+	if ( needMenu ) {
+		needMenu = false;
+		renderInit();
+		startRenderingMenu();
+		Promise.all([
+			connect(onGameOver),
+		]).then(() => {
+			renderConnected();
+			window.onkeydown = e => {
+				if ( e.key == 'Enter' ) {
+					if ( inGame == false ) {
+						let username = document.getElementById('username-input').value;
+						window.localStorage.setItem('username', username);
+						if ( username != '' )
+							play(username);
+						else
+							play('Random Flower');
+						inGame = true;
+						initState();
+						startRenderGameEnter();
+					}
+				}
 			}
-		}
-	});
+		}).catch(() => {
+			console.log('Connect failed.');
+			window.setTimeout(loadMenu, 1000);
+		});
+	}
 }

@@ -1,7 +1,7 @@
 import io from 'socket.io-client';
-import { processGameUpdate } from './state.js';
+import { processGameUpdate } from './state';
 
-import Constants from '../shared/constants.js';
+const Constants = require('../shared/constants');
 
 const socketProtocol = (window.location.protocol.includes('https')) ? 'wss' : 'ws';
 const socket = io(
@@ -15,7 +15,7 @@ const connectedPromise = new Promise(resolve => {
 	});
 });
 
-export const connect = (onGameOver) => {
+export const connect = onGameOver => {
 	connectedPromise.then(() => {
 		socket.on(Constants.MSG_TYPES.GAME_UPDATE, processGameUpdate);
 		socket.on(Constants.MSG_TYPES.GAME_OVER, onGameOver);
@@ -46,6 +46,6 @@ export const sendPetalSwitchEvent = (petalA, petalB) => {
 	socket.emit(Constants.MSG_TYPES.PETAL_SWITCH, petalA, petalB);
 }
 
-export const sendCmdInv = (sel, petal) => {
-	socket.emit(Constants.MSG_TYPES.CMD_INV, sel, petal);
-}
+// export const sendPetalDisableEvent = (petal) => {
+// 	socket.emit(Constants.MSG_TYPES.PETAL_DISABLE, petal);
+// }

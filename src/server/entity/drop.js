@@ -1,5 +1,5 @@
-import Entity from './entity.js';
-import Constants from '../../shared/constants.js';
+const Entity = require('./entity');
+const Constants = require('../../shared/constants');
 
 class Drop extends Entity {
 	constructor(id, x, y, type, existTime) {
@@ -38,4 +38,4 @@ class Drop extends Entity {
 	}
 }
 
-export default Drop;
+module.exports = Drop;

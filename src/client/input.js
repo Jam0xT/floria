@@ -1,6 +1,5 @@
-import { sendMovement, sendMouseDownEvent, sendMouseUpEvent, sendPetalSwitchEvent } from './networking.js';
-import { select, deSelect, drag, target, switchPetals, toggleKeyboardMovement } from './render.js';
-import { focusCmd, cmdExecute, cmdSetPrev } from './cmd.js';
+import { sendMovement, sendMouseDownEvent, sendMouseUpEvent, sendPetalSwitchEvent } from './networking';
+import { toggleKeyboardMovement, select, deSelect, drag, target, switchPetals } from './render';
 
 var keyDown = {
 	'w': false,
@@ -9,7 +8,6 @@ var keyDown = {
 	'd': false,
 };
 
-var cmdInput = false;
 var currentDirection;
 var keyboardMovement = false;
 var spaceDown = false, shiftDown = false;
@@ -187,16 +185,6 @@ function handleMovement(x, y) {
 }
 
 function handleKeyDownInput(e) {
-	if ( cmdInput ) {
-		if ( e.code == 'Enter' ) {
-			cmdExecute();
-			cmdInput = false;
-		}
-		if ( e.code == 'ArrowUp' ) {
-			cmdSetPrev();
-		}
-		return ;
-	}
 	if ( keyboardMovement ) {
 		if ( e.key == 'w' || e.key == 's' || e.key == 'a' || e.key == 'd' ) {
 			keyDown[e.key] = true;
@@ -226,10 +214,6 @@ function handleKeyDownInput(e) {
 				});
 			}
 		}
-	}
-	if ( e.code == 'Enter' ) {
-		cmdInput = true;
-		focusCmd();
 	}
 	if ( e.key == 'k' ) {
 		keyboardMovement = !keyboardMovement;
@@ -266,9 +250,6 @@ function handleKeyDownInput(e) {
 }
 
 function handleKeyUpInput(e) {
-	if ( cmdInput ) {
-		return ;
-	}
 	if ( keyboardMovement ) {
 		if ( e.key == 'w' || e.key == 's' || e.key == 'a' || e.key == 'd' ) {
 			keyDown[e.key] = false;
@@ -338,4 +319,8 @@ export function updateSlotsData(W_, hpx_, primarySlotHitboxLength_, primarySlotD
 	secondarySlotDisplayLength = secondarySlotDisplayLength_;
 	secondarySlotCenterY = secondarySlotCenterY_;
 	secondarySlotCount = secondarySlotCount_;
+}
+
+export function isKeyboardMovement() {
+	return keyboardMovement;
 }
