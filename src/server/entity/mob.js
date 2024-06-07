@@ -1,6 +1,6 @@
-const Entity = require('./entity');
-const EntityAttributes = require('../../../public/entity_attributes');
-const Constants = require('../../shared/constants');
+import Entity from './entity.js';
+import EntityAttributes from '../../../public/entity_attributes.js';
+import Constants from '../../shared/constants.js';
 
 class Mob extends Entity {
 	constructor(id, x, y, type, team, noBorderCollision, isProjectile, existTime, size) {
@@ -286,4 +286,4 @@ class Mob extends Entity {
 	}
 }
 
-module.exports = Mob;
+export default Mob;

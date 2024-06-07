@@ -1,11 +1,9 @@
-const Constants = require('../shared/constants');
-const EntityAttributes = require('../../public/entity_attributes');
-const PetalAttributes = require('../../public/petal_attributes');
-const Player = require('./entity/player');
-const Mob = require('./entity/mob');
-const { listen } = require('express/lib/application');
-const Drop = require('./entity/drop');
-const { MAP_AREAS } = require('../shared/constants');
+import Constants from '../shared/constants.js';
+import EntityAttributes from '../../public/entity_attributes.js';
+import PetalAttributes from '../../public/petal_attributes.js';
+import Player from './entity/player.js';
+import Mob from './entity/mob.js';
+import Drop from './entity/drop.js';
 
 var TOTAL_SPAWN_WEIGHT = 0; // this is a constant
 Object.values(EntityAttributes).forEach(attribute => {
@@ -1549,4 +1547,4 @@ class Game {
 	}
 }
 
-module.exports = Game;
+export default Game;

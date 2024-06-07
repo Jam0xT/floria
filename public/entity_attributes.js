@@ -1,4 +1,4 @@
-module.exports = Object.freeze({
+export default Object.freeze({
 	// an entity with bigger mass will receive less knockback
 	PLAYER: {
 		MASS: 100,

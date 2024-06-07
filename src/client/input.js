@@ -1,6 +1,6 @@
-import { sendMovement, sendMouseDownEvent, sendMouseUpEvent, sendPetalSwitchEvent } from './networking';
-import { select, deSelect, drag, target, switchPetals, toggleKeyboardMovement } from './render';
-import { focusCmd, cmdExecute, cmdSetPrev } from './cmd';
+import { sendMovement, sendMouseDownEvent, sendMouseUpEvent, sendPetalSwitchEvent } from './networking.js';
+import { select, deSelect, drag, target, switchPetals, toggleKeyboardMovement } from './render.js';
+import { focusCmd, cmdExecute, cmdSetPrev } from './cmd.js';
 
 var keyDown = {
 	'w': false,

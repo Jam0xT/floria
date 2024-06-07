@@ -1,6 +1,5 @@
-const Constants = require('../../shared/constants');
-const Entity = require('./entity');
-const PetalAttributes = require('../../../public/petal_attributes');
+import Entity from './entity.js';
+import PetalAttributes from '../../../public/petal_attributes.js';
 
 class Petal extends Entity {
 	constructor(id, idx, placeHolder, x, y, parent, type, noBorderCollision, idInPlaceHolder, slot) {
@@ -47,4 +46,4 @@ class Petal extends Entity {
 	}
 }
 
-module.exports = Petal;
+export default Petal;

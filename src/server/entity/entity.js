@@ -1,4 +1,4 @@
-const Constants = require('../../shared/constants');
+import Constants from '../../shared/constants.js';
 
 class Entity {
 	constructor(id, x, y, team, generalType, type, hp, maxHp, noBorderCollision) {
@@ -186,4 +186,4 @@ class Entity {
 	}
 }
 
-module.exports = Entity;
+export default Entity;

@@ -1,4 +1,4 @@
-module.exports = Object.freeze({
+export default Object.freeze({
 	TICK_PER_SECOND: 25, // server runs X updates per second
 
 	SPEED_ATTENUATION_COEFFICIENT: 0.7, // velocity *= X every tick

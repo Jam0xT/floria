@@ -1,9 +1,10 @@
-const Entity = require('./entity');
-const Constants = require('../../shared/constants');
-const EntityAttributes = require('../../../public/entity_attributes');
-const PetalAttributes = require('../../../public/petal_attributes');
+import Entity from './entity.js';
+import Constants from '../../shared/constants.js';
+import EntityAttributes from '../../../public/entity_attributes.js';
+import PetalAttributes from '../../../public/petal_attributes.js';
 const Attribute = EntityAttributes.PLAYER;
-const Petal = require('./petal');
+import Petal from './petal.js';
+
 
 class Player extends Entity {
 	constructor(id, username, x, y) {
@@ -698,4 +699,4 @@ class Player extends Entity {
 	}
 }
 
-module.exports = Player;
+export default Player;
