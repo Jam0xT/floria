@@ -21,10 +21,10 @@ export default class Inputbox extends Button {
 		this.textSize = this.ry.mul(1.2);
 		
 		//文本最大X坐标（超出即隐藏）
-		this.max = this.rx.mul(2).sub(Length.u(4));
+		this.max = this.rx.mul(2).sub(this.rx.mul(0.02));
 			
 		//文本最小X坐标（小于即隐藏）
-		this.min = Length.u(4);
+		this.min = this.rx.mul(0.02);
 		
 		this.arrowX = this.min //箭头X坐标
 		

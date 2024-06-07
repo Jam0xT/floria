@@ -1,9 +1,9 @@
-module.exports = Object.freeze({
+export default Object.freeze({
 	TICK_PER_SECOND: 25, // server runs X updates per second
 
 	SPEED_ATTENUATION_COEFFICIENT: 0.7, // velocity *= X every tick
 
-	MSG_TYPES: { // socket.io communication
+	MSG_TYPES: { // socket.io 交流
 		JOIN_GAME: 'join_game',
 		GAME_UPDATE: 'update',
 		MOVEMENT: 'movement',
@@ -11,8 +11,8 @@ module.exports = Object.freeze({
 		MOUSE_UP: 'mouse_up',
 		GAME_OVER: 'dead',
 		PETAL_SWITCH: 'petal_switch',
-		PETAL_DISABLE: 'petal_disable',
 		LIGHTNING_PATH: 'lightning_path',
+		CMD_INV: 'cmd_inv',
 	},
 
 	MAP_WIDTH: 20000, // width of the map
@@ -101,8 +101,8 @@ module.exports = Object.freeze({
 	PETAL_ROTATION_SPEED_BASE: 2.5, // default player petal rotation speed
 	PETAL_FLOAT_SPEED: 1, //翅膀上下摆动的速度
 
-	PRIMARY_SLOT_COUNT_BASE: 8, // default player slot count
-	SECONDARY_SLOT_COUNT_BASE: 8,
+	PRIMARY_SLOT_COUNT_BASE: 5, // default player slot count
+	SECONDARY_SLOT_COUNT_BASE: 5,
 
 	PENETRATION_DEPTH_WEIGHT_IN_COLLISION: 1, // decides how much penetration depth will effect collision knockback
 	// VELOCITY_WEIGHT_IN_COLLISION: 2, // decides how much velocity will effect collision knockback
@@ -118,26 +118,6 @@ module.exports = Object.freeze({
 	FIRST_PETAL_ID: 100,
 	PETAL_MULTIPLE_MAX: 5, //多子花瓣最多拥有的数量
 	PETAL_MULTIPLE_OFFSET_DISTANCE: 12, //多子花瓣远离距离
-
-	RARITY_COLOR: [ // rarity color
-		'rgb(126, 239, 109)', // common
-		'rgb(255, 230, 93)', // unusual
-		'rgb(77, 82, 227)', // rare
-		'rgb(134, 31, 222)', // epic
-		'rgb(222, 31, 31)', // legendary
-		'rgb(31, 219, 222)', // mythic
-		'rgb(255, 43, 117)', // unique
-	],
-
-	RARITY_COLOR_DARKEN: [ // darkened rarity color
-		'rgb(102, 194, 88)',
-		'rgb(207, 186, 75)',
-		'rgb(62, 66, 184)',
-		'rgb(109, 25, 180)',
-		'rgb(180, 25, 25)',
-		'rgb(25, 177, 180)',
-		'rgb(207, 35, 95)',
-	],
 
 	PETAL_SYNC_INTERVAL: 25, // tick
 

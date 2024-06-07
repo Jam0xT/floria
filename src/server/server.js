@@ -1,11 +1,11 @@
-const express = require("express");
-const webpack = require("webpack");
-const webpackDevMiddleware = require("webpack-dev-middleware");
-const socketio = require('socket.io');
+import express from "express";
+import webpack from "webpack";
+import webpackDevMiddleware from "webpack-dev-middleware";
+import { Server } from 'socket.io';
 
-const Constants = require('../shared/constants');
-const Game = require('./game');
-const webpackConfig = require("../../webpack.dev.js");
+import Constants from '../shared/constants.js';
+import Game from './game.js';
+import webpackConfig from "../../webpack.dev.js";
 
 const app = express();
 app.use(express.static('public'));
@@ -21,7 +21,7 @@ const port = process.env.PORT || 25565;
 const server = app.listen(port);
 console.log(`Server listening on port ${port}`);
 
-const io = socketio(server);
+const io = new Server(server);
 
 io.on('connection', socket => {
 	console.log('Player connected! ID: ', socket.id);
@@ -31,7 +31,7 @@ io.on('connection', socket => {
 	socket.on(Constants.MSG_TYPES.MOUSE_DOWN, handleMouseDown);
 	socket.on(Constants.MSG_TYPES.MOUSE_UP, handleMouseUp);
 	socket.on(Constants.MSG_TYPES.PETAL_SWITCH, handlePetalSwitch);
-	socket.on(Constants.MSG_TYPES.PETAL_DISABLE, handlePetalDisable);
+	socket.on(Constants.MSG_TYPES.CMD_INV, handleCmdInv)
 	socket.on('disconnect', onDisconnect);
 });
 
@@ -42,6 +42,10 @@ function joinGame(username) {
 		console.log(`Player Joined Game with Username: ${username}`);
 		game.addPlayer(this, username);
 	}
+}
+
+function onDisconnect() {
+	game.onPlayerDisconnect(this);
 }
 
 function handleMovement(movement) {
@@ -60,10 +64,6 @@ function handlePetalSwitch(petalA, petalB, implement) {
 	game.handlePetalSwitch(this, petalA, petalB, implement);
 }
 
-function handlePetalDisable(petal) {
-	game.handlePetalDisable(this, petal);
-}
-
-function onDisconnect() {
-	game.onPlayerDisconnect(this);
+function handleCmdInv(sel, petal) {
+	game.cmdInv(sel, petal);
 }

@@ -1,6 +1,6 @@
-const Entity = require('./entity');
-const EntityAttributes = require('../../../public/entity_attributes');
-const Constants = require('../../shared/constants');
+import Entity from './entity.js';
+import EntityAttributes from '../../../public/entity_attributes.js';
+import Constants from '../../shared/constants.js';
 
 class Mob extends Entity {
 	constructor(id, x, y, type, team, noBorderCollision, isProjectile, existTime, size) {
@@ -280,9 +280,10 @@ class Mob extends Entity {
 			...(super.serializeForUpdate()),
 			type: this.type,
 			activeDirection: this.activeDirection,
-			size: this.attributes.RENDER_RADIUS,
+			radius: this.attributes.RADIUS,
+			size: this.attributes.RADIUS * this.attributes.RENDER_RADIUS,
 		}
 	}
 }
 
-module.exports = Mob;
+export default Mob;
