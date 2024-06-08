@@ -2,14 +2,15 @@ import Menu from './menu.js';
 import * as util from '../utility.js';
 
 export default class Button extends Menu {
-	constructor(x, y, align, rx, ry, renderFn, style, onOpenFn, onCloseFn, parent, isInitialHiding, transparency = 0) {
-		super(x, y, align, rx, ry, renderFn, style, onOpenFn, onCloseFn, parent, isInitialHiding, transparency);
-		this.isTrigger = false; // 是否为开关式按钮
-		this.onTriggerFn = util.nop; // 触发/开关式按钮开启
-		this.offTriggerFn = util.nop; // 开关式按钮关闭
-		this.onHoverFn = util.nop;
-		this.offHoverFn = util.nop;
-
+	constructor(options) {
+		super(options);
+		this.isTrigger = options.isTrigger || false; // 是否为开关式按钮
+		this.onTriggerFn = options.onTriggerFn || util.nop; // 触发/开关式按钮开启
+		this.offTriggerFn = options.offTriggerFn || util.nop; // 开关式按钮关闭
+		this.onHoverFn = options.onHoverFn || util.nop;
+		this.offHoverFn = options.offHoverFn || util.nop;
+		this.outRangeFn = options.outRangeFn || util.nop;
+		
 		this.on = false; // 切换式按钮是否按下
 		this.hover = false;
 		this.init();
@@ -20,21 +21,7 @@ export default class Button extends Menu {
 		window.addEventListener('mousedown', this.onMouseDown.bind(this));
 		window.addEventListener('mouseup', this.onMouseUp.bind(this));
 	}
-
-	setOnTriggerFn(onTriggerFn) { // 触发/开关式按钮开启
-		this.onTriggerFn = onTriggerFn;
-	}
-
-	setOffTriggerFn(offTriggerFn) { // 开关式按钮关闭
-		this.isTrigger = true;
-		this.offTriggerFn = offTriggerFn;
-	}
-
-	setOnHoverFn(onHoverFn, offHoverFn) {
-		this.onHoverFn = onHoverFn;
-		this.offHoverFn = offHoverFn;
-	}
-
+	
 	onHover(e) {
 		const dpr = window.devicePixelRatio;
 		const x = e.clientX * dpr, y = e.clientY * dpr;
@@ -45,7 +32,7 @@ export default class Button extends Menu {
 				if ( !this.on ) {
 					this.fillColor = this.style.hover;
 				}
-				this.onHoverFn();
+				this.onHoverFn(e);
 				this.hover = true;
 			}
 		} else {
@@ -54,7 +41,7 @@ export default class Button extends Menu {
 				if ( !this.on ) {
 					this.fillColor = this.style.fill;
 				}
-				this.offHoverFn();
+				this.offHoverFn(e);
 				this.hover = false;
 			}
 		}
@@ -67,13 +54,18 @@ export default class Button extends Menu {
 			&& util.inRange(y, this.getY().sub(this.ry).parse(), this.getY().add(this.ry).parse()) ) {
 			if ( this.isTrigger ) {
 				if ( this.on ) {
-					this.offTriggerFn();
+					this.offTriggerFn(e);
 					this.fillColor = this.style.fill;
+				} else {
+					this.onTriggerFn(e);
+					this.fillColor = this.style.click;
 				}
 			} else {
-				this.onTriggerFn();
+				this.onTriggerFn(e);
 				this.fillColor = this.style.click;
 			}
+		} else {
+			this.outRangeFn(e);
 		}
 	}
 

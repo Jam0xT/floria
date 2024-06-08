@@ -2,6 +2,17 @@ export default {
 	background: {
 		screen: "#1EA761",
 	},
+	
+	inputbox: {
+		default: {
+			fill: 'rgb(255, 255, 255)', // 一种灰色
+			outline: 'rgb(100, 100, 100)', // 深灰色
+			hover: 'rgb(255, 255, 255)', // 浅一点的灰色
+			click: 'rgb(255, 255, 255)', // 有点深的灰色
+			outline_width: 3, // 单位：u
+			arcRadius: 2, // 单位：u
+		},
+	},
 
 	button: {
 		default: {

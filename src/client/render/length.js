@@ -30,6 +30,22 @@ export default class Length {
 	static h(H_, unitLength_ = 0) {
 		return new Length(0, H_, unitLength_);
 	}
+	
+	static max(Length1, Length2) {
+		if (Length1.parse() > Length2.parse()) {
+			return Length1;
+		} else {
+			return Length2;
+		}
+	}
+	
+	static min(Length1, Length2) {
+		if (Length1.parse() < Length2.parse()) {
+			return Length1;
+		} else {
+			return Length2;
+		}
+	}
 
 	add(l) {
 		return new Length(this.w + l.w, this.h + l.h, this.unitLength + l.unitLength);
@@ -41,5 +57,17 @@ export default class Length {
 
 	mul(k) {
 		return new Length(this.w * k, this.h * k, this.unitLength * k);
+	}
+	
+	gatherthan(length) {
+		return this.parse() > length.parse();
+	}
+	
+	lessthan(length) {
+		return this.parse() < length.parse();
+	}
+	
+	equalTo(length) {
+		return this.parse() == length.parse();
 	}
 }

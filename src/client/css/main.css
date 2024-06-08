@@ -21,7 +21,7 @@ html, body {
 	left: 50%;
 	top: 50%;
 	transform: translate(-50%, -150%);
-	z-index: 0;
+	z-index: 1;
 }
 
 .hidden {
@@ -34,38 +34,14 @@ html, body {
 	position: absolute;
 	z-index: 4;
 	left: 50vw;
-	top: -10vh;
+	top: -10px;
 	transform: translateY(-50%) translateX(-50%);
 	padding: 0.1vh;
 	background-color: rgba(238, 238, 238, 1);
-	outline: rgba(0, 0, 0, 1) solid 0.5vh;
+	outline-color: rgba(0, 0, 0, 0);
+	outline-style: solid;
+	outline-width: 0.5vh;
 	border-radius: 0.2vh;
 	font-size: 3.5vh;
 	font-family: Ubuntu;
-}
-
-#cmd-input {
-	left: 80%;
-	right: 0%;
-	top: 90%;
-	z-index: 10;
-	height: 2vh;
-	position: absolute;
-	font-size: 1.5vh;
-	font-family: Ubuntu;
-	border-color: transparent;
-	background-color: rgba(255, 255, 255, 0.4);
-}
-
-#cmd-input:focus {
-	outline: none;
-	border-color: transparent;
-	border-bottom: 0.3vh solid rgb(60, 96, 255);
-	background-color: rgba(172, 208, 255, 0.7);
-}
-
-#cmd-input::placeholder {
-	font-size: 1.5vh;
-	font-family: Ubuntu;
-	color: rgb(71, 71, 71);
 }

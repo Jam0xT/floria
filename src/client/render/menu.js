@@ -2,27 +2,27 @@ import Length from './length.js';
 import * as util from '../utility.js';
 
 export default class Menu {
-	constructor(x, y, rx, ry, renderFn, style, onOpenFn, onCloseFn, parent, isInitialHiding, transparency = 0) {
-		this.x = x;
-		this.y = y;
-		this.rx = rx; // 横向半径
-		this.ry = ry; // 竖向半径
-		this.renderFn = renderFn; // 渲染除了纯色填充之外的图案
-		this.style = style; // 样式
+	constructor(options) {
+		this.x = options.x;
+		this.y = options.y;
+		this.rx = options.rx; // 横向半径
+		this.ry = options.ry; // 竖向半径
+		this.renderFn = options.renderFn; // 渲染除了纯色填充之外的图案
+		this.style = options.style; // 样式
 
-		this.onOpenFn = onOpenFn; // 打开菜单
-		this.onCloseFn = onCloseFn; // 关闭菜单
+		this.onOpenFn = options.onOpenFn; // 打开菜单
+		this.onCloseFn = options.onCloseFn; // 关闭菜单
 
 		this.fillColor = this.style.fill; // 填充颜色
 		this.on = false; // 菜单是否打开
 		this.children = [];
 
-		this.parent = parent;
+		this.parent = options.parent;
 		this.parentMenu = undefined;
 
-		this.isInitialHiding = isInitialHiding;
+		this.isInitialHiding = options.isInitialHiding;
 
-		this.transparency = transparency;
+		this.transparency = options.transparency || 0;
 
 		this.transparencyGen = undefined;
 		this.xGen = undefined;
