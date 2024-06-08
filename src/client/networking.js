@@ -17,6 +17,7 @@ const connectedPromise = new Promise(resolve => {
 
 export const connect = (onGameOver) => {
 	connectedPromise.then(() => {
+		// socket.on(Constants.MSG_TYPES.SERVER.ROOM.JOIN, joinRoom);
 		socket.on(Constants.MSG_TYPES.GAME_UPDATE, processGameUpdate);
 		socket.on(Constants.MSG_TYPES.GAME_OVER, onGameOver);
 		socket.on('disconnect', () => {
@@ -48,4 +49,12 @@ export const sendPetalSwitchEvent = (petalA, petalB) => {
 
 export const sendCmdInv = (sel, petal) => {
 	socket.emit(Constants.MSG_TYPES.CMD_INV, sel, petal);
+}
+
+export const createRoom = () => {
+	socket.emit(Constants.MSG_TYPES.CLIENT.ROOM.CREATE);
+}
+
+export const joinRoom = (roomId) => {
+	socket.emit(Constants.MSG_TYPES.CLIENT.ROOM.JOIN, roomId);
 }

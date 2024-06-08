@@ -4,7 +4,17 @@ export default Object.freeze({
 	SPEED_ATTENUATION_COEFFICIENT: 0.7, // velocity *= X every tick
 
 	MSG_TYPES: { // socket.io 交流
-		
+		CLIENT: {
+			ROOM: {
+				CREATE: 'client_room_create',
+				JOIN: 'client_room_join',
+			}
+		},
+		SERVER: {
+			ROOM: {
+				JOIN: 'server_room_join',
+			}
+		}
 		// JOIN_GAME: 'join_game',
 		// GAME_UPDATE: 'update',
 		// MOVEMENT: 'movement',

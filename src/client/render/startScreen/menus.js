@@ -10,6 +10,8 @@ import Inputbox from '../inputbox.js';
 
 import * as util from '../../utility.js';
 
+import * as networking from '../../networking.js';
+
 const menus = {
 	start: new Menu({
 		x: Length.w(0), 
@@ -259,7 +261,7 @@ const menus = {
 		transparency: 0
 	}),
 	arena_room_create_button: new Button({
-		x: Length.u(0), 
+		x: Length.u(0),
 		y: Length.u(25), 
 		rx: Length.u(40), 
 		ry: Length.u(10), 
@@ -271,9 +273,12 @@ const menus = {
 			);
 		}, 
 		style: styles.button.default, 
+		onTriggerFn: function() {
+			networking.createRoom();
+		},
 		onOpenFn: function() {
 			
-		}, 
+		},
 		onCloseFn: function() {
 			
 		}, 
@@ -294,6 +299,9 @@ const menus = {
 			);
 		}, 
 		style: styles.button.default, 
+		onTriggerFn: function() {
+			networking.joinRoom();
+		},
 		onOpenFn: function() {
 			
 		}, 
