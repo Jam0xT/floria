@@ -1,14 +1,8 @@
-import Menu from './menu.js';
-
 import * as util from '../utility.js';
-
-import styles from './styles.js';
 
 import Length from './length.js';
 
 import Button from './button.js';
-
-import { unitLength } from './canvas.js';
 
 export default class Inputbox extends Button {
 	constructor(options) {
@@ -48,7 +42,7 @@ export default class Inputbox extends Button {
 				textX, this.ry.add(this.ry.mul(0.45)),
 				this.ry.mul(1.2),
 				this.textAlign,
-				'Black',
+				'cyan',
 				{
 					w: this.max.sub(this.min.mul(1)),
 					h: this.ry.mul(2)
@@ -72,7 +66,7 @@ export default class Inputbox extends Button {
 			ctx.fillStyle = `Black`;
 			ctx.fill();
 			
-			if (this.arrowTimer == 60) this.arrowTimer = 0;
+			if ( this.arrowTimer == 60 ) this.arrowTimer = 0;
 			
 		}
 		this.arrowTimer = 0 //小竖杠的计时器
@@ -183,30 +177,3 @@ export default class Inputbox extends Button {
 		this.moveArrow(-1) //这里一定是箭头左边所以是-1
 	}
 }
-
-/*
-export default class InputBox extends Menu {
-	constructor(x, y, onOpenFn, onCloseFn, parent, attributes) {
-		super(x, y, Length.u(0), Length.u(0), util.nop, styles.menu.invisible, onOpenFn, onCloseFn, parent, false, 0);
-		this.element = document.createElement('input');
-		document.body.appendChild(this.element);
-		this.setAttribute(attributes);
-	}
-
-	render(ctx) {
-		this.setAttribute({
-			'left': this.getX().parse(),
-			'top': this.getY().parse(),
-		});
-		// console.log(this.element);
-		super.render(ctx);
-	}
-
-	setAttribute(attributes) {
-		Object.keys(attributes).forEach(key => {
-			this.element.setAttribute(key, attributes[key]);
-		});
-	}
-}
-*/
-

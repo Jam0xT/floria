@@ -55,48 +55,44 @@ function getAllTextWidth(text, size) {
 	let ctx = canvas.getTmpCtx();
 	ctx.font = `${size}px Ubuntu`;
 	ctx.lineWidth = size * 0.125;
+
+	const textMetrics = ctx.measureText(text);
 	
-	let allWidth = 0;
-	for (let i = 0; i < text.length; i++) {
-		allWidth += ctx.measureText(text[i]).width;
-	}
-	return allWidth + ctx.lineWidth;
+	return textMetrics.actualBoundingBoxRight + textMetrics.actualBoundingBoxLeft;
 }
 
 function getTextTopHeight(text, size) {
 	let ctx = canvas.getTmpCtx();
 	ctx.font = `${size}px Ubuntu`;
 	ctx.lineWidth = size * 0.125;
-	
-	let highest = 0;
-	for (let i = 0; i < text.length; i++) {
-		const metrics = ctx.measureText(text[i]);
-		const height = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
-		if (height > highest) highest = height;
-	}
-	return highest * 2 + ctx.lineWidth;
+
+	const textMetrics = ctx.measureText(text);
+
+	return textMetrics.fontBoundingBoxAscent + textMetrics.fontBoundingBoxDescent;
 }
 
-function renderText(ctx_, alpha, text, x, y, fontSize, textAlign = 'center', style = 'white', edge = {w: Length.u(100), h: Length.u(200)}) {
+function renderText(ctx_, alpha, text, x, y, fontSize, textAlign = 'center', style = 'white', edge = {w: Length.u(W), h: Length.u(H)}) {
+
+	if ( text == '' ) // 防止长度为0报错
+		return ;
+
 	ctx_.save(); // 保存主 ctx
+
 	Tl(ctx_, x, y); // o(x, y)
 
-	let ctx = canvas.getTmpCtx(); // 获取临时 ctx
-
-	[x, y, fontSize] = Length.parseAll([x, y, fontSize]);
-
+	[x, y, fontSize] = Length.parseAll([x, y, fontSize]); // 转换单位
 	const outlineWidth = fontSize * 0.125;
+	
+	const width = getAllTextWidth(text, fontSize); // 获取文字长宽
+	const height = getTextTopHeight(text, fontSize);
+
+	let ctx = canvas.getTmpCtx(width * 3, height * 2); // 获取临时 ctx
 
 	ctx.lineWidth = outlineWidth;
 	ctx.font = `${fontSize}px Ubuntu`;
-
 	ctx.textAlign = textAlign;
-	
-	const allWidth = getAllTextWidth(text, fontSize);
-	
-	const allHeight = getTextTopHeight(text, fontSize)
 
-	ctx.translate(allWidth, allHeight);
+	ctx.translate(width, height);
 
 	ctx.globalCompositeOperation = 'source-over'; // 渲染文本
 	ctx.strokeStyle = "black";
@@ -110,21 +106,19 @@ function renderText(ctx_, alpha, text, x, y, fontSize, textAlign = 'center', sty
 	ctx.fillStyle = style;
 	ctx.fillText(text, 0, 0);
 	
-	if (textAlign == `center`) {
-		ctx.globalCompositeOperation = "destination-in";
-		ctx.fillRect(-allWidth / 2, -allHeight / 2, edge.w.parse(), edge.h.parse());
-	} else if (textAlign == `left`) {
-		ctx.globalCompositeOperation = "destination-in";
-		ctx.fillRect(0, -allHeight, edge.w.parse(), edge.h.parse());
-	} else {
-		ctx.globalCompositeOperation = "destination-in";
-		ctx.fillRect(-edge.w.parse(), -allHeight, edge.w.parse(), edge.h.parse());
-	}
+	// if ( textAlign == `center` ) {
+	// 	ctx.globalCompositeOperation = "destination-in";
+	// 	ctx.fillRect(-width / 2, -height / 2, edge.w.parse(), edge.h.parse());
+	// } else if ( textAlign == `left` ) {
+	// 	ctx.globalCompositeOperation = "destination-in";
+	// 	ctx.fillRect(0, -height / 2, edge.w.parse(), edge.h.parse());
+	// }
+	ctx.globalCompositeOperation = 'source-over';
 
 	// 粘贴到主 ctx
 
 	ctx_.globalAlpha = alpha;
-	canvas.draw(ctx, ctx_, -allWidth, -allHeight, true);
+	canvas.draw(ctx, ctx_, -width, -height, true);
 	ctx_.globalAlpha = 1;
 
 	// 恢复主 ctx

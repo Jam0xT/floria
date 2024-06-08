@@ -306,9 +306,9 @@ const menus = {
 	}),
 	arena_room_id_input: new Inputbox({
 		x: Length.u(0), 
-		y: Length.u(0), 
-		rx: Length.u(114.514), 
-		ry: Length.u(19.19810), 
+		y: Length.u(90), 
+		rx: Length.u(40), 
+		ry: Length.u(15), 
 		style: styles.inputbox.default, 
 		onOpenFn: function() {
 			
@@ -318,7 +318,8 @@ const menus = {
 		},
 		parent: 'arena_room', 
 		isInitialHiding: false, 
-		transparency: 0
+		transparency: 0,
+		maxTextLength: 6,
 	}),
 	arena_title: new Menu({
 		x: Length.u(45), 

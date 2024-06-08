@@ -35,7 +35,6 @@ function init() {
 }
 
 function load(screen) {
-	animation.stop();
 	menus[screen].open();
 	animation.play(main);
 }
@@ -63,10 +62,9 @@ function main() {
 		menu.render(ctx);
 	});
 
-	//renderFps();
+	// renderFps();
 
 	canvas.draw(ctx);
-    animation.play(main);
 }
 
 function renderFps() {
@@ -76,18 +74,18 @@ function renderFps() {
 	let fps = (1000 / timeElapsed).toFixed(1);
 	util.renderText(ctx, ctx.globalAlpha,
 		`fps:${fps}`,
-		Length.u(50), Length.u(20),
-		Length.u(20),
+		Length.w(1).sub(Length.u(50)), Length.u(10),
+		Length.u(10),
 		'left',
-		'red',
+		'yellow',
 	);
 	fpsList.push(fps);
 	if ( fpsList.length > 200 )
 		fpsList.shift();
 	for (let i = 0; i < fpsList.length; i ++ ) {
 		util.renderRoundRect(ctx,
-			Length.u(i * 5), Length.u(30),
-			Length.u(5), Length.u(fpsList[i]),
+			Length.u(i * 2), Length.u(10),
+			Length.u(2), Length.u(fpsList[i] / 2),
 			[Length.u(0)],
 		);
 		ctx.fillStyle = `rgb(255, ${50 * Math.abs(fpsList[i] - 60)}, 255)`;

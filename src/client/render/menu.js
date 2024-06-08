@@ -112,14 +112,22 @@ export default class Menu {
 	getX() {
 		if ( this.parent == 'root' )
 			return this.x;
-		else
-			return this.parentMenu.x.add(this.x);
+		else {
+			let ret = this.parentMenu?.x.add(this.x);
+			if ( !ret )
+				return Length.u(0);
+			return ret;
+		}
 	}
 
 	getY() {
 		if ( this.parent == 'root' )
 			return this.y;
-		else
-			return this.parentMenu.y.add(this.y);
+		else {
+			let ret = this.parentMenu?.y.add(this.y);
+			if ( !ret ) 
+				return Length.u(0);
+			return ret;
+		}
 	}
 }
