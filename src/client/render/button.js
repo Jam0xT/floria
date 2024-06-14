@@ -56,9 +56,11 @@ export default class Button extends Menu {
 				if ( this.on ) {
 					this.offTriggerFn(e);
 					this.fillColor = this.style.fill;
+					this.on = false;
 				} else {
 					this.onTriggerFn(e);
 					this.fillColor = this.style.click;
+					this.on = true
 				}
 			} else {
 				this.onTriggerFn(e);

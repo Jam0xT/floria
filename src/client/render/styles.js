@@ -3,6 +3,21 @@ export default {
 		screen: "#1EA761",
 	},
 	
+	selectbox: {
+		default: {
+			fill: 'rgb(196, 196, 196)', // 一种灰色
+			outline: 'rgb(100, 100, 100)', // 深灰色
+			hover: 'rgb(196, 196, 196)', // 浅一点的灰色
+			click: 'rgb(196, 196, 196)', // 有点深的灰色
+			selection: 'rgb(255, 255, 255)',
+			selectionBase: 'rgb(139, 139, 139)',
+			selectionSize: 9,
+			selectionBaseSize: 12,
+			outline_width: 3, // 单位：u
+			arcRadius: 2, // 单位：u
+		},
+	},
+	
 	inputbox: {
 		default: {
 			fill: 'rgb(255, 255, 255)', // 一种灰色

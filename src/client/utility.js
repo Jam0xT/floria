@@ -55,10 +55,13 @@ function getAllTextWidth(text, size) {
 	let ctx = canvas.getTmpCtx();
 	ctx.font = `${size}px Ubuntu`;
 	ctx.lineWidth = size * 0.125;
-
-	const textMetrics = ctx.measureText(text);
 	
-	return textMetrics.actualBoundingBoxRight + textMetrics.actualBoundingBoxLeft;
+	let w = 0;
+	const textMetrics = ctx.measureText(text);
+	w += textMetrics.width;
+	w += ctx.lineWidth;
+	
+	return w;
 }
 
 function getTextTopHeight(text, size) {
