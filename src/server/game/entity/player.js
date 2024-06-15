@@ -1,7 +1,7 @@
 import Entity from './entity.js';
-import Constants from '../../shared/constants.js';
-import EntityAttributes from '../../../public/entity_attributes.js';
-import PetalAttributes from '../../../public/petal_attributes.js';
+import Constants from '../../../shared/constants.js';
+import EntityAttributes from '../../../../public/entity_attributes.js';
+import PetalAttributes from '../../../../public/petal_attributes.js';
 const Attribute = EntityAttributes.PLAYER;
 import Petal from './petal.js';
 

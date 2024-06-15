@@ -1,5 +1,5 @@
 import Entity from './entity.js';
-import PetalAttributes from '../../../public/petal_attributes.js';
+import PetalAttributes from '../../../../public/petal_attributes.js';
 
 class Petal extends Entity {
 	constructor(id, idx, placeHolder, x, y, parent, type, noBorderCollision, idInPlaceHolder, slot) {

@@ -1,6 +1,10 @@
 import Constants from '../shared/constants.js';
 
-const rooms = {};
+import gamemodes from './gamemodes/gamemodes.js';
+
+const rooms = {
+	arena: {},
+};
 
 export {
 	createRoom,
@@ -8,16 +12,18 @@ export {
 };
 
 class Room {
-	constructor() {
+	constructor(mode) {
 		this.id = getNewRoomID();
 		this.players = {};
-		this.game = 'uwu';
+		if ( !gamemodes[mode] ) 
+			throw new Error('trying to create room with unknown gamemode');
+		this.game = new gamemodes[mode]();
 	}
 
 	add(socket) {
 		this.players[socket.id] = socket;
 		socket.emit(Constants.MSG_TYPES.SERVER.ROOM.JOIN, this.id);
-		console.log(`Player ${socket.id} joined Room ${this.id}`);
+		console.log(`Player ${socket.id} joined Room #${this.id}`);
 	}
 
 	remove(socket) {
@@ -25,19 +31,19 @@ class Room {
 	}
 }
 
-function createRoom(socket) {
-	let newRoom = new Room();
-	rooms[newRoom.id] = newRoom;
+function createRoom(socket, mode) {
+	let newRoom = new Room(mode);
+	rooms[mode][newRoom.id] = newRoom;
 	newRoom.add(socket);
-	console.log(`Player ${socket.id} created Room ${newRoom.id}.`);
+	console.log(`Player ${socket.id} created Room #${newRoom.id}.`);
 }
 
-function joinRoom(socket, roomId) {
-	console.log(`Player ${socket.id} tries to join Room ${roomId}:`);
-	if ( !rooms[roomId] ) {
-		console.log(`Room ${roomId} not found.`);
+function joinRoom(socket, mode, roomId) {
+	console.log(`Player ${socket.id} tries to join Room #${roomId}:`);
+	if ( !rooms[mode][roomId] ) {
+		console.log(`Room #${roomId} not found.`);
 	} else {
-		rooms[roomId].add(socket);
+		rooms[mode][roomId].add(socket);
 	}
 }
 

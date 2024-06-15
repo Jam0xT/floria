@@ -7,8 +7,15 @@ export default class Menu {
 		this.y = options.y;
 		this.rx = options.rx; // 横向半径
 		this.ry = options.ry; // 竖向半径
+   
+		this.ox = options.ox; // 开启状态坐标
+		this.oy = options.oy;
+		this.cx = this.x; // 关闭状态坐标
+		this.cy = this.y;
+    
 		this.renderFns = []; // 渲染除了纯色填充之外的图案
 		options.renderFn ? this.appendRenderFn(options.renderFn) : {};
+    
 		this.style = options.style; // 样式
 
 		this.onOpenFn = options.onOpenFn; // 打开菜单
@@ -100,6 +107,12 @@ export default class Menu {
 			this.xGen.val = this.xGen.gen.next();
 			if ( !this.xGen.val.done ) {
 				this.x = Length.parseVal(this.xGen.val.value);
+			} else {
+				if ( this.on ) {
+					this.x = this.ox;
+				} else {
+					this.x = this.cx;
+				}
 			}
 		}
 
@@ -107,6 +120,12 @@ export default class Menu {
 			this.yGen.val = this.yGen.gen.next();
 			if ( !this.yGen.val.done ) {
 				this.y = Length.parseVal(this.yGen.val.value);
+			} else {
+				if ( this.on ) {
+					this.y = this.oy;
+				} else {
+					this.y = this.cy;
+				}
 			}
 		}
 		
@@ -117,12 +136,14 @@ export default class Menu {
 	}
 
 	open(initial = false) {
+		this.on = true;
 		if ( !(this.isInitialHiding && initial) ) {
 			this.onOpenFn();
 		}
 	}
 
 	close() {
+		this.on = false;
 		this.onCloseFn();
 	}
 

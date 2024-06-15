@@ -12,14 +12,16 @@ import Selectbox from '../selectbox.js'
 
 import * as util from '../../utility.js';
 
-import * as networking from '../../networking.js';
+import * as room from '../room.js';
 
 const menus = {
 	start: new Menu({
 		x: Length.w(0), 
 		y: Length.h(0), 
 		rx: Length.u(0), 
-		ry: Length.u(0), 
+		ry: Length.u(0),
+		ox: Length.u(0),
+		oy: Length.u(0),
 		renderFn: util.nop(), 
 		style: styles.menu.invisible, 
 		onOpenFn: function() {
@@ -37,10 +39,12 @@ const menus = {
 		transparency: 0
 	}),
 	start_tutorial: new Menu({
-		x: Length.u(-50), 
-		y: Length.u(-60), 
-		rx: Length.u(60), 
-		ry: Length.u(40), 
+		x: Length.u(-50),
+		y: Length.u(-60),
+		rx: Length.u(60),
+		ry: Length.u(40),
+		ox: Length.u(-50),
+		oy: Length.u(-60),
 		renderFn: function(ctx) { // 渲染函数
 			ctx.save();
 			util.Tl(ctx, Length.u(5), Length.u(13));
@@ -83,6 +87,8 @@ const menus = {
 		y: Length.h(0).sub(Length.u(50)), 
 		rx: Length.u(0), 
 		ry: Length.u(0), 
+		ox: Length.w(0.5),
+		oy: Length.h(0.3),
 		renderFn: function(ctx) {
 			util.renderText(ctx, ctx.globalAlpha,
 				'floria.io',
@@ -113,7 +119,9 @@ const menus = {
 		x: Length.w(1).sub(Length.u(20)), 
 		y: Length.h(1).add(Length.u(20)), 
 		rx: Length.u(10), 
-		ry: Length.u(10), 
+		ry: Length.u(10),
+		ox: Length.w(1).sub(Length.u(20)),
+		oy: Length.h(1).sub(Length.u(20)),
 		renderFn: function(ctx) {
 			util.renderText(ctx, ctx.globalAlpha,
 				'?',
@@ -148,7 +156,9 @@ const menus = {
 		x: Length.w(0.5), 
 		y: Length.h(0).sub(Length.u(50)), 
 		rx: Length.u(75), 
-		ry: Length.u(15), 
+		ry: Length.u(15),
+		ox: Length.w(0.5),
+		oy: Length.h(0.4),
 		renderFn: function(ctx_) {
 			util.renderText(ctx_, ctx_.globalAlpha,
 				'Arena',
@@ -179,9 +189,11 @@ const menus = {
 	}),
 	arena: new Menu({
 		x: Length.w(0), 
-		y: Length.h(0), 
+		y: Length.h(0),
 		rx: Length.u(0),
-		ry: Length.u(0), 
+		ry: Length.u(0),
+		ox: Length.w(0),
+		oy: Length.h(0),
 		renderFn: util.nop(), 
 		style: styles.menu.invisible, 
 		onOpenFn: function() {
@@ -200,9 +212,11 @@ const menus = {
 	}),
 	arena_room: new Menu({
 		x: Length.w(1).add(Length.u(100)), 
-		y: Length.h(0.3), 
-		rx: Length.u(0), 
-		ry: Length.u(0), 
+		y: Length.h(0.3),
+		rx: Length.u(0),
+		ry: Length.u(0),
+		ox: Length.w(0.7),
+		oy: Length.h(0.3),
 		renderFn: function(ctx) {
 			util.renderText(ctx, ctx.globalAlpha,
 				'Room',
@@ -233,7 +247,9 @@ const menus = {
 		x: Length.w(0).add(Length.u(20)), 
 		y: Length.h(1).add(Length.u(20)), 
 		rx: Length.u(10), 
-		ry: Length.u(10), 
+		ry: Length.u(10),
+		ox: Length.w(0).add(Length.u(20)),
+		oy: Length.h(1).sub(Length.u(20)),
 		renderFn: function(ctx_) {
 			util.renderText(ctx_, ctx_.globalAlpha,
 				'<',
@@ -267,6 +283,8 @@ const menus = {
 		y: Length.u(25), 
 		rx: Length.u(40), 
 		ry: Length.u(10), 
+		ox: Length.u(0),
+		oy: Length.u(25),
 		renderFn: function(ctx) {
 			util.renderText(ctx, ctx.globalAlpha,
 				'Create',
@@ -276,7 +294,7 @@ const menus = {
 		}, 
 		style: styles.button.default, 
 		onTriggerFn: function() {
-			networking.createRoom();
+			room.createRoom('arena');
 		},
 		onOpenFn: function() {
 			
@@ -293,6 +311,8 @@ const menus = {
 		y: Length.u(55), 
 		rx: Length.u(40), 
 		ry: Length.u(10), 
+		ox: Length.u(0),
+		oy: Length.u(55),
 		renderFn: function(ctx) {
 			util.renderText(ctx, ctx.globalAlpha,
 				'Join',
@@ -302,7 +322,7 @@ const menus = {
 		}, 
 		style: styles.button.default, 
 		onTriggerFn: function() {
-			networking.joinRoom();
+			room.joinRoom('arena', room.menus.arena_room_id_input.text);
 		},
 		onOpenFn: function() {
 			
@@ -319,6 +339,8 @@ const menus = {
 		y: Length.u(90), 
 		rx: Length.u(40), 
 		ry: Length.u(15), 
+		ox: Length.u(0),
+		oy: Length.u(90),
 		style: styles.inputbox.default, 
 		onOpenFn: function() {
 			
@@ -355,10 +377,12 @@ const menus = {
 		transparency: 0
 	}),
 	arena_title: new Menu({
-		x: Length.u(45), 
-		y: Length.h(0).sub(Length.u(50)), 
-		rx: Length.u(0), 
-		ry: Length.u(0), 
+		x: Length.w(0).add(Length.u(45)),
+		y: Length.h(0).sub(Length.u(50)),
+		rx: Length.u(0),
+		ry: Length.u(0),
+		ox: Length.w(0).add(Length.u(45)),
+		oy: Length.h(0).add(Length.u(25)),
 		renderFn: function(ctx) {
 			ctx.save();
 
@@ -374,13 +398,13 @@ const menus = {
 			
 			ctx.restore();
 		}, 
-		style: styles.menu.invisible, 
+		style: styles.menu.invisible,
 		onOpenFn: function() {
 			this.yGen = {
-				gen: util.gen.logarithmic_increase(this.y.parse(), Length.u(25).parse(), 0.85),
+				gen: util.gen.logarithmic_increase(this.y.parse(), Length.h(0).add(Length.u(25)).parse(), 0.85),
 				val: {},
 			};
-		}, 
+		},
 		onCloseFn: function() {
 			this.yGen = {
 				gen: util.gen.exponential_decrease(this.y.parse(), Length.h(0).sub(Length.u(50)).parse(), 0.85),
@@ -395,7 +419,9 @@ const menus = {
 		x: Length.w(0.5), 
 		y: Length.u(-100), 
 		rx: Length.u(0), 
-		ry: Length.u(0), 
+		ry: Length.u(0),
+		ox: Length.w(0.5),
+		oy: Length.h(0.3),
 		renderFn: function(ctx) {
 			util.renderText(ctx, ctx.globalAlpha,
 				'Mode',
@@ -427,6 +453,8 @@ const menus = {
 		y: Length.h(0.3), 
 		rx: Length.u(0), 
 		ry: Length.u(0), 
+		ox: Length.w(0.3),
+		oy: Length.h(0.3),
 		renderFn: function(ctx) {
 			util.renderText(ctx, ctx.globalAlpha,
 				'Players',

@@ -20,10 +20,18 @@ export default {
 	
 	inputbox: {
 		default: {
-			fill: 'rgb(255, 255, 255)', // 一种灰色
+			fill: 'rgb(255, 255, 255)',
 			outline: 'rgb(100, 100, 100)', // 深灰色
-			hover: 'rgb(255, 255, 255)', // 浅一点的灰色
-			click: 'rgb(255, 255, 255)', // 有点深的灰色
+			hover: 'rgb(210, 210, 210)', // 浅一点的灰色
+			click: 'rgb(150, 150, 150)', // 有点深的灰色
+			outline_width: 3, // 单位：u
+			arcRadius: 2, // 单位：u
+		},
+		green: {
+			fill: 'rgb(48, 255, 165)',
+			outline: 'rgb(100, 100, 100)', // 深灰色
+			hover: 'rgb(54, 217, 146)', // 浅一点的灰色
+			click: 'rgb(37, 161, 107)', // 有点深的灰色
 			outline_width: 3, // 单位：u
 			arcRadius: 2, // 单位：u
 		},

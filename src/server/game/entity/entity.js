@@ -1,4 +1,4 @@
-import Constants from '../../shared/constants.js';
+import Constants from '../../../shared/constants.js';
 
 class Entity {
 	constructor(id, x, y, team, generalType, type, hp, maxHp, noBorderCollision) {
