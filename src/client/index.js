@@ -1,4 +1,4 @@
-import { connect, play } from './networking.js';
+import * as nw from './networking.js';
 
 import render from './render.js';
 
@@ -8,15 +8,15 @@ import { downloadAssets } from './assets.js';
 
 import { initState } from './state.js';
 
+import * as room from './render/room.js';
+
 // import { initCmd } from './cmd.js';
 
 import './css/main.css';
 
 window.onload = () => {
 	document.body.style.cursor = "default";
-	document.onselectstart = (event) => {
-		event.preventDefault();
-	}
+	preventDefaultActions();
 	document.getElementById('username-input').value = window.localStorage.getItem('username') || '';
 	Promise.all([
 		downloadAssets(),
@@ -24,40 +24,50 @@ window.onload = () => {
 	]).then(() => {
 		document.getElementById('text-loading').classList.add('hidden');
 		render.loadStartScreen();
+		room.recieveInfo();
 	});
 }
 
-function onGameOver() {
-	// stopCapturingInput();
-	// loadMenu();
-}
-
-function connectToServer() {
-	Promise.all([
-		connect(onGameOver),
-	]).then(() => {
-		// ...
-	}).catch(() => {
-		console.log('Connect failed.');
-		// window.setTimeout(loadMenu, 1000);
+function preventDefaultActions() {
+	document.onselectstart = (event) => {
+		event.preventDefault();
+	}
+	window.addEventListener('contextmenu', (event) => {
+		event.preventDefault();
 	});
 }
 
-function joinGame() {
-	Promise.all([
-		initState(),
-		// initCmd(),
-	]).then(() => {
-		let username = document.getElementById('username-input').value;
-		window.localStorage.setItem('username', username);
-		if ( username != '' )
-			play(username);
-		else
-			play('Random Flower');
-	}).catch(() => {
-		console.log('Error 0');
-	})
-}
+// function onGameOver() {
+// 	// stopCapturingInput();
+// 	// loadMenu();
+// }
+
+// function connectToServer() {
+// 	Promise.all([
+// 		nw.connect(onGameOver),
+// 	]).then(() => {
+// 		// ...
+// 	}).catch(() => {
+// 		console.log('Connect failed.');
+// 		// window.setTimeout(loadMenu, 1000);
+// 	});
+// }
+
+// function joinGame() {
+// 	Promise.all([
+// 		initState(),
+// 		// initCmd(),
+// 	]).then(() => {
+// 		let username = document.getElementById('username-input').value;
+// 		window.localStorage.setItem('username', username);
+// 		if ( username != '' )
+// 			nw.play(username);
+// 		else
+// 			nw.play('Random Flower');
+// 	}).catch(() => {
+// 		console.log('Error 0');
+// 	});
+// }
 
 function waitForKeyPress(key) {
 	return new Promise(resolve => {

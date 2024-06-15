@@ -37,12 +37,12 @@ io.on('connection', socket => {
 	// socket.on('disconnect', onDisconnect);
 });
 
-function createRoom() {
-	room.createRoom(this);
+function createRoom(mode) {
+	room.createRoom(this, mode);
 }
 
-function joinRoom(roomId) {
-	room.joinRoom(this, roomId);
+function joinRoom(mode, roomId) {
+	room.joinRoom(this, mode, roomId);
 }
 
 // const game = new Game();
