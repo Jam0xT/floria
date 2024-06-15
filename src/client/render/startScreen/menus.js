@@ -8,6 +8,8 @@ import Button from '../button.js';
 
 import Inputbox from '../inputbox.js';
 
+import Selectbox from '../selectbox.js'
+
 import * as util from '../../utility.js';
 
 import * as room from '../room.js';
@@ -350,6 +352,29 @@ const menus = {
 		isInitialHiding: false, 
 		transparency: 0,
 		maxTextLength: 6,
+	}),
+	test_selectbox: new Selectbox({
+		x: Length.u(0),
+		y: Length.u(140), 
+		rx: Length.u(80), 
+		ry: Length.u(10), 
+		renderFn: function(ctx) {
+			util.renderText(ctx, ctx.globalAlpha,
+				'Devmode: Test',
+				this.rx.add(Length.u(8)), this.ry.add(Length.u(5)),
+				Length.u(15),
+			);
+		}, 
+		style: styles.selectbox.default, 
+		onOpenFn: function() {
+			
+		},
+		onCloseFn: function() {
+			
+		}, 
+		parent: 'arena_room', 
+		isInitialHiding: false, 
+		transparency: 0
 	}),
 	arena_title: new Menu({
 		x: Length.w(0).add(Length.u(45)),

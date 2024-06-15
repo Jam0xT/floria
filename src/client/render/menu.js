@@ -7,11 +7,15 @@ export default class Menu {
 		this.y = options.y;
 		this.rx = options.rx; // 横向半径
 		this.ry = options.ry; // 竖向半径
+   
 		this.ox = options.ox; // 开启状态坐标
 		this.oy = options.oy;
 		this.cx = this.x; // 关闭状态坐标
 		this.cy = this.y;
-		this.renderFn = options.renderFn; // 渲染除了纯色填充之外的图案
+    
+		this.renderFns = []; // 渲染除了纯色填充之外的图案
+		options.renderFn ? this.appendRenderFn(options.renderFn) : {};
+    
 		this.style = options.style; // 样式
 
 		this.onOpenFn = options.onOpenFn; // 打开菜单
@@ -31,6 +35,7 @@ export default class Menu {
 		this.transparencyGen = undefined;
 		this.xGen = undefined;
 		this.yGen = undefined;
+		this.privateGens = {};
 	}
 
 	append(children, array = false) {
@@ -41,6 +46,14 @@ export default class Menu {
 		} else {
 			this.children.push(children);
 		}
+	}
+	
+	appendRenderFn(renderFn) {
+		this.renderFns.push(renderFn);
+	}
+	
+	editPrivateGen(name, gen) {
+		this.privateGens[name] = gen;
 	}
 
 	render(ctx) {
@@ -67,8 +80,10 @@ export default class Menu {
 
 		util.Tl(ctx, this.rx.mul(-1), this.ry.mul(-1)); // o左上角
 
-		if ( this.renderFn ) { // 防止无渲染函数因为undefined.bind报错
-			this.renderFn.bind(this)(ctx);
+		if ( this.renderFns.length !== 0 ) { // 防止无渲染函数因为undefined.bind报错
+			this.renderFns.forEach((renderFn) => {
+				renderFn.bind(this)(ctx);
+			})
 		}
 
 		util.Tl(ctx, this.rx, this.ry); // o左上角
@@ -113,6 +128,11 @@ export default class Menu {
 				}
 			}
 		}
+		
+		Object.values(this.privateGens).forEach((gen) => {
+			gen.val = gen.gen.next();
+			console.log(gen.val)
+		})
 	}
 
 	open(initial = false) {
