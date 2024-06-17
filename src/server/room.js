@@ -52,7 +52,7 @@ function createRoom(socket, mode) {
 	rooms[mode][newRoom.id] = newRoom;
 	socket.emit(Constants.MSG_TYPES.SERVER.ROOM.CREATE, newRoom.id);
 	console.log(`Player ${socket.id} created Room #${newRoom.id}.`);
-	joinRoom(socket, mode, newRoom);
+	joinRoom(socket, mode, newRoom.id);
 }
 
 function joinRoom(socket, mode, roomId) {

@@ -26,10 +26,11 @@ const createdRoom = (roomId) => {
 }
 const joinedRoom = () => {
 	joinRoomExitCode = 1;
-	
+	menus.arena_room_join_msg.open();
 }
 const unsuccessfulJoinedRoom = (exitCode) => {
 	joinRoomExitCode = exitCode;
+	menus.arena_room_join_msg.open();
 }
 const gotRoomOfPlayer = (room) => {
 	playerRoom = room;
