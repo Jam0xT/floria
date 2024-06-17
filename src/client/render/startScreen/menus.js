@@ -323,20 +323,6 @@ const menus = {
 		style: styles.button.default, 
 		onTriggerFn: function() {
 			room.joinRoom('arena', room.menus.arena_room_id_input.text);
-			let exitCode = room.joinRoomExitCode;
-			console.log(exitCode);
-			if(exitCode === -1){
-				
-			}
-			else if(exitCode==-2){
-
-			}
-			else if(exitCode==-3){
-
-			}
-			else{
-
-			}
 		},
 		onOpenFn: function() {
 			
@@ -494,6 +480,27 @@ const menus = {
 		parent: 'arena', 
 		isInitialHiding: false, 
 		transparency: 0
+	}),
+	arena_room_join_msg: new Menu({
+		x: Length.u(0),
+		y: Length.u(170), 
+		rx: Length.u(0), 
+		ry: Length.u(0), 
+		ox: Length.u(0),
+		oy: Length.u(170), 
+		renderFn: function(ctx) {
+			
+		}, 
+		style: styles.menu.invisible, 
+		onOpenFn: function() {
+			
+		},
+		onCloseFn: function() {
+			
+		}, 
+		parent: 'arena_room', 
+		isInitialHiding: true, 
+		transparency: 100
 	}),
 }
 

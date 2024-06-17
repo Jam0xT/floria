@@ -42,16 +42,17 @@ class Room {
 	}
 }
 function checkOwner(socket) {
-	return roomOfPlayers[socket.id].owner == socket;
+	socket.emit(Constants.MSG_TYPES.SERVER.ROOM.CHECKOWNER, roomOfPlayers[socket.id].owner == socket);
 }
 function getRoomOfPlayer(socket) {
-	return roomOfPlayers[socket.id];
+	socket.emit(Constants.MSG_TYPES.SERVER.ROOM.GETROOM, roomOfPlayers[socket.id]);
 }
 function createRoom(socket, mode) {
 	let newRoom = new Room(mode, socket);
 	rooms[mode][newRoom.id] = newRoom;
-	socket.emit(Constants.MSG_TYPES.SERVER.ROOM.CREATE,newRoom.id);
+	socket.emit(Constants.MSG_TYPES.SERVER.ROOM.CREATE, newRoom.id);
 	console.log(`Player ${socket.id} created Room #${newRoom.id}.`);
+	joinRoom(socket, mode, newRoom);
 }
 
 function joinRoom(socket, mode, roomId) {

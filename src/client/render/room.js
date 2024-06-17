@@ -26,6 +26,7 @@ const createdRoom = (roomId) => {
 }
 const joinedRoom = () => {
 	joinRoomExitCode = 1;
+	
 }
 const unsuccessfulJoinedRoom = (exitCode) => {
 	joinRoomExitCode = exitCode;
