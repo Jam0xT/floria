@@ -518,7 +518,6 @@ const menus = {
 		},
 		style: styles.menu.invisible,
 		onOpenFn: function () {
-			console.log("opened");
 			this.transparency = 0;
 			this.transparencyGen = {
 				gen: util.gen.logarithmic_increase(this.transparency, 100, 0.98),
@@ -532,6 +531,44 @@ const menus = {
 		isInitialHiding: true,
 		transparency: 100
 	}),
+	arena_room_title: new Menu({
+		x: Length.w(0.4),
+		y: Length.u(-100),
+		rx: Length.u(0),
+		ry: Length.u(0),
+		ox: Length.w(0.4),
+		oy: Length.h(0.2),
+		renderFn: function (ctx) {
+			var text;
+			if(room.playerRoom == null)
+				text='You are not in room now';
+			else
+				text=`You are in room #${room.playerRoom.id}`;
+			util.renderText(ctx, ctx.globalAlpha,
+				text,
+				Length.u(0), Length.u(0),
+				Length.u(20),
+				'center',
+				'white',
+			);
+		},
+		style: styles.menu.invisible,
+		onOpenFn: function () {
+			this.yGen = {
+				gen: util.gen.logarithmic_increase(this.y.parse(), Length.h(0.2).parse(), 0.85),
+				val: {},
+			};
+		},
+		onCloseFn: function () {
+			this.yGen = {
+				gen: util.gen.exponential_decrease(this.y.parse(), Length.u(-100).parse(), 0.85),
+				val: {},
+			};
+		},
+		parent: 'arena',
+		isInitialHiding: false,
+		transparency: 0
+	})
 }
 
 export default function getMenus() {

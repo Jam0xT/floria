@@ -17,7 +17,7 @@ class Room {
 	constructor(mode, owner_) {
 		this.id = getNewRoomID();
 		this.players = {};
-		this.owner = owner_;
+		this.owner = owner_.id;
 		if (!gamemodes[mode])
 			throw new Error('trying to create room with unknown gamemode');
 		this.game = new gamemodes[mode]();
@@ -42,7 +42,7 @@ class Room {
 	}
 }
 function checkOwner(socket) {
-	socket.emit(Constants.MSG_TYPES.SERVER.ROOM.CHECKOWNER, roomOfPlayers[socket.id].owner == socket);
+	socket.emit(Constants.MSG_TYPES.SERVER.ROOM.CHECKOWNER, roomOfPlayers[socket.id].owner == socket.id);
 }
 function getRoomOfPlayer(socket) {
 	socket.emit(Constants.MSG_TYPES.SERVER.ROOM.GETROOM, roomOfPlayers[socket.id]);
@@ -72,7 +72,9 @@ function joinRoom(socket, mode, roomId) {
 			socket.emit(Constants.MSG_TYPES.SERVER.ROOM.UNSUCCESSFUL_JOIN, -3);
 		}
 		else {
-			socket.emit(Constants.MSG_TYPES.SERVER.ROOM.JOIN);
+			console.log(nowRoom);
+			console.log(JSON.stringify(nowRoom));
+			socket.emit(Constants.MSG_TYPES.SERVER.ROOM.JOIN,JSON.stringify(nowRoom));
 			rooms[mode][roomId].add(socket);
 		}
 	}

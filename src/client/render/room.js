@@ -24,8 +24,9 @@ const createdRoom = (roomId) => {
 	menus.arena_room_id_input.style = styles.inputbox.green;
 	menus.arena_room_id_input.fillColor = styles.inputbox.green.fill;
 }
-const joinedRoom = () => {
+const joinedRoom = (nowRoom) => {
 	joinRoomExitCode = 1;
+	playerRoom=JSON.parse(nowRoom);
 	menus.arena_room_join_msg.open();
 }
 const unsuccessfulJoinedRoom = (exitCode) => {
