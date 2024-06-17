@@ -28,6 +28,8 @@ io.on('connection', socket => {
 	console.log(`Player ${socket.id} connected.`);
 	socket.on(Constants.MSG_TYPES.CLIENT.ROOM.CREATE, createRoom);
 	socket.on(Constants.MSG_TYPES.CLIENT.ROOM.JOIN, joinRoom);
+	socket.on(Constants.MSG_TYPES.CLIENT.ROOM.GETROOM, getRoomOfPlayer);
+	socket.on(Constants.MSG_TYPES.CLIENT.ROOM.CHECKOWNER, checkOwner);
 	// socket.on(Constants.MSG_TYPES.JOIN_GAME, joinGame);
 	// socket.on(Constants.MSG_TYPES.MOVEMENT, handleMovement);
 	// socket.on(Constants.MSG_TYPES.MOUSE_DOWN, handleMouseDown);
@@ -44,7 +46,12 @@ function createRoom(mode) {
 function joinRoom(mode, roomId) {
 	room.joinRoom(this, mode, roomId);
 }
-
+function getRoomOfPlayer() {
+	room.getRoomOfPlayer(this);
+}
+function checkOwner() {
+	room.checkOwner(this);
+}
 // const game = new Game();
 
 // function joinGame(username) {

@@ -8,11 +8,17 @@ export default Object.freeze({
 			ROOM: {
 				CREATE: 'client_room_create',
 				JOIN: 'client_room_join',
+				GETROOM: 'client_room_getroom',
+				CHECKOWNER: 'client_room_CHECKOWNER',
 			}
 		},
 		SERVER: {
 			ROOM: {
+				CREATE: 'server_room_create',
+				UNSUCCESSFUL_JOIN: 'server_room_Unsuccessful-join',
 				JOIN: 'server_room_join',
+				GETROOM: 'server_room_getroom',
+				CHECKOWNER: 'server_room_CHECKOWNER',
 			}
 		}
 		// JOIN_GAME: 'join_game',

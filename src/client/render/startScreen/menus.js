@@ -323,6 +323,20 @@ const menus = {
 		style: styles.button.default, 
 		onTriggerFn: function() {
 			room.joinRoom('arena', room.menus.arena_room_id_input.text);
+			let exitCode = room.joinRoomExitCode;
+			console.log(exitCode);
+			if(exitCode === -1){
+				
+			}
+			else if(exitCode==-2){
+
+			}
+			else if(exitCode==-3){
+
+			}
+			else{
+
+			}
 		},
 		onOpenFn: function() {
 			
