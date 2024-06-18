@@ -54,14 +54,14 @@ class Room {
 		return new Sended_Room(this.id, this.playerStatus, this.owner, this.type, this.factionLim, this.mode);
 	}
 	update() {
-		for (var player in this.players)
+		for (let player in this.players)
 			this.players[player].emit(Constants.MSG_TYPES.SERVER.ROOM.UPDATE, this.toSend());
 	}
 	add(socket) {
 		roomOfPlayers[socket.id] = this;
 		this.players[socket.id] = socket;
 		this.playerNum++;
-		var faction;
+		let faction;
 		if (this.playerBlueNum != this.factionLim) {
 			this.playerBlueNum++;
 			faction = 'Blue';
@@ -90,7 +90,7 @@ class Room {
 			return;
 		}
 		else if (this.owner == socket) {
-			for (var player in this.players) {
+			for (let player in this.players) {
 				this.owner = player;
 				break;
 			}
@@ -119,7 +119,7 @@ function joinRoom(socket, mode, roomId) {
 		socket.emit(Constants.MSG_TYPES.SERVER.ROOM.UNSUCCESSFUL_JOIN, -1);
 	}
 	else {
-		var nowRoom = rooms[mode][roomId];
+		let nowRoom = rooms[mode][roomId];
 		if (nowRoom.players[socket.id]) {
 			console.log(`Player ${socket.id} is already in the Room`);
 			socket.emit(Constants.MSG_TYPES.SERVER.ROOM.UNSUCCESSFUL_JOIN, -2);
