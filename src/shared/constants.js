@@ -6,20 +6,20 @@ export default Object.freeze({
 	MSG_TYPES: { // socket.io 交流
 		CLIENT: {
 			ROOM: {
-				CREATE: 'client_room_create',
-				JOIN: 'client_room_join',
-				GETROOM: 'client_room_getroom',
-				CHECKOWNER: 'client_room_CHECKOWNER',
+				CREATE: 'kYNwIRRsnVOade3K2xxhmP8ro5xlRFwcGLQ9AGOregZpvjD0PAdIhrYm58OGnTby',
+				JOIN: 'nk301wI3jGXW9Raz6VBUKVgbxsdTs6qppM8BNNv9Qo3xmUdHaQzIy5uiFbOLNR5P',
+				GETROOM: 'mK1RRPZ9QmqYFuEQdV3ju7diWLPu1dKNGWQAqE43qm4EuZjjeoJwXKc1V6O6SPcG',
+				CHECKOWNER: 'WsUVLIiGCIJU12UOKn602QCGgiAJaPX0cLy8ZMn6DOEZFpeVvUDod63qhqatAfff',
 			}
 		},
 		SERVER: {
 			ROOM: {
-				CREATE: 'server_room_create',
-				UNSUCCESSFUL_JOIN: 'server_room_unsuccessful-join',
-				UPDATE: 'server_room_update',
-				JOIN: 'server_room_join',
-				GETROOM: 'server_room_getroom',
-				CHECKOWNER: 'server_room_CHECKOWNER',
+				CREATE: 'u8dwZFwjDXg0QooWfDVtDec8aBBUKwOpLgaAvfYWBl8iSLSnRYh8ztr9nUd5XeIf',
+				UNSUCCESSFUL_JOIN: 'j8uUwvv2FhlWRN2q0ibCkLR7zYRhVC5jN4BaNY62PcfT5aN0eUY7uyxIJYEMiDPh',
+				UPDATE: 'A6zeZwUGsDsR3UsFlBiNjCBRhrjmoeCRi2SLNkM82ieBFk3vQDFPBsdY9FsPAbTq',
+				JOIN: 'T9jso372r8t5RZykiHM2NJUdus7VCImSzEQFaV944B6xaqBy11zfAqcQVwXvNjdI',
+				GETROOM: '8SwXLeDAhdgP4gwR59xpKiEVS4oxnMVhCQZx7AobVOYPVH0113hF7RHOoC3KBvTg',
+				CHECKOWNER: 'tzVHvsiel4g10esgA6c7uib0ZGx8qtMOwbDTxvvTrzYXMylzN4t2nw2x29244opD',
 			}
 		}
 		// JOIN_GAME: 'join_game',

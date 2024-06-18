@@ -11,35 +11,47 @@ export {
 	joinRoom,
 	getRoomOfPlayer,
 	checkOwner,
+	rooms,
+	roomOfPlayers,
 };
 var roomOfPlayers = {};
 class Sended_Room {
-	constructor(id_, players_, playerFaction_, owner_, type_, factionLim_) {
+	constructor(id_, players_,owner_, type_, factionLim_, mode_,) {
 		this.id = id_;
 		this.players = players_;
-		this.playerFaction = playerFaction_;
 		this.owner = owner_;
 		this.type = type_;
 		this.factionLim = factionLim_;
+		this.mode = mode_;
+	}
+}
+class Player_In_Room_Status {
+	constructor(id,nickName,faction,isReady)
+	{
+		this.id=id;
+		this.nickName=nickName;
+		this.faction=faction;
+		this.isReady=isReady;
 	}
 }
 class Room {
 	constructor(mode, owner_) {
 		this.id = getNewRoomID();
 		this.players = {};
-		this.playerFaction = {};
+		this.playerStatus = {};
 		this.playerNum = 0;
 		this.playerRedNum = 0;
 		this.playerBlueNum = 0;
 		this.owner = owner_.id;
 		if (!gamemodes[mode])
 			throw new Error('trying to create room with unknown gamemode');
+		this.mode = mode;
 		this.game = new gamemodes[mode]();
 		this.type = '1v1';
 		this.factionLim = 1;
 	}
 	toSend() {
-		return new Sended_Room(this.id, Object.keys(this.players), this.playerFaction, this.owner, this.type, this.factionLim);
+		return new Sended_Room(this.id, this.playerStatus, this.owner, this.type, this.factionLim, this.mode);
 	}
 	update() {
 		for (var player in this.players)
@@ -49,26 +61,30 @@ class Room {
 		roomOfPlayers[socket.id] = this;
 		this.players[socket.id] = socket;
 		this.playerNum++;
+		var faction;
 		if (this.playerBlueNum != this.factionLim) {
 			this.playerBlueNum++;
-			this.playerFaction[socket.id] = 'Blue';
+			faction = 'Blue';
 		}
 		else {
 			this.playerRedNum++;
-			this.playerFaction[socket.id] = 'Red';
+			faction = 'Red';
 		}
+		this.playerStatus[socket.id] = new Player_In_Room_Status(socket.id,socket.id,faction,false);
+		console.log(this.playerStatus[socket.id]);
 		console.log(`Player ${socket.id} joined Room #${this.id}`);
 		this.update();
 	}
 	remove(socket) {
 		this.playerNum--;
-		if (this.playerFaction[socket.id] == 'Blue')
+		if (this.playerStatus[socket.id].faction == 'Blue')
 			this.playerBlueNum--;
 		else
 			this.playerRedNum--;
-		delete this.playerFaction[socket.id];
+		delete this.playerStatus[socket.id];
 		delete roomOfPlayers[socket.id];
 		delete this.players[socket.id];
+		console.log(`Player ${socket.id} left Room #${this.id}`)
 		if (this.playerNum == 0) {
 			delete this;
 			return;

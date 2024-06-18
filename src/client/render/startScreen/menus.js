@@ -468,31 +468,31 @@ const menus = {
 			let nowRoom = room.playerRoom;
 			if(nowRoom == null || nowRoom == undefined)
 				return ;
-			let faction = nowRoom.playerFaction[socket.id];
+			let faction = nowRoom.players[socket.id].faction;
 			let nowpos = 30;
-			for (let i = 0; i < nowRoom.players.length; i++) {
-				let player = nowRoom.players[i];
-				if (nowRoom.playerFaction[player] == faction) {
+			for (let playerId in nowRoom.players) {
+				let player = nowRoom.players[playerId];
+				if (player.faction == faction) {
 					util.renderText(ctx, ctx.globalAlpha,
-						player,
+						player.nickName,
 						Length.u(0), Length.u(nowpos),
 						Length.u(15),
 						'center',
-						nowRoom.playerFaction[player],
+						player.faction,
 					);
 					nowpos += 20;
 				}
 			}
 			nowpos += 20;
-			for (let i = 0; i < nowRoom.players.length; i++) {
-				let player = nowRoom.players[i];
-				if (nowRoom.playerFaction[player] != faction) {
+			for (let playerId in nowRoom.players) {
+				let player = nowRoom.players[playerId];
+				if (player.faction != faction) {
 					util.renderText(ctx, ctx.globalAlpha,
-						player,
+						player.nickName,
 						Length.u(0), Length.u(nowpos),
 						Length.u(15),
 						'center',
-						nowRoom.playerFaction[player],
+						player.faction,
 					);
 					nowpos += 20;
 				}

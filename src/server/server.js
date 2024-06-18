@@ -7,7 +7,6 @@ import Constants from '../shared/constants.js';
 import webpackConfig from "../../webpack.dev.js";
 
 import * as room from './room.js';
-
 const app = express();
 app.use(express.static('public'));
 
@@ -30,6 +29,7 @@ io.on('connection', socket => {
 	socket.on(Constants.MSG_TYPES.CLIENT.ROOM.JOIN, joinRoom);
 	socket.on(Constants.MSG_TYPES.CLIENT.ROOM.GETROOM, getRoomOfPlayer);
 	socket.on(Constants.MSG_TYPES.CLIENT.ROOM.CHECKOWNER, checkOwner);
+	socket.on('disconnect', onDisconnect);
 	// socket.on(Constants.MSG_TYPES.JOIN_GAME, joinGame);
 	// socket.on(Constants.MSG_TYPES.MOVEMENT, handleMovement);
 	// socket.on(Constants.MSG_TYPES.MOUSE_DOWN, handleMouseDown);
@@ -51,6 +51,10 @@ function getRoomOfPlayer() {
 }
 function checkOwner() {
 	room.checkOwner(this);
+}
+function onDisconnect() {
+	if(room.roomOfPlayers[this.id])
+		room.roomOfPlayers[this.id].remove(this);
 }
 // const game = new Game();
 
