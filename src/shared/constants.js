@@ -15,7 +15,8 @@ export default Object.freeze({
 		SERVER: {
 			ROOM: {
 				CREATE: 'server_room_create',
-				UNSUCCESSFUL_JOIN: 'server_room_Unsuccessful-join',
+				UNSUCCESSFUL_JOIN: 'server_room_unsuccessful-join',
+				UPDATE: 'server_room_update',
 				JOIN: 'server_room_join',
 				GETROOM: 'server_room_getroom',
 				CHECKOWNER: 'server_room_CHECKOWNER',

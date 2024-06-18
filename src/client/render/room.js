@@ -15,6 +15,7 @@ const recieveInfo = () => {
 		nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.CREATE, createdRoom);
 		nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.JOIN, joinedRoom);
 		nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.UNSUCCESSFUL_JOIN, unsuccessfulJoinedRoom);
+		nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.UPDATE, updatedRoom);
 		nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.GETROOM, gotRoomOfPlayer);
 		nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.CHECKOWNER, checkedOwner);
 	});
@@ -26,12 +27,15 @@ const createdRoom = (roomId) => {
 }
 const joinedRoom = (nowRoom) => {
 	joinRoomExitCode = 1;
-	playerRoom=JSON.parse(nowRoom);
+	playerRoom=nowRoom;
 	menus.arena_room_join_msg.open();
 }
 const unsuccessfulJoinedRoom = (exitCode) => {
 	joinRoomExitCode = exitCode;
 	menus.arena_room_join_msg.open();
+}
+const updatedRoom = (nowRoom) => {
+	playerRoom=nowRoom;
 }
 const gotRoomOfPlayer = (room) => {
 	playerRoom = room;

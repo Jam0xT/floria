@@ -13,32 +13,73 @@ export {
 	checkOwner,
 };
 var roomOfPlayers = {};
+class Sended_Room {
+	constructor(id_, players_, playerFaction_, owner_, type_, factionLim_) {
+		this.id = id_;
+		this.players = players_;
+		this.playerFaction = playerFaction_;
+		this.owner = owner_;
+		this.type = type_;
+		this.factionLim = factionLim_;
+	}
+}
 class Room {
 	constructor(mode, owner_) {
 		this.id = getNewRoomID();
 		this.players = {};
+		this.playerFaction = {};
+		this.playerNum = 0;
+		this.playerRedNum = 0;
+		this.playerBlueNum = 0;
 		this.owner = owner_.id;
 		if (!gamemodes[mode])
 			throw new Error('trying to create room with unknown gamemode');
 		this.game = new gamemodes[mode]();
+		this.type = '1v1';
+		this.factionLim = 1;
 	}
-
+	toSend() {
+		return new Sended_Room(this.id, Object.keys(this.players), this.playerFaction, this.owner, this.type, this.factionLim);
+	}
+	update() {
+		for (var player in this.players)
+			this.players[player].emit(Constants.MSG_TYPES.SERVER.ROOM.UPDATE, this.toSend());
+	}
 	add(socket) {
 		roomOfPlayers[socket.id] = this;
 		this.players[socket.id] = socket;
+		this.playerNum++;
+		if (this.playerBlueNum != this.factionLim) {
+			this.playerBlueNum++;
+			this.playerFaction[socket.id] = 'Blue';
+		}
+		else {
+			this.playerRedNum++;
+			this.playerFaction[socket.id] = 'Red';
+		}
 		console.log(`Player ${socket.id} joined Room #${this.id}`);
+		this.update();
 	}
 	remove(socket) {
-		roomOfPlayers[socket.id] = null;
+		this.playerNum--;
+		if (this.playerFaction[socket.id] == 'Blue')
+			this.playerBlueNum--;
+		else
+			this.playerRedNum--;
+		delete this.playerFaction[socket.id];
+		delete roomOfPlayers[socket.id];
 		delete this.players[socket.id];
-		if (this.players.length == 0)
+		if (this.playerNum == 0) {
 			delete this;
+			return;
+		}
 		else if (this.owner == socket) {
-			for (player in players) {
+			for (var player in this.players) {
 				this.owner = player;
 				break;
 			}
 		}
+		this.update();
 	}
 }
 function checkOwner(socket) {
@@ -67,14 +108,12 @@ function joinRoom(socket, mode, roomId) {
 			console.log(`Player ${socket.id} is already in the Room`);
 			socket.emit(Constants.MSG_TYPES.SERVER.ROOM.UNSUCCESSFUL_JOIN, -2);
 		}
-		else if (Object.keys(nowRoom.players).length == 4) {
+		else if (nowRoom.playerNum == nowRoom.factionLim * 2) {
 			console.log(`Room #${roomId} is full`);
 			socket.emit(Constants.MSG_TYPES.SERVER.ROOM.UNSUCCESSFUL_JOIN, -3);
 		}
 		else {
-			console.log(nowRoom);
-			console.log(JSON.stringify(nowRoom));
-			socket.emit(Constants.MSG_TYPES.SERVER.ROOM.JOIN,JSON.stringify(nowRoom));
+			socket.emit(Constants.MSG_TYPES.SERVER.ROOM.JOIN, nowRoom.toSend());
 			rooms[mode][roomId].add(socket);
 		}
 	}

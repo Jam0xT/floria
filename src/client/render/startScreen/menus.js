@@ -14,6 +14,8 @@ import * as util from '../../utility.js';
 
 import * as room from '../room.js';
 
+import { socket } from '../../networking.js';
+
 const menus = {
 	start: new Menu({
 		x: Length.w(0),
@@ -463,6 +465,38 @@ const menus = {
 				'center',
 				'white',
 			);
+			let nowRoom = room.playerRoom;
+			if(nowRoom == null || nowRoom == undefined)
+				return ;
+			let faction = nowRoom.playerFaction[socket.id];
+			let nowpos = 30;
+			for (let i = 0; i < nowRoom.players.length; i++) {
+				let player = nowRoom.players[i];
+				if (nowRoom.playerFaction[player] == faction) {
+					util.renderText(ctx, ctx.globalAlpha,
+						player,
+						Length.u(0), Length.u(nowpos),
+						Length.u(15),
+						'center',
+						nowRoom.playerFaction[player],
+					);
+					nowpos += 20;
+				}
+			}
+			nowpos += 20;
+			for (let i = 0; i < nowRoom.players.length; i++) {
+				let player = nowRoom.players[i];
+				if (nowRoom.playerFaction[player] != faction) {
+					util.renderText(ctx, ctx.globalAlpha,
+						player,
+						Length.u(0), Length.u(nowpos),
+						Length.u(15),
+						'center',
+						nowRoom.playerFaction[player],
+					);
+					nowpos += 20;
+				}
+			}
 		},
 		style: styles.menu.invisible,
 		onOpenFn: function () {
@@ -540,10 +574,10 @@ const menus = {
 		oy: Length.h(0.2),
 		renderFn: function (ctx) {
 			var text;
-			if(room.playerRoom == null)
-				text='You are not in room now';
+			if (room.playerRoom == null)
+				text = 'You are not in room now';
 			else
-				text=`You are in room #${room.playerRoom.id}`;
+				text = `You are in room #${room.playerRoom.id}`;
 			util.renderText(ctx, ctx.globalAlpha,
 				text,
 				Length.u(0), Length.u(0),
