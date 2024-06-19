@@ -71,7 +71,6 @@ class Room {
 			faction = 'Red';
 		}
 		this.playerStatus[socket.id] = new Player_In_Room_Status(socket.id,socket.id,faction,false);
-		console.log(this.playerStatus[socket.id]);
 		console.log(`Player ${socket.id} joined Room #${this.id}`);
 		this.update();
 	}
@@ -89,12 +88,18 @@ class Room {
 			delete this;
 			return;
 		}
-		else if (this.owner == socket) {
+		else if (this.owner == socket.id) {
 			for (let player in this.players) {
 				this.owner = player;
 				break;
 			}
 		}
+		this.update();
+	}
+	readyChange(socket) {
+		if(!this.playerStatus[socket.id])
+			throw new Error('trying to change the ready status of a unjoined player');
+		this.playerStatus[socket.id].isReady=!this.playerStatus[socket.id].isReady;
 		this.update();
 	}
 }

@@ -36,6 +36,10 @@ const unsuccessfulJoinedRoom = (exitCode) => {
 }
 const updatedRoom = (nowRoom) => {
 	playerRoom=nowRoom;
+	if(nowRoom)
+		menus.arena_room_ready_button.transparency = 0;
+	else
+		menus.arena_room_ready_button.transparency = 100;
 }
 const gotRoomOfPlayer = (room) => {
 	playerRoom = room;
@@ -56,6 +60,10 @@ const getRoomOfPlayer = () => {
 const checkOwner = () => {
 	nw.socket.emit(Constants.MSG_TYPES.CLIENT.ROOM.CHECKOWNER);
 }
+const readyChange = () => {
+	if(playerRoom)
+		nw.socket.emit(Constants.MSG_TYPES.CLIENT.ROOM.READY);
+}
 export {
 	createRoom,
 	joinRoom,
@@ -66,4 +74,5 @@ export {
 	playerRoom,
 	isOwner,
 	joinRoomExitCode,
+	readyChange,
 }

@@ -10,6 +10,7 @@ export default Object.freeze({
 				JOIN: 'nk301wI3jGXW9Raz6VBUKVgbxsdTs6qppM8BNNv9Qo3xmUdHaQzIy5uiFbOLNR5P',
 				GETROOM: 'mK1RRPZ9QmqYFuEQdV3ju7diWLPu1dKNGWQAqE43qm4EuZjjeoJwXKc1V6O6SPcG',
 				CHECKOWNER: 'WsUVLIiGCIJU12UOKn602QCGgiAJaPX0cLy8ZMn6DOEZFpeVvUDod63qhqatAfff',
+				READY: 'jRKbIsuMHTYu0v7J6c2bI2aYewjluRJzMCfqT0xSWwYVvCb7YY5ObiTBf6YIqAe6',
 			}
 		},
 		SERVER: {

@@ -355,6 +355,37 @@ const menus = {
 		transparency: 0,
 		maxTextLength: 6,
 	}),
+	arena_room_ready_button: new Button({
+		x: Length.u(0),
+		y: Length.u(220),
+		rx: Length.u(40),
+		ry: Length.u(15),
+		ox: Length.u(0),
+		oy: Length.u(220),
+		renderFn: function (ctx) {
+			if(room.playerRoom)
+				util.renderText(ctx, ctx.globalAlpha,
+					'Ready',
+					this.rx, this.ry.add(Length.u(7)),
+					Length.u(20),
+					'center',
+					room.playerRoom.players[socket.id].isReady?'green':'red',
+				);
+		},
+		style: styles.button.default,
+		onTriggerFn: function () {
+			room.readyChange();
+		},
+		onOpenFn: function () {
+
+		},
+		onCloseFn: function () {
+
+		},
+		parent: 'arena_room',
+		isInitialHiding: false,
+		transparency: 100
+	}),
 	test_selectbox: new Selectbox({
 		x: Length.u(0),
 		y: Length.u(140),
@@ -474,12 +505,20 @@ const menus = {
 				let player = nowRoom.players[playerId];
 				if (player.faction == faction) {
 					util.renderText(ctx, ctx.globalAlpha,
-						player.nickName,
+						player.nickName+((player.id==nowRoom.owner)?'(owner)':''),
 						Length.u(0), Length.u(nowpos),
 						Length.u(15),
 						'center',
 						player.faction,
 					);
+					if(player.isReady == true)
+						util.renderText(ctx, ctx.globalAlpha,
+							'ready',
+							Length.u(150), Length.u(nowpos),
+							Length.u(15),
+							'center',
+							'green',
+						);
 					nowpos += 20;
 				}
 			}
@@ -488,12 +527,20 @@ const menus = {
 				let player = nowRoom.players[playerId];
 				if (player.faction != faction) {
 					util.renderText(ctx, ctx.globalAlpha,
-						player.nickName,
+						player.nickName+((player.id==nowRoom.owner)?'(owner)':''),
 						Length.u(0), Length.u(nowpos),
 						Length.u(15),
 						'center',
 						player.faction,
 					);
+					if(player.isReady == true)
+						util.renderText(ctx, ctx.globalAlpha,
+							'ready',
+							Length.u(150), Length.u(nowpos),
+							Length.u(15),
+							'center',
+							'green',
+						);
 					nowpos += 20;
 				}
 			}

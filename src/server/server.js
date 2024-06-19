@@ -29,6 +29,7 @@ io.on('connection', socket => {
 	socket.on(Constants.MSG_TYPES.CLIENT.ROOM.JOIN, joinRoom);
 	socket.on(Constants.MSG_TYPES.CLIENT.ROOM.GETROOM, getRoomOfPlayer);
 	socket.on(Constants.MSG_TYPES.CLIENT.ROOM.CHECKOWNER, checkOwner);
+	socket.on(Constants.MSG_TYPES.CLIENT.ROOM.READY, readyChange);
 	socket.on('disconnect', onDisconnect);
 	// socket.on(Constants.MSG_TYPES.JOIN_GAME, joinGame);
 	// socket.on(Constants.MSG_TYPES.MOVEMENT, handleMovement);
@@ -51,6 +52,9 @@ function getRoomOfPlayer() {
 }
 function checkOwner() {
 	room.checkOwner(this);
+}
+function readyChange() {
+	room.roomOfPlayers[this.id].readyChange(this);
 }
 function onDisconnect() {
 	if(room.roomOfPlayers[this.id])
