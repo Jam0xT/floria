@@ -13,10 +13,11 @@ export {
 	checkOwner,
 	rooms,
 	roomOfPlayers,
+	quitRoom,
 };
 var roomOfPlayers = {};
 class Sended_Room {
-	constructor(id_, players_,owner_, type_, factionLim_, mode_,) {
+	constructor(id_, players_, owner_, type_, factionLim_, mode_,) {
 		this.id = id_;
 		this.players = players_;
 		this.owner = owner_;
@@ -26,12 +27,11 @@ class Sended_Room {
 	}
 }
 class Player_In_Room_Status {
-	constructor(id,nickName,faction,isReady)
-	{
-		this.id=id;
-		this.nickName=nickName;
-		this.faction=faction;
-		this.isReady=isReady;
+	constructor(id, nickName, faction, isReady) {
+		this.id = id;
+		this.nickName = nickName;
+		this.faction = faction;
+		this.isReady = isReady;
 	}
 }
 class Room {
@@ -70,7 +70,7 @@ class Room {
 			this.playerRedNum++;
 			faction = 'Red';
 		}
-		this.playerStatus[socket.id] = new Player_In_Room_Status(socket.id,socket.id,faction,false);
+		this.playerStatus[socket.id] = new Player_In_Room_Status(socket.id, socket.id, faction, false);
 		console.log(`Player ${socket.id} joined Room #${this.id}`);
 		this.update();
 	}
@@ -85,7 +85,8 @@ class Room {
 		delete this.players[socket.id];
 		console.log(`Player ${socket.id} left Room #${this.id}`)
 		if (this.playerNum == 0) {
-			delete this;
+			console.log(`Room #${this.id} Deleted`);
+			delete rooms[this.mode][this.id];
 			return;
 		}
 		else if (this.owner == socket.id) {
@@ -97,9 +98,9 @@ class Room {
 		this.update();
 	}
 	readyChange(socket) {
-		if(!this.playerStatus[socket.id])
+		if (!this.playerStatus[socket.id])
 			throw new Error('trying to change the ready status of a unjoined player');
-		this.playerStatus[socket.id].isReady=!this.playerStatus[socket.id].isReady;
+		this.playerStatus[socket.id].isReady = !this.playerStatus[socket.id].isReady;
 		this.update();
 	}
 }
@@ -121,25 +122,35 @@ function joinRoom(socket, mode, roomId) {
 	console.log(`Player ${socket.id} tries to join Room #${roomId}:`);
 	if (!rooms[mode][roomId]) {
 		console.log(`Room #${roomId} not found.`);
-		socket.emit(Constants.MSG_TYPES.SERVER.ROOM.UNSUCCESSFUL_JOIN, -1);
+		socket.emit(Constants.MSG_TYPES.SERVER.ROOM.ROOM_MSG, 'This Room does not exist','red');
 	}
 	else {
 		let nowRoom = rooms[mode][roomId];
 		if (nowRoom.players[socket.id]) {
 			console.log(`Player ${socket.id} is already in the Room`);
-			socket.emit(Constants.MSG_TYPES.SERVER.ROOM.UNSUCCESSFUL_JOIN, -2);
+			socket.emit(Constants.MSG_TYPES.SERVER.ROOM.ROOM_MSG, 'You are already in this room','red');
 		}
 		else if (nowRoom.playerNum == nowRoom.factionLim * 2) {
 			console.log(`Room #${roomId} is full`);
-			socket.emit(Constants.MSG_TYPES.SERVER.ROOM.UNSUCCESSFUL_JOIN, -3);
+			socket.emit(Constants.MSG_TYPES.SERVER.ROOM.ROOM_MSG, 'This room is already full','red');
 		}
 		else {
+			console.log(`Player ${socket.id} successfully joined the Room #${roomId}`);
 			socket.emit(Constants.MSG_TYPES.SERVER.ROOM.JOIN, nowRoom.toSend());
 			rooms[mode][roomId].add(socket);
+			socket.emit(Constants.MSG_TYPES.SERVER.ROOM.ROOM_MSG, 'Successfully joined the room','green');
 		}
 	}
 }
-
+function quitRoom(socket, needMsg) {
+	if (!roomOfPlayers[socket.id])
+		return;
+	roomOfPlayers[socket.id].remove(socket);
+	delete roomOfPlayers[socket.id];
+	if (needMsg)
+		socket.emit(Constants.MSG_TYPES.SERVER.ROOM.ROOM_MSG, 'Successfully quited the room','green');
+	socket.emit(Constants.MSG_TYPES.SERVER.ROOM.QUIT);
+}
 const charList = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 const fixedIdLen = 6;
 

@@ -275,6 +275,7 @@ const menus = {
 		onTriggerFn: function () {
 			menus.arena.close();
 			menus.start.open();
+			room.quitRoom(false);
 		},
 		parent: 'arena',
 		isInitialHiding: false,
@@ -386,6 +387,37 @@ const menus = {
 		isInitialHiding: false,
 		transparency: 100
 	}),
+	arena_room_quit_button: new Button({
+		x: Length.u(0),
+		y: Length.u(270),
+		rx: Length.u(40),
+		ry: Length.u(15),
+		ox: Length.u(0),
+		oy: Length.u(270),
+		renderFn: function (ctx) {
+			if(room.playerRoom)
+				util.renderText(ctx, ctx.globalAlpha,
+					'Quit',
+					this.rx, this.ry.add(Length.u(7)),
+					Length.u(20),
+					'center',
+					'red',
+				);
+		},
+		style: styles.button.default,
+		onTriggerFn: function () {
+			room.quitRoom(true);
+		},
+		onOpenFn: function () {
+
+		},
+		onCloseFn: function () {
+
+		},
+		parent: 'arena_room',
+		isInitialHiding: false,
+		transparency: 100
+	}),
 	test_selectbox: new Selectbox({
 		x: Length.u(0),
 		y: Length.u(140),
@@ -448,47 +480,17 @@ const menus = {
 		isInitialHiding: false,
 		transparency: 0
 	}),
-	arena_mode: new Menu({
-		x: Length.w(0.5),
-		y: Length.u(-100),
-		rx: Length.u(0),
-		ry: Length.u(0),
-		ox: Length.w(0.5),
-		oy: Length.h(0.3),
-		renderFn: function (ctx) {
-			util.renderText(ctx, ctx.globalAlpha,
-				'Mode',
-				Length.u(0), Length.u(0),
-				Length.u(30),
-				'center',
-				'white',
-			);
-		},
-		style: styles.menu.invisible,
-		onOpenFn: function () {
-			this.yGen = {
-				gen: util.gen.logarithmic_increase(this.y.parse(), Length.h(0.3).parse(), 0.85),
-				val: {},
-			};
-		},
-		onCloseFn: function () {
-			this.yGen = {
-				gen: util.gen.exponential_decrease(this.y.parse(), Length.u(-100).parse(), 0.85),
-				val: {},
-			};
-		},
-		parent: 'arena',
-		isInitialHiding: false,
-		transparency: 0
-	}),
 	arena_playerlist: new Menu({
-		x: Length.u(-100),
-		y: Length.h(0.3),
+		x: Length.w(-0.4),
+		y: Length.h(0),
 		rx: Length.u(0),
 		ry: Length.u(0),
-		ox: Length.w(0.3),
-		oy: Length.h(0.3),
+		ox: Length.w(-0.4),
+		oy: Length.h(0),
 		renderFn: function (ctx) {
+			let nowRoom = room.playerRoom;
+			if(nowRoom == null || nowRoom == undefined)
+				return ;
 			util.renderText(ctx, ctx.globalAlpha,
 				'Players',
 				Length.u(0), Length.u(0),
@@ -496,9 +498,6 @@ const menus = {
 				'center',
 				'white',
 			);
-			let nowRoom = room.playerRoom;
-			if(nowRoom == null || nowRoom == undefined)
-				return ;
 			let faction = nowRoom.players[socket.id].faction;
 			let nowpos = 30;
 			for (let playerId in nowRoom.players) {
@@ -558,7 +557,7 @@ const menus = {
 				val: {},
 			};
 		},
-		parent: 'arena',
+		parent: 'arena_room',
 		isInitialHiding: false,
 		transparency: 0
 	}),
@@ -570,31 +569,12 @@ const menus = {
 		ox: Length.u(0),
 		oy: Length.u(170),
 		renderFn: function (ctx) {
-			var text, color;
-			switch (room.joinRoomExitCode) {
-				case 1:
-					text = 'Successfully joined the room';
-					color = 'green';
-					break;
-				case -1:
-					text = 'This Room does not exist';
-					color = 'red';
-					break;
-				case -2:
-					text = 'You are already in this room';
-					color = 'red';
-					break;
-				case -3:
-					text = 'This room is already full';
-					color = 'red';
-					break;
-			}
 			util.renderText(ctx, ctx.globalAlpha,
-				text,
+				room.roomMsg,
 				Length.u(0), Length.u(0),
 				Length.u(20),
 				'center',
-				color,
+				room.roomMsgCol,
 			);
 		},
 		style: styles.menu.invisible,
@@ -649,7 +629,7 @@ const menus = {
 		parent: 'arena',
 		isInitialHiding: false,
 		transparency: 0
-	})
+	}),
 }
 
 export default function getMenus() {
