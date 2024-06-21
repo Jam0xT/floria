@@ -97,11 +97,32 @@ class Room {
 		}
 		this.update();
 	}
+	checkAllReady() {
+		let cnt = 0;
+		for(let player in this.playerStatus)
+			if(this.playerStatus[player].isReady)
+				cnt++;
+		if(cnt==this.factionLim*2)
+			return true;
+		return false;
+	}
+	joinGame() {
+		this.game.run();
+		for(let player in this.players)
+		{
+			this.players[player].emit(Constants.MSG_TYPES.SERVER.GAME.START);
+			delete roomOfPlayers[player];
+			this.players[player].emit(Constants.MSG_TYPES.SERVER.ROOM.QUIT);
+		}
+		delete rooms[this.mode][this.id];
+	}
 	readyChange(socket) {
 		if (!this.playerStatus[socket.id])
 			throw new Error('trying to change the ready status of a unjoined player');
 		this.playerStatus[socket.id].isReady = !this.playerStatus[socket.id].isReady;
 		this.update();
+		if(this.checkAllReady)
+			this.joinGame();
 	}
 }
 function checkOwner(socket) {
@@ -111,6 +132,11 @@ function getRoomOfPlayer(socket) {
 	socket.emit(Constants.MSG_TYPES.SERVER.ROOM.GETROOM, roomOfPlayers[socket.id]);
 }
 function createRoom(socket, mode) {
+	if(roomOfPlayers[socket.id])
+	{
+		socket.emit(Constants.MSG_TYPES.SERVER.ROOM.ROOM_MSG, 'You are already in a room,quit first.','red');
+		return ;
+	}
 	let newRoom = new Room(mode, socket);
 	rooms[mode][newRoom.id] = newRoom;
 	socket.emit(Constants.MSG_TYPES.SERVER.ROOM.CREATE, newRoom.id);

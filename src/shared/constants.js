@@ -23,6 +23,9 @@ export default Object.freeze({
 				GETROOM: '8SwXLeDAhdgP4gwR59xpKiEVS4oxnMVhCQZx7AobVOYPVH0113hF7RHOoC3KBvTg',
 				CHECKOWNER: 'tzVHvsiel4g10esgA6c7uib0ZGx8qtMOwbDTxvvTrzYXMylzN4t2nw2x29244opD',
 				QUIT: 'tNMauGxSg3DPaoi2RQdBa13kAQqJIPioptfI7GVILynzCMjjQFh8KLAqvIV8ivMu',
+			},
+			GAME: {
+				START: 'Lp1GDS1BjTyUGXEY6UrYjmh55YLxaOfX4DaaTXtSszD2A1yUGRfKGPOwHnwIhce3',
 			}
 		}
 		// JOIN_GAME: 'join_game',

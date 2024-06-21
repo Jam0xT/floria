@@ -26,7 +26,7 @@ function getTmpCtx(w = W, h = H) { // 返回临时画布
 	return newCanvas.getContext('2d');
 }
 
-function draw(ctx, onCtx = ctxMain, x = 0, y = 0, remove = true) {
+function draw(ctx, onCtx, x = 0, y = 0, remove = true) {
 	onCtx.drawImage(ctx.canvas, x, y);
 	if ( remove ) {
 		ctx.canvas.remove();
