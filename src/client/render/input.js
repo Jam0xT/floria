@@ -1,3 +1,6 @@
+import * as util from '../utility.js';
+import Length from './length.js';
+
 function init(options = {}) {
 	const $ = this.var.input = {};
 	$.maxTextLength = options.maxTextLength || Infinity;
@@ -16,6 +19,7 @@ function init(options = {}) {
 	$.arrowX = $.min //箭头X坐标
 
 	$.focus = false;
+	
 }
 
 function handleInput(e) {
@@ -51,7 +55,7 @@ function moveArrow(direction) { // -1 || 1
     const $ = this.var.input;
     
 	//setArrow方法会依据text长度判断是否移动箭头
-	const isSetArrowSuccess = setArrow($.arrow + direction);
+	const isSetArrowSuccess = setArrow.bind(this)($.arrow + direction);
 	
 	if (util.getAllTextWidth($.text, $.textSize.parse()) > $.max.parse() && $.arrow == $.text.length) {
 		$.textAlign = `right`;
@@ -80,7 +84,7 @@ function moveArrow(direction) { // -1 || 1
 		}
 	}
 	//箭头出右范围，文本左移
-	if ($.arrowX.gatherthan($.max)) {
+	if ($.arrowX.greaterThan($.max)) {
 		$.hidedTextLength = $.text.length - $.arrow;
 		$.arrowX = $.max;
 		$.textAlign = `right`;
@@ -88,7 +92,7 @@ function moveArrow(direction) { // -1 || 1
 	}
 	
 	//箭头出左范围，文本右移
-	if ($.arrowX.lessthan($.min)) {
+	if ($.arrowX.lessThan($.min)) {
 		$.hidedTextLength = $.arrow;
 		$.arrowX = $.min;
 		$.textAlign = `left`;
@@ -100,15 +104,15 @@ async function paste() {
 	const $ = this.var.input;
 	let text = await navigator.clipboard.readText().catch(e => console.error(e));
 	text = text.slice(0, $.maxTextLength - $.text.length)
-	appendText(text, $.arrow)
+	appendText.bind(this)(text, $.arrow)
 }
 
 function appendText(text, num) {
 	const $ = this.var.input;
 	if ($.maxTextLength >= $.text.length + text.length) {
-		$.text = $.te.slice(0, num) + text + $.text.slice(num, $.text.length);
+		$.text = $.text.slice(0, num) + text + $.text.slice(num, $.text.length);
 		for (let i = 0; i < text.length; i++) {
-			moveArrow(1);
+			moveArrow.bind(this)(1);
 		}
 	}
 }
@@ -118,7 +122,7 @@ function deleteText(num, isArrowStatic = false) { //删除第num位的文本(从
 	if (num == 0 || num > $.text.length) return false;
 	$.text = $.text.slice(0, num - 1) + $.text.slice(num, $.text.length);
 	if (!isArrowStatic) {
-		moveArrow(-1) //这里一定是箭头左边所以是-1
+		moveArrow.bind(this)(-1) //这里一定是箭头左边所以是-1
 	}
 }
 

@@ -71,7 +71,7 @@ const test = {
 		ctx.fill();
 
 		util.renderText(ctx, 1,
-			'floria.io',
+			this.var.input.text,
 			Length.u(0), Length.u(8),
 			Length.u(20),
 			'center',
