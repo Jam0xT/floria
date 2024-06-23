@@ -20,6 +20,7 @@ const recieveInfo = () => {
 		nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.GETROOM, gotRoomOfPlayer);
 		nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.CHECKOWNER, checkedOwner);
 		nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.QUIT, quitedRoom);
+		nw.socket.on(Constants.MSG_TYPES.SERVER.GAME.START, startGame);
 	});
 }
 const createdRoom = (roomId) => {
@@ -27,14 +28,17 @@ const createdRoom = (roomId) => {
 	menus.arena_room_id_input.style = styles.inputbox.green;
 	menus.arena_room_id_input.fillColor = styles.inputbox.green.fill;
 }
+
 const joinedRoom = (nowRoom) => {
 	playerRoom = nowRoom;
 }
+
 const updateRoomMsg = (msg, col) => {
 	roomMsg = msg;
 	roomMsgCol = col;
 	menus.arena_room_join_msg.open();
 }
+
 const updatedRoom = (nowRoom) => {
 	playerRoom = nowRoom;
 	if (nowRoom) {
@@ -46,17 +50,21 @@ const updatedRoom = (nowRoom) => {
 		menus.arena_room_quit_button.transparency = 100;
 	}
 }
+
 const gotRoomOfPlayer = (room) => {
 	playerRoom = room;
 }
+
 const checkedOwner = (isOwner_) => {
 	isOwner = isOwner_;
 }
+
 const quitedRoom = () => {
 	playerRoom = null;
 	menus.arena_room_ready_button.transparency = 100;
 	menus.arena_room_quit_button.transparency = 100;
 }
+
 const createRoom = (mode) => {
 	nw.socket.emit(Constants.MSG_TYPES.CLIENT.ROOM.CREATE, mode);
 }
@@ -64,20 +72,29 @@ const createRoom = (mode) => {
 const joinRoom = (mode, roomId) => {
 	nw.socket.emit(Constants.MSG_TYPES.CLIENT.ROOM.JOIN, mode, roomId);
 }
+
 const getRoomOfPlayer = () => {
 	nw.socket.emit(Constants.MSG_TYPES.CLIENT.ROOM.GETROOM);
 }
+
 const checkOwner = () => {
 	nw.socket.emit(Constants.MSG_TYPES.CLIENT.ROOM.CHECKOWNER);
 }
+
 const readyChange = () => {
 	if (playerRoom)
 		nw.socket.emit(Constants.MSG_TYPES.CLIENT.ROOM.READY);
 }
+
 const quitRoom = (needMsg) => {
 	if (playerRoom)
 		nw.socket.emit(Constants.MSG_TYPES.CLIENT.ROOM.QUIT, needMsg);
 }
+
+const startGame = () => {
+	
+}
+
 export {
 	createRoom,
 	joinRoom,

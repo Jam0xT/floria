@@ -59,11 +59,11 @@ export default class Length {
 		return new Length(this.w * k, this.h * k, this.unitLength * k);
 	}
 	
-	gatherthan(length) {
+	greaterThan(length) {
 		return this.parse() > length.parse();
 	}
 	
-	lessthan(length) {
+	lessThan(length) {
 		return this.parse() < length.parse();
 	}
 	

@@ -1,6 +1,6 @@
 export default {
 	background: {
-		screen: "#1EA761",
+		menu: "#1EA761",
 	},
 	
 	selectbox: {

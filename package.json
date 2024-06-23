@@ -1,6 +1,6 @@
 {
 	"name": "floria",
-	"version": "0.11.1",
+	"version": "0.12.0",
 	"author": {
 		"name": "NetheriteJam",
 		"email": "netheritejam@gmail.com"
@@ -17,6 +17,9 @@
 		},
 		{
 			"name": "XNOR"
+		},
+		{
+			"name": "Kfssz"
 		}
 	],
 	"description": "",

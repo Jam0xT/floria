@@ -1,4 +1,4 @@
-import Game_Arena from './arena.js';
+import Game_Arena from './arena/arena.js';
 
 const gamemodes = {
 	'arena': Game_Arena,
