@@ -64,7 +64,7 @@ function main() {
 
 	// renderFps();
 
-	canvas.draw(ctx);
+	canvas.draw(ctx,canvas.ctxMain);
 }
 
 function renderFps() {

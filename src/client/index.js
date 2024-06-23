@@ -1,8 +1,8 @@
 import * as nw from './networking.js';
 
-import render from './render.js';
+import * as render from './render.js';
 
-// import { stopCapturingInput } from './input.js';
+import * as input from './input.js';
 
 import { downloadAssets } from './assets.js';
 
@@ -23,7 +23,8 @@ window.onload = () => {
 		render.init(),
 	]).then(() => {
 		document.getElementById('text-loading').classList.add('hidden');
-		render.loadStartScreen();
+		input.startCapturingInput();
+		render.start();
 		room.recieveInfo();
 	});
 }

@@ -1,8 +1,5 @@
-export {
-	play,
-}
+import { framePerSecond as fps } from '../render.js';
 
-const fps = 60;
 let now, then, elapsed;
 let fpsInterval;
 let renderFn;
@@ -29,4 +26,8 @@ function animate() {
 
 		renderFn();
 	}
+}
+
+export {
+	play,
 }
