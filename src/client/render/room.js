@@ -6,6 +6,7 @@ import { menus } from './startScreen/main.js';
 
 import styles from './styles.js';
 
+var username = '';
 const playerList = {};
 var isOwner = false;
 var playerRoom = null;
@@ -23,6 +24,11 @@ const recieveInfo = () => {
 		nw.socket.on(Constants.MSG_TYPES.SERVER.GAME.START, startGame);
 	});
 }
+
+const setUsername = (newUsername) => {
+	username = newUsername;
+}
+
 const createdRoom = (roomId) => {
 	menus.arena_room_id_input.text = roomId;
 	menus.arena_room_id_input.style = styles.inputbox.green;
@@ -96,6 +102,7 @@ const startGame = () => {
 }
 
 export {
+	setUsername,
 	createRoom,
 	joinRoom,
 	recieveInfo,

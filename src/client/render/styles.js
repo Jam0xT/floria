@@ -2,6 +2,10 @@ export default {
 	background: {
 		menu: "#1EA761",
 	},
+
+	arena: {
+
+	},
 	
 	selectbox: {
 		default: {

@@ -6,19 +6,57 @@ import * as canvas from './canvas.js';
 
 import { blocks } from '../render.js';
 
+import { localRenderDelay } from '../render.js';
+
 class Block {
 	constructor(properties) { // 初始设置
 		this.var = properties;
-		this.var.on = false; // 初始状态为非激活
+		this.var.on = true;
+		this.var.x ??= Length.u(0);
+		this.var.y ??= Length.u(0);
+		this.var.absx ??= Length.u(0);
+		this.var.absy ??= Length.u(0);
+		this.var.upd = [];
 	}
 
-	update() { // 更新
-		if ( !this.var.on ) // 非激活状态 不更新
+	activate(includeChild = true) { // child: 是否激活子 block
+		this.var.on = true; // 激活
+
+		if ( !includeChild ) // 不激活子 block
 			return ;
 
-		const updateFn = this.var.updateFn ??= util.nop; // 获取更新函数 没有则设为 nop
+		const children = this.var.children ??= []; // 获取子 block id 序列 没有则设为空序列
 
-		const genList = this.var.genList ??= []; // 获取生产函数列表 没有则设为空序列
+		children.forEach(child => { // 激活子 block
+			blocks[child].activate();
+		});
+	}
+
+	update(x = new Length(0, 0, 0), y = new Length(0, 0, 0)) { // 更新
+		if ( !this.var.on )
+			return ;
+
+		const $ = this.var;
+
+		$.t = Date.now();
+		$.absx = x.add($.x);
+		$.absy = y.add($.y);
+
+		// $.upd.push({
+		// 	t: $.t,
+		// 	absx: $.absx,
+		// 	absy: $.absy,
+		// 	// alpha: $.alpha,
+		// // });
+
+		// const baseUpdIdx = this.getBaseUpdIdx();
+
+		// if ( baseUpdIdx > 0 )
+		// 	$.upd.splice(0, baseUpdIdx);
+
+		const updateFn = $.updateFn ??= util.nop; // 获取更新函数 没有则设为 nop
+
+		const genList = $.genList ??= []; // 获取生产函数列表 没有则设为空序列
 
 		Object.keys(genList).forEach(genKey => { // 更新生成函数
 			genList[genKey].res = genList[genKey].gen.next(); // 生成函数执行
@@ -28,10 +66,10 @@ class Block {
 
 		updateFn.bind(this)(); // 更新
 
-		const children = this.var.children ??= []; // 获取子 block id 序列 没有则设为空序列
+		const children = $.children ??= []; // 获取子 block id 序列 没有则设为空序列
 
 		children.forEach(child => { // 更新子 block
-			blocks[child].update();
+			blocks[child].update($.absx, $.absy);
 		});
 
 		Object.keys(genList).forEach(genKey => { // 删除用完的生成函数
@@ -42,17 +80,39 @@ class Block {
 		});
 	}
 
-	activate(child = true) { // child: 是否激活子 block
-		this.var.on = true; // 激活
+	getBaseUpdIdx() {
+		const $ = this.var;
+		const serverTime = this.getLocalServerTime();
+		for (let i = $.upd.length - 1; i >= 0; i--) {
+			if ( $.upd[i].t <= serverTime ) {
+				return i;
+			}
+		}
+		return -1;
+	}
 
-		if ( !child ) // 不激活子 block
-			return ;
+	getLocalServerTime() {
+		return Date.now() - localRenderDelay;
+	}
 
-		const children = this.var.children ??= []; // 获取子 block id 序列 没有则设为空序列
+	getInterpolated(key) {
+		const $ = this.var;
+		const serverTime = this.getLocalServerTime();
 
-		children.forEach(child => { // 激活子 block
-			blocks[child].activate();
-		});
+		const baseUpdIdx = this.getBaseUpdIdx();
+
+		if ( baseUpdIdx < 0 || baseUpdIdx == $.upd.length - 1 ) {
+			return $.upd[$.upd.length - 1][key];
+		} else {
+			const baseUpd = $.upd[baseUpdIdx];
+			const nextUpd = $.upd[baseUpdIdx + 1];
+			const ratio = (serverTime - baseUpd.t) / (nextUpd.t - baseUpd.t);
+			if ( baseUpd[key].constructor.name == 'Length' ) {
+				return baseUpd[key].add(nextUpd[key].sub(baseUpd[key]).mul(ratio));
+			} else {
+				return baseUpd[key] + (nextUpd[key] - baseUpd[key]) * ratio;
+			}
+		}
 	}
 
 	updateMove() { // 更新移动情况
@@ -133,28 +193,32 @@ class Block {
 	}
 
 	render(ctx_) { // 渲染该 block 及其子 block
-		if ( !this.var.on ) // 非激活状态 不渲染
+		if ( !this.var.on )
 			return ;
+
+		const $ = this.var;
 
 		const ctx = canvas.getTmpCtx(); // 获取临时 ctx
 
-		const renderFn = this.var.renderFn ??= util.nop; // 获取渲染函数 没有设置则设为 nop
+		const renderFn = $.renderFn ??= util.nop; // 获取渲染函数 没有设置则设为 nop
 
-		this.var.x ??= Length.u(0); // 移动到渲染位置 如果没有设置则设为 0
-		this.var.y ??= Length.u(0);
+		ctx.save();
 
-		ctx.translate(this.var.x.parse(), this.var.y.parse());
+		// console.log(this.getInterpolated('absx'));
+		ctx.translate($.absx.parse(), $.absy.parse()); // 移动到渲染位置
 
 		renderFn.bind(this)(ctx);
 
-		const children = this.var.children ??= []; // 获取子 block id 序列 没有则设为空序列
+		ctx.restore();
+
+		const children = $.children ??= []; // 获取子 block id 序列 没有则设为空序列
 
 		children.forEach(child => { // *依次* 渲染子 block
 			blocks[child].render(ctx);
 		});
 
 		ctx_.save();
-		ctx_.globalAlpha = this.var.alpha ??= 1; // 设置透明度
+		ctx_.globalAlpha = $.alpha ??= 1; // 设置透明度
 		canvas.draw(ctx, ctx_); // 复制到原 ctx
 		ctx_.restore();
 	}

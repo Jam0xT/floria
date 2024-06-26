@@ -28,11 +28,13 @@ const ASSET_NAMES = [
 	'mobs/leech_segment.svg',
 	'mobs/missile.svg',
 	'mobs/wasp.svg',
+	'petals/antennae.svg',
 	'petals/basic.svg',
 	'petals/bubble.svg',
 	'petals/cactus.svg',
 	'petals/cactus_toxic.svg',
 	'petals/carambola.svg',
+	'petals/corn.svg',
 	'petals/dandelion.svg',
 	'petals/dahlia.svg',
 	'petals/egg.svg',
@@ -61,6 +63,7 @@ const ASSET_NAMES = [
 	'petals/rose.svg',
 	'petals/salt.svg',
 	'petals/stinger.svg',
+	'petals/square.svg',
 	'petals/tri_cactus.svg',
 	'petals/tri_stinger.svg',
 	'petals/triplet.svg',
@@ -86,6 +89,11 @@ function downloadAsset(assetName) {
 	});
 }
 
-export const downloadAssets = () => downloadPromise;
+const downloadAssets = () => downloadPromise;
 
-export const getAsset = assetName => assets[assetName];
+const getAsset = assetName => assets[assetName];
+
+export {
+	downloadAssets,
+	getAsset,
+}

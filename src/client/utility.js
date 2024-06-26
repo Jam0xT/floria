@@ -2,25 +2,7 @@ import { W, H } from './render/canvas.js';
 import Length from './render/length.js';
 import * as canvas from './render/canvas.js';
 
-export {
-	renderHitbox,
-	fillBackground,
-	clear,
-	renderRoundRect,
-	renderText,
-	getNumberDisplay,
-	random,
-	inRange,
-	generators as gen,
-	setCursorStyle,
-	nop,
-	parseTransparency,
-	Tl, Tf, Tf0,
-	blendAlpha,
-	getAllTextWidth,
-	getTextTopHeight,
-	reverseString
-}
+let pointer = false;
 
 function renderHitbox(ctx, radius) { // 不应该在这个文件
 	ctx.beginPath();
@@ -129,8 +111,12 @@ function getNumberDisplay(x) { // 1000 -> 1.0k etc.
 	return x;
 }
 
-function random(min, max) {
+function randomInt(min, max) {
 	return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function random(min, max) {
+	return Math.random() * (max - min) + min;
 }
 
 function inRange(x, l, r) {
@@ -168,9 +154,22 @@ const generators = {
 	},
 }
 
+window.addEventListener('mousemove', setStyle);
+
+let styles = [];
+
+function setStyle() { // 防止同时不同的设置冲突
+	if ( styles.includes('pointer') ) {
+		document.body.style.cursor = 'pointer';
+	} else {
+		document.body.style.cursor = 'default';
+	}
+	styles = [];
+}
+
 function setCursorStyle(style) {
 	// default, pointer, wait, crosshair, not-allowed, zoom-in, grab
-	document.body.style.cursor = style;
+	styles.push(style);
 }
 
 function nop() {}
@@ -195,4 +194,43 @@ function Tf0(ctx) {
 
 function blendAlpha(ctx, alpha) {
 	ctx.globalAlpha = ctx.globalAlpha * alpha;
+}
+
+function inRect(x, y, ox, oy, rx, ry) {
+	if ( (!x) || (!y) || (!ox) || (!oy) || (!rx) || (!ry) )
+		return false;
+	[ox, oy, rx, ry] = Length.parseAll([ox, oy, rx, ry]);
+	return inRange(x, ox - rx, ox + rx) && inRange(y, oy - ry, oy + ry);
+}
+
+function setStorage(key, value) {
+	window.localStorage.setItem(key, value);
+}
+
+function getStorage(key, preset) {
+	return window.localStorage.getItem(key) ?? preset;
+}
+
+export {
+	renderHitbox,
+	fillBackground,
+	clear,
+	renderRoundRect,
+	renderText,
+	getNumberDisplay,
+	random,
+	randomInt,
+	inRange,
+	generators as gen,
+	setCursorStyle,
+	nop,
+	parseTransparency,
+	Tl, Tf, Tf0,
+	blendAlpha,
+	getAllTextWidth,
+	getTextTopHeight,
+	reverseString,
+	inRect,
+	setStorage,
+	getStorage,
 }
