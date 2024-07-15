@@ -14,17 +14,19 @@ import * as room from './render/room.js';
 
 import './css/main.css';
 
+import './vue.js';
+
 window.onload = () => {
 	document.body.style.cursor = "default";
 	preventDefaultActions();
 	document.getElementById('username-input').value = window.localStorage.getItem('username') || '';
 	Promise.all([
 		downloadAssets(),
-		render.init(),
+		// render.init(),
 	]).then(() => {
 		document.getElementById('text-loading').classList.add('hidden');
 		input.startCapturingInput();
-		render.start();
+		// render.start();
 		room.recieveInfo();
 	});
 }
