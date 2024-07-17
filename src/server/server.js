@@ -27,11 +27,11 @@ io.on('connection', socket => {
 	console.log(`Player ${socket.id} connected.`);
 	socket.on(Constants.MSG_TYPES.CLIENT.ROOM.CREATE, createRoom);
 	socket.on(Constants.MSG_TYPES.CLIENT.ROOM.JOIN, joinRoom);
-	socket.on(Constants.MSG_TYPES.CLIENT.ROOM.GETROOM, getRoomOfPlayer);
-	socket.on(Constants.MSG_TYPES.CLIENT.ROOM.CHECKOWNER, checkOwner);
-	socket.on(Constants.MSG_TYPES.CLIENT.ROOM.READY, readyChange);
-	socket.on(Constants.MSG_TYPES.CLIENT.ROOM.QUIT, quitRoom);
-	socket.on('disconnect', onDisconnect);
+	// socket.on(Constants.MSG_TYPES.CLIENT.ROOM.GETROOM, getRoomOfPlayer);
+	// socket.on(Constants.MSG_TYPES.CLIENT.ROOM.CHECKOWNER, checkOwner);
+	// socket.on(Constants.MSG_TYPES.CLIENT.ROOM.READY, readyChange);
+	// socket.on(Constants.MSG_TYPES.CLIENT.ROOM.QUIT, quitRoom);
+	// socket.on('disconnect', onDisconnect);
 	// socket.on(Constants.MSG_TYPES.JOIN_GAME, joinGame);
 	// socket.on(Constants.MSG_TYPES.MOVEMENT, handleMovement);
 	// socket.on(Constants.MSG_TYPES.MOUSE_DOWN, handleMouseDown);
@@ -60,9 +60,9 @@ function readyChange() {
 function quitRoom(needMsg) {
 	room.quitRoom(this, needMsg);
 }
-function onDisconnect() {
-	room.quitRoom(this, false);
-}
+// function onDisconnect() {
+// 	room.quitRoom(this, false);
+// }
 // const game = new Game();
 
 // function joinGame(username) {

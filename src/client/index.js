@@ -1,14 +1,14 @@
 import * as nw from './networking.js';
 
-import * as render from './render.js';
+// import * as render from './render.js';
 
-import * as input from './input.js';
+// import * as input from './input.js';
 
 import { downloadAssets } from './assets.js';
 
-import { initState } from './state.js';
+// import { initState } from './state.js';
 
-import * as room from './render/room.js';
+import * as room from './room.js';
 
 // import { initCmd } from './cmd.js';
 
@@ -19,13 +19,13 @@ import './vue.js';
 window.onload = () => {
 	document.body.style.cursor = "default";
 	preventDefaultActions();
-	document.getElementById('username-input').value = window.localStorage.getItem('username') || '';
+	// document.getElementById('username-input').value = window.localStorage.getItem('username') || '';
 	Promise.all([
 		downloadAssets(),
 		// render.init(),
 	]).then(() => {
-		document.getElementById('text-loading').classList.add('hidden');
-		input.startCapturingInput();
+		// document.getElementById('text-loading').classList.add('hidden');
+		// input.startCapturingInput();
 		// render.start();
 		room.recieveInfo();
 	});

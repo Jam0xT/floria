@@ -9,14 +9,14 @@ const rooms = {
 export {
 	createRoom,
 	joinRoom,
-	getRoomOfPlayer,
-	checkOwner,
-	rooms,
-	roomOfPlayers,
-	quitRoom,
+	// getRoomOfPlayer,
+	// checkOwner,
+	// rooms,
+	// roomOfPlayer,
+	// quitRoom,
 };
 
-var roomOfPlayers = {};
+const roomIDOfPlayer = {};
 
 class Sended_Room {
 	constructor(id_, players_, owner_, type_, factionLim_, mode_,) {
@@ -39,47 +39,54 @@ class Player_In_Room_Status {
 }
 
 class Room {
-	constructor(mode, owner_) {
+	constructor(mode, ownerID_) {
 		this.id = getNewRoomID();
-		this.players = {};
-		this.playerStatus = {};
-		this.playerNum = 0;
-		this.playerRedNum = 0;
-		this.playerBlueNum = 0;
-		this.owner = owner_.id;
-		if (!gamemodes[mode])
-			throw new Error('trying to create room with unknown gamemode');
+		this.players = {}; // (socket)id: {socket status}
+		this.playerCount = 0; // 维护玩家数量
+		this.ownerID = ownerID_; // 房主ID
+		// if (!gamemodes[mode])
+		// 	throw new Error('trying to create room with unknown gamemode');
 		this.mode = mode;
 		this.game = undefined;
-		this.type = '1v1';
-		this.factionLim = 1;
+		this.teamCount = 2; // 队伍数量
+		this.teamSize = 1; // 队伍大小
+		this.teams = []; // 队伍
+		this.settings = {}; // 其他设置
 	}
 
-	toSend() {
-		return new Sended_Room(this.id, this.playerStatus, this.owner, this.type, this.factionLim, this.mode);
+	makeUpdate() {
+		return {
+			id: this.id,
+			players: this.players,
+			owner: this.owner,
+			mode: this.mode,
+			teamCount: this.teamCount,
+			teamSize: this.teamSize,
+			settings: this.settings,
+		};
 	}
 
-	update() {
-		for (let player in this.players)
-			this.players[player].emit(Constants.MSG_TYPES.SERVER.ROOM.UPDATE, this.toSend());
+	sendUpdate(socket, update) {
+		socket.emit(Constants.MSG_TYPES.SERVER.ROOM.UPDATE, update);
 	}
 
-	add(socket) {
-		roomOfPlayers[socket.id] = this;
-		this.players[socket.id] = socket;
-		this.playerNum++;
-		let faction;
-		if (this.playerBlueNum != this.factionLim) {
-			this.playerBlueNum++;
-			faction = 'Blue';
-		}
-		else {
-			this.playerRedNum++;
-			faction = 'Red';
-		}
-		this.playerStatus[socket.id] = new Player_In_Room_Status(socket.id, socket.id, faction, false);
+	updateAll() {
+		const update = makeUpdate(); // 所有玩家收到相同的更新。如果之后需要不同玩家收到不同更新，那么此处需要修改
+		Object.keys(this.players).forEach(playerID => {
+			const socket = this.players[playerID].socket;
+			sendUpdate(socket, update);
+		});
+	}
+
+	addPlayer(socket) {
+		roomIDOfPlayer[socket.id] = this.id;
+		this.players[socket.id] = {
+			'socket': socket,
+			'status': -1,
+		};
+		this.playerCount += 1;
 		console.log(`Player ${socket.id} joined Room #${this.id}`);
-		this.update();
+		this.updateAll();
 	}
 
 	remove(socket) {
@@ -89,7 +96,7 @@ class Room {
 		else
 			this.playerRedNum--;
 		delete this.playerStatus[socket.id];
-		delete roomOfPlayers[socket.id];
+		delete roomIDOfPlayer[socket.id];
 		delete this.players[socket.id];
 		console.log(`Player ${socket.id} left Room #${this.id}`)
 		if (this.playerNum == 0) {
@@ -121,7 +128,7 @@ class Room {
 		this.game.start();
 		for (let player in this.players) {
 			this.players[player].emit(Constants.MSG_TYPES.SERVER.GAME.START);
-			delete roomOfPlayers[player];
+			delete roomIDOfPlayer[player];
 			this.players[player].emit(Constants.MSG_TYPES.SERVER.ROOM.QUIT);
 		}
 		delete rooms[this.mode][this.id];
@@ -137,63 +144,65 @@ class Room {
 	}
 }
 
-function checkOwner(socket) {
-	socket.emit(Constants.MSG_TYPES.SERVER.ROOM.CHECKOWNER, roomOfPlayers[socket.id].owner == socket.id);
-}
+// function checkOwner(socket) {
+// 	socket.emit(Constants.MSG_TYPES.SERVER.ROOM.CHECKOWNER, roomOfPlayers[socket.id].owner == socket.id);
+// }
 
-function getRoomOfPlayer(socket) {
-	socket.emit(Constants.MSG_TYPES.SERVER.ROOM.GETROOM, roomOfPlayers[socket.id]);
-}
+// function getRoomOfPlayer(socket) {
+// 	socket.emit(Constants.MSG_TYPES.SERVER.ROOM.GETROOM, roomOfPlayers[socket.id]);
+// }
 
 function createRoom(socket, mode) {
-	if (roomOfPlayers[socket.id]) {
-		socket.emit(Constants.MSG_TYPES.SERVER.ROOM.ROOM_MSG, 'You are already in a room,quit first.', 'red');
-		return;
+	if (roomIDOfPlayer[socket.id]) {
+		socket.emit(Constants.MSG_TYPES.SERVER.ROOM.CREATE, 1); // 用于发送创建房间的状态（若成功附带0和房间号，若失败附带错误码）
+		// code 1:已经在一个房间中
+		return ;
 	}
-	let newRoom = new Room(mode, socket);
+	let newRoom = new Room(mode, socket.id);
 	rooms[mode][newRoom.id] = newRoom;
-	socket.emit(Constants.MSG_TYPES.SERVER.ROOM.CREATE, newRoom.id);
 	console.log(`Player ${socket.id} created Room #${newRoom.id}.`);
-	joinRoom(socket, mode, newRoom.id);
+	socket.emit(Constants.MSG_TYPES.SERVER.ROOM.CREATE, 0, newRoom.id);
+	// code 0:成功创建
+	joinRoom(socket, mode, newRoom.id); // 创建后加入房间
 }
 
-function joinRoom(socket, mode, roomId) {
-	console.log(`Player ${socket.id} tries to join Room #${roomId}:`);
-	if (!rooms[mode][roomId]) {
-		console.log(`Room #${roomId} not found.`);
-		socket.emit(Constants.MSG_TYPES.SERVER.ROOM.ROOM_MSG, 'This Room does not exist', 'red');
-	}
-	else {
-		let nowRoom = rooms[mode][roomId];
-		if (nowRoom.players[socket.id]) {
+function joinRoom(socket, mode, roomID) {
+	console.log(`Player ${socket.id} tries to join Room #${roomID}:`);
+	if ( !rooms[mode][roomID] ) {
+		console.log(`Room #${roomID} not found.`);
+		socket.emit(Constants.MSG_TYPES.SERVER.ROOM.JOIN, 1); // 用于发送加入房间的状态（若成功附带0和房间号，若失败附带错误码）
+		// code 1:房间不存在
+	} else {
+		let currentRoom = rooms[mode][roomID];
+		if ( currentRoom.players[socket.id] ) {
 			console.log(`Player ${socket.id} is already in the Room`);
-			socket.emit(Constants.MSG_TYPES.SERVER.ROOM.ROOM_MSG, 'You are already in this room', 'red');
-		}
-		else if (nowRoom.playerNum == nowRoom.factionLim * 2) {
-			console.log(`Room #${roomId} is full`);
-			socket.emit(Constants.MSG_TYPES.SERVER.ROOM.ROOM_MSG, 'This room is already full', 'red');
-		}
-		else {
-			console.log(`Player ${socket.id} successfully joined the Room #${roomId}`);
-			socket.emit(Constants.MSG_TYPES.SERVER.ROOM.JOIN, nowRoom.toSend());
-			rooms[mode][roomId].add(socket);
-			socket.emit(Constants.MSG_TYPES.SERVER.ROOM.ROOM_MSG, 'Successfully joined the room', 'green');
+			socket.emit(Constants.MSG_TYPES.SERVER.ROOM.JOIN, 2);
+			// code 2:重复加入
+		} else if ( currentRoom.playerCount == currentRoom.teamCount * currentRoom.teamSize ) {
+			console.log(`Room #${roomID} is full`);
+			socket.emit(Constants.MSG_TYPES.SERVER.ROOM.JOIN, 3);
+			// code 3:满人
+		} else {
+			console.log(`Player ${socket.id} successfully joined the Room #${roomID}`);
+			socket.emit(Constants.MSG_TYPES.SERVER.ROOM.JOIN, 0, roomID);
+			currentRoom.addPlayer(socket);
+			// code 0:成功
 		}
 	}
 }
 
-function quitRoom(socket, needMsg) {
-	if (!roomOfPlayers[socket.id])
-		return;
-	roomOfPlayers[socket.id].remove(socket);
-	delete roomOfPlayers[socket.id];
-	if (needMsg)
-		socket.emit(Constants.MSG_TYPES.SERVER.ROOM.ROOM_MSG, 'Successfully quited the room', 'green');
-	socket.emit(Constants.MSG_TYPES.SERVER.ROOM.QUIT);
-}
+// function quitRoom(socket, needMsg) {
+// 	if (!roomOfPlayers[socket.id])
+// 		return;
+// 	roomOfPlayers[socket.id].remove(socket);
+// 	delete roomOfPlayers[socket.id];
+// 	if (needMsg)
+// 		socket.emit(Constants.MSG_TYPES.SERVER.ROOM.ROOM_MSG, 'Successfully quited the room', 'green');
+// 	socket.emit(Constants.MSG_TYPES.SERVER.ROOM.QUIT);
+// }
 
 const charList = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-const fixedIdLen = 6;
+const fixedIDLen = 6;
 
 function getNewRoomID() {
 	const arr = new Uint32Array(1);
@@ -204,7 +213,7 @@ function getNewRoomID() {
 		id += charList[val % charList.length];
 		val = (val - val % charList.length) / charList.length;
 	}
-	while (id.length < fixedIdLen) {
+	while (id.length < fixedIDLen) {
 		id += '0';
 	}
 	return id;
