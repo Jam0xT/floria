@@ -128,3 +128,18 @@ const logs = ref([{msg: "Log will be printed here.", color: ""}]);
 	text-align:start;
 }
 </style>
+
+<script>
+export function onJoinRoom(state, roomID = '') {
+	const errMsgs = [
+		`Successfully joined room #${roomID}.`,
+		`Room does not exist.`,
+		`Already in room.`,
+		`Room is full.`,
+	];
+	logs.push({
+		msg: errMsgs[state],
+		color: (state == 0) ? '#cbfcb1' : '#fcab9d',
+	});
+}
+</script>

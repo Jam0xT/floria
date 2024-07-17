@@ -71,10 +71,10 @@ class Room {
 	}
 
 	updateAll() {
-		const update = makeUpdate(); // 所有玩家收到相同的更新。如果之后需要不同玩家收到不同更新，那么此处需要修改
+		const update = this.makeUpdate(); // 所有玩家收到相同的更新。如果之后需要不同玩家收到不同更新，那么此处需要修改
 		Object.keys(this.players).forEach(playerID => {
 			const socket = this.players[playerID].socket;
-			sendUpdate(socket, update);
+			this.sendUpdate(socket, update);
 		});
 	}
 

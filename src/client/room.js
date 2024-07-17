@@ -2,9 +2,7 @@ import * as nw from './networking.js';
 
 import Constants from '../shared/constants.js';
 
-// import { menus } from './render/startScreen/main.js';
-
-// import styles from './render/styles.js';
+import { onJoinRoom } from './vue/App.vue';
 
 var username = '';
 const playerList = {};
@@ -15,7 +13,7 @@ var playerRoom = null;
 const recieveInfo = () => {
 	nw.connectedPromise.then(() => {
 		// nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.CREATE, createdRoom);
-		// nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.JOIN, joinedRoom);
+		nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.JOIN, onJoinRoom);
 		// nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.UPDATE, updatedRoom);
 		// nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.GETROOM, gotRoomOfPlayer);
 		// nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.CHECKOWNER, checkedOwner);
@@ -74,7 +72,7 @@ const createRoom = (mode) => {
 	nw.socket.emit(Constants.MSG_TYPES.CLIENT.ROOM.CREATE, mode);
 }
 
-const joinRoom = (mode, roomId) => {
+const joinRoom = (mode, roomId = '') => {
 	nw.socket.emit(Constants.MSG_TYPES.CLIENT.ROOM.JOIN, mode, roomId);
 }
 
