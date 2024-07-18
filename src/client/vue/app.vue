@@ -3,9 +3,10 @@ import { ref, onMounted } from 'vue';
 import Block from './Block.vue';
 import Title from './Title.vue';
 import Button from './Button.vue';
-import Input from './Input.vue';
 import Text from './Text.vue';
 import * as room from '../room.js';
+import * as nw from '../networking.js';
+import Constants from '../../shared/constants.js';
 const attr = ref({
 	title: {
 		x: 50,
@@ -42,6 +43,8 @@ onMounted(() => { // 这个做法可能有潜在出错风险
 	}, 100);
 });
 
+// 用户名输入
+
 const username = ref('Random Flower');
 
 function onUsernameInput(e) {
@@ -52,8 +55,11 @@ function onUsernameInput(e) {
 	room.setUsername(username.value);
 }
 
+// 房间
+
 const roomIDInput = ref('');
 const roomID = ref('');
+const inRoom = ref(false);
 
 function onRoomIDInput(e) {
 	let str = e.target.value;
@@ -72,18 +78,78 @@ function onSelectArena() {
 }
 
 function joinRoom() {
-	room.joinRoom(mode.value, roomIDInput.value);
+	room.joinRoom(mode.value, username.value, roomIDInput.value);
 }
 
-// export function onJoinRoom() {
-
-// }
+function onJoinRoom(state, roomID_ = '') {
+	const msgs = [
+		`Successfully joined room #${roomID_}.`,
+		`Room does not exist.`,
+		`Already in room.`,
+		`Room is full.`,
+		`Leave the current room before joining a new one.`,
+	];
+	if ( state == 0 ) {
+		roomID.value = roomID_;
+		roomIDInput.value = roomID_;
+		inRoom.value = true;
+	}
+	logs.value.unshift({
+		msg: msgs[state],
+		color: (state == 0) ? '#cbfcb1' : '#fcab9d',
+	});
+}
 
 function createRoom() {
-	room.createRoom(mode.value);
+	room.createRoom(mode.value, username.value);
 }
 
+function onCreateRoom(state, roomID_ = '') {
+	const msgs = [
+		`Successfully created room #${roomID_}.`,
+		`Can't create a new room when already in one.`,
+	];
+	logs.value.unshift({
+		msg: msgs[state],
+		color: (state == 0) ? '#cbfcb1' : '#fcab9d',
+	});
+}
+
+function leaveRoom() {
+	room.leaveRoom();
+}
+
+function onLeaveRoom(state) {
+	const msgs = [
+		`Successfully left room.`,
+		`Not in a room.`,
+	];
+	if ( state == 0 ) {
+		roomID.value = '';
+		roomIDInput.value = '';
+		inRoom.value = false;
+	}
+	logs.value.unshift({
+		msg: msgs[state],
+		color: (state == 0) ? '#cbfcb1' : '#fcab9d',
+	});
+}
+
+// 日志
+
 const logs = ref([{msg: "Log will be printed here.", color: ""}]);
+
+// 网络
+
+nw.connectedPromise.then(() => {
+	nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.CREATE, onCreateRoom);
+	nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.JOIN, onJoinRoom);
+	nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.LEAVE, onLeaveRoom);
+	// nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.UPDATE, updatedRoom);
+	// nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.GETROOM, gotRoomOfPlayer);
+	// nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.CHECKOWNER, checkedOwner);
+	// nw.socket.on(Constants.MSG_TYPES.SERVER.GAME.START, startGame);
+});
 
 </script>
 <template>
@@ -95,7 +161,7 @@ const logs = ref([{msg: "Log will be printed here.", color: ""}]);
 	</Block>
 	<Block :props="attr.username_input">
 		<Text size="2">This pretty little flower is called...</Text>
-		<Input @input="onUsernameInput" placeholder="Random Flower" maxlength="20"/>
+		<input class="input" @input="onUsernameInput" placeholder="Random Flower" maxlength="20"/>
 	</Block>
 	<Block :props="attr.log" style="width: 15%">
 		<template v-for="log in logs">
@@ -104,9 +170,10 @@ const logs = ref([{msg: "Log will be printed here.", color: ""}]);
 	</Block>
 	<Block :props="attr.room">
 		<Text size="2">{{ `Room#${roomID}` }}</Text>
-		<Input @input="onRoomIDInput" placeholder="RoomID" maxlength="6"/><br/>
+		<input class="input" @input="onRoomIDInput" placeholder="RoomID" maxlength="6" :disabled="inRoom" :value="roomIDInput"/><br/>
 		<Button @click="joinRoom">Join</Button><br>
 		<Button @click="createRoom">Create</Button><br>
+		<Button @click="leaveRoom">Leave</Button><br>
 	</Block>
 </template>
 
@@ -127,19 +194,8 @@ const logs = ref([{msg: "Log will be printed here.", color: ""}]);
 	word-wrap: break-word;
 	text-align:start;
 }
-</style>
 
-<script>
-export function onJoinRoom(state, roomID = '') {
-	const errMsgs = [
-		`Successfully joined room #${roomID}.`,
-		`Room does not exist.`,
-		`Already in room.`,
-		`Room is full.`,
-	];
-	logs.push({
-		msg: errMsgs[state],
-		color: (state == 0) ? '#cbfcb1' : '#fcab9d',
-	});
+.input {
+	transform:translate(-50%, -50%);
 }
-</script>
+</style>

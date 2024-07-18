@@ -3,45 +3,15 @@ import Constants from '../shared/constants.js';
 import gamemodes from './gamemodes/gamemodes.js';
 
 const rooms = {
-	arena: {},
-};
-
-export {
-	createRoom,
-	joinRoom,
-	// getRoomOfPlayer,
-	// checkOwner,
-	// rooms,
-	// roomOfPlayer,
-	// quitRoom,
 };
 
 const roomIDOfPlayer = {};
 
-class Sended_Room {
-	constructor(id_, players_, owner_, type_, factionLim_, mode_,) {
-		this.id = id_;
-		this.players = players_;
-		this.owner = owner_;
-		this.type = type_;
-		this.factionLim = factionLim_;
-		this.mode = mode_;
-	}
-}
-
-class Player_In_Room_Status {
-	constructor(id, nickName, faction, isReady) {
-		this.id = id;
-		this.nickName = nickName;
-		this.faction = faction;
-		this.isReady = isReady;
-	}
-}
-
 class Room {
 	constructor(mode, ownerID_) {
 		this.id = getNewRoomID();
-		this.players = {}; // (socket)id: {socket status}
+		this.sockets = {}; // (socket)id: socket
+		this.players = {}; // (socket)id: {status, username}
 		this.playerCount = 0; // 维护玩家数量
 		this.ownerID = ownerID_; // 房主ID
 		// if (!gamemodes[mode])
@@ -66,26 +36,30 @@ class Room {
 		};
 	}
 
-	sendUpdate(socket, update) {
-		socket.emit(Constants.MSG_TYPES.SERVER.ROOM.UPDATE, update);
-	}
-
 	updateAll() {
 		const update = this.makeUpdate(); // 所有玩家收到相同的更新。如果之后需要不同玩家收到不同更新，那么此处需要修改
-		Object.keys(this.players).forEach(playerID => {
-			const socket = this.players[playerID].socket;
-			this.sendUpdate(socket, update);
+		Object.keys(this.sockets).forEach(socketID => {
+			const socket = this.sockets[socketID];
+			socket.emit(Constants.MSG_TYPES.SERVER.ROOM.UPDATE, update);
 		});
 	}
 
-	addPlayer(socket) {
+	addPlayer(socket, username) {
 		roomIDOfPlayer[socket.id] = this.id;
+		this.sockets[socket.id] = socket;
 		this.players[socket.id] = {
-			'socket': socket,
 			'status': -1,
+			'username': username,
 		};
 		this.playerCount += 1;
-		console.log(`Player ${socket.id} joined Room #${this.id}`);
+		this.updateAll();
+	}
+
+	removePlayer(socketID) {
+		delete roomIDOfPlayer[socketID];
+		delete this.sockets[socketID];
+		delete this.players[socketID];
+		this.playerCount -= 1;
 		this.updateAll();
 	}
 
@@ -152,28 +126,36 @@ class Room {
 // 	socket.emit(Constants.MSG_TYPES.SERVER.ROOM.GETROOM, roomOfPlayers[socket.id]);
 // }
 
-function createRoom(socket, mode) {
-	if (roomIDOfPlayer[socket.id]) {
+function createRoom(socket, mode, username) {
+	console.log(`Player ${socket.id} tries to create a new Room with Mode '${mode}':`);
+	if ( roomIDOfPlayer[socket.id] ) {
+		console.log(`Already in a room.`);
 		socket.emit(Constants.MSG_TYPES.SERVER.ROOM.CREATE, 1); // 用于发送创建房间的状态（若成功附带0和房间号，若失败附带错误码）
 		// code 1:已经在一个房间中
 		return ;
 	}
 	let newRoom = new Room(mode, socket.id);
-	rooms[mode][newRoom.id] = newRoom;
+	rooms[newRoom.id] = newRoom;
 	console.log(`Player ${socket.id} created Room #${newRoom.id}.`);
 	socket.emit(Constants.MSG_TYPES.SERVER.ROOM.CREATE, 0, newRoom.id);
 	// code 0:成功创建
-	joinRoom(socket, mode, newRoom.id); // 创建后加入房间
+	joinRoom(socket, mode, username, newRoom.id); // 创建后加入房间
 }
 
-function joinRoom(socket, mode, roomID) {
-	console.log(`Player ${socket.id} tries to join Room #${roomID}:`);
-	if ( !rooms[mode][roomID] ) {
+function joinRoom(socket, mode, username, roomID) {
+	console.log(`Player ${socket.id} tries to join Room #${roomID} with Mode '${mode}':`);
+	if ( roomIDOfPlayer[socket.id] ) {
+		console.log(`Already in a room.`);
+		socket.emit(Constants.MSG_TYPES.SERVER.ROOM.JOIN, 4);
+		// code 4:已经在一个房间中
+		return ;
+	}
+	if ( !rooms[roomID] ) {
 		console.log(`Room #${roomID} not found.`);
 		socket.emit(Constants.MSG_TYPES.SERVER.ROOM.JOIN, 1); // 用于发送加入房间的状态（若成功附带0和房间号，若失败附带错误码）
 		// code 1:房间不存在
 	} else {
-		let currentRoom = rooms[mode][roomID];
+		let currentRoom = rooms[roomID];
 		if ( currentRoom.players[socket.id] ) {
 			console.log(`Player ${socket.id} is already in the Room`);
 			socket.emit(Constants.MSG_TYPES.SERVER.ROOM.JOIN, 2);
@@ -185,10 +167,31 @@ function joinRoom(socket, mode, roomID) {
 		} else {
 			console.log(`Player ${socket.id} successfully joined the Room #${roomID}`);
 			socket.emit(Constants.MSG_TYPES.SERVER.ROOM.JOIN, 0, roomID);
-			currentRoom.addPlayer(socket);
+			currentRoom.addPlayer(socket, username);
 			// code 0:成功
 		}
 	}
+}
+
+function leaveRoom(socket) {
+	const roomID = roomIDOfPlayer[socket.id];
+	console.log(`Player ${socket.id} tries to leave Room #${roomID}:`);
+	if ( !roomID ) {
+		console.log(`Player ${socket.id} is not in a room.`);
+		socket.emit(Constants.MSG_TYPES.SERVER.ROOM.LEAVE, 1);
+		// code 1: 不在房间中
+		return ;
+	}
+	const room = rooms[roomID];
+	console.log(`Player ${socket.id} successfully left Room #${roomID}.`)
+	room.removePlayer(socket.id);
+	socket.emit(Constants.MSG_TYPES.SERVER.ROOM.LEAVE, 0);
+	// code 0: 成功
+}
+
+function disconnect(socket) {
+	console.log(`Player ${socket.id} disconnected.`);
+	leaveRoom(socket);
 }
 
 // function quitRoom(socket, needMsg) {
@@ -218,3 +221,14 @@ function getNewRoomID() {
 	}
 	return id;
 }
+
+export {
+	createRoom,
+	joinRoom,
+	leaveRoom,
+	disconnect,
+	// getRoomOfPlayer,
+	// checkOwner,
+	// rooms,
+	// roomOfPlayer,
+};

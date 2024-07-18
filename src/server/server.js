@@ -30,8 +30,8 @@ io.on('connection', socket => {
 	// socket.on(Constants.MSG_TYPES.CLIENT.ROOM.GETROOM, getRoomOfPlayer);
 	// socket.on(Constants.MSG_TYPES.CLIENT.ROOM.CHECKOWNER, checkOwner);
 	// socket.on(Constants.MSG_TYPES.CLIENT.ROOM.READY, readyChange);
-	// socket.on(Constants.MSG_TYPES.CLIENT.ROOM.QUIT, quitRoom);
-	// socket.on('disconnect', onDisconnect);
+	socket.on(Constants.MSG_TYPES.CLIENT.ROOM.LEAVE, leaveRoom);
+	socket.on('disconnect', onDisconnect);
 	// socket.on(Constants.MSG_TYPES.JOIN_GAME, joinGame);
 	// socket.on(Constants.MSG_TYPES.MOVEMENT, handleMovement);
 	// socket.on(Constants.MSG_TYPES.MOUSE_DOWN, handleMouseDown);
@@ -41,24 +41,31 @@ io.on('connection', socket => {
 	// socket.on('disconnect', onDisconnect);
 });
 
-function createRoom(mode) {
-	room.createRoom(this, mode);
+function createRoom(mode, username) {
+	room.createRoom(this, mode, username);
 }
 
-function joinRoom(mode, roomId) {
-	room.joinRoom(this, mode, roomId);
+function joinRoom(mode, username, roomId) {
+	room.joinRoom(this, mode, username, roomId);
 }
+
 function getRoomOfPlayer() {
 	room.getRoomOfPlayer(this);
 }
 function checkOwner() {
 	room.checkOwner(this);
 }
+
 function readyChange() {
 	room.roomOfPlayers[this.id].readyChange(this);
 }
-function quitRoom(needMsg) {
-	room.quitRoom(this, needMsg);
+
+function leaveRoom() {
+	room.leaveRoom(this);
+}
+
+function onDisconnect() {
+	room.disconnect(this);
 }
 // function onDisconnect() {
 // 	room.quitRoom(this, false);

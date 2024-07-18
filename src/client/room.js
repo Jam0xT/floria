@@ -2,7 +2,7 @@ import * as nw from './networking.js';
 
 import Constants from '../shared/constants.js';
 
-import { onJoinRoom } from './vue/App.vue';
+// import { onJoinRoom } from './vue/App.vue';
 
 var username = '';
 const playerList = {};
@@ -13,7 +13,7 @@ var playerRoom = null;
 const recieveInfo = () => {
 	nw.connectedPromise.then(() => {
 		// nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.CREATE, createdRoom);
-		nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.JOIN, onJoinRoom);
+		// nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.JOIN, onJoinRoom);
 		// nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.UPDATE, updatedRoom);
 		// nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.GETROOM, gotRoomOfPlayer);
 		// nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.CHECKOWNER, checkedOwner);
@@ -68,12 +68,17 @@ const setUsername = (newUsername) => {
 // 	menus.arena_room_quit_button.transparency = 100;
 // }
 
-const createRoom = (mode) => {
-	nw.socket.emit(Constants.MSG_TYPES.CLIENT.ROOM.CREATE, mode);
+const createRoom = (mode, username) => {
+	nw.socket.emit(Constants.MSG_TYPES.CLIENT.ROOM.CREATE, mode, username);
 }
 
-const joinRoom = (mode, roomId = '') => {
-	nw.socket.emit(Constants.MSG_TYPES.CLIENT.ROOM.JOIN, mode, roomId);
+const joinRoom = (mode, username, roomID = '') => {
+	// console.log(roomID);
+	nw.socket.emit(Constants.MSG_TYPES.CLIENT.ROOM.JOIN, mode, username, roomID);
+}
+
+const leaveRoom = () => {
+	nw.socket.emit(Constants.MSG_TYPES.CLIENT.ROOM.LEAVE);
 }
 
 // const getRoomOfPlayer = () => {
@@ -102,6 +107,7 @@ export {
 	setUsername,
 	createRoom,
 	joinRoom,
+	leaveRoom,
 	recieveInfo,
 	// getRoomOfPlayer,
 	// checkOwner,
