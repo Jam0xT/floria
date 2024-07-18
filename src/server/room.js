@@ -18,7 +18,7 @@ class Room {
 	constructor(mode, ownerID_) {
 		this.id = getNewRoomID();
 		this.sockets = {}; // (socket)id: socket
-		this.players = {}; // (socket)id: {status, username, socketid}
+		this.players = {}; // (socket)id: {team, isOwner, username, socketid}
 		this.playerCount = 0; // 维护玩家数量
 		this.ownerID = ownerID_; // 房主ID
 		// if (!gamemodes[mode])
@@ -40,6 +40,9 @@ class Room {
 				playerCount: 0,
 			});
 		}
+		Object.values(this.players).forEach(player => {
+			player.team = -1;
+		});
 		this.update(5, {teams: this.teams});
 	}
 
@@ -68,6 +71,7 @@ class Room {
 		// username: 4, {id, username}
 		// teams: 5, {teams} 重置时更新
 		// jointeam: 6, {id, team, prevTeam} 玩家加入队伍
+		// owner: 7, {id}
 	}
 
 	addPlayer(socket, username) {
@@ -94,6 +98,10 @@ class Room {
 			delete rooms[this.id];
 			console.log(`Room #${this.id} has been deleted.`);
 			return ;
+		}
+		if ( this.ownerID == socketID ) {
+			this.ownerID = Object.keys(this.players)[0];
+			this.update(7, {id: this.ownerID});
 		}
 	}
 }

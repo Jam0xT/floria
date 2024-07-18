@@ -189,12 +189,13 @@ function onUpdate(type, update) {
 		Object.values(players.value).forEach(player => {
 			player.team = -1;
 		});
+		unwatchTeam = true;
+		team.value = -1;
 		logs.value.unshift({
 			msg: `Reset teams.`,
 			color: "#dedede",
 		});
 	} else if ( type == 6 ) {
-		console.log(update.team);
 		players.value[update.id].team = update.team;
 		if ( update.team != -1 )
 			teams.value[update.team].playerCount += 1;
@@ -204,6 +205,12 @@ function onUpdate(type, update) {
 			msg: `Player ${players.value[update.id].username} joined team `
 				+ `${update.team == -1 ? 'Random' : teams.value[update.team].color}`
 				+ `${update.team == -1 ? '' : ' (' + teams.value[update.team].playerCount + '/' + teamSize.value + ')'}`,
+			color: "#dedede",
+		});
+	} else if ( type == 7 ) {
+		ownerID.value = update.id;
+		logs.value.unshift({
+			msg: `Player ${players.value[update.id].username} is the new Owner.`,
 			color: "#dedede",
 		});
 	}
@@ -241,7 +248,13 @@ watch(teamCount, (teamCount_) => {
 });
 // code 2: username
 
+let unwatchTeam = false;
+
 watch(team, (team_, prevTeam_) => {
+	if ( unwatchTeam ) {
+		unwatchTeam = false;
+		return ;
+	}
 	room.updSettings(3, {team: team_, prevTeam: prevTeam_});
 	// code 3: team
 });
