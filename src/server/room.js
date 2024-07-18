@@ -63,6 +63,7 @@ class Room {
 		// removePlayer: 1, {socketid}
 		// teamSize: 2, {teamSize}
 		// teamCount: 3, {teamCount}
+		// username: 4, {id, username}
 	}
 
 	addPlayer(socket, username) {
@@ -132,36 +133,39 @@ class Room {
 // }
 
 function updSettings(socket, type, update) {
-	console.log(`player ${socket.id} tries to update settings:`)
+	// console.log(`player ${socket.id} tries to update settings:`)
 	const roomID = roomIDOfPlayer[socket.id];
 	if ( !roomID ) {
-		console.log('Not in a room.')
+		// console.log('Not in a room.')
 		socket.emit(Constants.MSG_TYPES.SERVER.ROOM.SETTINGS, 1);
 		// code 1:不在房间中
 		return ;
 	}
 	const room = rooms[roomID];
 	if ( !room ) {
-		console.log(`Room #${roomID} does not exist.`);
+		// console.log(`Room #${roomID} does not exist.`);
 		socket.emit(Constants.MSG_TYPES.SERVER.ROOM.SETTINGS, 2);
 		// code 2:房间不存在
 		return ;
 	}
 	if ( room.ownerID != socket.id ) {
-		console.log(`No permission.`);
+		// console.log(`No permission.`);
 		socket.emit(Constants.MSG_TYPES.SERVER.ROOM.SETTINGS, 3);
 		// code 3:无修改设置权限
 		return ;
 	}
-	console.log(`Room #${roomID}:`);
+	// console.log(`Room #${roomID}:`);
 	if ( type == 0 ) {
 		room.teamSize = update.teamSize;
 		room.update(2, {teamSize: room.teamSize});
-		console.log(`Settings: TeamSize = ${room.teamSize}.`);
+		// console.log(`Settings: TeamSize = ${room.teamSize}.`);
 	} else if ( type == 1 ) {
 		room.teamCount = update.teamCount;
 		room.update(3, {teamCount: room.teamCount});
-		console.log(`Settings: TeamCount = ${room.teamCount}.`);
+		// console.log(`Settings: TeamCount = ${room.teamCount}.`);
+	} else if ( type == 2 ) {
+		room.players[socket.id].username = update.username;
+		room.update(4, {id: socket.id, username: room.players[socket.id].username});
 	}
 }
 

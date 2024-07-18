@@ -24,10 +24,6 @@ window.onload = () => {
 		downloadAssets(),
 		// render.init(),
 	]).then(() => {
-		// document.getElementById('text-loading').classList.add('hidden');
-		// input.startCapturingInput();
-		// render.start();
-		room.recieveInfo();
 	});
 }
 

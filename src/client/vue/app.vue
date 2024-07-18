@@ -48,15 +48,12 @@ onMounted(() => { // 这个做法可能有潜在出错风险
 
 // 用户名输入
 
-const username = ref('Random Flower');
+const username = ref('');
 
-function onUsernameInput(e) {
-	let str = e.target.value;
-	username.value = str;
-	if ( username.value == '' )
-		username.value = "Random Flower";
-	room.setUsername(username.value);
-}
+watch(username, (username_) => {
+	if ( inRoom.value )
+		room.setUsername(username_ || "Random Flower");
+});
 
 // 模式选择
 
@@ -87,7 +84,7 @@ function onRoomIDInput(e) {
 }
 
 function joinRoom() {
-	room.joinRoom(mode.value, username.value, roomIDInput.value);
+	room.joinRoom(mode.value, username.value || 'Random Flower', roomIDInput.value);
 }
 
 function onJoinRoom(state, roomID_ = '') {
@@ -116,7 +113,7 @@ function onJoinRoom(state, roomID_ = '') {
 }
 
 function createRoom() {
-	room.createRoom(mode.value, username.value);
+	room.createRoom(mode.value, username.value || 'Random Flower');
 }
 
 function onCreateRoom(state, roomID_ = '') {
@@ -149,6 +146,7 @@ function onLeaveRoom(state) {
 		roomID.value = '';
 		roomIDInput.value = '';
 		inRoom.value = false;
+		players.value = {};
 	}
 	logs.value.unshift({
 		msg: msgs[state],
@@ -164,6 +162,8 @@ function onUpdate(type, update) {
 			color: "#9deefc",
 		});
 	} else if ( type == 1 ) {
+		if ( !players.value[update.player.socketid] )
+			return ;
 		delete players.value[update.player.socketid];
 		logs.value.unshift({
 			msg: `Player ${update.player.username} left.`,
@@ -181,6 +181,8 @@ function onUpdate(type, update) {
 			msg: `Settings: TeamCount = ${teamCount.value}`,
 			color: "#dedede",
 		});
+	} else if ( type == 4 ) {
+		players.value[update.id].username = update.username;
 	}
 }
 
@@ -202,15 +204,16 @@ const teamSize = ref(1);
 const teamCount = ref(2);
 // const settings = ref({});
 
-watch(teamSize, (teamSize) => {
-	room.updSettings(0, {teamSize: teamSize});
+watch(teamSize, (teamSize_) => {
+	room.updSettings(0, {teamSize: teamSize_});
 	// code 0: teamSize
 });
 
-watch(teamCount, (teamCount) => {
-	room.updSettings(1, {teamCount: teamCount});
+watch(teamCount, (teamCount_) => {
+	room.updSettings(1, {teamCount: teamCount_});
 	// code 1: teamCount
 });
+// code 2: username
 
 function onUpdSettings(state) {
 	const msgs = [
@@ -254,7 +257,7 @@ nw.connectedPromise.then(() => {
 	</Block>
 	<Block :props="attr.username_input">
 		<Text size="2">This pretty little flower is called...</Text>
-		<input class="input" @input="onUsernameInput" placeholder="Random Flower" maxlength="20"/>
+		<input class="input" v-model="username" placeholder="Random Flower" maxlength="20"/>
 	</Block>
 	<Block :props="attr.log" style="width: 15%">
 		<template v-for="log in logs">
@@ -282,13 +285,13 @@ nw.connectedPromise.then(() => {
 	<Block :props="attr.game_settings">
 		<Text size="2" class="notransform">Settings</Text>
 		<Text size="2" class="notransform">Team Size:</Text>
-		<select v-model="teamSize" :disabled="ownerID != selfID">
+		<select v-model="teamSize" :disabled="(ownerID != selfID) || (!inRoom)">
 			<option value="1">1 Player</option>
 			<option value="2">2 Players</option>
 			<option value="4">4 Players</option>
 		</select>
 		<Text size="2" class="notransform">Team Count:</Text>
-		<select v-model="teamCount" :disabled="ownerID != selfID">
+		<select v-model="teamCount" :disabled="(ownerID != selfID) || (!inRoom)">
 			<option value="2">2 Teams</option>
 			<option value="4">4 Teams</option>
 		</select>
