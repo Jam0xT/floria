@@ -17,7 +17,7 @@ if (process.env.NODE_ENV == "development") {
 	app.use(express.static('dist'));
 }
 
-const port = process.env.PORT || 25565;
+const port = process.env.PORT || 25564;
 const server = app.listen(port);
 console.log(`Server listening on port ${port}`);
 
