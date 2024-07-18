@@ -11,9 +11,13 @@ html, body {
 	margin: 0;
 	padding: 0;
 	background-color: #FFFFFF;
+    max-width: 100%;
+    max-height: 100%;
+    overflow-x: hidden;
+    overflow-y: hidden;
 }
 
-#text-loading {
+/* #text-loading {
 	color: white;
 	font-family: Ubuntu;
 	font-size: 8vh;
@@ -48,4 +52,4 @@ html, body {
 
 .app {
 	color: black;
-}
+} */

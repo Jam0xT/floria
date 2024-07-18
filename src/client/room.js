@@ -81,6 +81,10 @@ const leaveRoom = () => {
 	nw.socket.emit(Constants.MSG_TYPES.CLIENT.ROOM.LEAVE);
 }
 
+const updSettings = (type, update) => {
+	nw.socket.emit(Constants.MSG_TYPES.CLIENT.ROOM.SETTINGS, type, update);
+}
+
 // const getRoomOfPlayer = () => {
 // 	nw.socket.emit(Constants.MSG_TYPES.CLIENT.ROOM.GETROOM);
 // }
@@ -108,6 +112,7 @@ export {
 	createRoom,
 	joinRoom,
 	leaveRoom,
+	updSettings,
 	recieveInfo,
 	// getRoomOfPlayer,
 	// checkOwner,

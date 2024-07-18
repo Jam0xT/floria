@@ -27,6 +27,7 @@ io.on('connection', socket => {
 	console.log(`Player ${socket.id} connected.`);
 	socket.on(Constants.MSG_TYPES.CLIENT.ROOM.CREATE, createRoom);
 	socket.on(Constants.MSG_TYPES.CLIENT.ROOM.JOIN, joinRoom);
+	socket.on(Constants.MSG_TYPES.CLIENT.ROOM.SETTINGS, updSettings);
 	// socket.on(Constants.MSG_TYPES.CLIENT.ROOM.GETROOM, getRoomOfPlayer);
 	// socket.on(Constants.MSG_TYPES.CLIENT.ROOM.CHECKOWNER, checkOwner);
 	// socket.on(Constants.MSG_TYPES.CLIENT.ROOM.READY, readyChange);
@@ -47,6 +48,10 @@ function createRoom(mode, username) {
 
 function joinRoom(mode, username, roomId) {
 	room.joinRoom(this, mode, username, roomId);
+}
+
+function updSettings(type, update) {
+	room.updSettings(this, type, update);
 }
 
 function getRoomOfPlayer() {

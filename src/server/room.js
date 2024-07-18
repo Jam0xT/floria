@@ -7,6 +7,13 @@ const rooms = {
 
 const roomIDOfPlayer = {};
 
+const defaultColor = [
+	'#ff9c9c',
+	'#a1d0ff',
+	'#fff7a1',
+	'#aaffa1',
+]
+
 class Room {
 	constructor(mode, ownerID_) {
 		this.id = getNewRoomID();
@@ -24,12 +31,23 @@ class Room {
 		this.settings = {}; // 其他设置
 	}
 
+	resetTeams() {
+		this.teams = [];
+		for (let i = 0; i < teamCount; i ++ ) {
+			teams.push({
+				color: defaultColor[i],
+				playerCount: 0,
+			});
+		}
+	}
+
 	sendInfo(socket) {
 		socket.emit(Constants.MSG_TYPES.SERVER.ROOM.INFO, {
 			players: this.players,
-			owner: this.ownerID,
+			ownerID: this.ownerID,
 			teamCount: this.teamCount,
 			teamSize: this.teamSize,
+			teams: this.teams,
 			settings: this.settings,
 		});
 	}
@@ -43,6 +61,8 @@ class Room {
 		});
 		// addPlayer: 0, {player}
 		// removePlayer: 1, {socketid}
+		// teamSize: 2, {teamSize}
+		// teamCount: 3, {teamCount}
 	}
 
 	addPlayer(socket, username) {
@@ -110,6 +130,40 @@ class Room {
 // function getRoomOfPlayer(socket) {
 // 	socket.emit(Constants.MSG_TYPES.SERVER.ROOM.GETROOM, roomOfPlayers[socket.id]);
 // }
+
+function updSettings(socket, type, update) {
+	console.log(`player ${socket.id} tries to update settings:`)
+	const roomID = roomIDOfPlayer[socket.id];
+	if ( !roomID ) {
+		console.log('Not in a room.')
+		socket.emit(Constants.MSG_TYPES.SERVER.ROOM.SETTINGS, 1);
+		// code 1:不在房间中
+		return ;
+	}
+	const room = rooms[roomID];
+	if ( !room ) {
+		console.log(`Room #${roomID} does not exist.`);
+		socket.emit(Constants.MSG_TYPES.SERVER.ROOM.SETTINGS, 2);
+		// code 2:房间不存在
+		return ;
+	}
+	if ( room.ownerID != socket.id ) {
+		console.log(`No permission.`);
+		socket.emit(Constants.MSG_TYPES.SERVER.ROOM.SETTINGS, 3);
+		// code 3:无修改设置权限
+		return ;
+	}
+	console.log(`Room #${roomID}:`);
+	if ( type == 0 ) {
+		room.teamSize = update.teamSize;
+		room.update(2, {teamSize: room.teamSize});
+		console.log(`Settings: TeamSize = ${room.teamSize}.`);
+	} else if ( type == 1 ) {
+		room.teamCount = update.teamCount;
+		room.update(3, {teamCount: room.teamCount});
+		console.log(`Settings: TeamCount = ${room.teamCount}.`);
+	}
+}
 
 function createRoom(socket, mode, username) {
 	console.log(`Player ${socket.id} tries to create a new Room with Mode '${mode}':`);
@@ -211,6 +265,7 @@ export {
 	createRoom,
 	joinRoom,
 	leaveRoom,
+	updSettings,
 	disconnect,
 	// getRoomOfPlayer,
 	// checkOwner,

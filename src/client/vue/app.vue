@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import Block from './Block.vue';
 import Title from './Title.vue';
 import Button from './Button.vue';
@@ -78,6 +78,8 @@ function onSelectArena() {
 const roomIDInput = ref('');
 const roomID = ref('');
 const inRoom = ref(false);
+const selfID = ref('');
+const ownerID = ref('');
 
 function onRoomIDInput(e) {
 	let str = e.target.value;
@@ -167,14 +169,27 @@ function onUpdate(type, update) {
 			msg: `Player ${update.player.username} left.`,
 			color: "#9dbbfc",
 		});
+	} else if ( type == 2 ) {
+		teamSize.value = update.teamSize;
+		logs.value.unshift({
+			msg: `Settings: TeamSize = ${teamSize.value}`,
+			color: "#dedede",
+		});
+	} else if ( type == 3 ) {
+		teamCount.value = update.teamCount;
+		logs.value.unshift({
+			msg: `Settings: TeamCount = ${teamCount.value}`,
+			color: "#dedede",
+		});
 	}
 }
 
-function onRecvInfo(info) {
+function onRecvInfo(info) { // 加入房间时获取房间信息
 	players.value = info.players;
+	ownerID.value = info.ownerID;
 	teamCount.value = info.teamCount;
 	teamSize.value = info.teamSize;
-	settings.value = info.settings;
+	// settings.value = info.settings;
 }
 
 // 玩家列表
@@ -185,7 +200,33 @@ const players = ref({}); // {username, socketid}
 
 const teamSize = ref(1);
 const teamCount = ref(2);
-const settings = ref({});
+// const settings = ref({});
+
+watch(teamSize, (teamSize) => {
+	room.updSettings(0, {teamSize: teamSize});
+	// code 0: teamSize
+});
+
+watch(teamCount, (teamCount) => {
+	room.updSettings(1, {teamCount: teamCount});
+	// code 1: teamCount
+});
+
+function onUpdSettings(state) {
+	const msgs = [
+		`Not in a room.`,
+		`Room does not exist.`,
+		`No permission.`,
+	], colors = [
+		'#fcab9d',
+		'#fcab9d',
+		'#fcab9d',
+	];
+	logs.value.unshift({
+		msg: msgs[state],
+		color: colors[state],
+	});
+}
 
 // 日志
 
@@ -194,15 +235,13 @@ const logs = ref([{msg: "Log will be printed here.", color: ""}]);
 // 网络
 
 nw.connectedPromise.then(() => {
+	selfID.value = nw.socket.id;
 	nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.CREATE, onCreateRoom);
 	nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.JOIN, onJoinRoom);
 	nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.LEAVE, onLeaveRoom);
 	nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.UPDATE, onUpdate);
 	nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.INFO, onRecvInfo);
-	// nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.UPDATE, updatedRoom);
-	// nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.GETROOM, gotRoomOfPlayer);
-	// nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.CHECKOWNER, checkedOwner);
-	// nw.socket.on(Constants.MSG_TYPES.SERVER.GAME.START, startGame);
+	nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.SETTINGS, onUpdSettings);
 });
 
 </script>
@@ -230,21 +269,26 @@ nw.connectedPromise.then(() => {
 		<Button @click="leaveRoom">Leave</Button><br>
 	</Block>
 	<Block :props="attr.player_list">
-		<Text size="2" class="notransform">Players</Text>
+		<Text size="2" class="notransform" :color="(Object.keys(players).length == teamSize * teamCount) ? '#fffd9c' : '#FFFFFF'">
+			Players
+			<span>{{ Object.keys(players).length }}</span>
+			/
+			<span>{{ teamSize * teamCount }}</span>
+		</Text>
 		<template v-for="player in players">
-			<Text size="2" color="yellow" class="notransform">{{ player.username }}</Text>
+			<Text size="2" color="#dedede" class="notransform">{{ player.username }}</Text>
 		</template>
 	</Block>
 	<Block :props="attr.game_settings">
 		<Text size="2" class="notransform">Settings</Text>
 		<Text size="2" class="notransform">Team Size:</Text>
-		<select v-model="teamSize">
+		<select v-model="teamSize" :disabled="ownerID != selfID">
 			<option value="1">1 Player</option>
 			<option value="2">2 Players</option>
 			<option value="4">4 Players</option>
 		</select>
 		<Text size="2" class="notransform">Team Count:</Text>
-		<select v-model="teamCount">
+		<select v-model="teamCount" :disabled="ownerID != selfID">
 			<option value="2">2 Teams</option>
 			<option value="4">4 Teams</option>
 		</select>
