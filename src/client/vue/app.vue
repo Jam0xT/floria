@@ -29,7 +29,7 @@ const attr = ref({
 		y: 5,
 	},
 	player_list: {
-		x: 30,
+		x: 80,
 		y: -20,
 	},
 	game_settings: {
@@ -67,7 +67,7 @@ function onSelectArena() {
 	attr.value.button_arena.y = -20;
 	attr.value.username_input.y = 5;
 	attr.value.room.y = 5;
-	attr.value.player_list.y = 30;
+	attr.value.player_list.y = 5;
 	attr.value.game_settings.y = 5;
 	attr.value.log.x = 5;
 	mode.value = 'arena';
@@ -95,6 +95,12 @@ function onJoinRoom(state, roomID_ = '') {
 		`Already in room.`,
 		`Room is full.`,
 		`Leave the current room before joining a new one.`,
+	], colors = [
+		'#cbfcb1',
+		'#fcab9d',
+		'#fcab9d',
+		'#fcab9d',
+		'#fcab9d',
 	];
 	if ( state == 0 ) {
 		roomID.value = roomID_;
@@ -103,7 +109,7 @@ function onJoinRoom(state, roomID_ = '') {
 	}
 	logs.value.unshift({
 		msg: msgs[state],
-		color: (state == 0) ? '#cbfcb1' : '#fcab9d',
+		color: colors[state],
 	});
 }
 
@@ -115,10 +121,13 @@ function onCreateRoom(state, roomID_ = '') {
 	const msgs = [
 		`Successfully created room #${roomID_}.`,
 		`Can't create a new room when already in one.`,
+	], colors = [
+		'#cbfcb1',
+		'#fcab9d',
 	];
 	logs.value.unshift({
 		msg: msgs[state],
-		color: (state == 0) ? '#cbfcb1' : '#fcab9d',
+		color: colors[state],
 	});
 }
 
@@ -128,8 +137,11 @@ function leaveRoom() {
 
 function onLeaveRoom(state) {
 	const msgs = [
-		`Successfully left room.`,
+		`Left room.`,
 		`Not in a room.`,
+	], colors = [
+		'#9dbbfc',
+		'#fcab9d',
 	];
 	if ( state == 0 ) {
 		roomID.value = '';
@@ -138,9 +150,42 @@ function onLeaveRoom(state) {
 	}
 	logs.value.unshift({
 		msg: msgs[state],
-		color: (state == 0) ? '#cbfcb1' : '#fcab9d',
+		color: colors[state],
 	});
 }
+
+function onUpdate(type, update) {
+	if ( type == 0 ) {
+		players.value[update.player.socketid] = update.player;
+		logs.value.unshift({
+			msg: `Player ${update.player.username} joined.`,
+			color: "#9deefc",
+		});
+	} else if ( type == 1 ) {
+		delete players.value[update.player.socketid];
+		logs.value.unshift({
+			msg: `Player ${update.player.username} left.`,
+			color: "#9dbbfc",
+		});
+	}
+}
+
+function onRecvInfo(info) {
+	players.value = info.players;
+	teamCount.value = info.teamCount;
+	teamSize.value = info.teamSize;
+	settings.value = info.settings;
+}
+
+// 玩家列表
+
+const players = ref({}); // {username, socketid}
+
+// 游戏设置
+
+const teamSize = ref(1);
+const teamCount = ref(2);
+const settings = ref({});
 
 // 日志
 
@@ -152,6 +197,8 @@ nw.connectedPromise.then(() => {
 	nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.CREATE, onCreateRoom);
 	nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.JOIN, onJoinRoom);
 	nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.LEAVE, onLeaveRoom);
+	nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.UPDATE, onUpdate);
+	nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.INFO, onRecvInfo);
 	// nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.UPDATE, updatedRoom);
 	// nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.GETROOM, gotRoomOfPlayer);
 	// nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.CHECKOWNER, checkedOwner);
@@ -183,10 +230,24 @@ nw.connectedPromise.then(() => {
 		<Button @click="leaveRoom">Leave</Button><br>
 	</Block>
 	<Block :props="attr.player_list">
-		<Text size="2">Players</Text>
+		<Text size="2" class="notransform">Players</Text>
+		<template v-for="player in players">
+			<Text size="2" color="yellow" class="notransform">{{ player.username }}</Text>
+		</template>
 	</Block>
 	<Block :props="attr.game_settings">
-		<Text size="2">Settings</Text>
+		<Text size="2" class="notransform">Settings</Text>
+		<Text size="2" class="notransform">Team Size:</Text>
+		<select v-model="teamSize">
+			<option value="1">1 Player</option>
+			<option value="2">2 Players</option>
+			<option value="4">4 Players</option>
+		</select>
+		<Text size="2" class="notransform">Team Count:</Text>
+		<select v-model="teamCount">
+			<option value="2">2 Teams</option>
+			<option value="4">4 Teams</option>
+		</select>
 	</Block>
 </template>
 
@@ -198,6 +259,10 @@ nw.connectedPromise.then(() => {
 	width:100%;
 	height:100%;
 	background:#1EA761;
+}
+
+.notransform {
+	transform:none;
 }
 
 .log {

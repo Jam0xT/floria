@@ -11,7 +11,7 @@ class Room {
 	constructor(mode, ownerID_) {
 		this.id = getNewRoomID();
 		this.sockets = {}; // (socket)id: socket
-		this.players = {}; // (socket)id: {status, username}
+		this.players = {}; // (socket)id: {status, username, socketid}
 		this.playerCount = 0; // 维护玩家数量
 		this.ownerID = ownerID_; // 房主ID
 		// if (!gamemodes[mode])
@@ -20,106 +20,87 @@ class Room {
 		this.game = undefined;
 		this.teamCount = 2; // 队伍数量
 		this.teamSize = 1; // 队伍大小
-		this.teams = []; // 队伍
+		this.teams = []; // 队伍 {color, playerCount}
 		this.settings = {}; // 其他设置
 	}
 
-	makeUpdate() {
-		return {
-			id: this.id,
+	sendInfo(socket) {
+		socket.emit(Constants.MSG_TYPES.SERVER.ROOM.INFO, {
 			players: this.players,
-			owner: this.owner,
-			mode: this.mode,
+			owner: this.ownerID,
 			teamCount: this.teamCount,
 			teamSize: this.teamSize,
 			settings: this.settings,
-		};
+		});
 	}
 
-	updateAll() {
-		const update = this.makeUpdate(); // 所有玩家收到相同的更新。如果之后需要不同玩家收到不同更新，那么此处需要修改
+	update(type, update, cancel = '') {
 		Object.keys(this.sockets).forEach(socketID => {
+			if ( socketID == cancel )
+				return ;
 			const socket = this.sockets[socketID];
-			socket.emit(Constants.MSG_TYPES.SERVER.ROOM.UPDATE, update);
+			socket.emit(Constants.MSG_TYPES.SERVER.ROOM.UPDATE, type, update);
 		});
+		// addPlayer: 0, {player}
+		// removePlayer: 1, {socketid}
 	}
 
 	addPlayer(socket, username) {
 		roomIDOfPlayer[socket.id] = this.id;
 		this.sockets[socket.id] = socket;
 		this.players[socket.id] = {
-			'status': -1,
+			'team': -1,
+			'isOwner': (socket.id == this.ownerID),
 			'username': username,
+			'socketid': socket.id,
 		};
 		this.playerCount += 1;
-		this.updateAll();
+		this.sendInfo(socket);
+		this.update(0, {player: this.players[socket.id]}, socket.id);
 	}
 
 	removePlayer(socketID) {
+		this.update(1, {player: this.players[socketID]});
 		delete roomIDOfPlayer[socketID];
 		delete this.sockets[socketID];
 		delete this.players[socketID];
 		this.playerCount -= 1;
 		if ( this.playerCount == 0 ) {
-			delete this.rooms[this.id];
+			delete rooms[this.id];
+			console.log(`Room #${this.id} has been deleted.`);
 			return ;
 		}
-		this.updateAll();
 	}
 
-	remove(socket) {
-		this.playerNum--;
-		if (this.playerStatus[socket.id].faction == 'Blue')
-			this.playerBlueNum--;
-		else
-			this.playerRedNum--;
-		delete this.playerStatus[socket.id];
-		delete roomIDOfPlayer[socket.id];
-		delete this.players[socket.id];
-		console.log(`Player ${socket.id} left Room #${this.id}`)
-		if (this.playerNum == 0) {
-			console.log(`Room #${this.id} Deleted`);
-			delete rooms[this.mode][this.id];
-			return;
-		}
-		else if (this.owner == socket.id) {
-			for (let player in this.players) {
-				this.owner = player;
-				break;
-			}
-		}
-		this.update();
-	}
+	// checkAllReady() {
+	// 	let cnt = 0;
+	// 	for (let player in this.playerStatus)
+	// 		if (this.playerStatus[player].isReady)
+	// 			cnt++;
+	// 	if (cnt == this.factionLim * 2)
+	// 		return true;
+	// 	return false;
+	// }
 
-	checkAllReady() {
-		let cnt = 0;
-		for (let player in this.playerStatus)
-			if (this.playerStatus[player].isReady)
-				cnt++;
-		if (cnt == this.factionLim * 2)
-			return true;
-		return false;
-	}
+	// joinGame() {
+	// 	this.game = new gamemodes[this.mode]();
+	// 	this.game.start();
+	// 	for (let player in this.players) {
+	// 		this.players[player].emit(Constants.MSG_TYPES.SERVER.GAME.START);
+	// 		delete roomIDOfPlayer[player];
+	// 		this.players[player].emit(Constants.MSG_TYPES.SERVER.ROOM.QUIT);
+	// 	}
+	// 	delete rooms[this.mode][this.id];
+	// }
 
-	joinGame() {
-		this.game = new gamemodes[this.mode]();
-		this.game.start();
-		for (let player in this.players) {
-			this.players[player].emit(Constants.MSG_TYPES.SERVER.GAME.START);
-			delete roomIDOfPlayer[player];
-			this.players[player].emit(Constants.MSG_TYPES.SERVER.ROOM.QUIT);
-		}
-		delete rooms[this.mode][this.id];
-	}
-
-	readyChange(socket) {
-		if (!this.playerStatus[socket.id])
-			throw new Error('trying to change the ready status of a unjoined player');
-		this.playerStatus[socket.id].isReady = !this.playerStatus[socket.id].isReady;
-		this.update();
-		if (this.checkAllReady())
-			this.joinGame();
-	}
+	// readyChange(socket) {
+	// 	if (!this.playerStatus[socket.id])
+	// 		throw new Error('trying to change the ready status of a unjoined player');
+	// 	this.playerStatus[socket.id].isReady = !this.playerStatus[socket.id].isReady;
+	// 	this.update();
+	// 	if (this.checkAllReady())
+	// 		this.joinGame();
+	// }
 }
 
 // function checkOwner(socket) {
