@@ -3,7 +3,7 @@ defineProps(['props']);
 </script>
 <template>
 	<div class="block"
-		:class="{ tr: props.tr }"
+		:class="{ tr: props.tr ?? true }"
 		:style="{ top: props.y + '%', left: props.x + '%' }">
 		<slot/>
 	</div>

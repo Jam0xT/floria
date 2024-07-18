@@ -11,27 +11,30 @@ const attr = ref({
 	title: {
 		x: 50,
 		y: -20,
-		tr: true,
 	},
 	button_arena: {
 		x: 50,
 		y: -20,
-		tr: true,
 	},
 	username_input: {
 		x: 50,
 		y: -20,
-		tr: true,
 	},
 	room: {
 		x: 30,
 		y: -20,
-		tr: true,
 	},
 	log: {
 		x: -20,
 		y: 5,
-		tr: true,
+	},
+	player_list: {
+		x: 30,
+		y: -20,
+	},
+	game_settings: {
+		x: 70,
+		y: -20,
 	}
 });
 
@@ -55,6 +58,21 @@ function onUsernameInput(e) {
 	room.setUsername(username.value);
 }
 
+// 模式选择
+
+const mode = ref('');
+
+function onSelectArena() {
+	attr.value.title.y = -20;
+	attr.value.button_arena.y = -20;
+	attr.value.username_input.y = 5;
+	attr.value.room.y = 5;
+	attr.value.player_list.y = 30;
+	attr.value.game_settings.y = 5;
+	attr.value.log.x = 5;
+	mode.value = 'arena';
+}
+
 // 房间
 
 const roomIDInput = ref('');
@@ -64,17 +82,6 @@ const inRoom = ref(false);
 function onRoomIDInput(e) {
 	let str = e.target.value;
 	roomIDInput.value = str;
-}
-
-const mode = ref('');
-
-function onSelectArena() {
-	attr.value.title.y = -20;
-	attr.value.button_arena.y = -20;
-	attr.value.username_input.y = 5;
-	attr.value.room.y = 5;
-	attr.value.log.x = 5;
-	mode.value = 'arena';
 }
 
 function joinRoom() {
@@ -174,6 +181,12 @@ nw.connectedPromise.then(() => {
 		<Button @click="joinRoom">Join</Button><br>
 		<Button @click="createRoom">Create</Button><br>
 		<Button @click="leaveRoom">Leave</Button><br>
+	</Block>
+	<Block :props="attr.player_list">
+		<Text size="2">Players</Text>
+	</Block>
+	<Block :props="attr.game_settings">
+		<Text size="2">Settings</Text>
 	</Block>
 </template>
 

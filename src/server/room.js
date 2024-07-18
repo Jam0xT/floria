@@ -60,6 +60,10 @@ class Room {
 		delete this.sockets[socketID];
 		delete this.players[socketID];
 		this.playerCount -= 1;
+		if ( this.playerCount == 0 ) {
+			delete this.rooms[this.id];
+			return ;
+		}
 		this.updateAll();
 	}
 
