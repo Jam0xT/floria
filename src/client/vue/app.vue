@@ -186,6 +186,9 @@ function onUpdate(type, update) {
 		players.value[update.id].username = update.username;
 	} else if ( type == 5 ) {
 		teams.value = update.teams;
+		Object.values(players.value).forEach(player => {
+			player.team = -1;
+		});
 		logs.value.unshift({
 			msg: `Reset teams.`,
 			color: "#dedede",
@@ -200,7 +203,7 @@ function onUpdate(type, update) {
 		logs.value.unshift({
 			msg: `Player ${players.value[update.id].username} joined team `
 				+ `${update.team == -1 ? 'Random' : teams.value[update.team].color}`
-				+ `${update.team == -1 ? '' : teams.value[update.team].playerCount + '/' + teamSize.value}`,
+				+ `${update.team == -1 ? '' : ' (' + teams.value[update.team].playerCount + '/' + teamSize.value + ')'}`,
 			color: "#dedede",
 		});
 	}
