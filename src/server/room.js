@@ -29,16 +29,18 @@ class Room {
 		this.teamSize = 1; // 队伍大小
 		this.teams = []; // 队伍 {color, playerCount}
 		this.settings = {}; // 其他设置
+		this.resetTeams();
 	}
 
 	resetTeams() {
 		this.teams = [];
-		for (let i = 0; i < teamCount; i ++ ) {
-			teams.push({
+		for (let i = 0; i < this.teamCount; i ++ ) {
+			this.teams.push({
 				color: defaultColor[i],
 				playerCount: 0,
 			});
 		}
+		this.update(5, {teams: this.teams});
 	}
 
 	sendInfo(socket) {
@@ -64,6 +66,8 @@ class Room {
 		// teamSize: 2, {teamSize}
 		// teamCount: 3, {teamCount}
 		// username: 4, {id, username}
+		// teams: 5, {teams} 重置时更新
+		// jointeam: 6, {id, team, prevTeam} 玩家加入队伍
 	}
 
 	addPlayer(socket, username) {
@@ -92,36 +96,6 @@ class Room {
 			return ;
 		}
 	}
-
-	// checkAllReady() {
-	// 	let cnt = 0;
-	// 	for (let player in this.playerStatus)
-	// 		if (this.playerStatus[player].isReady)
-	// 			cnt++;
-	// 	if (cnt == this.factionLim * 2)
-	// 		return true;
-	// 	return false;
-	// }
-
-	// joinGame() {
-	// 	this.game = new gamemodes[this.mode]();
-	// 	this.game.start();
-	// 	for (let player in this.players) {
-	// 		this.players[player].emit(Constants.MSG_TYPES.SERVER.GAME.START);
-	// 		delete roomIDOfPlayer[player];
-	// 		this.players[player].emit(Constants.MSG_TYPES.SERVER.ROOM.QUIT);
-	// 	}
-	// 	delete rooms[this.mode][this.id];
-	// }
-
-	// readyChange(socket) {
-	// 	if (!this.playerStatus[socket.id])
-	// 		throw new Error('trying to change the ready status of a unjoined player');
-	// 	this.playerStatus[socket.id].isReady = !this.playerStatus[socket.id].isReady;
-	// 	this.update();
-	// 	if (this.checkAllReady())
-	// 		this.joinGame();
-	// }
 }
 
 // function checkOwner(socket) {
@@ -148,7 +122,8 @@ function updSettings(socket, type, update) {
 		// code 2:房间不存在
 		return ;
 	}
-	if ( room.ownerID != socket.id ) {
+	const ownerOnly = [0, 1];
+	if ( room.ownerID != socket.id && ownerOnly.includes(type) ) {
 		// console.log(`No permission.`);
 		socket.emit(Constants.MSG_TYPES.SERVER.ROOM.SETTINGS, 3);
 		// code 3:无修改设置权限
@@ -158,14 +133,24 @@ function updSettings(socket, type, update) {
 	if ( type == 0 ) {
 		room.teamSize = update.teamSize;
 		room.update(2, {teamSize: room.teamSize});
+		room.resetTeams();
 		// console.log(`Settings: TeamSize = ${room.teamSize}.`);
 	} else if ( type == 1 ) {
 		room.teamCount = update.teamCount;
 		room.update(3, {teamCount: room.teamCount});
+		room.resetTeams();
 		// console.log(`Settings: TeamCount = ${room.teamCount}.`);
 	} else if ( type == 2 ) {
 		room.players[socket.id].username = update.username;
 		room.update(4, {id: socket.id, username: room.players[socket.id].username});
+	} else if ( type == 3 ) {
+		let team = update.team, prevTeam = update.prevTeam;
+		room.players[socket.id].team = team;
+		if ( team != -1 )
+			room.teams[team].playerCount += 1;
+		if ( prevTeam != -1)
+			room.teams[prevTeam].playerCount -= 1;
+		room.update(6, {id: socket.id, team: team, prevTeam: prevTeam});
 	}
 }
 

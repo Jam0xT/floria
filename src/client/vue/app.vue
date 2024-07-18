@@ -33,7 +33,7 @@ const attr = ref({
 		y: -20,
 	},
 	game_settings: {
-		x: 70,
+		x: 60,
 		y: -20,
 	}
 });
@@ -147,6 +147,7 @@ function onLeaveRoom(state) {
 		roomIDInput.value = '';
 		inRoom.value = false;
 		players.value = {};
+		teams.value = [];
 	}
 	logs.value.unshift({
 		msg: msgs[state],
@@ -183,6 +184,25 @@ function onUpdate(type, update) {
 		});
 	} else if ( type == 4 ) {
 		players.value[update.id].username = update.username;
+	} else if ( type == 5 ) {
+		teams.value = update.teams;
+		logs.value.unshift({
+			msg: `Reset teams.`,
+			color: "#dedede",
+		});
+	} else if ( type == 6 ) {
+		console.log(update.team);
+		players.value[update.id].team = update.team;
+		if ( update.team != -1 )
+			teams.value[update.team].playerCount += 1;
+		if ( update.prevTeam != -1)
+			teams.value[update.prevTeam].playerCount -= 1;
+		logs.value.unshift({
+			msg: `Player ${players.value[update.id].username} joined team `
+				+ `${update.team == -1 ? 'Random' : teams.value[update.team].color}`
+				+ `${update.team == -1 ? '' : teams.value[update.team].playerCount + '/' + teamSize.value}`,
+			color: "#dedede",
+		});
 	}
 }
 
@@ -191,17 +211,20 @@ function onRecvInfo(info) { // 加入房间时获取房间信息
 	ownerID.value = info.ownerID;
 	teamCount.value = info.teamCount;
 	teamSize.value = info.teamSize;
+	teams.value = info.teams;
 	// settings.value = info.settings;
 }
 
-// 玩家列表
+// 一些房间信息
 
 const players = ref({}); // {username, socketid}
+const teams = ref([]); // {color, playerCount}
 
 // 游戏设置
 
 const teamSize = ref(1);
 const teamCount = ref(2);
+const team = ref(-1); // 所在队伍
 // const settings = ref({});
 
 watch(teamSize, (teamSize_) => {
@@ -214,6 +237,11 @@ watch(teamCount, (teamCount_) => {
 	// code 1: teamCount
 });
 // code 2: username
+
+watch(team, (team_, prevTeam_) => {
+	room.updSettings(3, {team: team_, prevTeam: prevTeam_});
+	// code 3: team
+});
 
 function onUpdSettings(state) {
 	const msgs = [
@@ -279,21 +307,28 @@ nw.connectedPromise.then(() => {
 			<span>{{ teamSize * teamCount }}</span>
 		</Text>
 		<template v-for="player in players">
-			<Text size="2" color="#dedede" class="notransform">{{ player.username }}</Text>
+			<Text size="2" :color="(player.team == -1) ? '#dedede' : teams[player.team].color" class="notransform">{{ player.username }}</Text>
 		</template>
 	</Block>
 	<Block :props="attr.game_settings">
 		<Text size="2" class="notransform">Settings</Text>
-		<Text size="2" class="notransform">Team Size:</Text>
+		<Text size="2" class="notransform">Team Size</Text>
 		<select v-model="teamSize" :disabled="(ownerID != selfID) || (!inRoom)">
 			<option value="1">1 Player</option>
 			<option value="2">2 Players</option>
 			<option value="4">4 Players</option>
 		</select>
-		<Text size="2" class="notransform">Team Count:</Text>
+		<Text size="2" class="notransform">Team Count</Text>
 		<select v-model="teamCount" :disabled="(ownerID != selfID) || (!inRoom)">
 			<option value="2">2 Teams</option>
 			<option value="4">4 Teams</option>
+		</select>
+		<Text size="2" class="notransform">Team</Text>
+		<select v-model="team" :disabled="(!inRoom)">
+			<option value="-1">Random</option>
+			<template v-for="(team, i) in teams">
+				<option :value="i" :disabled="team.playerCount == teamSize" :style="{color: team.color}">{{ `${team.color} ${team.playerCount}/${teamSize}` }}</option>
+			</template>
 		</select>
 	</Block>
 </template>
