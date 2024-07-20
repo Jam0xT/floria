@@ -106,6 +106,8 @@ class Room {
 			this.update(7, {id: this.ownerID});
 		}
 	}
+
+	
 }
 
 function toggleReady(socket) {
@@ -127,6 +129,8 @@ function toggleReady(socket) {
 	room.update(8, {id: socket.id, isReady: room.players[socket.id].isReady});
 	socket.emit(Constants.MSG_TYPES.SERVER.ROOM.READY, 0, room.players[socket.id].isReady);
 	// code 0:成功，返回切换后的状态
+
+	
 }
 
 function updSettings(socket, type, update) {

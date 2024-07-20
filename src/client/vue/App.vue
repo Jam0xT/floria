@@ -83,6 +83,14 @@ function onRoomIDInput(e) {
 	roomIDInput.value = str;
 }
 
+function copyRoomID() {
+	navigator.clipboard.writeText(roomID.value);
+	logs.value.unshift({
+		msg: 'Room ID has been copeid to the clipboard.',
+		color: '#dedede',
+	});
+}
+
 // 加入房间
 
 function joinRoom() {
@@ -356,6 +364,7 @@ nw.connectedPromise.then(() => {
 		<Button @click="createRoom" :disabled="(inRoom)">Create</Button><br>
 		<Button @click="leaveRoom" :disabled="(!inRoom)">Leave</Button><br>
 		<Button @click="toggleReady" :disabled="(!inRoom)">Ready</Button><br>
+		<Button @click="copyRoomID">Copy ID</Button><br>
 	</Block>
 	<Block :props="attr.player_list">
 		<Text size="2" class="notransform" :color="(Object.keys(players).length == teamSize * teamCount) ? '#fffd9c' : '#FFFFFF'">
