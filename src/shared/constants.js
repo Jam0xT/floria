@@ -27,6 +27,8 @@ export default Object.freeze({
 			},
 			GAME: {
 				START: 'Lp1GDS1BjTyUGXEY6UrYjmh55YLxaOfX4DaaTXtSszD2A1yUGRfKGPOwHnwIhce3',
+				OVER: 'junCWOGTLwGFsfHNkQXkBGCxtkFdtIVrJMuLrxFshqFrNRwlDbluKYSTXAEZvhkr',
+				UPDATE: 'PPTAHVGGPthHyIUKlGRIFNgFVfheqQfHkTjfCZHZZdmSHvJZLGfevtOoColzBcHz',
 			}
 		}
 		// JOIN_GAME: 'join_game',

@@ -200,17 +200,26 @@ class Room {
 		Object.values(this.sockets).forEach(socket => {
 			socket.emit(Constants.MSG_TYPES.SERVER.ROOM.START);
 		});
-		const spots = []; // get all team id of free spots
+		const spots = []; // 获取所有空闲位置所在的队伍编号
 		this.teams.forEach((team, id) => {
 			spots.concat(new Array(Math.max(0, this.teamSize - team.playerCount)).fill(id));
 		});
-		shuffle(spots); // random shuffle the free team spots
+		shuffle(spots); // 打乱这些编号
 		let spotIndex = 0;
 		Object.values(this.players).forEach(player => {
 			if ( player.team == -1 )
 				player.team = spots[spotIndex++];
 		});
-		this.game = new gamemodes[this.mode]();
+		// 临时的设置
+		this.settings = {
+
+		};
+		this.game = new gamemodes[this.mode](this.settings);
+		Object.keys(this.sockets).forEach(id => { // id: socket id
+			const socket = this.sockets[id];
+			const player = this.players[id];
+			this.game.addPlayer(socket, player.username, player.team);
+		});
 		this.game.start();
 	}
 

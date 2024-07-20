@@ -8,6 +8,7 @@ import * as room from '../room.js';
 import * as nw from '../networking.js';
 import Constants from '../../shared/constants.js';
 import { startRenderGame } from '../game/main.js';
+import { initState } from '../state.js';
 const attr = ref({
 	title: {
 		x: 50,
@@ -357,6 +358,8 @@ function onGameStart() {
 		msg: `Game starts now.`,
 		color: "#ffa8f5",
 	});
+	nw.connect();
+	initState();
 	startRenderGame();
 }
 

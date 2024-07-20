@@ -20,14 +20,18 @@ const connectedPromise = new Promise(resolve => {
 const connect = (onGameOver) => {
 	connectedPromise.then(() => {
 		// socket.on(Constants.MSG_TYPES.SERVER.ROOM.JOIN, joinRoom);
-		socket.on(Constants.MSG_TYPES.GAME_UPDATE, processGameUpdate);
-		socket.on(Constants.MSG_TYPES.GAME_OVER, onGameOver);
+		socket.on(Constants.MSG_TYPES.SERVER.GAME.UPDATE, processGameUpdate);
+		// socket.on(Constants.MSG_TYPES.GAME_OVER, onGameOver);
 		socket.on('disconnect', () => {
 			console.log('Disconnected from server.');
 			onGameOver();
 		});
 	});
 };
+
+function onGameOver() {
+	// 临时
+}
 
 const play = username => {
 	socket.emit(Constants.MSG_TYPES.JOIN_GAME, username);
@@ -56,4 +60,5 @@ const sendCmdInv = (sel, petal) => {
 export {
 	socket,
 	connectedPromise,
+	connect,
 }

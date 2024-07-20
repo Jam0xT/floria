@@ -1,6 +1,8 @@
-// 时间相关的方法
+/*
+时间相关的方法
 
-// 使用变量域：this.var.time
+使用变量域: $ = this.var.time
+*/
 
 function init() { // 初始化
 	const $ = this.var.time = {};

@@ -51,22 +51,22 @@ export function getCurrentState() {
 		let baseUpdate = gameUpdates[baseUpdateIndex];
 		const nextUpdate = gameUpdates[baseUpdateIndex + 1];
 		const ratio = (serverTime - baseUpdate.t) / (nextUpdate.t - baseUpdate.t);
-		if ( baseUpdate.diedEntities ) {
-			if ( baseUpdate.diedEntities.length != 0 ) {
-				addDiedEntities(baseUpdate.diedEntities);
-				delete baseUpdate.diedEntities;
-			}
-		}
+		// if ( baseUpdate.diedEntities ) {
+		// 	if ( baseUpdate.diedEntities.length != 0 ) {
+		// 		addDiedEntities(baseUpdate.diedEntities);
+		// 		delete baseUpdate.diedEntities;
+		// 	}
+		// }
 		return {
-			info: baseUpdate.info,
+			// info: baseUpdate.info,
 			me: interpolateObject(baseUpdate.me, nextUpdate.me, ratio),
 			others: interpolateObjectArray(baseUpdate.others, nextUpdate.others, ratio),
-			mobs: interpolateObjectArray(baseUpdate.mobs, nextUpdate.mobs, ratio),
-			leaderboard: baseUpdate.leaderboard,
+			// mobs: interpolateObjectArray(baseUpdate.mobs, nextUpdate.mobs, ratio),
+			// leaderboard: baseUpdate.leaderboard,
 			playerCount: baseUpdate.playerCount,
-			rankOnLeaderboard: baseUpdate.rankOnLeaderboard,
-			lightningPath: baseUpdate.lightningPath,
-			drops: baseUpdate.drops,
+			// rankOnLeaderboard: baseUpdate.rankOnLeaderboard,
+			// lightningPath: baseUpdate.lightningPath,
+			// drops: baseUpdate.drops,
 		};
 	}
 }
