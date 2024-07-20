@@ -58,8 +58,10 @@ watch(username, (username_) => {
 // 模式选择
 
 const mode = ref('');
+const selectedMode = ref(false);
 
 function onSelectArena() {
+	selectedMode.value = true;
 	attr.value.title.y = -20;
 	attr.value.button_arena.y = -20;
 	attr.value.username_input.y = 5;
@@ -106,8 +108,10 @@ function onJoinRoom(state, roomID_ = '') {
 		`Already in room.`,
 		`Room is full.`,
 		`Leave the current room before joining a new one.`,
+		`That room is already starting a game.`,
 	], colors = [
 		'#cbfcb1',
+		'#fcab9d',
 		'#fcab9d',
 		'#fcab9d',
 		'#fcab9d',
@@ -368,11 +372,11 @@ nw.connectedPromise.then(() => {
 		<Title size="10">floria.io</Title>
 	</Block>
 	<Block :props="attr.button_arena">
-		<Button @click="onSelectArena">Arena</Button>
+		<Button @click="onSelectArena" :disabled="selectedMode">Arena</Button>
 	</Block>
 	<Block :props="attr.username_input">
 		<Text size="2">This pretty little flower is called...</Text>
-		<input class="input" v-model="username" placeholder="Random Flower" maxlength="20"/>
+		<input class="input" v-model="username" placeholder="Random Flower" maxlength="20" :disabled="state == 2"/>
 	</Block>
 	<Block :props="attr.log" style="width: 15%">
 		<template v-for="log in logs">
@@ -384,9 +388,9 @@ nw.connectedPromise.then(() => {
 		<input class="input" @input="onRoomIDInput" placeholder="RoomID" maxlength="6" :disabled="inRoom" :value="roomIDInput"/><br/>
 		<Button @click="joinRoom" :disabled="(inRoom)">Join</Button><br>
 		<Button @click="createRoom" :disabled="(inRoom)">Create</Button><br>
-		<Button @click="leaveRoom" :disabled="(!inRoom)">Leave</Button><br>
-		<Button @click="toggleReady" :disabled="(!inRoom)">Ready</Button><br>
-		<Button @click="copyRoomID">Copy ID</Button><br>
+		<Button @click="leaveRoom" :disabled="(!inRoom) || (state == 2)">Leave</Button><br>
+		<Button @click="toggleReady" :disabled="(!inRoom) || (state == 2)">Ready</Button><br>
+		<Button @click="copyRoomID" :disabled="state == 2">Copy ID</Button><br>
 	</Block>
 	<Block :props="attr.player_list">
 		<Text size="2" class="notransform" :color="(Object.keys(players).length == teamSize * teamCount) ? '#fffd9c' : '#FFFFFF'">
@@ -423,6 +427,7 @@ nw.connectedPromise.then(() => {
 			</template>
 		</select><br/>
 	</Block>
+	<canvas></canvas>
 </template>
 
 <style>
@@ -433,6 +438,15 @@ nw.connectedPromise.then(() => {
 	width:100%;
 	height:100%;
 	background:#1EA761;
+}
+
+.canvas {
+	display: block;
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	left: 0%;
+	top: 0%;
 }
 
 .notransform {

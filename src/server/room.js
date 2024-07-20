@@ -161,7 +161,7 @@ class Room {
 	}
 
 	checkReady() { // 阶段 2 检查 ready 情况，此时房间 state 只可能是 0(wait) 或 1(load)
-		if ( Object.values(this.players).filter(player => player.isReady).length == this.playerCount ) { // 所有玩家都 ready
+		if ( Object.values(this.players).filter(player => player.isReady).length == this.teamCount * this.teamSize ) { // ready 人数 = 房间人数上限
 			this.load(); // 执行阶段 3
 		} else { // 未完全 ready
 			if ( this.state == 1 ) { // 现在在 load 状态
@@ -175,7 +175,7 @@ class Room {
 		this.updState(1); // 进入 load 状态
 		let countdownTime = 3; // 倒计时 Timer
 		this.countDown(countdownTime, // t
-			this.start, // resolve
+			this.start.bind(this), // resolve
 			(t) => { // check
 				this.update(9, {countdownTime: t});
 				return (this.state == 1);
@@ -328,19 +328,23 @@ function joinRoom(socket, mode, username, roomID) {
 		socket.emit(Constants.MSG_TYPES.SERVER.ROOM.JOIN, 1); // 用于发送加入房间的状态（若成功附带0和房间号，若失败附带错误码）
 		// code 1:房间不存在
 	} else {
-		let currentRoom = rooms[roomID];
-		if ( currentRoom.players[socket.id] ) {
+		const room = rooms[roomID];
+		if ( room.players[socket.id] ) {
 			console.log(`Player ${socket.id} is already in the Room`);
 			socket.emit(Constants.MSG_TYPES.SERVER.ROOM.JOIN, 2);
 			// code 2:重复加入
-		} else if ( currentRoom.playerCount == currentRoom.teamCount * currentRoom.teamSize ) {
+		} else if ( room.playerCount == room.teamCount * room.teamSize ) {
 			console.log(`Room #${roomID} is full`);
 			socket.emit(Constants.MSG_TYPES.SERVER.ROOM.JOIN, 3);
-			// code 3:满人
+			// code 3:房间满人
+		} else if ( room.state != 0 ) {
+			console.log(`Room #${roomID} is already starting a game.`); 
+			socket.emit(Constants.MSG_TYPES.SERVER.ROOM.JOIN, 5);
+			// code 5:房间已经开始游戏
 		} else {
 			console.log(`Player ${socket.id} successfully joined the Room #${roomID}`);
 			socket.emit(Constants.MSG_TYPES.SERVER.ROOM.JOIN, 0, roomID);
-			currentRoom.addPlayer(socket, username);
+			room.addPlayer(socket, username);
 			// code 0:成功
 		}
 	}
@@ -356,7 +360,7 @@ function leaveRoom(socket) {
 		return ;
 	}
 	const room = rooms[roomID];
-	console.log(`Player ${socket.id} successfully left Room #${roomID}.`)
+	console.log(`Player ${socket.id} successfully left Room #${roomID}.`);
 	room.removePlayer(socket.id);
 	socket.emit(Constants.MSG_TYPES.SERVER.ROOM.LEAVE, 0);
 	// code 0: 成功
