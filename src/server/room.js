@@ -18,7 +18,7 @@ class Room {
 	constructor(mode, ownerID_) {
 		this.id = getNewRoomID();
 		this.sockets = {}; // (socket)id: socket
-		this.players = {}; // (socket)id: {team, isOwner, username, socketid}
+		this.players = {}; // (socket)id: {team, isOwner, username, socketid, ready}
 		this.playerCount = 0; // 维护玩家数量
 		this.ownerID = ownerID_; // 房主ID
 		// if (!gamemodes[mode])
@@ -72,6 +72,7 @@ class Room {
 		// teams: 5, {teams} 重置时更新
 		// jointeam: 6, {id, team, prevTeam} 玩家加入队伍
 		// owner: 7, {id}
+		// ready: 8, {id, isReady}
 	}
 
 	addPlayer(socket, username) {
@@ -82,6 +83,7 @@ class Room {
 			'isOwner': (socket.id == this.ownerID),
 			'username': username,
 			'socketid': socket.id,
+			'ready': false,
 		};
 		this.playerCount += 1;
 		this.sendInfo(socket);
@@ -106,13 +108,26 @@ class Room {
 	}
 }
 
-// function checkOwner(socket) {
-// 	socket.emit(Constants.MSG_TYPES.SERVER.ROOM.CHECKOWNER, roomOfPlayers[socket.id].owner == socket.id);
-// }
+function toggleReady(socket) {
+	const roomID = roomIDOfPlayer[socket.id];
+	if ( !roomID ) {
+		socket.emit(Constants.MSG_TYPES.SERVER.ROOM.READY, 1);
+		// code 1:不在房间中
+		return ;
+	}
 
-// function getRoomOfPlayer(socket) {
-// 	socket.emit(Constants.MSG_TYPES.SERVER.ROOM.GETROOM, roomOfPlayers[socket.id]);
-// }
+	const room = rooms[roomID];
+	if ( !room ) {
+		socket.emit(Constants.MSG_TYPES.SERVER.ROOM.READY, 2);
+		// code 2:房间不存在
+		return ;
+	}
+
+	room.players[socket.id].ready ^= 1; // 切换状态
+	room.update(8, {id: socket.id, isReady: room.players[socket.id].ready});
+	socket.emit(Constants.MSG_TYPES.SERVER.ROOM.READY, 0, room.players[socket.id].ready);
+	// code 0:成功，返回切换后的状态
+}
 
 function updSettings(socket, type, update) {
 	// console.log(`player ${socket.id} tries to update settings:`)
@@ -130,7 +145,7 @@ function updSettings(socket, type, update) {
 		// code 2:房间不存在
 		return ;
 	}
-	const ownerOnly = [0, 1];
+	const ownerOnly = [0, 1]; // 需要 owner 权限的操作编号列表
 	if ( room.ownerID != socket.id && ownerOnly.includes(type) ) {
 		// console.log(`No permission.`);
 		socket.emit(Constants.MSG_TYPES.SERVER.ROOM.SETTINGS, 3);
@@ -230,16 +245,6 @@ function disconnect(socket) {
 	leaveRoom(socket);
 }
 
-// function quitRoom(socket, needMsg) {
-// 	if (!roomOfPlayers[socket.id])
-// 		return;
-// 	roomOfPlayers[socket.id].remove(socket);
-// 	delete roomOfPlayers[socket.id];
-// 	if (needMsg)
-// 		socket.emit(Constants.MSG_TYPES.SERVER.ROOM.ROOM_MSG, 'Successfully quited the room', 'green');
-// 	socket.emit(Constants.MSG_TYPES.SERVER.ROOM.QUIT);
-// }
-
 const charList = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 const fixedIDLen = 6;
 
@@ -264,8 +269,5 @@ export {
 	leaveRoom,
 	updSettings,
 	disconnect,
-	// getRoomOfPlayer,
-	// checkOwner,
-	// rooms,
-	// roomOfPlayer,
+	toggleReady,
 };

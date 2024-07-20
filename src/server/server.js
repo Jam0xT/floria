@@ -28,18 +28,9 @@ io.on('connection', socket => {
 	socket.on(Constants.MSG_TYPES.CLIENT.ROOM.CREATE, createRoom);
 	socket.on(Constants.MSG_TYPES.CLIENT.ROOM.JOIN, joinRoom);
 	socket.on(Constants.MSG_TYPES.CLIENT.ROOM.SETTINGS, updSettings);
-	// socket.on(Constants.MSG_TYPES.CLIENT.ROOM.GETROOM, getRoomOfPlayer);
-	// socket.on(Constants.MSG_TYPES.CLIENT.ROOM.CHECKOWNER, checkOwner);
-	// socket.on(Constants.MSG_TYPES.CLIENT.ROOM.READY, readyChange);
+	socket.on(Constants.MSG_TYPES.CLIENT.ROOM.READY, toggleReady);
 	socket.on(Constants.MSG_TYPES.CLIENT.ROOM.LEAVE, leaveRoom);
 	socket.on('disconnect', onDisconnect);
-	// socket.on(Constants.MSG_TYPES.JOIN_GAME, joinGame);
-	// socket.on(Constants.MSG_TYPES.MOVEMENT, handleMovement);
-	// socket.on(Constants.MSG_TYPES.MOUSE_DOWN, handleMouseDown);
-	// socket.on(Constants.MSG_TYPES.MOUSE_UP, handleMouseUp);
-	// socket.on(Constants.MSG_TYPES.PETAL_SWITCH, handlePetalSwitch);
-	// socket.on(Constants.MSG_TYPES.CMD_INV, handleCmdInv)
-	// socket.on('disconnect', onDisconnect);
 });
 
 function createRoom(mode, username) {
@@ -50,23 +41,16 @@ function joinRoom(mode, username, roomId) {
 	room.joinRoom(this, mode, username, roomId);
 }
 
+function leaveRoom() {
+	room.leaveRoom(this);
+}
+
 function updSettings(type, update) {
 	room.updSettings(this, type, update);
 }
 
-function getRoomOfPlayer() {
-	room.getRoomOfPlayer(this);
-}
-function checkOwner() {
-	room.checkOwner(this);
-}
-
-function readyChange() {
-	room.roomOfPlayers[this.id].readyChange(this);
-}
-
-function leaveRoom() {
-	room.leaveRoom(this);
+function toggleReady() {
+	room.toggleReady(this);
 }
 
 function onDisconnect() {

@@ -83,6 +83,8 @@ function onRoomIDInput(e) {
 	roomIDInput.value = str;
 }
 
+// 加入房间
+
 function joinRoom() {
 	room.joinRoom(mode.value, username.value || 'Random Flower', roomIDInput.value);
 }
@@ -112,6 +114,8 @@ function onJoinRoom(state, roomID_ = '') {
 	});
 }
 
+// 创建房间
+
 function createRoom() {
 	room.createRoom(mode.value, username.value || 'Random Flower');
 }
@@ -129,6 +133,8 @@ function onCreateRoom(state, roomID_ = '') {
 		color: colors[state],
 	});
 }
+
+// 离开房间
 
 function leaveRoom() {
 	room.leaveRoom();
@@ -154,6 +160,8 @@ function onLeaveRoom(state) {
 		color: colors[state],
 	});
 }
+
+// 更新本地信息
 
 function onUpdate(type, update) {
 	if ( type == 0 ) {
@@ -213,6 +221,14 @@ function onUpdate(type, update) {
 			msg: `Player ${players.value[update.id].username} is the new Owner.`,
 			color: "#dedede",
 		});
+	} else if ( type == 8 ) {
+		players.value[update.id].ready = update.isReady;
+		if ( update.id != selfID.value ) {
+			logs.value.unshift({
+				msg: `Player ${players.value[update.id].username} ${update.isReady ? 'is ready.' : 'canceled ready.'}`,
+				color: (update.isReady ? '#cbfcb1' : '#fcab9d'),
+			});
+		}
 	}
 }
 
@@ -223,6 +239,28 @@ function onRecvInfo(info) { // 加入房间时获取房间信息
 	teamSize.value = info.teamSize;
 	teams.value = info.teams;
 	// settings.value = info.settings;
+}
+
+// 切换准备状态
+
+function toggleReady() {
+	room.toggleReady();
+}
+
+function onToggleReady(state, isReady) {
+	const msgs = [
+		(isReady ? 'Ready.' : 'Canceled ready.'),
+		`Not in a room.`,
+		`Room does not exist.`,
+	], colors = [
+		(isReady ? '#cbfcb1' : '#fcab9d'),
+		`#fcab9d`,
+		`#fcab9d`,
+	];
+	logs.value.unshift({
+		msg: msgs[state],
+		color: colors[state],
+	});
 }
 
 // 一些房间信息
@@ -289,6 +327,7 @@ nw.connectedPromise.then(() => {
 	nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.UPDATE, onUpdate);
 	nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.INFO, onRecvInfo);
 	nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.SETTINGS, onUpdSettings);
+	nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.READY, onToggleReady);
 });
 
 </script>
@@ -311,9 +350,9 @@ nw.connectedPromise.then(() => {
 	<Block :props="attr.room">
 		<Text size="2">{{ `Room#${roomID}` }}</Text>
 		<input class="input" @input="onRoomIDInput" placeholder="RoomID" maxlength="6" :disabled="inRoom" :value="roomIDInput"/><br/>
-		<Button @click="joinRoom">Join</Button><br>
-		<Button @click="createRoom">Create</Button><br>
-		<Button @click="leaveRoom">Leave</Button><br>
+		<Button @click="joinRoom" :disabled="(inRoom)">Join</Button><br>
+		<Button @click="createRoom" :disabled="(inRoom)">Create</Button><br>
+		<Button @click="leaveRoom" :disabled="(!inRoom)">Leave</Button><br>
 	</Block>
 	<Block :props="attr.player_list">
 		<Text size="2" class="notransform" :color="(Object.keys(players).length == teamSize * teamCount) ? '#fffd9c' : '#FFFFFF'">
@@ -323,7 +362,10 @@ nw.connectedPromise.then(() => {
 			<span>{{ teamSize * teamCount }}</span>
 		</Text>
 		<template v-for="player in players">
-			<Text size="2" :color="(player.team == -1) ? '#dedede' : teams[player.team].color" class="notransform">{{ player.username }}</Text>
+			<Text size="2" class="notransform">
+				<span :style="{'color': (player.team == -1) ? '#dedede' : teams[player.team].color}">{{ player.username }}</span>
+				<span style="color: '#cbfcb1'">{{ player.ready ? '✓' : '' }}</span>
+			</Text>
 		</template>
 	</Block>
 	<Block :props="attr.game_settings">
@@ -345,7 +387,8 @@ nw.connectedPromise.then(() => {
 			<template v-for="(team, i) in teams">
 				<option :value="i" :disabled="team.playerCount == teamSize" :style="{color: team.color}">{{ `${team.color} ${team.playerCount}/${teamSize}` }}</option>
 			</template>
-		</select>
+		</select><br/>
+		<Button @click="toggleReady" class="notransform" :disabled="(!inRoom)">Ready</Button><br>
 	</Block>
 </template>
 

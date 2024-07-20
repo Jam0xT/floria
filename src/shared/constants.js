@@ -11,8 +11,8 @@ export default Object.freeze({
 				LEAVE: 'iDW344Gm0CdEHASKTLalkOETh7qSnT7Eey97ejBYArtuBNaeD5yVOoCnnGqRiLAt',
 				INFO: 'WsUVLIiGCIJU12UOKn602QCGgiAJaPX0cLy8ZMn6DOEZFpeVvUDod63qhqatAfff',
 				SETTINGS: 'DhkIfoAbCPybNZPGSapzxGJtvXTjFbgSNIuDdtafmXMIovmouJTQDUnJxffPINek',
+				READY: 'jRKbIsuMHTYu0v7J6c2bI2aYewjluRJzMCfqT0xSWwYVvCb7YY5ObiTBf6YIqAe6',
 				// GETROOM: 'mK1RRPZ9QmqYFuEQdV3ju7diWLPu1dKNGWQAqE43qm4EuZjjeoJwXKc1V6O6SPcG',
-				// READY: 'jRKbIsuMHTYu0v7J6c2bI2aYewjluRJzMCfqT0xSWwYVvCb7YY5ObiTBf6YIqAe6',
 			}
 		},
 		SERVER: {
@@ -23,6 +23,7 @@ export default Object.freeze({
 				UPDATE: 'A6zeZwUGsDsR3UsFlBiNjCBRhrjmoeCRi2SLNkM82ieBFk3vQDFPBsdY9FsPAbTq',
 				INFO: 'tzVHvsiel4g10esgA6c7uib0ZGx8qtMOwbDTxvvTrzYXMylzN4t2nw2x29244opD',
 				SETTINGS: 'WAFZKCQSKCpmOxKYiiQRUWQnrlzAgXMziZGkTZjQqrnbcZYFuFmXQjTPqubEbJxk',
+				READY: 'vdtobApwlfdBUxPCkHuEHWoIhOygNjVntbRfceytyrdpOsePIuRFNqXEojDkmKCR'
 				// GETROOM: '8SwXLeDAhdgP4gwR59xpKiEVS4oxnMVhCQZx7AobVOYPVH0113hF7RHOoC3KBvTg',
 			},
 			GAME: {
