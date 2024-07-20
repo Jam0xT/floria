@@ -175,11 +175,14 @@ class Room {
 		this.updState(1); // 进入 load 状态
 		let countdownTime = 3; // 倒计时 Timer
 		this.countDown(countdownTime, // t
-			this.start.bind(this), // resolve
+			this.start, // resolve
 			(t) => { // check
 				this.update(9, {countdownTime: t});
 				return (this.state == 1);
 			},
+			() => {
+				this.update(9, {countdownTime: -1});
+			}
 		);
 	}
 

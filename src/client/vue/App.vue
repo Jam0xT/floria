@@ -257,6 +257,13 @@ function onRecvInfo(info) { // 加入房间时获取房间信息
 }
 
 watch(countdownTime, (t) => {
+	if ( t == -1 ) {
+		logs.value.unshift({
+			msg: `Game start canceled since someone is not ready.`,
+			color: `#dedede`,
+		});
+		return ;
+	}
 	logs.value.unshift({
 		msg: `Game will start in ${t}...`,
 		color: `#dedede`,
@@ -398,18 +405,18 @@ nw.connectedPromise.then(() => {
 	<Block :props="attr.game_settings">
 		<Text size="2" class="notransform">Settings</Text>
 		<Text size="2" class="notransform">Team Size</Text>
-		<select v-model="teamSize" :disabled="(ownerID != selfID) || (!inRoom)">
+		<select v-model="teamSize" :disabled="(ownerID != selfID) || (!inRoom) || (state != 0)">
 			<option value="1">1 Player</option>
 			<option value="2">2 Players</option>
 			<option value="4">4 Players</option>
 		</select>
 		<Text size="2" class="notransform">Team Count</Text>
-		<select v-model="teamCount" :disabled="(ownerID != selfID) || (!inRoom)">
+		<select v-model="teamCount" :disabled="(ownerID != selfID) || (!inRoom) || (state != 0)">
 			<option value="2">2 Teams</option>
 			<option value="4">4 Teams</option>
 		</select>
 		<Text size="2" class="notransform">Team</Text>
-		<select v-model="team" :disabled="(!inRoom)">
+		<select v-model="team" :disabled="(!inRoom) || (state != 0)">
 			<option value="-1">Random</option>
 			<template v-for="(team, i) in teams">
 				<option :value="i" :disabled="team.playerCount == teamSize" :style="{color: team.color}">{{ `${team.color} ${team.playerCount}/${teamSize}` }}</option>
