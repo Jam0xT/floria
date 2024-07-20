@@ -12,27 +12,78 @@ const defaultColor = [
 	'#a1d0ff',
 	'#fff7a1',
 	'#aaffa1',
-]
+];
+
+/*
+主要流程：
+
+1.创建房间 加入房间 此时房间在 wait 状态
+此时可以随意修改游戏内用户名，游戏设置，队伍设置等等
+此时房间 Game 没有创建
+当有玩家的 isReady 属性变化时，执行阶段 2
+
+2.房间会检查此时是否所有玩家的 isReady 都为 true
+如果是:
+	执行阶段 3
+如果否:
+	如果此时房间在 load 状态:
+		解除 load 状态(unload)，进入 wait 状态
+	否则什么都不做
+
+3.进入 load 状态，停止接收不影响 ready 人数的客户端信息
+这也就意味着还会接收玩家 isReady 改变，退出房间和断开连接这三个信息
+此时房间开始倒计时，每过一秒执行一次阶段 2，直到倒计时结束
+倒计时结束，执行阶段 4
+
+4.进入 game 状态
+此时在房间层面只接受断开连接的信息
+断开连接的玩家移出房间
+为选择队伍为 -1 (Random) 的玩家分配随机队伍
+创建 Game，写入游戏设置
+将玩家加入到 Game 中
+开始游戏主循环
+游戏结束
+进入 wait 状态
+删除 Game
+进入阶段 1
+*/
 
 class Room {
 	constructor(mode, ownerID_) {
 		this.id = getNewRoomID();
-		this.sockets = {}; // (socket)id: socket
-		this.players = {}; // (socket)id: {team, isOwner, username, socketid, isReady}
-		this.playerCount = 0; // 维护玩家数量
-		this.ownerID = ownerID_; // 房主ID
+		// 获取新的房间 ID
+		this.state = 0;
+		// 0: wait, 1: load, 2: game
+		// 初始为 wait 状态
+		this.sockets = {};
+		// (socket)id: socket
+		this.players = {};
+		// (socket)id: {team, isOwner, username, socketid, isReady}
+		// 以 addPlayer 方法为准
+		this.playerCount = 0;
+		// 维护玩家数量
+		this.ownerID = ownerID_;
+		// 房主ID
 		// if (!gamemodes[mode])
 		// 	throw new Error('trying to create room with unknown gamemode');
 		this.mode = mode;
+		// 游戏模式 (如 arena)
 		this.game = undefined;
-		this.teamCount = 2; // 队伍数量
-		this.teamSize = 1; // 队伍大小
-		this.teams = []; // 队伍 {color, playerCount}
-		this.settings = {}; // 其他设置
+		// 房间的 Game，也就是游戏本体
+		this.teamCount = 2;
+		// 队伍数量
+		this.teamSize = 1;
+		// 队伍大小 指单个队伍人数上限
+		this.teams = [];
+		// 队伍信息 {color, playerCount}
+		// 没有维护队伍具体成员信息，因为似乎暂时用不上
+		this.settings = {};
+		// 其他设置 未实装，暂定为游戏本体相关设置
 		this.resetTeams();
+		// 重置队伍信息
 	}
 
-	resetTeams() {
+	resetTeams() { // 重置队伍(一般发生在队伍设置改变时)
 		this.teams = [];
 		for (let i = 0; i < this.teamCount; i ++ ) {
 			this.teams.push({
@@ -46,7 +97,7 @@ class Room {
 		this.update(5, {teams: this.teams});
 	}
 
-	sendInfo(socket) {
+	sendInfo(socket) { // 加入房价时发送此时房间信息
 		socket.emit(Constants.MSG_TYPES.SERVER.ROOM.INFO, {
 			players: this.players,
 			ownerID: this.ownerID,
@@ -57,7 +108,7 @@ class Room {
 		});
 	}
 
-	update(type, update, cancel = '') {
+	update(type, update, cancel = '') { // 对客户端更新房间信息
 		Object.keys(this.sockets).forEach(socketID => {
 			if ( socketID == cancel )
 				return ;
@@ -73,9 +124,11 @@ class Room {
 		// jointeam: 6, {id, team, prevTeam} 玩家加入队伍
 		// owner: 7, {id}
 		// ready: 8, {id, isReady}
+		// countdownTime: 9, {countdownTime}
+		// state: 10, {state}
 	}
 
-	addPlayer(socket, username) {
+	addPlayer(socket, username) { // 在房间加入玩家
 		roomIDOfPlayer[socket.id] = this.id;
 		this.sockets[socket.id] = socket;
 		this.players[socket.id] = {
@@ -90,7 +143,7 @@ class Room {
 		this.update(0, {player: this.players[socket.id]});
 	}
 
-	removePlayer(socketID) {
+	removePlayer(socketID) { // 从房间移除玩家
 		this.update(1, {player: this.players[socketID]});
 		delete roomIDOfPlayer[socketID];
 		delete this.sockets[socketID];
@@ -107,7 +160,64 @@ class Room {
 		}
 	}
 
-	
+	checkReady() { // 阶段 2 检查 ready 情况，此时房间 state 只可能是 0(wait) 或 1(load)
+		if ( Object.values(this.players).filter(player => player.isReady).length == this.playerCount ) { // 所有玩家都 ready
+			this.load(); // 执行阶段 3
+		} else { // 未完全 ready
+			if ( this.state == 1 ) { // 现在在 load 状态
+				this.unload();
+			}
+			// 否则(在 wait 状态)什么都不做
+		}
+	}
+
+	load() { // 进入阶段 3
+		this.updState(1); // 进入 load 状态
+		let countdownTime = 3; // 倒计时 Timer
+		this.countDown(countdownTime, // t
+			this.start.bind(this), // resolve
+			(t) => { // check
+				this.update(9, {countdownTime: t});
+				return (this.state == 1);
+			},
+		);
+	}
+
+	updState(newState) { // 更新 state 并同时向客户端发送更新
+		this.state = newState;
+		this.update(10, {state: newState});
+	}
+
+	unload() { // 阶段 3 -> 1
+		this.updState(0); // 进入 wait 状态
+
+	}
+
+	start() { // 阶段 4
+		this.updState(2); // 进入 game 状态
+	}
+
+	countDown(t, resolve, check = () => {return true}, reject = () => {}) {
+		// t 剩余倒计时时间 单位: 秒
+		// resolve 倒计时结束执行
+		// check 每次调用 countDown 时执行，返回一个 Bool 值表示是否继续倒计时
+		// reject 倒计时取消执行
+		const pass = check(t);
+		if ( !pass ) {
+			reject();
+			return ;
+		}
+		t = Math.floor(t);
+		if ( t <= 0 ) {
+			resolve();
+			return ;
+		}
+		setTimeout(
+			this.countDown.bind(this),
+			1000,
+			t - 1, resolve, check, reject,
+		);
+	}
 }
 
 function toggleReady(socket) {
@@ -130,7 +240,7 @@ function toggleReady(socket) {
 	socket.emit(Constants.MSG_TYPES.SERVER.ROOM.READY, 0, room.players[socket.id].isReady);
 	// code 0:成功，返回切换后的状态
 
-	
+	room.checkReady(); // 阶段 2
 }
 
 function updSettings(socket, type, update) {
@@ -154,6 +264,11 @@ function updSettings(socket, type, update) {
 		// console.log(`No permission.`);
 		socket.emit(Constants.MSG_TYPES.SERVER.ROOM.SETTINGS, 3);
 		// code 3:无修改设置权限
+		return ;
+	}
+	if ( room.state != 0 ) {
+		socket.emit(Constants.MSG_TYPES.SERVER.ROOM.SETTINGS, 4);
+		// code 4:不是等待阶段，无法修改设置
 		return ;
 	}
 	// console.log(`Room #${roomID}:`);

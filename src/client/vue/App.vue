@@ -77,6 +77,8 @@ const roomID = ref('');
 const inRoom = ref(false);
 const selfID = ref('');
 const ownerID = ref('');
+const state = ref(0);
+const countdownTime = ref(0);
 
 function onRoomIDInput(e) {
 	let str = e.target.value;
@@ -238,6 +240,10 @@ function onUpdate(type, update) {
 				color: (update.isReady ? '#cbfcb1' : '#fcab9d'),
 			});
 		}
+	} else if ( type == 9 ) {
+		countdownTime.value = update.countdownTime;
+	} else if ( type == 10 ) {
+		state.value = update.state;
 	}
 }
 
@@ -249,6 +255,13 @@ function onRecvInfo(info) { // 加入房间时获取房间信息
 	teams.value = info.teams;
 	// settings.value = info.settings;
 }
+
+watch(countdownTime, (t) => {
+	logs.value.unshift({
+		msg: `Game will start in ${t}...`,
+		color: `#dedede`,
+	});
+});
 
 // 切换准备状态
 
@@ -312,7 +325,9 @@ function onUpdSettings(state) {
 		`Not in a room.`,
 		`Room does not exist.`,
 		`No permission.`,
+		`You can only do that when the room is in 'wait' state.`,
 	], colors = [
+		'#fcab9d',
 		'#fcab9d',
 		'#fcab9d',
 		'#fcab9d',
