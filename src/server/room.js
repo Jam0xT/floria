@@ -18,7 +18,7 @@ class Room {
 	constructor(mode, ownerID_) {
 		this.id = getNewRoomID();
 		this.sockets = {}; // (socket)id: socket
-		this.players = {}; // (socket)id: {team, isOwner, username, socketid, ready}
+		this.players = {}; // (socket)id: {team, isOwner, username, socketid, isReady}
 		this.playerCount = 0; // 维护玩家数量
 		this.ownerID = ownerID_; // 房主ID
 		// if (!gamemodes[mode])
@@ -83,11 +83,11 @@ class Room {
 			'isOwner': (socket.id == this.ownerID),
 			'username': username,
 			'socketid': socket.id,
-			'ready': false,
+			'isReady': false,
 		};
 		this.playerCount += 1;
 		this.sendInfo(socket);
-		this.update(0, {player: this.players[socket.id]}, socket.id);
+		this.update(0, {player: this.players[socket.id]});
 	}
 
 	removePlayer(socketID) {
@@ -123,9 +123,9 @@ function toggleReady(socket) {
 		return ;
 	}
 
-	room.players[socket.id].ready ^= 1; // 切换状态
-	room.update(8, {id: socket.id, isReady: room.players[socket.id].ready});
-	socket.emit(Constants.MSG_TYPES.SERVER.ROOM.READY, 0, room.players[socket.id].ready);
+	room.players[socket.id].isReady ^= 1; // 切换状态
+	room.update(8, {id: socket.id, isReady: room.players[socket.id].isReady});
+	socket.emit(Constants.MSG_TYPES.SERVER.ROOM.READY, 0, room.players[socket.id].isReady);
 	// code 0:成功，返回切换后的状态
 }
 

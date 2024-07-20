@@ -167,7 +167,7 @@ function onUpdate(type, update) {
 	if ( type == 0 ) {
 		players.value[update.player.socketid] = update.player;
 		logs.value.unshift({
-			msg: `Player ${update.player.username} joined.`,
+			msg: `Player ${update.player.username} joined. (${Object.keys(players.value).length + '/' + teamSize.value * teamCount.value})`,
 			color: "#9deefc",
 		});
 	} else if ( type == 1 ) {
@@ -175,7 +175,7 @@ function onUpdate(type, update) {
 			return ;
 		delete players.value[update.player.socketid];
 		logs.value.unshift({
-			msg: `Player ${update.player.username} left.`,
+			msg: `Player ${update.player.username} left. (${Object.keys(players.value).length + '/' + teamSize.value * teamCount.value})`,
 			color: "#9dbbfc",
 		});
 	} else if ( type == 2 ) {
@@ -222,10 +222,11 @@ function onUpdate(type, update) {
 			color: "#dedede",
 		});
 	} else if ( type == 8 ) {
-		players.value[update.id].ready = update.isReady;
+		players.value[update.id].isReady = update.isReady;
+		const readyPlayerCount = Object.values(players.value).filter(player => player.isReady).length;
 		if ( update.id != selfID.value ) {
 			logs.value.unshift({
-				msg: `Player ${players.value[update.id].username} ${update.isReady ? 'is ready.' : 'canceled ready.'}`,
+				msg: `Player ${players.value[update.id].username} ${update.isReady ? 'is ready.' : 'canceled ready.'} (${readyPlayerCount}/${teamCount.value * teamSize.value})`,
 				color: (update.isReady ? '#cbfcb1' : '#fcab9d'),
 			});
 		}
@@ -248,8 +249,9 @@ function toggleReady() {
 }
 
 function onToggleReady(state, isReady) {
+	const readyPlayerCount = Object.values(players.value).filter(player => player.isReady).length;
 	const msgs = [
-		(isReady ? 'Ready.' : 'Canceled ready.'),
+		(isReady ? 'Ready.' : 'Canceled ready.') + ` (${readyPlayerCount}/${teamCount.value * teamSize.value})`,
 		`Not in a room.`,
 		`Room does not exist.`,
 	], colors = [
@@ -353,6 +355,7 @@ nw.connectedPromise.then(() => {
 		<Button @click="joinRoom" :disabled="(inRoom)">Join</Button><br>
 		<Button @click="createRoom" :disabled="(inRoom)">Create</Button><br>
 		<Button @click="leaveRoom" :disabled="(!inRoom)">Leave</Button><br>
+		<Button @click="toggleReady" :disabled="(!inRoom)">Ready</Button><br>
 	</Block>
 	<Block :props="attr.player_list">
 		<Text size="2" class="notransform" :color="(Object.keys(players).length == teamSize * teamCount) ? '#fffd9c' : '#FFFFFF'">
@@ -364,7 +367,7 @@ nw.connectedPromise.then(() => {
 		<template v-for="player in players">
 			<Text size="2" class="notransform">
 				<span :style="{'color': (player.team == -1) ? '#dedede' : teams[player.team].color}">{{ player.username }}</span>
-				<span style="color: '#cbfcb1'">{{ player.ready ? '✓' : '' }}</span>
+				<span style="color: #cbfcb1">{{ player.isReady ? ' ✓' : '' }}</span>
 			</Text>
 		</template>
 	</Block>
@@ -388,7 +391,6 @@ nw.connectedPromise.then(() => {
 				<option :value="i" :disabled="team.playerCount == teamSize" :style="{color: team.color}">{{ `${team.color} ${team.playerCount}/${teamSize}` }}</option>
 			</template>
 		</select><br/>
-		<Button @click="toggleReady" class="notransform" :disabled="(!inRoom)">Ready</Button><br>
 	</Block>
 </template>
 
