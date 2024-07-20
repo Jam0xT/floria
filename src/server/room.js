@@ -193,11 +193,25 @@ class Room {
 
 	unload() { // 阶段 3 -> 1
 		this.updState(0); // 进入 wait 状态
-
 	}
 
 	start() { // 阶段 4
 		this.updState(2); // 进入 game 状态
+		Object.values(this.sockets).forEach(socket => {
+			socket.emit(Constants.MSG_TYPES.SERVER.ROOM.START);
+		});
+		const spots = []; // get all team id of free spots
+		this.teams.forEach((team, id) => {
+			spots.concat(new Array(Math.max(0, this.teamSize - team.playerCount)).fill(id));
+		});
+		shuffle(spots); // random shuffle the free team spots
+		let spotIndex = 0;
+		Object.values(this.players).forEach(player => {
+			if ( player.team == -1 )
+				player.team = spots[spotIndex++];
+		});
+		this.game = new gamemodes[this.mode]();
+		this.game.start();
 	}
 
 	countDown(t, resolve, check = () => {return true}, reject = () => {}) {
@@ -220,6 +234,15 @@ class Room {
 			1000,
 			t - 1, resolve, check, reject,
 		);
+	}
+}
+
+function shuffle(array) {
+	let cur = array.length;
+	while (cur != 0) {
+		let rnd = Math.floor(Math.random() * cur);
+		cur--;
+		[array[cur], array[rnd]] = [array[rnd], array[cur]];
 	}
 }
 

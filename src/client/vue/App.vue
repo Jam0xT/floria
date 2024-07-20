@@ -7,6 +7,7 @@ import Text from './Text.vue';
 import * as room from '../room.js';
 import * as nw from '../networking.js';
 import Constants from '../../shared/constants.js';
+import { startRenderGame } from '../game/main.js';
 const attr = ref({
 	title: {
 		x: 50,
@@ -349,6 +350,16 @@ function onUpdSettings(state) {
 	});
 }
 
+// 游戏渲染
+
+function onGameStart() {
+	logs.value.unshift({
+		msg: `Game starts now.`,
+		color: "#ffa8f5",
+	});
+	startRenderGame();
+}
+
 // 日志
 
 const logs = ref([{msg: "Log will be printed here.", color: ""}]);
@@ -364,6 +375,7 @@ nw.connectedPromise.then(() => {
 	nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.INFO, onRecvInfo);
 	nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.SETTINGS, onUpdSettings);
 	nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.READY, onToggleReady);
+	nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.START, onGameStart);
 });
 
 </script>
@@ -427,7 +439,7 @@ nw.connectedPromise.then(() => {
 			</template>
 		</select><br/>
 	</Block>
-	<canvas></canvas>
+	<canvas id="canvas" class="canvas" :class="{hidden: state != 2}"></canvas>
 </template>
 
 <style>
@@ -440,6 +452,10 @@ nw.connectedPromise.then(() => {
 	background:#1EA761;
 }
 
+.hidden {
+	display: none !important;
+}
+
 .canvas {
 	display: block;
 	width: 100%;
@@ -447,6 +463,7 @@ nw.connectedPromise.then(() => {
 	position: absolute;
 	left: 0%;
 	top: 0%;
+	z-index: 1;
 }
 
 .notransform {

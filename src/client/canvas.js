@@ -2,18 +2,10 @@
 
 let canvas; // 主画布
 let ctxMain;
-let W, H, unitLength;
-
-export {
-	W, H, unitLength,
-	ctxMain,
-	init,
-	getTmpCtx,
-	draw, 
-};
+let W, H;
 
 function init() { // 初始化
-	canvas = createCanvas('canvas');
+	canvas = document.getElementById('canvas');
 	ctxMain = canvas.getContext('2d');
 	handleWindowResize();
 	window.addEventListener('resize', handleWindowResize);
@@ -47,7 +39,6 @@ function handleWindowResize() {
 	const devicePixelRatio = window.devicePixelRatio || 1;
 	W = window.innerWidth * devicePixelRatio;
 	H = window.innerHeight * devicePixelRatio;
-	unitLength = Math.max(0.5, W / 1000, H / 1000);
 	setCanvasDimensions(canvas);
 }
 
@@ -57,3 +48,11 @@ function setCanvasDimensions(canvas_) {
 	canvas_.style.width = window.innerWidth + `px`;
 	canvas_.style.height = window.innerHeight + `px`;
 }
+
+export {
+	W, H,
+	ctxMain,
+	init,
+	getTmpCtx,
+	draw, 
+};
