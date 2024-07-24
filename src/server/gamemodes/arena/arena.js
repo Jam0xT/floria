@@ -25,17 +25,16 @@ class Game_Arena {
 
 	update() {
 		time.update.bind(this)();
-		// const dt = this.var.time.dt;
 		const dt = 1 / this.var.props.tick_per_second;
-		physics.updateMovement.bind(this)(dt);
-		physics.updateVelocity.bind(this)(dt);
-		physics.handleBorder.bind(this)();
-		physics.updatePlayers.bind(this)(dt);
-		physics.updateChunks.bind(this)();
-		physics.solveCollisions.bind(this)(dt);
-		physics.applyConstraintVelocity.bind(this)(dt);
-		physics.handleBorder.bind(this)();
-		playerHandler.handlePlayerDeaths.bind(this)();
+		entityHandler.updateAcceleration.bind(this)(dt); // 更新加速度
+		entityHandler.updateVelocity.bind(this)(dt); // 更新速度
+		physics.updateChunks.bind(this)(); // 更新区块信息
+		physics.solveCollisions.bind(this)(dt); // 计算碰撞
+		entityHandler.updatePosition.bind(this)(dt); // 更新位置
+		physics.solveBorderCollisions.bind(this)(); // 处理边界碰撞
+		playerHandler.updatePlayers.bind(this)(dt); // 更新玩家
+		physics.solveBorderCollisions.bind(this)(); // 处理边界碰撞
+		entityHandler.handleEntityDeaths.bind(this)(); // 处理实体死亡
 		this.sendUpdate();
 	}
 
@@ -48,30 +47,26 @@ class Game_Arena {
 		Object.keys($.sockets).forEach(socketID => {
 			const socket = $.sockets[socketID];
 			const player = $.entities[$.players[socketID]];
-			socket.emit(Constants.MSG_TYPES.SERVER.GAME.UPDATE, this.createUpdate(player));
+			// console.log(socketID);
+			socket.emit(Constants.MSG_TYPES.SERVER.GAME.UPDATE, this.createUpdate(player, socketID));
 		});
 	}
 
-	createUpdate(player) {
+	createUpdate(player, socketID) {
 		const $ = this.var;
+		const d = player.var.attr.vision;
 		const nearbyPlayers = Object.values($.players).map(id => $.entities[id]).filter(
 			p => {
-				return p !== player && p.distanceTo(player) <= $.props.nearby_distance;
+				return (p.uuid != player.uuid) && (util.getDistance(p, player) <= d);
 			}
 		);
 
 		return {
 			t: Date.now(), // current time
-			// info: this.info,
-			// leaderboard: this.leaderboard.slice(0, Constants.LEADERBOARD_LENGTH + 1), // leaderboard
-			// rankOnLeaderboard: this.getRankOnLeaderboard(player.id), // this player's rank on leaderboard
-			me: player.serializeForUpdate(true), // this player
-			others: nearbyPlayers.map(p => p.serializeForUpdate(false)), // nearby players
+			me: playerHandler.getUpdate.bind(player)(),
+			others: nearbyPlayers.map(p => playerHandler.getUpdate.bind(p)()), // nearby players
 			playerCount: Object.keys($.players).length, // the number of players online
-			// mobs: nearbyMobs.map(e => e.serializeForUpdate()),
-			// drops: nearbyDrops.map(e => e.serializeForUpdate()),
-			// lightningPath: this.lightningPath,
-			// diedEntities: this.diedEntities,
+			socketid: socketID,
 		};
 	}
 }

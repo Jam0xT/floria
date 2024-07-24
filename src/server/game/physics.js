@@ -5,99 +5,123 @@ $ = this.var
 
 $.chunks: {chunkID -> [{type -> entityType, id -> id}]}
 */
-import Constants from '../../shared/constants.js';
+import * as util from './utility.js';
+import { appendVelocity } from './entityHandler.js';
 
-const chunk_id_constant = 114514;
+const chunk_id_constant = 1000000; // 用于计算区块 id
 
 function init() {
 	const $ = this.var;
-	$.chunks = {};
+	$.chunks = {}; // id -> [uuid]
 }
 
-function updateMovement(dt) {
+function solveBorderCollisions() { // 解决与地图边界碰撞
 	const $ = this.var;
-	Object.values($.players).forEach(id => {
-		const player = $.entities[id];
-		player.updateMovement(dt);
+	const w = $.props.map_width, h = $.props.map_height; // 地图宽高
+	Object.values($.entities).forEach(entity => {
+		const pos = entity.var.pos; // 实体坐标
+		const v = entity.var.v;
+		const r = entity.var.attr.radius; // 实体半径
+		if ( pos.x < r ) {
+			v.x = 0;
+			pos.x = r;
+		}
+		if ( pos.x > w - r ) {
+			v.x = 0;
+			pos.x = w - r;
+		}
+		if ( pos.y < r ) {
+			v.y = 0;
+			pos.y = r;
+		}
+		if ( pos.y > h - r ) {
+			v.y = 0;
+			pos.y = h - r;
+		}
 	});
 }
 
-function updateVelocity(dt) {
+function getChunkUpdate(chunkSize) { // Entity 调用
 	const $ = this.var;
-	Object.values($.players).forEach(id => {
-		const player = $.entities[id];
-		player.updateVelocity(dt);
-	});
+
+	const x = $.pos.x, y = $.pos.y; // 实体坐标
+	const r = $.attr.radius; // 实体半径
+
+	const old = $.chunks.slice(); // 复制保存一份更新前的区块列表
+	$.chunks = []; // 清空区块列表，准备更新
+
+	const cs = chunkSize; // chunk size 区块大小
+	const cr = Math.ceil(r / cs); // chunk radius 区块半径
+	const bc = { // base chunk 基准区块
+		x: Math.floor(x / cs),
+		y: Math.floor(y / cs),
+	};
+
+	const add = (cx, cy) => { // 添加区块
+		$.chunks.push({x: cx, y: cy});
+	};
+
+	for (let cx = bc.x - cr; cx <= bc.x + cr; cx ++ ) { // chunk x 遍历可能的区块
+		for (let cy = bc.y - cr; cy <= bc.y + cr; cy ++ ) { // chunk y
+			if ( cx < 0 || cy < 0 ) 
+				continue;
+			if ( cx == bc.x ) { // 与基准区块同一列
+				if ( cy > bc.y ) { // 下侧
+					if ( cy * cs <= y + r )
+						add(cx, cy);
+				} else { // 上测或恰好在基准区块
+					if ( (cy + 1) * cs >= y - r ) 
+						add(cx, cy);
+				}
+			} else if ( cy == bc.y ) { // 与基准区块同一行
+				if ( cx > bc.x ) { // 右侧
+					if ( cx * cs <= x + r )
+						add(cx, cy);
+				} else if ( cx < bc.x ) { // 左侧 实际上直接用 else 应该有同样的效果
+					if ( (cx + 1) * cs >= x - r )
+						add(cx, cy);
+				}
+			} else { // 在四个 "象限"
+				const dx = (cx + (cx < bc.x)) * cs - x;
+				const dy = (cy + (cy < bc.y)) * cs - y;
+				if ( Math.sqrt(dx * dx + dy * dy) <= r )
+					add(cx, cy);
+			}
+		}
+	}
+
+	return {
+		oldChunks: old,
+		newChunks: $.chunks,
+	};
 }
 
-function handleBorder() {
+function updateChunks() { // Game 调用
 	const $ = this.var;
-	Object.values($.players).forEach(id => {
-		const player = $.entities[id];
-		player.handleBorder();
-	});
-}
-
-function updatePlayers(dt) {
-	const $ = this.var;
-	Object.values($.players).forEach(id => {
-		const player = $.entities[id];
-		player.update(dt);
-	});
-}
-
-function updateChunks() {
-	const $ = this.var;
-	Object.values($.players).forEach(id => {
-		const player = $.entities[id];
-		const playerChunks = player.updateChunks(); // update player
-		if ( playerChunks ) { // update the player's chunks
-			const chunksOld = playerChunks.chunksOld;
-			const chunksNew = playerChunks.chunksNew;
-			chunksOld.forEach(chunk => {
-				if ( $.chunks[getChunkID(chunk)] ) {
-					const idx = $.chunks[getChunkID(chunk)].findIndex((entityInChunk) => {
-						return ( entityInChunk.type == 'player' ) && ( entityInChunk.id == id );
-					});
-					if ( idx != -1 )
-						$.chunks[getChunkID(chunk)].splice(idx, 1);
+	Object.keys($.entities).forEach(uuid => {
+		const entity = $.entities[uuid];
+		const chunkInfo = getChunkUpdate.bind(entity)($.props.chunk_size); // 获取新旧区块信息
+		if ( chunkInfo ) {
+			const oldChunks = chunkInfo.oldChunks; // 更新前区块
+			const newChunks = chunkInfo.newChunks; // 更新后区块
+			oldChunks.forEach(chunk => { // 遍历旧区块
+				const id = getChunkID(chunk); // 区块 ID
+				if ( $.chunks[id] ) {
+					const idx = $.chunks[id].findIndex(uuid_ => (uuid == uuid_)); // 寻找这个区块中的当前实体的记录
+					if ( idx != -1 ) { // 找到
+						$.chunks[id].splice(idx, 1); // 删除
+					}
 				}
 			});
-			chunksNew.forEach(chunk => {
-				if ( $.chunks[getChunkID(chunk)] ) {
-					$.chunks[getChunkID(chunk)].push({type: 'player', id: id});
+			newChunks.forEach(chunk => { // 遍历新区块 并记录 uuid
+				const id = getChunkID(chunk);
+				if ( $.chunks[id] ) {
+					$.chunks[id].push(uuid);
 				} else {
-					$.chunks[getChunkID(chunk)] = new Array({type: 'player', id: id});
+					$.chunks[id] = [uuid];
 				}
 			});
 		}
-		player.petals.forEach((petals) => { // update the player's petals
-			petals.forEach((petal) => {
-				if ( !petal.inCooldown ) {
-					const petalChunks = petal.updateChunks(petal.attributes.RADIUS);
-					if ( petalChunks ) { // update the petals' chunks
-						const chunksOld = petalChunks.chunksOld;
-						const chunksNew = petalChunks.chunksNew;
-						chunksOld.forEach(chunk => {
-							if ( $.chunks[getChunkID(chunk)] ) {
-								const idx = $.chunks[getChunkID(chunk)].findIndex((entityInChunk) => {
-									return ( entityInChunk.type == 'petal' ) && ( entityInChunk.id.playerID == id ) && ( entityInChunk.id.petalID == petal.id );
-								});
-								if ( idx != -1 )
-									$.chunks[getChunkID(chunk)].splice(idx, 1);
-							}
-						});
-						chunksNew.forEach(chunk => {
-							if ( $.chunks[getChunkID(chunk)] ) {
-								$.chunks[getChunkID(chunk)].push({type: 'petal', id: {playerID: id, petalID: petal.id}});
-							} else {
-								$.chunks[getChunkID(chunk)] = new Array({type: 'petal', id: {playerID: id, petalID: petal.id}});
-							}
-						});
-					}
-				}
-			})
-		});
 	});
 }
 
@@ -107,328 +131,67 @@ function getChunkID(chunk) { // gets the ID of the chunk
 
 function solveCollisions(dt) {
 	const $ = this.var;
+
 	let collisions = [];
-	Object.values($.chunks).forEach(entitiesInChunk => {
-		const entityCount = entitiesInChunk.length;
-		if ( entityCount <= 1 ) {
+
+	Object.values($.chunks).forEach(entityList => { // 遍历区块
+		const n = entityList.length; // 区块实体数量
+		if ( n <= 1 ) // 小于等于 1 个实体时不会有碰撞
 			return ;
-		}
-		for (let i = 0; i < entityCount - 1; i++) {
-			for (let j = i + 1; j < entityCount; j++) {
-				const entityInfoA = entitiesInChunk[i];
-				const entityInfoB = entitiesInChunk[j];
-				let entityA, entityB;
-				if ( entityInfoA.type == 'player' ) {
-					entityA = $.entities[entityInfoA.id];
-				} else if ( entityInfoA.type == 'petal' ) {
-					const player = $.entities[entityInfoA.id.playerID];
-					if ( !player )
-						continue;
-					try{
-						player.petals.forEach(petals => {
-							petals.forEach(petal => {
-								if (petal.id == entityInfoA.id.petalID) {
-									if (petal.inCooldown || petal.isHide) {
-										throw Error();
-									} else{
-										entityA = petal;
-									}
-								}
-							});
-						});
-					}catch(e){
-						continue;
-					}
-				}
-				if ( entityInfoB.type == 'player' ) {
-					entityB = $.entities[entityInfoB.id];
-				} else if ( entityInfoB.type == 'petal' ) {
-					const player = $.entities[entityInfoB.id.playerID];
-					if ( !player )
-						continue;
-					try{
-						player.petals.forEach(petals => {
-							petals.forEach(petal => {
-								if (petal.id == entityInfoB.id.petalID) {
-									if (petal.inCooldown) {
-										throw Error();
-									} else{
-										entityB = petal;
-									}
-								}
-							});
-						});
-					}catch(e){
-						continue;
-					}
-				}
-				if (!entityA || !entityB) continue;
-				if ( ( entityA.team == entityB.team ) && ( entityInfoA.type == 'petal' || entityInfoB.type == 'petal' ) ) // petals do not collide with anything of the same team
+		
+		for (let i = 0; i < n - 1; i ++ ) { // 枚举两个可能碰撞的实体
+			for (let j = i + 1; j < n; j ++ ) {
+				const uuid1 = entityList[i], uuid2 = entityList[j]; // 获取 uuid
+				const entity1 = $.entities[uuid1], entity2 = $.entities[uuid2]; // 获取实体
+				if ( !entity1 || !entity2 )
 					continue;
-				if (entityA.team == entityB.team && (entityA.attributes.ATTACK_MODE == 'PROJECTILE' || entityB.attributes.ATTACK_MODE == 'PROJECTILE'))
-					continue;
-				
-				const distance = entityA.distanceTo(entityB);
-				const r1 = entityA.attributes.RADIUS, r2 = entityB.attributes.RADIUS;
-				if ( distance < r1 + r2) {
+				const d = util.getDistance(entity1.var.pos, entity2.var.pos); // distance 两实体距离
+				const r1 = entity1.var.attr.radius, r2 = entity2.var.attr.radius; // 两实体半径
+				if ( d < r1 + r2 ) { // 可以碰撞
 					collisions.push({
-						infoA: entityInfoA,
-						infoB: entityInfoB,
+						uuid1: uuid1,
+						uuid2: uuid2,
 					});
 				}
 			}
 		}
 	});
-	collisions = collisions.reduce((accumulator, cur) => {
-		if ( !accumulator.find((item) => {
-			let sameA = false, sameB = false;
-			if ( item.infoA.type != 'petal' ) {
-				sameA = ( (item.infoA.type == cur.infoA.type) && (item.infoA.id == cur.infoA.id) );
-			} else {
-				sameA = ( (item.infoA.id.playerID == cur.infoA.id.playerID) && (item.infoA.id.petalID == cur.infoA.id.petalID) )
-			}
-			if ( item.infoB.type != 'petal' ) {
-				sameB = ( (item.infoB.type == cur.infoB.type) && (item.infoB.id == cur.infoB.id) );
-			} else {
-				sameB = ( (item.infoB.id.playerID == cur.infoB.id.playerID) && (item.infoB.id.petalID == cur.infoB.id.petalID) )
-			}
-			return sameA && sameB;
+
+	collisions = collisions.reduce((list, cur) => { // 去重
+		if ( !list.find((prev) => {
+			return (cur.uuid1 == prev.uuid1 && cur.uuid2 == prev.uuid2)
+				|| (cur.uuid1 == prev.uuid2 && cur.uuid2 == prev.uuid1);
 		}) ) {
-			accumulator.push(cur);
+			list.push(cur);
 		}
-		return accumulator;
+		return list;
 	}, []);
-	for (let i = 0; i < collisions.length; i ++ ) {
-		const collision = collisions[i];
-		const entityInfoA = collision.infoA, entityInfoB = collision.infoB;
-		let entityA, entityB;
-		if ( entityInfoA.type == 'player' ) {
-			entityA = $.entities[entityInfoA.id];
-		} else if ( entityInfoA.type == 'petal' ) {
-			const player = $.entities[entityInfoA.id.playerID];
-			if ( !player )
-				continue;
-			try{
-				player.petals.forEach(petals => {
-					petals.forEach(petal => {
-						if (petal.id == entityInfoA.id.petalID) {
-							if (petal.inCooldown) {
-								throw Error();
-							} else{
-								entityA = petal;
-							}
-						}
-					})
-				})
-			}catch(e){
-				continue;
-			}
-		}
-		if ( entityInfoB.type == 'player' ) {
-			entityB = $.entities[entityInfoB.id];
-		} else if ( entityInfoB.type == 'petal' ) {
-			const player = $.entities[entityInfoB.id.playerID];
-			if ( !player )
-				continue;
-			try{
-				player.petals.forEach(petals => {
-					petals.forEach(petal => {
-						if (petal.id == entityInfoB.id.petalID) {
-							if (petal.inCooldown) {
-								throw Error();
-							} else{
-								entityB = petal;
-							}
-						}
-					})
-				})
-			}catch(e){
-				continue;
-			}
-		}
-		if (!entityA || !entityB) continue;
+
+	collisions.forEach(collision => {
+		const entity1 = $.entities[collision.uuid1], entity2 = $.entities[collision.uuid2];
+		if ( !entity1 || !entity2 )
+			return ;
 		
-		const distance = entityA.distanceTo(entityB);
-		const r1 = entityA.attributes.RADIUS, r2 = entityB.attributes.RADIUS;
-		const depth = r1 + r2 - distance;
-		const mA = entityA.attributes.MASS, mB = entityB.attributes.MASS;
-		const theta2 = Math.atan2(entityA.x - entityB.x, entityB.y - entityA.y); // orientation of A relative to B
-		const theta1 = theta2 - Math.PI; // orientation of B relative to A
-		const penetrationDepthWeightInCollision = Constants.PENETRATION_DEPTH_WEIGHT_IN_COLLISION;
-		const velA = depth * penetrationDepthWeightInCollision * mB / (mA + mB);
-		const velB = depth * penetrationDepthWeightInCollision * mA / (mA + mB);
-		entityA.constraintVelocity.x += velA * Math.sin(theta2) / dt;
-		entityA.constraintVelocity.y += velA * Math.cos(theta2) / dt;
-		entityB.constraintVelocity.x += velB * Math.sin(theta1) / dt;
-		entityB.constraintVelocity.y += velB * Math.cos(theta1) / dt;
-		
-		if ( entityA.team != entityB.team ) {
-			if ( entityInfoA.type == 'player' ) {
-				entityA.velocity.x += velA * Math.sin(theta2) / dt;
-				entityA.velocity.y += velA * Math.cos(theta2) / dt;
-				const baseKnockback = Constants.BASE_KNOCKBACK;
-				const knockbackA = baseKnockback * mB / (mA + mB);
-				entityA.velocity.x += knockbackA * Math.sin(theta2);
-				entityA.velocity.y += knockbackA * Math.cos(theta2);
-				if ( entityInfoB.type == 'petal' ) {
-					$.entities[entityB.parent].hp -= entityB.attributes.DAMAGE * entityA.damageReflect * (1 + entityB.fragile);
-				} else if ( entityInfoB.type == 'player' ) {
-					entityA.hp -= entityA.attributes.DAMAGE * entityB.damageReflect * (1 + entityA.fragile);
-					entityB.hp -= entityB.attributes.DAMAGE * entityA.damageReflect * (1 + entityB.fragile);
-					if ( entityA.bodyToxicity > 0 ) {
-						if ( entityB.poison * entityB.poisonTime < entityA.bodyPoison ) {
-							entityB.poison = entityA.bodyToxicity;
-							entityB.poisonTime = entityA.bodyPoison / entityA.bodyToxicity;
-						}
-					}
-					if ( entityB.bodyToxicity > 0 ) {
-						if ( entityA.poison * entityA.poisonTime < entityB.bodyPoison ) {
-							entityA.poison = entityB.bodyToxicity;
-							entityA.poisonTime = entityB.bodyPoison / entityB.bodyToxicity;
-						}
-					}
-				}
-			}
-			if ( entityInfoB.type == 'player' ) {
-				entityB.velocity.x += velB * Math.sin(theta1) / dt;
-				entityB.velocity.y += velB * Math.cos(theta1) / dt;
-				const baseKnockback = Constants.BASE_KNOCKBACK;
-				const knockbackB = baseKnockback * mA / (mA + mB);
-				entityB.velocity.x += knockbackB * Math.sin(theta1);
-				entityB.velocity.y += knockbackB * Math.cos(theta1);
-				if ( entityInfoA.type == 'petal' ) {
-					$.entities[entityA.parent].hp -= entityA.attributes.DAMAGE * entityB.damageReflect * (1 + entityA.fragile);
-				}
-			}
+		const d = util.getDistance(entity1, entity2); // 距离
+		const r1 = entity1.var.attr.radius, r2 = entity2.var.attr.radius; // 半径
+		const p = r1 + r2 - d; // 穿透深度
+		const m1 = entity1.var.attr.mass, m2 = entity2.var.attr.mass; // 重量
+		const theta1 = Math.atan2(entity2.y - entity1.y, entity2.x - entity1.x); // e2 相对于 e1 的方向，水平向右为 0
+		const theta2 = theta1 - Math.PI;
+		const kb = $.props.knockback; // 击退系数
+		const v1 = p * kb * m2 / (m1 + m2), v2 = p * kb * m1 / (m1 + m2); // 速度
 
-			const dmgA = entityB.attributes.DAMAGE * (1 + entityA.fragile);
-			const dmgB = entityA.attributes.DAMAGE * (1 + entityB.fragile);
-			
-			//第一个if是吸血相关的
-			if (!entityA.segments.includes(entityB.id) && !entityB.segments.includes(entityA.id) || !(entityA.attributes.TRIGGERS.VAMPIRISM || entityB.attributes.TRIGGERS.VAMPIRISM)) {
-				if ( dmgA != 0 ) {
-					entityA.isHurt = true;
-				}
-				if ( dmgB != 0 ) {
-					entityB.isHurt = true;
-				}
-				if (entityA.hpConnection) {
-					// this.getEntity(entityA.hpConnection).hp -= dmgA;
-				} else {
-					entityA.hp -= dmgA;
-				}
-				if (entityB.hpConnection) {
-					// this.getEntity(entityB.hpConnection).hp -= dmgB;
-				} else {
-					entityB.hp -= dmgB;
-				}
-			}
+		appendVelocity.bind(entity1)(v1 * Math.cos(theta2) / dt, v1 * Math.sin(theta2) / dt, 0.0001);
+		appendVelocity.bind(entity2)(v2 * Math.cos(theta1) / dt, v2 * Math.sin(theta1) / dt, 0.0001);
 
-			releaseCollisionSkill.bind(this)(entityA,entityB,entityInfoB);
-			releaseCollisionSkill.bind(this)(entityB,entityA,entityInfoA);
-		}
-	}
-}
-
-function releaseCollisionSkill(entityA,entityB,entityInfo) {
-	if (entityB.attributes.TRIGGERS) {
-		if ( entityB.attributes.TRIGGERS.NO_HEAL ) {
-			entityA.noHeal = entityB.attributes.TRIGGERS.NO_HEAL;
-		}
-		if ( entityB.attributes.TRIGGERS.POISON ) {
-			if ( entityA.poison * entityA.poisonTime < entityB.attributes.TRIGGERS.POISON ) {
-				entityA.poison = entityB.attributes.TRIGGERS.TOXICITY;
-				entityA.poisonTime = entityB.attributes.TRIGGERS.POISON / entityB.attributes.TRIGGERS.TOXICITY;
-			}
-		}
-		if ( entityB.attributes.TRIGGERS.PUNCTURE ) {
-			if ( entityA.puncture < entityB.attributes.TRIGGERS.PUNCTURE ) {
-				entityA.puncture = entityB.attributes.TRIGGERS.PUNCTURE;
-				entityA.fragile = entityB.attributes.TRIGGERS.PUNCTURE_DAMAGE;
-			}
-		}
-		// if ( entityB.attributes.TRIGGERS.LIGHTNING && entityB.attributes.TRIGGERS.LIGHTNING.COLLIDE ) {
-		// 	this.lightning(entityB, entityA, entityInfo);
-		// }
-		// if (entityB.attributes.TRIGGERS.VAMPIRISM) {
-		// 	if (entityB.attributes.TRIGGERS.VAMPIRISM.COLLIDE) {
-		// 		entityB.hp = Math.min(entityB.maxHp, entityB.hp + entityB.attributes.DAMAGE * entityB.attributes.TRIGGERS.VAMPIRISM.HEAL);
-		// 		entityA.isHurt = true;
-		// 		if (entityB.attributes.TRIGGERS.VAMPIRISM.HEAL_PLAYER) {
-		// 			const player = this.getEntity(entityInfo.id.playerID);
-		// 			player.hp = Math.min(player.maxHp, player.hp + entityB.attributes.DAMAGE * entityB.attributes.TRIGGERS.VAMPIRISM.HEAL_PLAYER);
-		// 		}
-		// 	} 
-		// 	else if (entityB.target == entityA.id) {
-		// 		entityB.bodyConnection = entityA.id;
-		// 		entityB.segments.push(entityA.id);
-		// 	}
-		// }
-	}
-	
-	// if (entityA.attributes.CONTENT_RELEASE) {
-	// 	if (entityA.attributes.CONTENT_RELEASE.ONHIT) {
-	// 		const releases = entityA.attributes.CONTENT_RELEASE.ONHIT;
-	// 		const contents = entityA.attributes.CONTENT;
-	// 		const correctTimes = Math.floor((entityA.maxHp - entityA.hp) / releases.HP);
-			
-	// 		if (correctTimes > releases.TIMES) {
-	// 			releases.TIMES = correctTimes;
-				
-	// 			Object.entries(releases.RELEASE).forEach(([type, number]) => {
-	// 				const isContentProjectile = EntityAttributes[type].ATTACK_MODE == `PROJECTILE` ? true : false;
-	// 				for (let time = 0; time < number; time++) {
-	// 					if (contents[type] <= 0) break;
-	// 					const newMob = this.spawnMob(type, entityA.x, entityA.y, entityA.team, isContentProjectile, isContentProjectile ? Constants.PROJECTILE_EXIST_TIME : Infinity);
-	// 					if (entityA.team != `mobTeam`) {
-	// 						const player = this.getEntity(entityA.team);
-	// 						newMob.slot = entityA.slot;
-	// 						newMob.petalID = entityA.petalID;
-	// 						player.pets[newMob.id] = newMob;
-	// 						player.petals.some(petals => {
-	// 							const petal = petals.find(petal => petal.id == newMob.petalID);
-	// 							if (petal) {
-	// 								petal.mob.push(newMob.id);
-	// 								return true;
-	// 							}
-	// 						})
-	// 					}
-	// 					contents[type]--;
-	// 				}
-	// 			})
-	// 		}
-	// 	}
-	// }
-	
-	if (entityA.puncture > 0) {
-		entityA.puncture--;
-	}
-	if (entityA.puncture == 0) {
-		entityA.fragile = 0;
-	}
-	
-	if (entityB.attributes.ATTACK_MODE == `PROJECTILE`) {
-		entityA.hurtByInfo = {type: entityInfo.type, id: entityB.shootBy};
-		return;
-	}
-	entityA.hurtByInfo = entityInfo;
-}
-
-function applyConstraintVelocity(dt) {
-	const $ = this.var;
-	Object.values($.players).forEach(id => {
-		$.entities[id].applyConstraintVelocity(dt);
+		entity1.var.attr.hp -= entity2.var.attr.dmg;
+		entity2.var.attr.hp -= entity1.var.attr.dmg;
 	});
 }
 
 export {
 	init,
-	updateMovement,
-	updateVelocity,
-	handleBorder,
-	updatePlayers,
+	solveBorderCollisions,
 	updateChunks,
-	getChunkID,
 	solveCollisions,
-	applyConstraintVelocity,
 };

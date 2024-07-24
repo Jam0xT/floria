@@ -42,7 +42,7 @@ class Player extends Entity {
 		this.secondaryPetals[4] = 'EMPTY';
 		
 		for (let i = 0; i < Constants.PRIMARY_SLOT_COUNT_BASE; i ++ ) {
-			let petals = []
+			let petals = [];
 			for (let o = 0; o < PetalAttributes[this.primaryPetals[i]].COUNT; o++) {
 				const petal = this.newPetal(this.primaryPetals[i], i * Constants.PETAL_MULTIPLE_MAX + o, i * Constants.PETAL_MULTIPLE_MAX + o, i, o, i, this.x, this.y);
 				petals.push(petal);

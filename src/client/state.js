@@ -71,7 +71,7 @@ export function getCurrentState() {
 	}
 }
 
-let valueKeys = ['x', 'y', 'hp', 'score', 'maxHp', 'exp', 'level', 'currentExpForLevel'];
+let valueKeys = ['x', 'y', 'hp', 'max_hp', 'radius', 'vision'];
 
 function interpolateObject(object1, object2, ratio) {
 	if ( !object2 ) {
@@ -86,6 +86,8 @@ function interpolateObject(object1, object2, ratio) {
 			interpolated[key] = object1[key] + (object2[key] - object1[key]) * ratio;
 		} else if ( key == 'petals' ) {
 			interpolated[key] = interpolateObjectArray(object1[key], object2[key], ratio);
+		} else if ( key == 'attr' ) {
+			interpolated[key] = interpolateObject(object1[key], object2[key], ratio);
 		} else {
 			interpolated[key] = object1[key];
 		}

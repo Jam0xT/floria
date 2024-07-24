@@ -1,18 +1,14 @@
 import { play } from '../animation.js';
 import * as util from '../utility.js';
 import * as canvas from '../canvas.js';
+import { W, H, hpx } from '../canvas.js';
 import { getCurrentState } from '../state.js';
 import { getAsset } from '../assets.js';
 
 let ctx;
 
-let W, H, hpx;
-
 function startRenderGame() {
 	ctx = canvas.ctxMain;
-	W = canvas.W;
-	H = canvas.H;
-	hpx = H / 1000;
 	play(render);
 }
 
@@ -71,7 +67,7 @@ function renderPlayer(me, player) {
 	}
 	const canvasX = W / 2 + (x - me.x) * hpx;
 	const canvasY = H / 2 + (y - me.y) * hpx;
-	const renderRadius = player.size * hpx;
+	const renderRadius = player.attr.radius * hpx;
 	ctx.translate(canvasX, canvasY);
 
 	ctx.drawImage(
@@ -82,7 +78,7 @@ function renderPlayer(me, player) {
 		renderRadius * 2,
 	);
 	
-	const hitboxRadius = player.radius * hpx;
+	// const hitboxRadius = player.radius * hpx;
 
 	// if ( debugOptions[0] ) {
 	// 	renderHitbox(hitboxRadius);
@@ -106,6 +102,7 @@ function renderPlayer(me, player) {
 
 	// ctx = getCtx(backgroundLayer[0]);
 
+	// console.log(me.uuid);
 	// render username
 	// util.renderText(1, player.username, canvasX, canvasY - hpx * 35, hpx * 20, 'center');
 
@@ -118,7 +115,7 @@ function renderPlayer(me, player) {
 	const healthBarWidth = healthBarBaseWidth - healthBarOutline;
 	const healthBarStyleNormal = 'rgb(117, 221, 52)';
 	const healthBarStyleHurt = 'rgb(221, 52, 52)';
-	const healthBarLength = healthBarBaseLength * player.hp / player.maxHp ;
+	const healthBarLength = healthBarBaseLength * player.attr.hp / player.attr.max_hp ;
 
 	ctx.beginPath();
 	ctx.lineWidth = healthBarBaseWidth;
@@ -141,60 +138,60 @@ function renderPlayer(me, player) {
 	// render petals
 	// ctx = getCtx(petalLayer[0]);
 
-	player.petals.forEach(petal => {
-		if (petal.isHide) return;
+	// player.petals.forEach(petal => {
+	// 	if (petal.isHide) return;
 		
-		const renderRadius = petal.size * hpx;
-		const asset = getAsset(`petals/${petal.type.toLowerCase()}.svg`);
-		const width = asset.naturalWidth, height = asset.naturalHeight;
+	// 	const renderRadius = petal.size * hpx;
+	// 	const asset = getAsset(`petals/${petal.type.toLowerCase()}.svg`);
+	// 	const width = asset.naturalWidth, height = asset.naturalHeight;
 
-		ctx.translate(canvasX + (petal.x - player.x) * hpx, canvasY + (petal.y - player.y) * hpx);
-		ctx.rotate(petal.dir);
-		if ( width <= height ) {
-			ctx.drawImage(
-				asset,
-				- renderRadius,
-				- renderRadius / width * height,
-				renderRadius * 2,
-				renderRadius / width * height * 2,
-			);
-		} else {
-			ctx.drawImage(
-				asset,
-				- renderRadius / height * width,
-				- renderRadius,
-				renderRadius / height * width * 2,
-				renderRadius * 2,
-			);
-		}
-		ctx.rotate(-petal.dir);
-		ctx.translate(-(canvasX + (petal.x - player.x) * hpx), -(canvasY + (petal.y - player.y) * hpx));
-		// ctx = getCtx(petalLayer[1]);
-		ctx.translate(canvasX + (petal.x - player.x) * hpx, canvasY + (petal.y - player.y) * hpx);
+	// 	ctx.translate(canvasX + (petal.x - player.x) * hpx, canvasY + (petal.y - player.y) * hpx);
+	// 	ctx.rotate(petal.dir);
+	// 	if ( width <= height ) {
+	// 		ctx.drawImage(
+	// 			asset,
+	// 			- renderRadius,
+	// 			- renderRadius / width * height,
+	// 			renderRadius * 2,
+	// 			renderRadius / width * height * 2,
+	// 		);
+	// 	} else {
+	// 		ctx.drawImage(
+	// 			asset,
+	// 			- renderRadius / height * width,
+	// 			- renderRadius,
+	// 			renderRadius / height * width * 2,
+	// 			renderRadius * 2,
+	// 		);
+	// 	}
+	// 	ctx.rotate(-petal.dir);
+	// 	ctx.translate(-(canvasX + (petal.x - player.x) * hpx), -(canvasY + (petal.y - player.y) * hpx));
+	// 	// ctx = getCtx(petalLayer[1]);
+	// 	ctx.translate(canvasX + (petal.x - player.x) * hpx, canvasY + (petal.y - player.y) * hpx);
 
-		// const petalHitboxRadius = petal.radius * hpx;
+	// 	// const petalHitboxRadius = petal.radius * hpx;
 
-		// if ( debugOptions[0] ) {
-		// 	renderHitbox(petalHitboxRadius);
-		// }
+	// 	// if ( debugOptions[0] ) {
+	// 	// 	renderHitbox(petalHitboxRadius);
+	// 	// }
 
-		// if ( debugOptions[1] ) {
-		// 	renderText(1, `hp:${petal.hp.toFixed(1)}`, 0, hpx * 25, hpx * 18, 'center');
-		// }
+	// 	// if ( debugOptions[1] ) {
+	// 	// 	renderText(1, `hp:${petal.hp.toFixed(1)}`, 0, hpx * 25, hpx * 18, 'center');
+	// 	// }
 
-		// if ( debugOptions[2] ) {
-		// 	ctx.beginPath();
-		// 	ctx.moveTo(0, 0);
-		// 	ctx.lineTo(petalHitboxRadius * Math.sin(petal.dir), -petalHitboxRadius * Math.cos(petal.dir));
-		// 	ctx.closePath();
-		// 	ctx.strokeStyle = '#fc0f5e';
-		// 	ctx.lineWidth = hpx * 1;
-		// 	ctx.stroke();
-		// }
+	// 	// if ( debugOptions[2] ) {
+	// 	// 	ctx.beginPath();
+	// 	// 	ctx.moveTo(0, 0);
+	// 	// 	ctx.lineTo(petalHitboxRadius * Math.sin(petal.dir), -petalHitboxRadius * Math.cos(petal.dir));
+	// 	// 	ctx.closePath();
+	// 	// 	ctx.strokeStyle = '#fc0f5e';
+	// 	// 	ctx.lineWidth = hpx * 1;
+	// 	// 	ctx.stroke();
+	// 	// }
 
-		ctx.translate(-(canvasX + (petal.x - player.x) * hpx), -(canvasY + (petal.y - player.y) * hpx));
-		// ctx = getCtx(petalLayer[0]);
-	});
+	// 	ctx.translate(-(canvasX + (petal.x - player.x) * hpx), -(canvasY + (petal.y - player.y) * hpx));
+	// 	// ctx = getCtx(petalLayer[0]);
+	// });
 }
 
 export {

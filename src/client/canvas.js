@@ -2,7 +2,7 @@
 
 let canvas; // 主画布
 let ctxMain;
-let W, H;
+let W, H, hpx;
 
 function init() { // 初始化
 	canvas = document.getElementById('canvas');
@@ -39,6 +39,7 @@ function handleWindowResize() {
 	const devicePixelRatio = window.devicePixelRatio || 1;
 	W = window.innerWidth * devicePixelRatio;
 	H = window.innerHeight * devicePixelRatio;
+	hpx = H / 1000;
 	setCanvasDimensions(canvas);
 }
 
@@ -50,7 +51,7 @@ function setCanvasDimensions(canvas_) {
 }
 
 export {
-	W, H,
+	W, H, hpx,
 	ctxMain,
 	init,
 	getTmpCtx,
