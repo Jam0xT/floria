@@ -29,6 +29,7 @@ export default Object.freeze({
 				START: 'XLkmcoOyZAKptytNxSOtiPxFnemZqGqTDzsBUUWdcjlDpeOrASGyWyrYuYpNzodo',
 			},
 			GAME: {
+				INIT: 'ghJHLrAICFwzRHmYKspXRTwJRhtcuYSrCwVXbomCBjkutZdvwqhrtqnPZbqHWYrB',
 				START: 'Lp1GDS1BjTyUGXEY6UrYjmh55YLxaOfX4DaaTXtSszD2A1yUGRfKGPOwHnwIhce3',
 				OVER: 'junCWOGTLwGFsfHNkQXkBGCxtkFdtIVrJMuLrxFshqFrNRwlDbluKYSTXAEZvhkr',
 				UPDATE: 'PPTAHVGGPthHyIUKlGRIFNgFVfheqQfHkTjfCZHZZdmSHvJZLGfevtOoColzBcHz',

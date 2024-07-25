@@ -7,7 +7,7 @@ import Text from './Text.vue';
 import * as room from '../room.js';
 import * as nw from '../networking.js';
 import Constants from '../../shared/constants.js';
-import { startRenderGame } from '../game/main.js';
+import { startRenderGame, initGameSettings } from '../game/main.js';
 import { resetState } from '../state.js';
 import { startCapturingInput } from '../input.js';
 
@@ -252,6 +252,8 @@ function onUpdate(type, update) {
 		countdownTime.value = update.countdownTime;
 	} else if ( type == 10 ) {
 		state.value = update.state;
+	} else if ( type == 11 ) {
+		initGameSettings(update.settings);
 	}
 }
 

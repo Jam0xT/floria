@@ -7,7 +7,13 @@ import { getAsset } from '../assets.js';
 
 let ctx;
 
-function startRenderGame() {
+let settings;
+
+function initGameSettings(settings_) { // 游戏开始时获取的游戏设定信息
+	settings = settings_;
+}
+
+function startRenderGame() { // 开始游戏
 	ctx = canvas.ctxMain;
 	play(render);
 }
@@ -36,7 +42,7 @@ function renderBackground(x, y) {
 	ctx.fillStyle = `rgb(28, 154, 89)`;
 	ctx.fillRect(0, 0, W, H);
 	ctx.fillStyle = `rgb(30, 167, 97)`;
-	ctx.fillRect(W / 2 - x * hpx, H / 2 - y * hpx, 4000 * hpx, 4000 * hpx)
+	ctx.fillRect(W / 2 - x * hpx, H / 2 - y * hpx, settings.map_width * hpx, settings.map_height * hpx)
 
 	const gridLineStyle = `rgba(0, 0, 0, 0.3)`;
 	for ( let ix = startX; ix < W; ix += gridInterval) {
@@ -199,4 +205,5 @@ function renderPlayer(me, player) {
 
 export {
 	startRenderGame,
+	initGameSettings,
 }

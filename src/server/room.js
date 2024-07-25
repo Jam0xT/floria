@@ -1,6 +1,6 @@
 import Constants from '../shared/constants.js';
 
-import gamemodes from './gamemodes/gamemodes.js';
+import { gamemodes, properties } from './gamemodes/gamemodes.js';
 
 const rooms = {
 };
@@ -126,6 +126,7 @@ class Room {
 		// ready: 8, {id, isReady}
 		// countdownTime: 9, {countdownTime}
 		// state: 10, {state}
+		// game settings: 11, {settings}
 	}
 
 	addPlayer(socket, username) { // 在房间加入玩家
@@ -212,10 +213,8 @@ class Room {
 			if ( player.team == -1 )
 				player.team = spots[spotIndex++];
 		});
-		// 临时的设置
-		this.settings = {
-
-		};
+		this.settings = properties[this.mode]; // 游戏设置，会传入 Game 到 $.props
+		this.update(11, {settings: this.settings}); // 传到客户端进行初始化
 		this.game = new gamemodes[this.mode](this.settings);
 		Object.keys(this.sockets).forEach(id => { // id: socket id
 			const socket = this.sockets[id];

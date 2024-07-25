@@ -1,4 +1,3 @@
-import properties from './properties.js'; // 游戏相关设置
 import * as time from '../../game/time.js'; // 时间相关方法
 import * as playerHandler from '../../game/playerHandler.js';
 import * as entityHandler from '../../game/entityHandler.js';
@@ -13,7 +12,7 @@ class Game_Arena {
 	}
 
 	init(settings) {
-		this.var.props = properties;
+		this.var.props = settings;
 		time.init.bind(this)();
 		playerHandler.init.bind(this)();
 		entityHandler.init.bind(this)();
