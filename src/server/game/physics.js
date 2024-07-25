@@ -173,6 +173,7 @@ function solveCollisions(dt) {
 			return ;
 		
 		const pos1 = entity1.var.pos, pos2 = entity2.var.pos;
+		// const v1 = entity1.var.v, v2 = entity2.var.v;
 		const x1 = pos1.x, y1 = pos1.y, x2 = pos2.x, y2 = pos2.y;
 		const d = util.getDistance(pos1, pos2); // 距离
 		const r1 = entity1.var.attr.radius, r2 = entity2.var.attr.radius; // 半径
@@ -181,11 +182,11 @@ function solveCollisions(dt) {
 		const theta1 = Math.atan2(y2 - y1, x2 - x1); // e2 相对于 e1 的方向，水平向右为 0
 		const theta2 = theta1 - Math.PI;
 		const kb = $.props.knockback; // 击退系数
-		const v1 = p * kb * m2 / (m1 + m2), v2 = p * kb * m1 / (m1 + m2); // 速度
+		const kbv1 = p * kb * m2 / (m1 + m2), kbv2 = p * kb * m1 / (m1 + m2); // 速度
 		const q = $.props.elasticity; // 弹力系数
 
-		appendVelocity.bind(entity1)(v1 * Math.cos(theta2) / dt, v1 * Math.sin(theta2) / dt, q);
-		appendVelocity.bind(entity2)(v2 * Math.cos(theta1) / dt, v2 * Math.sin(theta1) / dt, q);
+		appendVelocity.bind(entity1)(kbv1 * Math.cos(theta2) / dt, kbv1 * Math.sin(theta2) / dt, q);
+		appendVelocity.bind(entity2)(kbv2 * Math.cos(theta1) / dt, kbv2 * Math.sin(theta1) / dt, q);
 
 		entity1.var.attr.hp -= entity2.var.attr.dmg;
 		entity2.var.attr.hp -= entity1.var.attr.dmg;

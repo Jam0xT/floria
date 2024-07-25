@@ -7,7 +7,7 @@ import * as util from '../../game/utility.js';
 
 class Game_Arena {
 	constructor(settings) {
-		this.var = {isStarted: false};
+		this.var = {isStarted: false, isOver: false};
 		this.init(settings);
 	}
 
@@ -41,7 +41,12 @@ class Game_Arena {
 		playerHandler.updatePlayers.bind(this)(dt); // 更新玩家
 		physics.solveBorderCollisions.bind(this)(); // 处理边界碰撞
 		entityHandler.handleEntityDeaths.bind(this)(); // 处理实体死亡
+		this.checkGameOver();
 		this.sendUpdate();
+	}
+
+	checkGameOver() {
+		
 	}
 
 	handlePlayerInput(socketID, type, input) {

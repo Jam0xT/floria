@@ -3,6 +3,7 @@ let now, then, elapsed;
 let fpsInterval;
 let renderFn;
 let playing = false;
+let animationFrameID;
 
 function play(renderFunction, fixed = false) {
 	renderFn = renderFunction;
@@ -17,13 +18,17 @@ function play(renderFunction, fixed = false) {
 	}
 }
 
+function stop() {
+	cancelAnimationFrame(animationFrameID);
+}
+
 function animate() {
-	requestAnimationFrame(animate);
+	animationFrameID = requestAnimationFrame(animate);
 	renderFn();
 }
 
 function animateFixed() {
-	requestAnimationFrame(animateFixed);
+	animationFrameID = requestAnimationFrame(animateFixed);
 
 	now = Date.now();
 	elapsed = now - then;
@@ -37,4 +42,5 @@ function animateFixed() {
 
 export {
 	play,
+	stop,
 }

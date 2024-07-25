@@ -17,13 +17,9 @@ const connectedPromise = new Promise(resolve => {
 	});
 });
 
-const connect = (onGameOver) => {
+const connect = () => {
 	connectedPromise.then(() => {
 		socket.on(Constants.MSG_TYPES.SERVER.GAME.UPDATE, processGameUpdate);
-		socket.on('disconnect', () => {
-			console.log('Disconnected from server.');
-			onGameOver();
-		});
 	});
 };
 

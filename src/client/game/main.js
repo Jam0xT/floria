@@ -24,7 +24,7 @@ function render() {
 	if ( state.me ) {
 		renderBackground(state.me.x, state.me.y);
 		renderPlayer(state.me, state.me);
-		console.log(state.others);
+		// console.log(state.others);
 		state.others.forEach(player => {
 			renderPlayer(state.me, player);
 		});

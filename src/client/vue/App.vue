@@ -20,6 +20,10 @@ const attr = ref({
 		x: 50,
 		y: -20,
 	},
+	button_back:{
+		x: 5,
+		y: 105,
+	},
 	username_input: {
 		x: 50,
 		y: -20,
@@ -64,10 +68,23 @@ watch(username, (username_) => {
 const mode = ref('');
 const selectedMode = ref(false);
 
+function onBack() {
+	selectedMode.value = false;
+	attr.value.title.y = 30;
+	attr.value.button_arena.y = 40;
+	attr.value.username_input.y = 45;
+	attr.value.button_back.y = 105;
+	attr.value.room.y = -20;
+	attr.value.player_list.y = -20;
+	attr.value.game_settings.y = -20;
+	attr.value.log.x = -20;
+}
+
 function onSelectArena() {
 	selectedMode.value = true;
 	attr.value.title.y = -20;
 	attr.value.button_arena.y = -20;
+	attr.value.button_back.y = 95;
 	attr.value.username_input.y = 5;
 	attr.value.room.y = 5;
 	attr.value.player_list.y = 5;
@@ -368,6 +385,10 @@ function onGameStart() {
 	startRenderGame();
 }
 
+function onGameOver() {
+	state.value = 0;
+}
+
 // 日志
 
 const logs = ref([{msg: "Log will be printed here.", color: ""}]);
@@ -384,12 +405,21 @@ nw.connectedPromise.then(() => {
 	nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.SETTINGS, onUpdSettings);
 	nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.READY, onToggleReady);
 	nw.socket.on(Constants.MSG_TYPES.SERVER.ROOM.START, onGameStart);
+	nw.socket.on(Constants.MSG_TYPES.SERVER.GAME.OVER, onGameOver);
+	nw.socket.on('disconnect', onDisconnect);
 });
+
+function onDisconnect() {
+	onGameOver();
+}
 
 </script>
 <template>
 	<Block :props="attr.title">
 		<Title size="10">floria.io</Title>
+	</Block>
+	<Block :props="attr.button_back">
+		<Button @click="onBack" :disabled="!selectedMode">Back</Button>
 	</Block>
 	<Block :props="attr.button_arena">
 		<Button @click="onSelectArena" :disabled="selectedMode">Arena</Button>
@@ -406,8 +436,8 @@ nw.connectedPromise.then(() => {
 	<Block :props="attr.room">
 		<Text size="2">{{ `Room#${roomID}` }}</Text>
 		<input class="input" @input="onRoomIDInput" placeholder="RoomID" maxlength="6" :disabled="inRoom" :value="roomIDInput"/><br/>
-		<Button @click="joinRoom" :disabled="(inRoom)">Join</Button><br>
-		<Button @click="createRoom" :disabled="(inRoom)">Create</Button><br>
+		<Button @click="joinRoom" :disabled="(inRoom) || (!selectedMode)">Join</Button><br>
+		<Button @click="createRoom" :disabled="(inRoom) || (!selectedMode)">Create</Button><br>
 		<Button @click="leaveRoom" :disabled="(!inRoom) || (state == 2)">Leave</Button><br>
 		<Button @click="toggleReady" :disabled="(!inRoom) || (state == 2)">Ready</Button><br>
 		<Button @click="copyRoomID" :disabled="state == 2">Copy ID</Button><br>
