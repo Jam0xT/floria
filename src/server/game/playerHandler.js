@@ -46,6 +46,7 @@ function updatePlayers() {
 
 function initPetals(defaultKitInfo) { // Player 调用
 	const $ = this.var;
+	$.kit = {};
 }
 
 /*
@@ -61,8 +62,8 @@ kit：主副 loadout 的集合
 kit: {size, primary:[{id, attr, instances:[uuid]}], secondary:[{id, attr}]}
 记录 loadout size, 主副 loadout 抽象花瓣的 id, attr
 
-petals: [[uuid]...(loadout size)]
-记录属于抽象花瓣的已解绑实体花瓣的 uuid，一个抽象花瓣对应一个 uuid 列表
+petals: [uuid]
+记录已解绑实体花瓣的 uuid
 */
 
 function handlePlayerDeath(player) {
