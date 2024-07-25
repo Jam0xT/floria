@@ -89,11 +89,33 @@ function handleEntityDeaths() {
 		if ( !entity )
 			return ;
 		if ( entity.var.attr.hp <= 0 ) {
-			if ( entity.var.type == 'player' )
+			if ( entity.var.type == 'player' ) {
 				playerHandler.handlePlayerDeath.bind(this)(entity);
+			}
+			if ( entity.var.type == 'petal' ) {
+				playerHandler.handlePetalDeath.bind(this)(entity);
+			}
 			delete $.entities[entity.uuid];
 		}
 	});
+}
+
+function getUpdate() { // Entity 调用
+	const $ = this.var;
+	const ret = {
+		uuid: $.uuid,
+		type: $.type,
+		x: $.pos.x,
+		y: $.pos.y,
+		attr: $.attr,
+	};
+	if ( $.type == 'player' ) {
+		ret.username = $.playerInfo.username;
+	}
+	if ( $.type == 'petal' ) {
+		ret.id = $.id;
+	}
+	return ret;
 }
 
 export {
@@ -105,4 +127,5 @@ export {
 	appendVelocity,
 	updatePosition,
 	handleEntityDeaths,
+	getUpdate,
 };

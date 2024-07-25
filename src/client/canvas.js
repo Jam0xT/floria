@@ -55,5 +55,5 @@ export {
 	ctxMain,
 	init,
 	getTmpCtx,
-	draw, 
+	draw,
 };

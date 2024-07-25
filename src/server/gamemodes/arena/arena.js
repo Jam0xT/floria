@@ -29,9 +29,10 @@ class Game_Arena {
 	}
 
 	update() {
+		// console.log('upd');
 		time.update.bind(this)();
 		const dt = 1 / this.var.props.tick_per_second;
-		playerHandler.updatePlayers.bind(this)(dt); // 更新玩家
+		playerHandler.updatePlayers.bind(this)(); // 更新玩家
 		entityHandler.updateAcceleration.bind(this)(dt); // 更新加速度
 		entityHandler.updateVelocity.bind(this)(dt); // 更新速度
 		entityHandler.updatePosition.bind(this)(dt); // 更新位置
@@ -72,18 +73,13 @@ class Game_Arena {
 
 	createUpdate(player) {
 		const $ = this.var;
-		const d = player.var.attr.vision;
-		const nearbyPlayers = Object.values($.players).map(uuid => $.entities[uuid]).filter(
-			p => {
-				return (p.var.uuid != player.var.uuid) && (util.getDistance(p.var.pos, player.var.pos) <= d);
-			}
-		);
+		const d = player.var.attr.vision; // 视距
+		const nearbyEntities = Object.values($.entities).filter(e => ((e.var.uuid != player.var.uuid) && (util.getDistance(e.var.pos, player.var.pos) <= d)));
 
 		return {
 			t: Date.now(), // current time
-			me: playerHandler.getUpdate.bind(player)(),
-			others: nearbyPlayers.map(p => playerHandler.getUpdate.bind(p)()), // nearby players
-			playerCount: Object.keys($.players).length, // the number of players online
+			self: entityHandler.getUpdate.bind(player)(),
+			entities: nearbyEntities.map(e => entityHandler.getUpdate.bind(e)()), // 视距内实体
 		};
 	}
 }

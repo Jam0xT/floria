@@ -232,8 +232,10 @@ function onUpdate(type, update) {
 		Object.values(players.value).forEach(player => {
 			player.team = -1;
 		});
-		unwatchTeam = true;
-		team.value = -1;
+		if ( team.value != -1 ) {
+			unwatchTeam = true;
+			team.value = -1;
+		}
 		logs.value.unshift({
 			msg: `Reset teams.`,
 			color: "#dedede",
@@ -277,8 +279,14 @@ function onUpdate(type, update) {
 function onRecvInfo(info) { // 加入房间时获取房间信息
 	players.value = info.players;
 	ownerID.value = info.ownerID;
-	teamCount.value = info.teamCount;
-	teamSize.value = info.teamSize;
+	if ( teamCount.value != info.teamCount ) {
+		unwatchTeamCount = true;
+		teamCount.value = info.teamCount;
+	}
+	if ( teamSize.value != info.teamSize ) {
+		unwatchTeamSize = true;
+		teamSize.value = info.teamSize;
+	}
 	teams.value = info.teams;
 	// settings.value = info.settings;
 }
@@ -332,12 +340,23 @@ const teamCount = ref(2);
 const team = ref(-1); // 所在队伍
 // const settings = ref({});
 
+let unwatchTeamSize = false;
+let unwatchTeamCount = false;
+
 watch(teamSize, (teamSize_) => {
+	if ( unwatchTeamSize ) {
+		unwatchTeamSize = false;
+		return ;
+	}
 	room.updSettings(0, {teamSize: teamSize_});
 	// code 0: teamSize
 });
 
 watch(teamCount, (teamCount_) => {
+	if ( unwatchTeamCount ) {
+		unwatchTeamCount = false;
+		return ;
+	}
 	room.updSettings(1, {teamCount: teamCount_});
 	// code 1: teamCount
 });
@@ -356,11 +375,13 @@ watch(team, (team_, prevTeam_) => {
 
 function onUpdSettings(state) {
 	const msgs = [
+		``,
 		`Not in a room.`,
 		`Room does not exist.`,
 		`No permission.`,
 		`You can only do that when the room is in 'wait' state.`,
 	], colors = [
+		'#fcab9d',
 		'#fcab9d',
 		'#fcab9d',
 		'#fcab9d',

@@ -52,27 +52,18 @@ export function getCurrentState() {
 		let baseUpdate = gameUpdates[baseUpdateIndex];
 		const nextUpdate = gameUpdates[baseUpdateIndex + 1];
 		const ratio = (serverTime - baseUpdate.t) / (nextUpdate.t - baseUpdate.t);
-		// if ( baseUpdate.diedEntities ) {
-		// 	if ( baseUpdate.diedEntities.length != 0 ) {
-		// 		addDiedEntities(baseUpdate.diedEntities);
-		// 		delete baseUpdate.diedEntities;
-		// 	}
-		// }
-		return {
-			// info: baseUpdate.info,
-			me: interpolateObject(baseUpdate.me, nextUpdate.me, ratio),
-			others: interpolateObjectArray(baseUpdate.others, nextUpdate.others, ratio),
-			// mobs: interpolateObjectArray(baseUpdate.mobs, nextUpdate.mobs, ratio),
-			// leaderboard: baseUpdate.leaderboard,
-			playerCount: baseUpdate.playerCount,
-			// rankOnLeaderboard: baseUpdate.rankOnLeaderboard,
-			// lightningPath: baseUpdate.lightningPath,
-			// drops: baseUpdate.drops,
-		};
+		return interpolateObject(baseUpdate, nextUpdate, ratio);
+		// {
+		// 	self: interpolateObject(baseUpdate.self, nextUpdate.self, ratio),
+		// 	entities: interpolateObjectArray(baseUpdate.entities, nextUpdate.entities, ratio),
+		// };
 	}
 }
 
-let valueKeys = ['x', 'y', 'hp', 'max_hp', 'radius', 'vision'];
+const valueKeys = ['x', 'y', 'hp', 'max_hp', 'radius', 'vision'];
+const dirKeys = [];
+const arrKeys = ['entities'];
+const objKeys = ['self', 'attr'];
 
 function interpolateObject(object1, object2, ratio) {
 	if ( !object2 ) {
@@ -81,13 +72,13 @@ function interpolateObject(object1, object2, ratio) {
 
 	const interpolated = {};
 	Object.keys(object1).forEach(key => {
-		if ( key === 'activeDirection' || key === 'dir' ) {
+		if ( dirKeys.includes(key) ) { // 方向
 			interpolated[key] = interpolateDirection(object1[key], object2[key], ratio);
-		} else if ( valueKeys.includes(key) ) {
+		} else if ( valueKeys.includes(key) ) { // 数值
 			interpolated[key] = object1[key] + (object2[key] - object1[key]) * ratio;
-		} else if ( key == 'petals' ) {
+		} else if (	arrKeys.includes(key) ) {
 			interpolated[key] = interpolateObjectArray(object1[key], object2[key], ratio);
-		} else if ( key == 'attr' ) {
+		} else if ( objKeys.includes(key) ) {
 			interpolated[key] = interpolateObject(object1[key], object2[key], ratio);
 		} else {
 			interpolated[key] = object1[key];
@@ -97,7 +88,7 @@ function interpolateObject(object1, object2, ratio) {
 }
 
 function interpolateObjectArray(objects1, objects2, ratio) {
-	return objects1.map(object1 => interpolateObject(object1, objects2.find(object2 => object1.id === object2.id), ratio));
+	return objects1.map(object1 => interpolateObject(object1, objects2.find(object2 => object1.uuid == object2.uuid), ratio));
 }
 
 function interpolateDirection(d1, d2, ratio) {

@@ -34,4 +34,5 @@ export default Object.freeze({
 		point: 1, // 单位:点
 		percent: 1, // 单位:总血量百分点; 取 1 表示 1%
 	},
+	petal_speed: 100, // 花瓣追踪速度乘数
 });

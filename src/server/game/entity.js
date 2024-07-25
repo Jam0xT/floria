@@ -12,14 +12,15 @@ class Entity { // 所有实体的类
 			team: team, // 队伍
 			attr: attr, // 属性
 			/*
-				hp, // 血量
+				hp, 	// 血量
 				max_hp, // 血量上限
 				radius, // 半径
 				vision, // 视距
-				mass, // 重量
+				mass, 	// 重量
 				speed, // 移动速度
 				ghost, // 无碰撞箱
-				ignoreBorder, // 无视地图边界
+				ignoreBorder,	// 无视地图边界
+				rot_speed,		// 花瓣轨道转速 单位:弧度 / 刻 顺时针为负
 			*/
 			v: { // 速度
 				x: 0,
