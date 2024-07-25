@@ -182,7 +182,7 @@ function solveCollisions(dt) {
 		const theta2 = theta1 - Math.PI;
 		const kb = $.props.knockback; // 击退系数
 		const v1 = p * kb * m2 / (m1 + m2), v2 = p * kb * m1 / (m1 + m2); // 速度
-		const q = 0.2;
+		const q = $.props.elasticity; // 弹力系数
 
 		appendVelocity.bind(entity1)(v1 * Math.cos(theta2) / dt, v1 * Math.sin(theta2) / dt, q);
 		appendVelocity.bind(entity2)(v2 * Math.cos(theta1) / dt, v2 * Math.sin(theta1) / dt, q);
