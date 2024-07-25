@@ -9,11 +9,6 @@ class Player extends Entity {
 			username: username, // 用户名
 		};
 		$.spec = false; // 是否为观察者
-		$.petalInfo = defaultPetals; // 花瓣信息
-		$.petals = { // 花瓣 uuid
-			primary: [],
-			secondary: [],
-		};
 	}
 
 	setSpec(state) { // 设置是否为观察者

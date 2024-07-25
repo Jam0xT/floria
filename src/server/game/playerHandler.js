@@ -34,6 +34,7 @@ function addPlayer(socket, username, team) { // 添加玩家
 	const uuid = newPlayer.var.uuid; // 获取 uuid
 	$.players[socket.id] = uuid; // 储存 uuid
 	entityHandler.addEntity.bind(this)(uuid, newPlayer); // 添加实体到实体列表
+	initPetals.bind(newPlayer)($.props.default_kit_info);
 }
 
 function updatePlayers() {
@@ -42,6 +43,27 @@ function updatePlayers() {
 
 	});
 }
+
+function initPetals(defaultKitInfo) { // Player 调用
+	const $ = this.var;
+}
+
+/*
+概念定义
+抽象花瓣：玩家可以获取的，非实体的花瓣
+实体花瓣：有碰撞箱的实体花瓣
+loadout：一行抽象花瓣的集合
+kit：主副 loadout 的集合
+绑定：实体花瓣一般绑定到生成它的抽象花瓣
+当该实体花瓣脱离其抽象花瓣且不影响所属抽象花瓣生成新的实体花瓣时解绑
+例如：导弹发射，花粉放置
+
+kit: {size, primary:[{id, attr, instances:[uuid]}], secondary:[{id, attr}]}
+记录 loadout size, 主副 loadout 抽象花瓣的 id, attr
+
+petals: [[uuid]...(loadout size)]
+记录属于抽象花瓣的已解绑实体花瓣的 uuid，一个抽象花瓣对应一个 uuid 列表
+*/
 
 function handlePlayerDeath(player) {
 	const $ = this.var;

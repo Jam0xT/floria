@@ -2,9 +2,9 @@ export default Object.freeze({
 	tick_per_second: 25, // 游戏 tps
 	map_width: 1000, // 地图宽度
 	map_height: 1000, // 地图高度
-	chunk_size: 200,
-	default_petals: { // 默认花瓣
-		count: 5,
+	chunk_size: 200, // 区块大小 用于碰撞判定
+	default_kit_info: { // 默认抽象花瓣信息
+		size: 5,
 		primary: new Array(5).fill('basic'),
 		secondary: new Array(5).fill(''),
 	},
@@ -30,4 +30,8 @@ export default Object.freeze({
 		取值 = 1 时碰撞后摊开的速度不会衰减
 		取值 = 0 时碰撞后弹开的速度只持续 1 刻
 	*/
+	player_natural_regen: { // 单位:秒
+		point: 1, // 单位:点
+		percent: 1, // 单位:总血量百分点; 取 1 表示 1%
+	},
 });

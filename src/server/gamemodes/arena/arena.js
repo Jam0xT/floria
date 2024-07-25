@@ -31,6 +31,7 @@ class Game_Arena {
 	update() {
 		time.update.bind(this)();
 		const dt = 1 / this.var.props.tick_per_second;
+		playerHandler.updatePlayers.bind(this)(dt); // 更新玩家
 		entityHandler.updateAcceleration.bind(this)(dt); // 更新加速度
 		entityHandler.updateVelocity.bind(this)(dt); // 更新速度
 		entityHandler.updatePosition.bind(this)(dt); // 更新位置
@@ -38,15 +39,13 @@ class Game_Arena {
 		physics.solveCollisions.bind(this)(dt); // 计算碰撞
 		entityHandler.updatePosition.bind(this)(dt); // 更新位置
 		physics.solveBorderCollisions.bind(this)(); // 处理边界碰撞
-		playerHandler.updatePlayers.bind(this)(dt); // 更新玩家
-		physics.solveBorderCollisions.bind(this)(); // 处理边界碰撞
 		entityHandler.handleEntityDeaths.bind(this)(); // 处理实体死亡
 		this.checkGameOver();
 		this.sendUpdate();
 	}
 
 	checkGameOver() {
-		
+
 	}
 
 	handlePlayerInput(socketID, type, input) {

@@ -1,3 +1,5 @@
+// 实体花瓣的属性
+
 export default Object.freeze({
 	basic: {
 		hp: 5,
