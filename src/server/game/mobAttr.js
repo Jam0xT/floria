@@ -6,7 +6,7 @@ export default Object.freeze({
 		radius: 20,
 		vision: 2000,
 		mass: 100,
-		dmg: 0.01,
+		dmg: 25,
 		speed: 1000,
 	},
 });

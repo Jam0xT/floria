@@ -19,6 +19,8 @@ function solveBorderCollisions() { // 解决与地图边界碰撞
 	const $ = this.var;
 	const w = $.props.map_width, h = $.props.map_height; // 地图宽高
 	Object.values($.entities).forEach(entity => {
+		if ( entity.var.attr.ignoreBorder ) // 无视边界属性判定
+			return ;
 		const pos = entity.var.pos; // 实体坐标
 		const v = entity.var.v;
 		const r = entity.var.attr.radius; // 实体半径
@@ -100,6 +102,9 @@ function updateChunks() { // Game 调用
 	const $ = this.var;
 	Object.keys($.entities).forEach(uuid => {
 		const entity = $.entities[uuid];
+		if ( entity.var.attr.ghost ) { // 无碰撞箱
+			return ;
+		}
 		const chunkInfo = getChunkUpdate.bind(entity)($.props.chunk_size); // 获取新旧区块信息
 		if ( chunkInfo ) {
 			const oldChunks = chunkInfo.oldChunks; // 更新前区块
@@ -135,6 +140,8 @@ function solveCollisions(dt) {
 	let collisions = [];
 
 	Object.values($.chunks).forEach(entityList => { // 遍历区块
+		entityList = entityList.filter(uuid => (!($.entities[uuid].var.attr.ghost))); // 过滤无碰撞箱实体
+
 		const n = entityList.length; // 区块实体数量
 		if ( n <= 1 ) // 小于等于 1 个实体时不会有碰撞
 			return ;

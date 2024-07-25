@@ -79,6 +79,9 @@ function renderPlayer(me, player) {
 	const renderRadius = player.attr.radius * hpx;
 	ctx.translate(canvasX, canvasY);
 
+	if ( player.attr.ghost )
+		ctx.globalAlpha = 0.2;
+	
 	ctx.drawImage(
 		playerAsset,
 		- renderRadius,
@@ -86,6 +89,9 @@ function renderPlayer(me, player) {
 		renderRadius * 2,
 		renderRadius * 2,
 	);
+
+	if ( player.attr.ghost )
+		ctx.globalAlpha = 1;
 	
 	// const hitboxRadius = player.radius * hpx;
 

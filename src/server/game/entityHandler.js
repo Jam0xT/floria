@@ -3,6 +3,7 @@
 
 $ = this.var
 */
+import * as playerHandler from './playerHandler.js';
 
 function init() { // Game 调用
 	// 初始化
@@ -88,6 +89,8 @@ function handleEntityDeaths() {
 		if ( !entity )
 			return ;
 		if ( entity.var.attr.hp <= 0 ) {
+			if ( entity.var.type == 'player' )
+				playerHandler.handlePlayerDeath.bind(this)(entity);
 			delete $.entities[entity.uuid];
 		}
 	});

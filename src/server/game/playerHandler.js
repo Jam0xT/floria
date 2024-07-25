@@ -43,6 +43,11 @@ function updatePlayers() {
 	});
 }
 
+function handlePlayerDeath(player) {
+	const $ = this.var;
+	player.setSpec(true);
+}
+
 function getUpdate() { // Player 调用
 	const $ = this.var;
 	return {
@@ -58,5 +63,6 @@ export {
 	init,
 	addPlayer,
 	updatePlayers,
+	handlePlayerDeath,
 	getUpdate,
 };
