@@ -1,12 +1,13 @@
 import Constants from '../shared/constants.js';
 
-const gameUpdates = [];
+let gameUpdates = [];
 let gameStart = 0;
 let firstServerTimestamp = 0;
 
-export function initState() {
+export function resetState() {
 	gameStart = 0;
 	firstServerTimestamp = 0;
+	gameUpdates = [];
 }
 
 export function processGameUpdate(update) {

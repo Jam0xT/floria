@@ -150,7 +150,8 @@ class Room {
 		delete this.players[socketID];
 		this.playerCount -= 1;
 		if ( this.playerCount == 0 ) {
-			this.game.stop();
+			if ( this.game )
+				this.game.stop();
 			delete rooms[this.id];
 			console.log(`Room #${this.id} has been deleted.`);
 			return ;
@@ -259,7 +260,7 @@ function gameInput(socket, type, input) { // 接受玩家游戏输入
 	}
 
 	const game = room.game;
-	if ( !game.var.start ) { // 游戏未开始（未初始化）
+	if ( !game.var.isStarted ) { // 游戏未开始（未初始化）
 		return ;
 	}
 

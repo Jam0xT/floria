@@ -8,7 +8,7 @@ import * as room from '../room.js';
 import * as nw from '../networking.js';
 import Constants from '../../shared/constants.js';
 import { startRenderGame } from '../game/main.js';
-import { initState } from '../state.js';
+import { resetState } from '../state.js';
 import { startCapturingInput } from '../input.js';
 
 const attr = ref({
@@ -361,7 +361,7 @@ function onGameStart() {
 		color: "#ffa8f5",
 	});
 	nw.connect();
-	initState();
+	resetState();
 	startCapturingInput();
 	startRenderGame();
 }

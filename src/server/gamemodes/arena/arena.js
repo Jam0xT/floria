@@ -4,10 +4,11 @@ import * as playerHandler from '../../game/playerHandler.js';
 import * as entityHandler from '../../game/entityHandler.js';
 import * as physics from '../../game/physics.js';
 import Constants from '../../../shared/constants.js';
+import * as util from '../../game/utility.js';
 
 class Game_Arena {
 	constructor(settings) {
-		this.var = {start: false};
+		this.var = {isStarted: false};
 		this.init(settings);
 	}
 
@@ -20,7 +21,7 @@ class Game_Arena {
 	}
 
 	start() { // 开始游戏
-		this.var.start = true; // 表示游戏开始
+		this.var.isStarted = true; // 表示游戏开始
 		this.var.intervalID = setInterval(this.update.bind(this), 1000 / this.var.props.tick_per_second); // 开启游戏主循环
 	}
 
@@ -71,7 +72,7 @@ class Game_Arena {
 		const d = player.var.attr.vision;
 		const nearbyPlayers = Object.values($.players).map(uuid => $.entities[uuid]).filter(
 			p => {
-				return (p.uuid != player.uuid) && (util.getDistance(p.var.pos, player.var.pos) <= d);
+				return (p.var.uuid != player.var.uuid) && (util.getDistance(p.var.pos, player.var.pos) <= d);
 			}
 		);
 
