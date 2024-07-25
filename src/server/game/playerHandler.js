@@ -23,7 +23,7 @@ function addPlayer(socket, username, team) { // 添加玩家
 	$.sockets[socket.id] = socket; // 储存 socket
 	const x = util.randomInt(0, $.props.map_width); // 生成随机出生点
 	const y = util.randomInt(0, $.props.map_height);
-	const newPlayer = new Player( // 创建新 Player 类
+	const newPlayer = new Player( // 创建新 Player 实例
 		socket.id,
 		username,
 		x, y,
@@ -31,7 +31,7 @@ function addPlayer(socket, username, team) { // 添加玩家
 		mobAttr.player,
 		$.props.default_petals,
 	);
-	const uuid = newPlayer.var.id; // 获取 uuid
+	const uuid = newPlayer.var.uuid; // 获取 uuid
 	$.players[socket.id] = uuid; // 储存 uuid
 	entityHandler.addEntity.bind(this)(uuid, newPlayer); // 添加实体到实体列表
 }

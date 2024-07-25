@@ -14,11 +14,14 @@ function startRenderGame() {
 
 function render() {
 	const state = getCurrentState();
-	console.log(state);
+	// console.log(state);
 	if ( state.me ) {
 		renderBackground(state.me.x, state.me.y);
 		renderPlayer(state.me, state.me);
-		state.others.forEach(renderPlayer.bind(null, state.me));
+		console.log(state.others);
+		state.others.forEach(player => {
+			renderPlayer(state.me, player);
+		});
 	}
 }
 

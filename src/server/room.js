@@ -150,6 +150,7 @@ class Room {
 		delete this.players[socketID];
 		this.playerCount -= 1;
 		if ( this.playerCount == 0 ) {
+			this.game.stop();
 			delete rooms[this.id];
 			console.log(`Room #${this.id} has been deleted.`);
 			return ;
@@ -244,6 +245,25 @@ class Room {
 			t - 1, resolve, check, reject,
 		);
 	}
+}
+
+function gameInput(socket, type, input) { // 接受玩家游戏输入
+	const roomID = roomIDOfPlayer[socket.id];
+	if ( !roomID ) { // 不在房间中
+		return ;
+	}
+
+	const room = rooms[roomID];
+	if ( !room ) { // 房间不存在
+		return ;
+	}
+
+	const game = room.game;
+	if ( !game.var.start ) { // 游戏未开始（未初始化）
+		return ;
+	}
+
+	game.handlePlayerInput(socket.id, type, input);
 }
 
 function shuffle(array) {
@@ -428,4 +448,5 @@ export {
 	updSettings,
 	disconnect,
 	toggleReady,
+	gameInput,
 };

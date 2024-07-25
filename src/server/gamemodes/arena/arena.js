@@ -7,7 +7,7 @@ import Constants from '../../../shared/constants.js';
 
 class Game_Arena {
 	constructor(settings) {
-		this.var = {};
+		this.var = {start: false};
 		this.init(settings);
 	}
 
@@ -20,7 +20,12 @@ class Game_Arena {
 	}
 
 	start() { // 开始游戏
-		setInterval(this.update.bind(this), 1000 / this.var.props.tick_per_second); // 开启游戏主循环
+		this.var.start = true; // 表示游戏开始
+		this.var.intervalID = setInterval(this.update.bind(this), 1000 / this.var.props.tick_per_second); // 开启游戏主循环
+	}
+
+	stop() { // 停止游戏
+		clearInterval(this.var.intervalID); // 停止主循环
 	}
 
 	update() {
@@ -28,6 +33,7 @@ class Game_Arena {
 		const dt = 1 / this.var.props.tick_per_second;
 		entityHandler.updateAcceleration.bind(this)(dt); // 更新加速度
 		entityHandler.updateVelocity.bind(this)(dt); // 更新速度
+		entityHandler.updatePosition.bind(this)(dt); // 更新位置
 		physics.updateChunks.bind(this)(); // 更新区块信息
 		physics.solveCollisions.bind(this)(dt); // 计算碰撞
 		entityHandler.updatePosition.bind(this)(dt); // 更新位置
@@ -36,6 +42,14 @@ class Game_Arena {
 		physics.solveBorderCollisions.bind(this)(); // 处理边界碰撞
 		entityHandler.handleEntityDeaths.bind(this)(); // 处理实体死亡
 		this.sendUpdate();
+	}
+
+	handlePlayerInput(socketID, type, input) {
+		const $ = this.var;
+		const player = $.entities[$.players[socketID]];
+		if ( type == 0 ) {
+			entityHandler.move.bind(player)(input.dir, input.power * player.var.attr.speed);
+		}
 	}
 
 	addPlayer(socket, username, team) {
@@ -47,17 +61,17 @@ class Game_Arena {
 		Object.keys($.sockets).forEach(socketID => {
 			const socket = $.sockets[socketID];
 			const player = $.entities[$.players[socketID]];
-			// console.log(socketID);
-			socket.emit(Constants.MSG_TYPES.SERVER.GAME.UPDATE, this.createUpdate(player, socketID));
+			const update = this.createUpdate(player);
+			socket.emit(Constants.MSG_TYPES.SERVER.GAME.UPDATE, update);
 		});
 	}
 
-	createUpdate(player, socketID) {
+	createUpdate(player) {
 		const $ = this.var;
 		const d = player.var.attr.vision;
-		const nearbyPlayers = Object.values($.players).map(id => $.entities[id]).filter(
+		const nearbyPlayers = Object.values($.players).map(uuid => $.entities[uuid]).filter(
 			p => {
-				return (p.uuid != player.uuid) && (util.getDistance(p, player) <= d);
+				return (p.uuid != player.uuid) && (util.getDistance(p.var.pos, player.var.pos) <= d);
 			}
 		);
 
@@ -66,7 +80,6 @@ class Game_Arena {
 			me: playerHandler.getUpdate.bind(player)(),
 			others: nearbyPlayers.map(p => playerHandler.getUpdate.bind(p)()), // nearby players
 			playerCount: Object.keys($.players).length, // the number of players online
-			socketid: socketID,
 		};
 	}
 }

@@ -28,7 +28,7 @@ function updateAcceleration(dt) { // 更新加速度
 	const $ = this.var;
 	Object.values($.entities).forEach(entity => {
 		const movement = entity.var.movement;
-		entity.a = {
+		entity.var.a = {
 			x: movement.val * Math.cos(movement.dir),
 			y: movement.val * Math.sin(movement.dir),
 		};

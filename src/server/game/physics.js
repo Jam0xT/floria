@@ -172,11 +172,13 @@ function solveCollisions(dt) {
 		if ( !entity1 || !entity2 )
 			return ;
 		
-		const d = util.getDistance(entity1, entity2); // 距离
+		const pos1 = entity1.var.pos, pos2 = entity2.var.pos;
+		const x1 = pos1.x, y1 = pos1.y, x2 = pos2.x, y2 = pos2.y;
+		const d = util.getDistance(pos1, pos2); // 距离
 		const r1 = entity1.var.attr.radius, r2 = entity2.var.attr.radius; // 半径
 		const p = r1 + r2 - d; // 穿透深度
 		const m1 = entity1.var.attr.mass, m2 = entity2.var.attr.mass; // 重量
-		const theta1 = Math.atan2(entity2.y - entity1.y, entity2.x - entity1.x); // e2 相对于 e1 的方向，水平向右为 0
+		const theta1 = Math.atan2(y2 - y1, x2 - x1); // e2 相对于 e1 的方向，水平向右为 0
 		const theta2 = theta1 - Math.PI;
 		const kb = $.props.knockback; // 击退系数
 		const v1 = p * kb * m2 / (m1 + m2), v2 = p * kb * m1 / (m1 + m2); // 速度

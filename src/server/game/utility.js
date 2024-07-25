@@ -9,7 +9,8 @@ function randomInt(l, r) { // [l, r] 范围内的随机整数
 }
 
 function getNewUUID() { // 生成新的 crypto UUID
-	return crypto.randomUUID();
+	const newUUID = crypto.randomUUID();
+	return newUUID;
 }
 
 function getDistance(cord1, cord2) {

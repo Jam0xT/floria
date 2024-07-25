@@ -17,6 +17,7 @@ class Entity { // 所有实体的类
 				radius, // 半径
 				vision, // 视距
 				mass, // 重量
+				speed, // 移动速度
 			*/
 			v: { // 速度
 				x: 0,

@@ -9,6 +9,8 @@ import * as nw from '../networking.js';
 import Constants from '../../shared/constants.js';
 import { startRenderGame } from '../game/main.js';
 import { initState } from '../state.js';
+import { startCapturingInput } from '../input.js';
+
 const attr = ref({
 	title: {
 		x: 50,
@@ -360,6 +362,7 @@ function onGameStart() {
 	});
 	nw.connect();
 	initState();
+	startCapturingInput();
 	startRenderGame();
 }
 

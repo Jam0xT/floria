@@ -30,6 +30,7 @@ io.on('connection', socket => {
 	socket.on(Constants.MSG_TYPES.CLIENT.ROOM.SETTINGS, updSettings);
 	socket.on(Constants.MSG_TYPES.CLIENT.ROOM.READY, toggleReady);
 	socket.on(Constants.MSG_TYPES.CLIENT.ROOM.LEAVE, leaveRoom);
+	socket.on(Constants.MSG_TYPES.CLIENT.GAME.INPUT, gameInput);
 	socket.on('disconnect', onDisconnect);
 });
 
@@ -51,6 +52,10 @@ function updSettings(type, update) {
 
 function toggleReady() {
 	room.toggleReady(this);
+}
+
+function gameInput(type, input) {
+	room.gameInput(this, type, input);
 }
 
 function onDisconnect() {

@@ -12,6 +12,9 @@ export default Object.freeze({
 				INFO: 'WsUVLIiGCIJU12UOKn602QCGgiAJaPX0cLy8ZMn6DOEZFpeVvUDod63qhqatAfff',
 				SETTINGS: 'DhkIfoAbCPybNZPGSapzxGJtvXTjFbgSNIuDdtafmXMIovmouJTQDUnJxffPINek',
 				READY: 'jRKbIsuMHTYu0v7J6c2bI2aYewjluRJzMCfqT0xSWwYVvCb7YY5ObiTBf6YIqAe6',
+			},
+			GAME: {
+				INPUT: 'frKNOmDOCXVEgrXtrqiZJSzyeXNoIWPnPOTDezbgzLmCKnpsNciMaQDayjNuwyLW',
 			}
 		},
 		SERVER: {
