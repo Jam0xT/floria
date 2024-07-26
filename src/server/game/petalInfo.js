@@ -10,8 +10,8 @@ export default Object.freeze({
 		pattern: 0, 			// 多子形态，0 表示分散，1 表示聚合
 		angle: 0,				// 多子花瓣的亚轨道起始角度
 		rot_speed: 0.05,		// 亚轨道旋转速度 单位:弧度 / 刻
-		r_orbit: 100,			// 轨道半径
-		r_sub_orbit: 0,			// 亚轨道半径
+		orbit_extra: 0,			// 额外轨道半径
+		sub_orbit: 0,			// 亚轨道半径
 		special: [], 			// 特殊技能合集
 	},
 });

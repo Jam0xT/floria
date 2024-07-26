@@ -87,8 +87,8 @@ function updatePlayers() { // Game 调用 更新玩家
 			const instances = data.instances; 	// 实例列表
 
 			const angle = player.var.angle + idx * (Math.PI * 2 / clusterCnt); // 计算当前抽象花瓣亚轨道中心在轨道的角度
-			const cx = player.var.pos.x + info.r_orbit * Math.cos(angle); // 亚轨道中心坐标
-			const cy = player.var.pos.y + info.r_orbit * Math.sin(angle);
+			const cx = player.var.pos.x + (info.orbit_extra + player.var.attr.orbit) * Math.cos(angle); // 亚轨道中心坐标
+			const cy = player.var.pos.y + (info.orbit_extra + player.var.attr.orbit) * Math.sin(angle);
 
 			if ( info.count == 1 ) { // 单子花瓣
 				if ( instances[0] ) {
@@ -107,8 +107,8 @@ function updatePlayers() { // Game 调用 更新玩家
 			for (let subidx = 0; subidx < info.count; subidx ++ ) { // 遍历实例
 				if ( instances[subidx] ) { // 实例存在
 					const sub_angle = info.angle + subidx * (Math.PI * 2 / info.count); // 计算当前实例在抽象花瓣亚轨道的角度
-					const x = cx + info.r_sub_orbit * Math.cos(sub_angle); // 实例目标坐标
-					const y = cy + info.r_sub_orbit * Math.sin(sub_angle);
+					const x = cx + info.sub_orbit * Math.cos(sub_angle); // 实例目标坐标
+					const y = cy + info.sub_orbit * Math.sin(sub_angle);
 					const petal = $.entities[instances[subidx]]; // 当前实例
 					const dx = x - petal.var.pos.x, dy = y - petal.var.pos.y;
 					entityHandler.move.bind(petal)( // 更新花瓣 movement
@@ -144,8 +144,8 @@ kit: {size, primary:[{id, info, instances:[uuid]}], secondary:[{id, info}]}
 	pattern: 0, 			// 多子形态，0 表示分散，1 表示聚合
 	angle: 0,				// 多子花瓣的亚轨道起始角度
 	rot_speed: 0.05,		// 亚轨道旋转速度 单位:弧度 / 刻
-	r_orbit: 100,			// 轨道半径
-	r_sub_orbit: 0,			// 亚轨道半径
+	orbit_extra: 100,		// 额外轨道半径
+	sub_orbit: 0,			// 亚轨道半径
 	speci6al: [], 			// 特殊技能合集
 }
 具体参考 petalInfo.js
@@ -198,7 +198,6 @@ function handlePlayerDeath(player) { // Game 调用
 	const kit = player.var.kit;
 	kit.primary.forEach(data => { // 杀死死亡玩家的所有花瓣
 		data.instances.forEach(uuid => {
-			console.log(uuid, $.entities[uuid]);
 			const petal = $.entities[uuid];
 			if ( !petal ) // 花瓣不存在
 				return ;
