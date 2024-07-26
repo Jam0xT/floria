@@ -89,30 +89,30 @@ function updatePlayers() { // Game 调用 更新玩家
 			}
 		});
 
-		let clusteridx = 0 //遍历到的花瓣不是一簇时会增加info.count - 1，其余情况 + 1
+		let clusteridx = 0; // 当前花瓣簇编号
 		kit.primary.forEach((data) => { // 遍历抽象花瓣 更新移动
 			const id = data.id; // 抽象花瓣 id
 			if ( !id ) 			// 空花瓣
 				return ;
 			const info = data.info; 			// 抽象花瓣信息
 			const instances = data.instances; 	// 实例列表
-			for (let subidx = 0; subidx < info.count; subidx ++) {
-				if ( instances[subidx] ) {
+			for (let subidx = 0; subidx < info.count; subidx ++) { // 遍历该抽象花瓣的实例
+				if ( instances[subidx] ) { // 实例存在
 					
 					const angle = player.var.angle + clusteridx * (Math.PI * 2 / clusterCnt); // 计算当前抽象花瓣亚轨道中心在轨道的角度
 					
 					const cx = player.var.pos.x + (info.orbit_extra + player.var.attr.orbit[player.var.state]) * Math.cos(angle); // 亚轨道中心坐标
 					const cy = player.var.pos.y + (info.orbit_extra + player.var.attr.orbit[player.var.state]) * Math.sin(angle);
 					
-					const petal = $.entities[instances[subidx]]; // 当前实例
-					let subdx = 0, subdy = 0
-					if (info.pattern == 1) {
+					const petal = $.entities[instances[subidx]]; // 当前实例（花瓣实体）
+					let subdx = 0, subdy = 0; // 在亚轨道上相对与亚轨道中心的相对坐标 对于非聚合式花瓣来说为 (0, 0)
+					if ( info.pattern == 1 ) { // 聚合
 						const sub_angle = info.angle + subidx * (Math.PI * 2 / info.count); // 计算当前实例在抽象花瓣亚轨道的角度
-						subdx = info.sub_orbit * Math.cos(sub_angle); // 实例目标坐标
+						subdx = info.sub_orbit * Math.cos(sub_angle); // 计算实例在亚轨道上的相对坐标
 						subdy = info.sub_orbit * Math.sin(sub_angle);
 					}
-					//console.log(cx,cy,petal.var.pos.x,subdx)
-					const dx = cx - petal.var.pos.x + subdx, dy = cy - petal.var.pos.y + subdy;
+
+					const dx = cx + subdx - petal.var.pos.x, dy = cy + subdy - petal.var.pos.y; // 计算 目标坐标 相对于 目前坐标 的 相对坐标
 						
 					entityHandler.move.bind(petal)( // 更新花瓣 movement
 						Math.atan2(dy, dx), // 方向
@@ -122,13 +122,7 @@ function updatePlayers() { // Game 调用 更新玩家
 			}
 			
 			info.angle = (info.angle + info.rot_speed) % (Math.PI * 2); // 更新亚轨道起始角度
-
-			if (info.pattern == 0) { //非一簇
-				clusteridx += info.count
-			} else {
-				clusteridx ++
-			}
-
+			clusteridx += ( info.pattern == 0 ) ? info.count : 1; // 更新花瓣簇编号
 		});
 	});
 }
