@@ -7,7 +7,11 @@ import * as util from '../../game/utility.js';
 
 class Game_Arena {
 	constructor(settings) {
-		this.var = {isStarted: false, isOver: false};
+		this.var = {
+			isStarted: false, 
+			isOver: false,
+			tick: 0, // 游戏刻计数
+		};
 		this.init(settings);
 	}
 
@@ -32,6 +36,7 @@ class Game_Arena {
 		// console.log('upd');
 		time.update.bind(this)();
 		const dt = 1 / this.var.props.tick_per_second;
+		this.var.tick ++;
 		playerHandler.updatePlayers.bind(this)(); // 更新玩家
 		entityHandler.updateAcceleration.bind(this)(dt); // 更新加速度
 		entityHandler.updateVelocity.bind(this)(dt); // 更新速度

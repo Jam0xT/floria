@@ -39,12 +39,22 @@ function addPlayer(socket, username, team) { // 添加玩家
 	initPetals.bind(newPlayer)($.props.default_kit_info);	// 初始化花瓣相关信息
 }
 
+function playerNaturalRegen(player) { // 玩家自然会血
+	const $ = this.var;
+	if ( $.tick % $.props.player_natural_regen.interval )
+		return ;
+	player.var.attr.hp = Math.min(player.var.attr.max_hp, player.var.attr.hp + $.props.player_natural_regen.point + $.propr.player_natural_regen.percent * player.var.attr.max_hp);
+}
+
 function updatePlayers() { // Game 调用 更新玩家
 	const $ = this.var;
 	Object.values($.players).map(uuid => $.entities[uuid]).forEach(player => { // 遍历玩家
 		if ( player.var.spec ) { // 玩家是观察者
 			return ;
 		}
+
+		playerNaturalRegen.bind(this)(player);
+
 		player.var.angle = (player.var.angle + player.var.attr.rot_speed) % (Math.PI * 2); // 更新轨道起始角度
 		const kit = player.var.kit;
 		let clusterCnt = 0; // 花瓣簇数 聚合算 1 分散算 n

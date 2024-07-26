@@ -19,7 +19,7 @@ function solveBorderCollisions() { // 解决与地图边界碰撞
 	const $ = this.var;
 	const w = $.props.map_width, h = $.props.map_height; // 地图宽高
 	Object.values($.entities).forEach(entity => {
-		if ( entity.var.attr.ignoer_border ) // 无视边界属性判定
+		if ( entity.var.attr.ignore_border ) // 无视边界属性判定
 			return ;
 		const pos = entity.var.pos; // 实体坐标
 		const v = entity.var.v;
