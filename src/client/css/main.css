@@ -1,47 +1,9 @@
-.canvas {
-	display: block;
-	width: 100%;
-	height: 100%;
-	position: absolute;
-	left: 0%;
-	top: 0%;
-}
-
 html, body {
 	margin: 0;
 	padding: 0;
-	background-color: rgb(0, 0, 0);
-}
-
-#text-loading {
-	color: white;
-	font-family: Ubuntu;
-	font-size: 8vh;
-	position: absolute;
-	left: 50%;
-	top: 50%;
-	transform: translate(-50%, -150%);
-	z-index: 1;
-}
-
-.hidden {
-	display: none !important;
-}
-
-#username-input {
-	height: 4vh;
-	width: 40vh;
-	position: absolute;
-	z-index: 4;
-	left: 50vw;
-	top: -10px;
-	transform: translateY(-50%) translateX(-50%);
-	padding: 0.1vh;
-	background-color: rgba(238, 238, 238, 1);
-	outline-color: rgba(0, 0, 0, 0);
-	outline-style: solid;
-	outline-width: 0.5vh;
-	border-radius: 0.2vh;
-	font-size: 3.5vh;
-	font-family: Ubuntu;
+	background-color: #FFFFFF;
+    max-width: 100%;
+    max-height: 100%;
+    overflow-x: hidden;
+    overflow-y: hidden;
 }

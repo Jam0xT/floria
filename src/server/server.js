@@ -4,20 +4,24 @@ import webpackDevMiddleware from "webpack-dev-middleware";
 import { Server } from 'socket.io';
 
 import Constants from '../shared/constants.js';
-import webpackConfig from "../../webpack.dev.js";
+import webpackConfigDev from "../../webpack.dev.js";
+import webpackConfigProd from '../../webpack.prod.js';
 
 import * as room from './room.js';
 const app = express();
 app.use(express.static('public'));
 
 if (process.env.NODE_ENV == "development") {
-	const compiler = webpack(webpackConfig);
+	const compiler = webpack(webpackConfigDev);
+	app.use(webpackDevMiddleware(compiler));
+} else if (process.env.NODE_ENV == "production") {
+	const compiler = webpack(webpackConfigProd);
 	app.use(webpackDevMiddleware(compiler));
 } else {
 	app.use(express.static('dist'));
 }
 
-const port = process.env.PORT || 25565;
+const port = process.env.PORT || 25564;
 const server = app.listen(port);
 console.log(`Server listening on port ${port}`);
 
@@ -27,42 +31,43 @@ io.on('connection', socket => {
 	console.log(`Player ${socket.id} connected.`);
 	socket.on(Constants.MSG_TYPES.CLIENT.ROOM.CREATE, createRoom);
 	socket.on(Constants.MSG_TYPES.CLIENT.ROOM.JOIN, joinRoom);
-	socket.on(Constants.MSG_TYPES.CLIENT.ROOM.GETROOM, getRoomOfPlayer);
-	socket.on(Constants.MSG_TYPES.CLIENT.ROOM.CHECKOWNER, checkOwner);
-	socket.on(Constants.MSG_TYPES.CLIENT.ROOM.READY, readyChange);
-	socket.on(Constants.MSG_TYPES.CLIENT.ROOM.QUIT, quitRoom);
+	socket.on(Constants.MSG_TYPES.CLIENT.ROOM.SETTINGS, updSettings);
+	socket.on(Constants.MSG_TYPES.CLIENT.ROOM.READY, toggleReady);
+	socket.on(Constants.MSG_TYPES.CLIENT.ROOM.LEAVE, leaveRoom);
+	socket.on(Constants.MSG_TYPES.CLIENT.GAME.INPUT, gameInput);
 	socket.on('disconnect', onDisconnect);
-	// socket.on(Constants.MSG_TYPES.JOIN_GAME, joinGame);
-	// socket.on(Constants.MSG_TYPES.MOVEMENT, handleMovement);
-	// socket.on(Constants.MSG_TYPES.MOUSE_DOWN, handleMouseDown);
-	// socket.on(Constants.MSG_TYPES.MOUSE_UP, handleMouseUp);
-	// socket.on(Constants.MSG_TYPES.PETAL_SWITCH, handlePetalSwitch);
-	// socket.on(Constants.MSG_TYPES.CMD_INV, handleCmdInv)
-	// socket.on('disconnect', onDisconnect);
 });
 
-function createRoom(mode) {
-	room.createRoom(this, mode);
+function createRoom(mode, username) {
+	room.createRoom(this, mode, username);
 }
 
-function joinRoom(mode, roomId) {
-	room.joinRoom(this, mode, roomId);
+function joinRoom(mode, username, roomId) {
+	room.joinRoom(this, mode, username, roomId);
 }
-function getRoomOfPlayer() {
-	room.getRoomOfPlayer(this);
+
+function leaveRoom() {
+	room.leaveRoom(this);
 }
-function checkOwner() {
-	room.checkOwner(this);
+
+function updSettings(type, update) {
+	room.updSettings(this, type, update);
 }
-function readyChange() {
-	room.roomOfPlayers[this.id].readyChange(this);
+
+function toggleReady() {
+	room.toggleReady(this);
 }
-function quitRoom(needMsg) {
-	room.quitRoom(this, needMsg);
+
+function gameInput(type, input) {
+	room.gameInput(this, type, input);
 }
+
 function onDisconnect() {
-	room.quitRoom(this, false);
+	room.disconnect(this);
 }
+// function onDisconnect() {
+// 	room.quitRoom(this, false);
+// }
 // const game = new Game();
 
 // function joinGame(username) {

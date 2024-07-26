@@ -2,18 +2,24 @@ import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
 import HtmlWebpackPlugin from "html-webpack-plugin";
+import { VueLoaderPlugin } from 'vue-loader';
+import webpack from 'webpack';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-export const entry = {
+const entry = {
 	game: './src/client/index.js',
 };
-export const output = {
+const output = {
 	filename: '[name].[contenthash].js',
 	path: resolve(__dirname, 'dist'),
 };
-export const module = {
+const module = {
 	rules: [
+		{
+			test: /\.vue$/,
+			loader: 'vue-loader',
+		},
 		{
 			test: /\.js$/,
 			exclude: /node_modules/,
@@ -35,7 +41,7 @@ export const module = {
 		},
 	],
 };
-export const plugins = [
+const plugins = [
 	new MiniCssExtractPlugin({
 		filename: '[name].[contenthash].css',
 	}),
@@ -43,4 +49,17 @@ export const plugins = [
 		filename: 'index.html',
 		template: 'src/client/html/index.html',
 	}),
+	new VueLoaderPlugin(),
+	new webpack.DefinePlugin({
+		__VUE_OPTIONS_API__: true,
+		__VUE_PROD_DEVTOOLS__: false,
+		__VUE_PROD_HYDRATION_MISMATCH_DETAILS__: false,
+	})
 ];
+
+export {
+	entry,
+	output,
+	module,
+	plugins,
+};

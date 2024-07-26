@@ -5,11 +5,10 @@ import PetalAttributes from '../../../../public/petal_attributes.js';
 const Attribute = EntityAttributes.PLAYER;
 import Petal from './petal.js';
 
-
 class Player extends Entity {
-	constructor(id, username, x, y) {
-		super(id, x, y, id, 'mob', 'PLAYER', EntityAttributes.PLAYER.MAX_HP_BASE, EntityAttributes.PLAYER.MAX_HP_BASE, false);
-		// a player's team equals to his id
+	constructor(id, socketID, username, x, y, team) {
+		super(id, x, y, team, 'mob', 'PLAYER', EntityAttributes.PLAYER.MAX_HP_BASE, EntityAttributes.PLAYER.MAX_HP_BASE, false);
+		this.socketID = socketID;
 		this.username = username;
 		this.score = 1;
 		this.haveRankOnLeaderboard = false;
@@ -43,7 +42,7 @@ class Player extends Entity {
 		this.secondaryPetals[4] = 'EMPTY';
 		
 		for (let i = 0; i < Constants.PRIMARY_SLOT_COUNT_BASE; i ++ ) {
-			let petals = []
+			let petals = [];
 			for (let o = 0; o < PetalAttributes[this.primaryPetals[i]].COUNT; o++) {
 				const petal = this.newPetal(this.primaryPetals[i], i * Constants.PETAL_MULTIPLE_MAX + o, i * Constants.PETAL_MULTIPLE_MAX + o, i, o, i, this.x, this.y);
 				petals.push(petal);
