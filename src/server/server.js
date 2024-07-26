@@ -4,14 +4,18 @@ import webpackDevMiddleware from "webpack-dev-middleware";
 import { Server } from 'socket.io';
 
 import Constants from '../shared/constants.js';
-import webpackConfig from "../../webpack.dev.js";
+import webpackConfigDev from "../../webpack.dev.js";
+import webpackConfigProd from '../../webpack.prod.js';
 
 import * as room from './room.js';
 const app = express();
 app.use(express.static('public'));
 
 if (process.env.NODE_ENV == "development") {
-	const compiler = webpack(webpackConfig);
+	const compiler = webpack(webpackConfigDev);
+	app.use(webpackDevMiddleware(compiler));
+} else if (process.env.NODE_ENV == "production") {
+	const compiler = webpack(webpackConfigProd);
 	app.use(webpackDevMiddleware(compiler));
 } else {
 	app.use(express.static('dist'));

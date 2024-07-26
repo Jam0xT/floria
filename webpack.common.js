@@ -7,14 +7,14 @@ import webpack from 'webpack';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-export const entry = {
+const entry = {
 	game: './src/client/index.js',
 };
-export const output = {
+const output = {
 	filename: '[name].[contenthash].js',
 	path: resolve(__dirname, 'dist'),
 };
-export const module = {
+const module = {
 	rules: [
 		{
 			test: /\.vue$/,
@@ -41,7 +41,7 @@ export const module = {
 		},
 	],
 };
-export const plugins = [
+const plugins = [
 	new MiniCssExtractPlugin({
 		filename: '[name].[contenthash].css',
 	}),
@@ -56,3 +56,10 @@ export const plugins = [
 		__VUE_PROD_HYDRATION_MISMATCH_DETAILS__: false,
 	})
 ];
+
+export {
+	entry,
+	output,
+	module,
+	plugins,
+};
