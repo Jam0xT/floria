@@ -1,7 +1,7 @@
 import Entity from './entity.js';
 
 class Player extends Entity {
-	constructor(socketID, username, x, y, team, attr, defaultPetals ) {
+	constructor(socketID, username, x, y, team, attr ) {
 		super('player', x, y, team, attr);
 		const $ = this.var;
 		$.playerInfo = { // 玩家信息
@@ -15,6 +15,7 @@ class Player extends Entity {
 		const $ = this.var;
 		$.spec = state;
 		$.attr.ghost = true;
+		$.attr.invulnerable = true;
 	}
 }
 

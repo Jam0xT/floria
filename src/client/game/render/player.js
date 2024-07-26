@@ -3,7 +3,8 @@ import * as canvas from '../../canvas.js';
 import { getAsset } from '../../assets.js';
 
 function renderPlayer(self, player) {
-	const ctx = canvas.getTmpCtx();
+	// const ctx = canvas.getTmpCtx();
+	const ctx = canvas.ctxMain;
 
 	const { x, y } = player;
 	let playerAsset;
@@ -42,7 +43,7 @@ function renderPlayer(self, player) {
 	const healthBarWidth = healthBarBaseWidth - healthBarOutline;
 	const healthBarStyleNormal = 'rgb(117, 221, 52)';
 	const healthBarStyleHurt = 'rgb(221, 52, 52)';
-	const healthBarLength = healthBarBaseLength * player.attr.hp / player.attr.max_hp ;
+	const healthBarLength = healthBarBaseLength * Math.max(0, player.attr.hp) / player.attr.max_hp ;
 
 	ctx.beginPath();
 	ctx.lineWidth = healthBarBaseWidth;
@@ -62,7 +63,7 @@ function renderPlayer(self, player) {
 	ctx.stroke();
 	ctx.closePath();
 
-	canvas.draw(ctx, canvas.ctxMain);
+	// canvas.draw(ctx, canvas.ctxMain);
 }
 
 export {

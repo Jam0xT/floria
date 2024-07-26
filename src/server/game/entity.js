@@ -20,7 +20,8 @@ class Entity { // 所有实体的类
 				speed, // 移动速度
 				ghost, // 无碰撞箱
 				ignoreBorder,	// 无视地图边界
-				rot_speed,		// 花瓣轨道转速 单位:弧度 / 刻 顺时针为负
+				rot_speed,		// 花瓣轨道转速 单位:弧度 / 刻 顺时针为正
+				invulnerable,	// 不会死亡判定
 			*/
 			v: { // 速度
 				x: 0,

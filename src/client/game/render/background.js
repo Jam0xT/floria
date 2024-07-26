@@ -3,7 +3,8 @@ import * as canvas from '../../canvas.js';
 import { settings } from '../main.js';
 
 function renderBackground(x, y) {
-	const ctx = canvas.getTmpCtx();
+	// const ctx = canvas.getTmpCtx();
+	const ctx = canvas.ctxMain;
 
 	const gridInterval = hpx * 50;
 	
@@ -38,7 +39,7 @@ function renderBackground(x, y) {
 		ctx.closePath();
 	}
 
-	canvas.draw(ctx, canvas.ctxMain);
+	// canvas.draw(ctx, canvas.ctxMain);
 }
 
 export {

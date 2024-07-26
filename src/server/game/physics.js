@@ -152,6 +152,8 @@ function solveCollisions(dt) {
 				const entity1 = $.entities[uuid1], entity2 = $.entities[uuid2]; // 获取实体
 				if ( !entity1 || !entity2 )
 					continue;
+				if ( $.props.ghost_friendly_petal && entity1.var.team == entity2.var.team && (entity1.var.type == 'petal' || entity2.var.type == 'petal') )
+					continue;
 				const d = util.getDistance(entity1.var.pos, entity2.var.pos); // distance 两实体距离
 				const r1 = entity1.var.attr.radius, r2 = entity2.var.attr.radius; // 两实体半径
 				if ( d < r1 + r2 ) { // 可以碰撞
@@ -204,5 +206,6 @@ export {
 	init,
 	solveBorderCollisions,
 	updateChunks,
+	getChunkID,
 	solveCollisions,
 };

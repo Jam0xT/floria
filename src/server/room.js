@@ -203,9 +203,10 @@ class Room {
 		Object.values(this.sockets).forEach(socket => {
 			socket.emit(Constants.MSG_TYPES.SERVER.ROOM.START);
 		});
-		const spots = []; // 获取所有空闲位置所在的队伍编号
+		let spots = []; // 获取所有空闲位置所在的队伍编号
 		this.teams.forEach((team, id) => {
-			spots.concat(new Array(Math.max(0, this.teamSize - team.playerCount)).fill(id));
+			const newArr = new Array(Math.max(0, this.teamSize - team.playerCount));
+			spots = spots.concat(newArr.fill(id));
 		});
 		shuffle(spots); // 打乱这些编号
 		let spotIndex = 0;
@@ -215,7 +216,7 @@ class Room {
 		});
 		this.settings = properties[this.mode]; // 游戏设置，会传入 Game 到 $.props
 		this.update(11, {settings: this.settings}); // 传到客户端进行初始化
-		this.game = new gamemodes[this.mode](this.settings);
+		this.game = new gamemodes[this.mode](this.settings); // 创建 Game 类
 		Object.keys(this.sockets).forEach(id => { // id: socket id
 			const socket = this.sockets[id];
 			const player = this.players[id];

@@ -3,7 +3,8 @@ import * as canvas from '../../canvas.js';
 import { getAsset } from '../../assets.js';
 
 function renderPetal(self, petal) {
-	const ctx = canvas.getTmpCtx();
+	// const ctx = canvas.getTmpCtx();
+	const ctx = canvas.ctxMain;
 
 	const { x, y } = petal;
 	let asset = getAsset(`petals/${petal.id}.svg`);
@@ -21,7 +22,7 @@ function renderPetal(self, petal) {
 	);
 
 	ctx.translate(-canvasX, -canvasY);
-	canvas.draw(ctx, canvas.ctxMain);
+	// canvas.draw(ctx, canvas.ctxMain);
 }
 
 export {

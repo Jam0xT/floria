@@ -9,6 +9,6 @@ export default Object.freeze({
 		mass: 100,
 		dmg: 25,
 		speed: 1000,
-		rot_speed: -0.1,
+		rot_speed: 0.1,
 	},
 });

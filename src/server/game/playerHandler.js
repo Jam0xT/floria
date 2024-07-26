@@ -31,8 +31,7 @@ function addPlayer(socket, username, team) { // 添加玩家
 		username,
 		x, y,
 		team,
-		mobAttr.player,
-		$.props.default_petals,
+		structuredClone(mobAttr.player),
 	);
 	const uuid = newPlayer.var.uuid;	// 获取 uuid
 	$.players[socket.id] = uuid;		// 储存 uuid
@@ -70,7 +69,7 @@ function updatePlayers() { // Game 调用 更新玩家
 							subidx,				// 在所属抽象花瓣的实例集合中的编号
 							player.var.pos.x, player.var.pos.y, // 继承玩家的位置
 							player.var.team,	// 继承玩家的所在队伍
-							petalAttr[info.instance_id],	// 默认属性
+							structuredClone(petalAttr[info.instance_id]),	// 默认属性
 						);
 						const uuid = newPetal.var.uuid; // 获取新花瓣 uuid
 						instances[subidx] = uuid; 		// 储存 uuid
@@ -199,23 +198,27 @@ function handlePlayerDeath(player) { // Game 调用
 	const kit = player.var.kit;
 	kit.primary.forEach(data => { // 杀死死亡玩家的所有花瓣
 		data.instances.forEach(uuid => {
-			$.entities[uuid].var.hp = -1;
+			console.log(uuid, $.entities[uuid]);
+			const petal = $.entities[uuid];
+			if ( !petal ) // 花瓣不存在
+				return ;
+			petal.var.unbound = true;
+			handlePetalDeath.bind(this)(petal); // 杀死花瓣
+			entityHandler.removeEntity.bind(this)(petal.var.uuid);
 		});
 	});
 }
 
 function handlePetalDeath(petal) { // Game 调用
 	const $ = this.var;
-	if ( petal.unbound ) // 已解绑花瓣
+	if ( petal.var.unbound ) // 已解绑花瓣
 		return ;
 	const player = $.entities[petal.var.parent]; // 获取花瓣所属玩家
 	if ( !player ) // 玩家已不存在
 		return ;
-	const data = player.var.kit.primary[petal.idx]; // 获取所属抽象花瓣数据
-	if ( !data ) // ？
-		return ;
-	data.info.cd_remain[petal.subidx] = data.info.cd; // 重置 cd
-	data.instances[subidx] = ''; // 清除旧 uuid 不可省略 因为这用于判定是否在冷却期间
+	const data = player.var.kit.primary[petal.var.idx]; // 获取所属抽象花瓣数据
+	data.info.cd_remain[petal.var.subidx] = data.info.cd; // 重置 cd
+	data.instances[petal.var.subidx] = ''; // 清除旧 uuid 不可省略 因为这用于判定是否在冷却期间
 }
 
 export {

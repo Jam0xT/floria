@@ -4,6 +4,7 @@
 $ = this.var
 */
 import * as playerHandler from './playerHandler.js';
+import * as physics from './physics.js';
 
 function init() { // Game 调用
 	// 初始化
@@ -88,16 +89,37 @@ function handleEntityDeaths() {
 	Object.values($.entities).forEach(entity => {
 		if ( !entity )
 			return ;
-		if ( entity.var.attr.hp <= 0 ) {
-			if ( entity.var.type == 'player' ) {
+		if ( entity.var.attr.hp <= 0 ) { // 死亡
+			if ( entity.var.attr.invulnerable ) { // 不会进行死亡判定
+				return ;
+			}
+			if ( entity.var.type == 'player' ) { // 对玩家进行特殊处理
 				playerHandler.handlePlayerDeath.bind(this)(entity);
+				return ;
 			}
 			if ( entity.var.type == 'petal' ) {
 				playerHandler.handlePetalDeath.bind(this)(entity);
 			}
-			delete $.entities[entity.uuid];
+			removeEntity.bind(this)(entity.var.uuid);
 		}
 	});
+}
+
+function removeEntity(uuid) {
+	const $ = this.var;
+	const entity = $.entities[uuid];
+	entity.var.chunks.forEach(chunk => { // 清除区块中对这个实体的记录
+		const id = physics.getChunkID(chunk);
+		if ( $.chunks[id] ) {
+			$.chunks[id].splice(
+				$.chunks[id].findIndex(uuid_ => {
+					return (uuid_ == entity.var.uuid);
+				}),
+				1
+			);
+		}
+	});
+	delete $.entities[uuid];
 }
 
 function getUpdate() { // Entity 调用
@@ -128,4 +150,5 @@ export {
 	updatePosition,
 	handleEntityDeaths,
 	getUpdate,
+	removeEntity,
 };
