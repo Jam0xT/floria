@@ -30,7 +30,7 @@ const attr = ref({
 	},
 	room: {
 		x: 30,
-		y: -20,
+		y: -30,
 	},
 	log: {
 		x: -20,
@@ -41,8 +41,8 @@ const attr = ref({
 		y: -20,
 	},
 	game_settings: {
-		x: 60,
-		y: -20,
+		x: 67,
+		y: -30,
 	}
 });
 
@@ -74,9 +74,9 @@ function onBack() {
 	attr.value.button_arena.y = 40;
 	attr.value.username_input.y = 45;
 	attr.value.button_back.y = 105;
-	attr.value.room.y = -20;
+	attr.value.room.y = -30;
 	attr.value.player_list.y = -20;
-	attr.value.game_settings.y = -20;
+	attr.value.game_settings.y = -30;
 	attr.value.log.x = -20;
 }
 
@@ -88,7 +88,7 @@ function onSelectArena() {
 	attr.value.username_input.y = 5;
 	attr.value.room.y = 5;
 	attr.value.player_list.y = 5;
-	attr.value.game_settings.y = 5;
+	attr.value.game_settings.y = 4;
 	attr.value.log.x = 5;
 	mode.value = 'arena';
 }

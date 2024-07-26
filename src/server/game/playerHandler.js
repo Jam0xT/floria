@@ -41,9 +41,9 @@ function addPlayer(socket, username, team) { // 添加玩家
 
 function playerNaturalRegen(player) { // 玩家自然会血
 	const $ = this.var;
-	if ( $.tick % $.props.player_natural_regen.interval )
+	if ( $.tick % $.props.player_natural_regen.interval)
 		return ;
-	player.var.attr.hp = Math.min(player.var.attr.max_hp, player.var.attr.hp + $.props.player_natural_regen.point + $.propr.player_natural_regen.percent * player.var.attr.max_hp);
+	player.var.attr.hp = Math.min(player.var.attr.max_hp, player.var.attr.hp + $.props.player_natural_regen.point + $.props.player_natural_regen.percent * player.var.attr.max_hp);
 }
 
 function updatePlayers() { // Game 调用 更新玩家
@@ -89,44 +89,46 @@ function updatePlayers() { // Game 调用 更新玩家
 			}
 		});
 
-		kit.primary.forEach((data, idx) => { // 遍历抽象花瓣 更新移动
+		let clusteridx = 0 //遍历到的花瓣不是一簇时会增加info.count - 1，其余情况 + 1
+		kit.primary.forEach((data) => { // 遍历抽象花瓣 更新移动
 			const id = data.id; // 抽象花瓣 id
 			if ( !id ) 			// 空花瓣
 				return ;
 			const info = data.info; 			// 抽象花瓣信息
 			const instances = data.instances; 	// 实例列表
-
-			const angle = player.var.angle + idx * (Math.PI * 2 / clusterCnt); // 计算当前抽象花瓣亚轨道中心在轨道的角度
-			const cx = player.var.pos.x + (info.orbit_extra + player.var.attr.orbit[player.var.state]) * Math.cos(angle); // 亚轨道中心坐标
-			const cy = player.var.pos.y + (info.orbit_extra + player.var.attr.orbit[player.var.state]) * Math.sin(angle);
-
-			if ( info.count == 1 ) { // 单子花瓣
-				if ( instances[0] ) {
-					const petal = $.entities[instances[0]];
-					const dx = cx - petal.var.pos.x, dy = cy - petal.var.pos.y;
+			for (let subidx = 0; subidx < info.count; subidx ++) {
+				if ( instances[subidx] ) {
+					
+					const angle = player.var.angle + clusteridx * (Math.PI * 2 / clusterCnt); // 计算当前抽象花瓣亚轨道中心在轨道的角度
+					
+					const cx = player.var.pos.x + (info.orbit_extra + player.var.attr.orbit[player.var.state]) * Math.cos(angle); // 亚轨道中心坐标
+					const cy = player.var.pos.y + (info.orbit_extra + player.var.attr.orbit[player.var.state]) * Math.sin(angle);
+					
+					const petal = $.entities[instances[subidx]]; // 当前实例
+					let subdx = 0, subdy = 0
+					if (info.pattern == 1) {
+						const sub_angle = info.angle + subidx * (Math.PI * 2 / info.count); // 计算当前实例在抽象花瓣亚轨道的角度
+						subdx = info.sub_orbit * Math.cos(sub_angle); // 实例目标坐标
+						subdy = info.sub_orbit * Math.sin(sub_angle);
+					}
+					//console.log(cx,cy,petal.var.pos.x,subdx)
+					const dx = cx - petal.var.pos.x + subdx, dy = cy - petal.var.pos.y + subdy;
+						
 					entityHandler.move.bind(petal)( // 更新花瓣 movement
 						Math.atan2(dy, dx), // 方向
 						Math.sqrt(dx * dx + dy * dy) * $.props.petal_speed, // 大小
 					);
 				}
-				return ;
 			}
-
+			
 			info.angle = (info.angle + info.rot_speed) % (Math.PI * 2); // 更新亚轨道起始角度
 
-			for (let subidx = 0; subidx < info.count; subidx ++ ) { // 遍历实例
-				if ( instances[subidx] ) { // 实例存在
-					const sub_angle = info.angle + subidx * (Math.PI * 2 / info.count); // 计算当前实例在抽象花瓣亚轨道的角度
-					const x = cx + info.sub_orbit * Math.cos(sub_angle); // 实例目标坐标
-					const y = cy + info.sub_orbit * Math.sin(sub_angle);
-					const petal = $.entities[instances[subidx]]; // 当前实例
-					const dx = x - petal.var.pos.x, dy = y - petal.var.pos.y;
-					entityHandler.move.bind(petal)( // 更新花瓣 movement
-						Math.atan2(dy, dx), // 方向
-						Math.sqrt(dx * dx + dy * dy) * $.props.petal_speed, // 大小
-					);
-				}
+			if (info.pattern == 0) { //非一簇
+				clusteridx += info.count
+			} else {
+				clusteridx ++
 			}
+
 		});
 	});
 }
