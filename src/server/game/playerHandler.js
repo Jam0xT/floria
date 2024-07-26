@@ -87,8 +87,8 @@ function updatePlayers() { // Game 调用 更新玩家
 			const instances = data.instances; 	// 实例列表
 
 			const angle = player.var.angle + idx * (Math.PI * 2 / clusterCnt); // 计算当前抽象花瓣亚轨道中心在轨道的角度
-			const cx = player.var.pos.x + (info.orbit_extra + player.var.attr.orbit) * Math.cos(angle); // 亚轨道中心坐标
-			const cy = player.var.pos.y + (info.orbit_extra + player.var.attr.orbit) * Math.sin(angle);
+			const cx = player.var.pos.x + (info.orbit_extra + player.var.attr.orbit[player.var.state]) * Math.cos(angle); // 亚轨道中心坐标
+			const cy = player.var.pos.y + (info.orbit_extra + player.var.attr.orbit[player.var.state]) * Math.sin(angle);
 
 			if ( info.count == 1 ) { // 单子花瓣
 				if ( instances[0] ) {

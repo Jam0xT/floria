@@ -51,8 +51,10 @@ class Game_Arena {
 	handlePlayerInput(socketID, type, input) {
 		const $ = this.var;
 		const player = $.entities[$.players[socketID]];
-		if ( type == 0 ) {
+		if ( type == 0 ) { // 鼠标移动
 			entityHandler.move.bind(player)(input.dir, input.power * player.var.attr.speed);
+		} else if ( type == 1 ) { // 鼠标按下/松开
+			player.var.state = input;
 		}
 	}
 
