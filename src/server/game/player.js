@@ -9,6 +9,7 @@ class Player extends Entity {
 			username: username, // 用户名
 		};
 		$.spec = false; // 是否为观察者
+		$.state = 0; // 0:无
 	}
 
 	setSpec(state) { // 设置是否为观察者

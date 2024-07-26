@@ -19,7 +19,7 @@ class Entity { // 所有实体的类
 				mass, 	// 重量
 				speed, // 移动速度
 				ghost, // 无碰撞箱
-				ignoreBorder,	// 无视地图边界
+				ignore_border,	// 无视地图边界
 				rot_speed,		// 花瓣轨道转速 单位:弧度 / 刻 顺时针为正
 				orbit,			// 花瓣轨道半径
 				invulnerable,	// 不会死亡判定

@@ -8,7 +8,7 @@ export default Object.freeze({
 		vision: 2000,
 		mass: 100,
 		dmg: 25,
-		speed: 1000,
+		speed: 2000,
 		rot_speed: 0.1,
 		orbit: 100,
 	},

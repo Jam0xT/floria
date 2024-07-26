@@ -38,7 +38,6 @@ class Game_Arena {
 		entityHandler.updatePosition.bind(this)(dt); // 更新位置
 		physics.updateChunks.bind(this)(); // 更新区块信息
 		physics.solveCollisions.bind(this)(dt); // 计算碰撞
-		entityHandler.updatePosition.bind(this)(dt); // 更新位置
 		physics.solveBorderCollisions.bind(this)(); // 处理边界碰撞
 		entityHandler.handleEntityDeaths.bind(this)(); // 处理实体死亡
 		this.checkGameOver();

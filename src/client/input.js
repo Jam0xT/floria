@@ -19,15 +19,11 @@ function onMouseMove(e) {
 }
 
 function onMouseDown(e) {
-	const dpr = window.devicePixelRatio;
-	const x = e.clientX * dpr, y = e.clientY * dpr;
-	// render.broadcast('mouse_down', x, y, parseButtons(e.buttons));
+	nw.socket.emit(Constants.MSG_TYPES.CLIENT.GAME.INPUT, 1, e.buttons & 3);
 }
 
 function onMouseUp(e) {
-	const dpr = window.devicePixelRatio;
-	const x = e.clientX * dpr, y = e.clientY * dpr;
-	// render.broadcast('mouse_up', x, y, parseButtons(~e.buttons));
+	nw.socket.emit(Constants.MSG_TYPES.CLIENT.GAME.INPUT, 1, e.buttons & 3);
 }
 
 function onKeyDown(e) {
@@ -36,13 +32,6 @@ function onKeyDown(e) {
 
 function onKeyUp() {
 
-}
-
-function parseButtons(buttons) { // 将 buttons 信息转化成 Object
-	return {
-		left: buttons & 1,
-		right: buttons & 2,
-	};
 }
 
 function startCapturingInput() {

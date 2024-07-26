@@ -7,5 +7,6 @@ export default Object.freeze({
 		radius: 10,
 		mass: 10,
 		dmg: 5,
+		ignore_border: true,
 	},
 });
