@@ -73,14 +73,14 @@ function updatePlayers() { // Game 调用 更新玩家
 					info.cd_remain[subidx] --; 	// 更新冷却时间
 					if ( info.cd_remain[subidx] <= 0 ) { 	// 冷却时间结束
 						const attr = structuredClone(petalAttr[info.instance_id]); // 默认属性
-						
-						// 自动设置未设定值为默认设定
-						attr.max_hp ??= petalAttr['default'].max_hp;
+						const defaultAttr = structuredClone(petalAttr['default']); // 未设置值默认值
+						// 自动设置未设置值为默认值
+						attr.max_hp ??= defaultAttr.max_hp;
 						attr.hp ??= attr.max_hp;
-						attr.mass ??= petalAttr['default'].mass;
-						attr.radius ??= petalAttr['default'].radius;
-						attr.ignore_border ??= petalAttr['default'].ignore_border;
-						attr.dmg ??= petalAttr['default'].dmg;
+						attr.mass ??= defaultAttr.mass;
+						attr.radius ??= defaultAttr.radius;
+						attr.ignore_border ??= defaultAttr.ignore_border;
+						attr.dmg ??= defaultAttr.dmg;
 
 						const newPetal = new Petal( 		// 创建新 Petal 实例
 							info.instance_id, 				// 获取实例 id
@@ -180,14 +180,32 @@ function initPetals(defaultKitInfo) { // Player 调用
 	$.petals = [];
 	$.angle = 0; // 轨道起始角度
 	defaultKitInfo.primary.forEach(id => {
+		if ( !id ) { // 空花瓣
+			$.kit.primary.push({id: ''});
+			return ;
+		}
+		const info = structuredClone(petalInfo[id]); // 获取抽象花瓣信息
+		const defaultInfo = structuredClone(petalInfo['default']); // 默认信息
+
+		// 自动设置未设定值为默认设定
+		info.id ??= id;
+		info.instance_id ??= id;
+		info.cd ??= defaultInfo.cd;
+		info.count ??= defaultInfo.count;
+		info.pattern ??= defaultInfo.pattern;
+		info.angle ??= defaultInfo.angle;
+		info.rot_speed ??= defaultInfo.rot_speed;
+		info.orbit_extra ??= defaultInfo.orbit_extra;
+		info.sub_orbit ??= defaultInfo.sub_orbit;
+
+		info.cd_remain = new Array(info.count).fill(info.cd); // 设置初始 cd
+
 		const data = {
 			id: id,
-			info: structuredClone(petalInfo[id]),
+			info: info,
 			instances: [],
 		};
-		if ( id ) { // 如果 id 不为空
-			data.info.cd_remain = new Array(data.info.count).fill(data.info.cd); // 填充 cd_remain 列表
-		}
+		
 		$.kit.primary.push(data);
 	});
 	if ( $.kit.primary.length < $.kit.size ) { // 长度不够，补空的

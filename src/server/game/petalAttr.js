@@ -9,28 +9,16 @@ export default Object.freeze({
 		ignore_border: true,
 	},
 	'basic': { // 实体花瓣 id
-		hp: 10,
 		max_hp: 10,
-		radius: 10,
-		mass: 10,
-		dmg: 5,
-		ignore_border: true,
+		dmg: 10,
 	},
 	'stinger': {
-		hp: 5,
 		max_hp: 5,
-		radius: 10,
-		mass: 10,
 		dmg: 35,
-		ignore_border: true,
 	},
 	'light': {
-		hp: 5,
 		max_hp: 5,
-		radius: 8,
-		mass: 10,
 		dmg: 8,
-		ignore_border: true,
 	}
 });
 
