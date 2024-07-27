@@ -13,6 +13,8 @@ export default Object.freeze({
 		orbit: [50, 100, 25, 100],
 		invulnerable: false,
 		poison_res: 0,
+		poison: {duration: 0, dmg: 0},
+		dmg_reflect: 0,
 	},
 	player: { // 玩家
 		hp: 150,

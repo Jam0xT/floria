@@ -14,6 +14,7 @@ class Player extends Entity {
 			point: 0, // 点数
 			percent: 0, // 总血量百分点
 		};
+		$.stack = {}; // 花瓣堆叠计数
 	}
 
 	setSpec(state) { // 设置是否为观察者

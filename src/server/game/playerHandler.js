@@ -31,18 +31,10 @@ function addPlayer(socket, username, team) { // 添加玩家
 	const defaultAttr = structuredClone(mobAttr.default);
 
 	// 将未设置属性设置为默认值
-	attr.max_hp ??= defaultAttr.max_hp;
+	Object.keys(defaultAttr).forEach(key => {
+		attr[key] ??= defaultAttr[key];
+	});
 	attr.hp ??= attr.max_hp;
-	attr.radius ??= defaultAttr.radius;
-	attr.vision ??= defaultAttr.vision;
-	attr.mass ??= defaultAttr.mass;
-	attr.speed ??= defaultAttr.speed;
-	attr.ghost ??= defaultAttr.ghost;
-	attr.ignore_border ??= defaultAttr.ignore_border;
-	attr.rot_speed ??= defaultAttr.rot_speed;
-	attr.orbit ??= defaultAttr.orbit;
-	attr.invulnerable ??= defaultAttr.invulnerable;
-	attr.poison_res ??= defaultAttr.poison_res;
 
 	const newPlayer = new Player( // 创建新 Player 实例
 		socket.id,
@@ -282,17 +274,10 @@ function initPetals(defaultKitInfo) { // Player 调用
 		const defaultInfo = structuredClone(petalInfo['default']); // 默认信息
 
 		// 自动设置未设定值为默认设定
+		Object.keys(defaultInfo).forEach(key => {
+			info[key] ??= defaultInfo[key];
+		});
 		info.instance_id ??= id;
-		info.cd ??= defaultInfo.cd;
-		info.count ??= defaultInfo.count;
-		info.pattern ??= defaultInfo.pattern;
-		info.angle ??= defaultInfo.angle;
-		info.rot_speed ??= defaultInfo.rot_speed;
-		info.orbit_extra ??= defaultInfo.orbit_extra;
-		info.orbit_disabled ??= defaultInfo.orbit_disabled;
-		info.orbit_special ??= defaultInfo.orbit_special;
-		info.sub_orbit ??= defaultInfo.sub_orbit;
-		info.cuml_cnt ??= defaultInfo.cuml_cnt;
 
 		info.cd_remain = new Array(info.count).fill(info.cd); // 设置初始 cd
 

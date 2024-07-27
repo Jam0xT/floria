@@ -24,6 +24,8 @@ class Entity { // 所有实体的类
 				orbit: [],		// 不同状态下花瓣轨道半径
 				invulnerable,	// 不会死亡判定
 				poison_res,		// 中毒抗性; 1 为免疫中毒伤害
+				poison: {duration, dmg}, // 碰撞对目标造成中毒
+				dmg_reflect,	// 反伤百分比
 			*/
 			v: { // 速度
 				x: 0,
