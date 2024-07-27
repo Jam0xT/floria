@@ -58,7 +58,10 @@ export default Object.freeze({
 	},
 	'leaf': {
 		cd: 25,
-	}
+	},
+	'iris': {
+		cd: 150,
+	},
 });
 
 /*

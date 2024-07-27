@@ -122,6 +122,21 @@ function removeEntity(uuid) {
 	delete $.entities[uuid];
 }
 
+function updateEntities() { // Game 调用
+	const $ = this.var;
+	Object.values($.entities).forEach(entity => {
+		// 处理状态效果
+		(() => {
+			const effects = entity.var.effects; // 状态效果
+			// 中毒
+			if ( effects.poison.duration > 0 ) {
+				effects.poison.duration -= 1;
+				entity.var.attr.hp -= effects.poison.dmg * (1 - entity.var.attr.poison_res);
+			}
+		})();
+	});
+}
+
 function getUpdate() { // Entity 调用
 	const $ = this.var;
 	const ret = {
@@ -151,4 +166,5 @@ export {
 	handleEntityDeaths,
 	getUpdate,
 	removeEntity,
+	updateEntities,
 };

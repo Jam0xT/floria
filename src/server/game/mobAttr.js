@@ -1,6 +1,19 @@
 // 生物默认属性表 参考 entity.js
 
 export default Object.freeze({
+	default: {
+		max_hp: 100,
+		radius: 20,
+		vision: 1000,
+		mass: 100,
+		speed: 2000,
+		ghost: false,
+		ignore_border: false,
+		rot_speed: 0.1,
+		orbit: [50, 100, 25, 100],
+		invulnerable: false,
+		poison_res: 0,
+	},
 	player: { // 玩家
 		hp: 150,
 		max_hp: 150,

@@ -23,6 +23,7 @@ class Entity { // 所有实体的类
 				rot_speed,		// 花瓣轨道转速 单位:弧度 / 刻 顺时针为正
 				orbit: [],		// 不同状态下花瓣轨道半径
 				invulnerable,	// 不会死亡判定
+				poison_res,		// 中毒抗性; 1 为免疫中毒伤害
 			*/
 			v: { // 速度
 				x: 0,
@@ -38,7 +39,22 @@ class Entity { // 所有实体的类
 			},
 			v_list: [], // 其他速度列表 [{resistance, x, y}]
 			chunks: [], // 所覆盖区块
+			effects: { // 状态效果
+				poison: { // 中毒
+					duration: 0,	// 时长 单位: 刻
+					dmg: 0,			// 每刻伤害
+				},
+			},
 		};
+	}
+
+	poison(duration, dmg) {
+		const $ = this.var;
+		const cur = $.effects.poison; // 当前中毒效果
+		if ( cur.duration * cur.dmg <= duration * dmg ) { // 使用总毒伤较高的一方
+			cur.duration = duration;
+			cur.dmg = dmg;
+		}
 	}
 }
 

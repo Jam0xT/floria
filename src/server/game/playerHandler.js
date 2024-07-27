@@ -27,12 +27,29 @@ function addPlayer(socket, username, team) { // 添加玩家
 	$.sockets[socket.id] = socket; // 储存 socket
 	const x = util.randomInt(0, $.props.map_width); // 生成随机出生点
 	const y = util.randomInt(0, $.props.map_height);
+	const attr = structuredClone(mobAttr.player);
+	const defaultAttr = structuredClone(mobAttr.default);
+
+	// 将未设置属性设置为默认值
+	attr.max_hp ??= defaultAttr.max_hp;
+	attr.hp ??= attr.max_hp;
+	attr.radius ??= defaultAttr.radius;
+	attr.vision ??= defaultAttr.vision;
+	attr.mass ??= defaultAttr.mass;
+	attr.speed ??= defaultAttr.speed;
+	attr.ghost ??= defaultAttr.ghost;
+	attr.ignore_border ??= defaultAttr.ignore_border;
+	attr.rot_speed ??= defaultAttr.rot_speed;
+	attr.orbit ??= defaultAttr.orbit;
+	attr.invulnerable ??= defaultAttr.invulnerable;
+	attr.poison_res ??= defaultAttr.poison_res;
+
 	const newPlayer = new Player( // 创建新 Player 实例
 		socket.id,
 		username,
 		x, y,
 		team,
-		structuredClone(mobAttr.player),
+		attr,
 	);
 	const uuid = newPlayer.var.uuid;	// 获取 uuid
 	$.players[socket.id] = uuid;		// 储存 uuid
@@ -103,7 +120,7 @@ function updatePlayers() { // Game 调用 更新玩家
 
 						// 判定花瓣技能触发器
 						(() => {
-							const skill = petalSkill[info.id];
+							const skill = petalSkill[id];
 							if ( !skill ) // 花瓣无技能
 								return ;
 							if ( skill['onFirstLoad'] ) { // onFirstLoad 触发器
@@ -223,7 +240,6 @@ function initPetals(defaultKitInfo) { // Player 调用
 		const defaultInfo = structuredClone(petalInfo['default']); // 默认信息
 
 		// 自动设置未设定值为默认设定
-		info.id ??= id;
 		info.instance_id ??= id;
 		info.cd ??= defaultInfo.cd;
 		info.count ??= defaultInfo.count;
@@ -232,6 +248,7 @@ function initPetals(defaultKitInfo) { // Player 调用
 		info.rot_speed ??= defaultInfo.rot_speed;
 		info.orbit_extra ??= defaultInfo.orbit_extra;
 		info.sub_orbit ??= defaultInfo.sub_orbit;
+		info.cuml_cnt ??= defaultInfo.cuml_cnt;
 
 		info.cd_remain = new Array(info.count).fill(info.cd); // 设置初始 cd
 

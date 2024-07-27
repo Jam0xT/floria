@@ -7,6 +7,7 @@ $.chunks: {chunkID -> [{type -> entityType, id -> id}]}
 */
 import * as util from './utility.js';
 import { appendVelocity } from './entityHandler.js';
+import petalSkill from './petalSkill.js';
 
 const chunk_id_constant = 1000000; // 用于计算区块 id
 
@@ -197,9 +198,29 @@ function solveCollisions(dt) {
 		appendVelocity.bind(entity1)(kbv1 * Math.cos(theta2) / dt, kbv1 * Math.sin(theta2) / dt, q);
 		appendVelocity.bind(entity2)(kbv2 * Math.cos(theta1) / dt, kbv2 * Math.sin(theta1) / dt, q);
 
-		entity1.var.attr.hp -= entity2.var.attr.dmg;
-		entity2.var.attr.hp -= entity1.var.attr.dmg;
+		solveCollision.bind(this)(entity1, entity2);
+		solveCollision.bind(this)(entity2, entity1);
 	});
+}
+
+function solveCollision(source, target) {
+	const $ = this.var;
+	target.var.attr.hp -= source.var.attr.dmg;
+	if ( source.var.type == 'petal' ) { // 源是花瓣
+		const data = $.entities[source.var.parent].var.kit.primary[source.var.idx]; // 找到所属抽象花瓣
+		
+		// 判定花瓣技能触发器
+		(() => {
+			const skill = petalSkill[data.id];
+			if ( !skill ) // 花瓣无技能
+				return ;
+			if ( skill['onHit'] ) { // onHit 触发器
+				skill['onHit'].forEach(fn => {
+					fn.bind(this)(source, target);
+				});
+			}
+		})();
+	}
 }
 
 export {

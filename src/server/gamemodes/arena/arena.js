@@ -37,6 +37,7 @@ class Game_Arena {
 		time.update.bind(this)();
 		const dt = 1 / this.var.props.tick_per_second;
 		this.var.tick ++;
+		entityHandler.updateEntities.bind(this)(); // 更新实体
 		playerHandler.updatePlayers.bind(this)(); // 更新玩家
 		entityHandler.updateAcceleration.bind(this)(dt); // 更新加速度
 		entityHandler.updateVelocity.bind(this)(dt); // 更新速度
