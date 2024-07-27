@@ -81,6 +81,9 @@ export default Object.freeze({
 		cd: 30,
 		sub_orbit: 10,
 		rot_speed: 0.4,
+	},
+	'cactus': {
+		cd: 25,
 	}
 });
 

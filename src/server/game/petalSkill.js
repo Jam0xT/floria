@@ -179,7 +179,29 @@ export default Object.freeze({
 				}
 			}
 		]
-	}
+	},
+	'cactus': {
+		'onFirstLoad': [
+			// 首次 load 时增加 20 点最大血量
+			function (instance) {
+				const $ = this.var;
+				const player = $.entities[instance.var.parent];
+				const hpPercent = player.var.attr.hp / player.var.attr.max_hp;
+				player.var.attr.max_hp += 20;
+				player.var.attr.hp = hpPercent * player.var.attr.max_hp;
+			},
+		],
+		'onUnequip': [
+			// unequip 时减少 20 点最大血量
+			function (instance) {
+				const $ = this.var;
+				const player = $.entities[instance.var.parent];
+				const hpPercent = player.var.attr.hp / player.var.attr.max_hp;
+				player.var.attr.max_hp -= 20;
+				player.var.attr.hp = hpPercent * player.var.attr.max_hp;
+			},
+		],
+	},
 });
 
 /*

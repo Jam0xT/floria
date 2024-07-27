@@ -67,6 +67,10 @@ export default Object.freeze({
 	'wing': {
 		max_hp: 15,
 		dmg: 15,
+	},
+	'cactus': {
+		max_hp: 15,
+		dmg: 5,
 	}
 });
 
