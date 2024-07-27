@@ -7,7 +7,9 @@ export default Object.freeze({
 		pattern: 0,
 		angle: 0,
 		rot_speed: 0.05,
-		orbit_extra: 0,
+		orbit_extra: [0, 0, 0, 0], // 默认 左键 右键 左右
+		orbit_disabled: [false, false, false, false],
+		orbit_special: -1,
 		sub_orbit: 10,
 		cuml_cnt: 0,
 	},
@@ -50,11 +52,9 @@ export default Object.freeze({
 	},
 	'rock': {
 		cd: 250,
-		orbit_extra: -10,
 	},
 	'heavy': {
 		cd: 500,
-		orbit_extra: -10,
 	},
 	'leaf': {
 		cd: 25,
@@ -62,6 +62,10 @@ export default Object.freeze({
 	'iris': {
 		cd: 150,
 	},
+	'rose': {
+		cd: 75,
+		orbit_disabled: [false, true, false, true],
+	}
 });
 
 /*

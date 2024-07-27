@@ -8,6 +8,7 @@ class Petal extends Entity {
 		$.parent = parent; // 所属实体 uuid
 		$.idx = idx; // 所属抽象花瓣的编号
 		$.subidx = subidx; // 在所属抽象花瓣实例集合中的编号（多子花瓣）
+		$.skill = {}; // 技能变量
 		$.unbound = false; // 是否解绑
 	}
 };

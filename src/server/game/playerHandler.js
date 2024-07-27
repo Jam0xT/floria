@@ -79,10 +79,34 @@ function updatePlayers() { // Game 调用 更新玩家
 		let clusterCnt = 0; // 花瓣簇总数 聚合算 1 分散算 n
 		player.var.angle = (player.var.angle + player.var.attr.rot_speed) % (Math.PI * 2); // 更新轨道起始角度
 
+		kit.primary.forEach((data) => {
+			const id = data.id; // 抽象花瓣 id
+			if ( !id ) // 空花瓣
+				return ;
+			const info = data.info;
+			const instances = data.instances;
+			for (let subidx = 0; subidx < info.count; subidx ++ ) { // 遍历实例
+				if ( !instances[subidx] ) // 实例不存在
+					return ;
+				const instance = $.entities[instances[subidx]]; // 实例
+				// 判定花瓣技能触发器
+				(() => {
+					const skill = petalSkill[id];
+					if ( !skill ) // 花瓣无技能
+						return ;
+					if ( skill['onTick'] ) { // onTick 触发器
+						skill['onTick'].forEach(fn => {
+							fn.bind(this)(instance);
+						});
+					}
+				})();
+			}
+		});
+
 		// 遍历抽象花瓣 更新冷却 花瓣簇计数
 		kit.primary.forEach((data, idx) => {
 			const id = data.id; // 抽象花瓣 id
-			if ( !id ) 			// 空花瓣
+			if ( !id ) // 空花瓣
 				return ;
 			const info = data.info; 			// 抽象花瓣信息
 			const instances = data.instances; 	// 实例列表
@@ -119,12 +143,24 @@ function updatePlayers() { // Game 调用 更新玩家
 						entityHandler.addEntity.bind(this)(uuid, newPetal); // 添加实体到实体列表
 
 						// 判定花瓣技能触发器
+						if ( info.cuml_cnt == 0 ) {
+							(() => {
+								const skill = petalSkill[id];
+								if ( !skill ) // 花瓣无技能
+									return ;
+								if ( skill['onFirstLoad'] ) { // onFirstLoad 触发器
+									skill['onFirstLoad'].forEach(fn => {
+										fn.bind(this)(newPetal);
+									});
+								}
+							})();
+						}
 						(() => {
 							const skill = petalSkill[id];
 							if ( !skill ) // 花瓣无技能
 								return ;
-							if ( skill['onFirstLoad'] ) { // onFirstLoad 触发器
-								skill['onFirstLoad'].forEach(fn => {
+							if ( skill['onLoad'] ) { // onLoad 触发器
+								skill['onLoad'].forEach(fn => {
 									fn.bind(this)(newPetal);
 								});
 							}
@@ -148,9 +184,12 @@ function updatePlayers() { // Game 调用 更新玩家
 					if ( instances[subidx] ) { // 实例存在
 						const petal = $.entities[instances[subidx]]; // 当前实例（花瓣实体）
 						const angle = player.var.angle + Math.PI * 2 * (clusteridx / clusterCnt); // 计算当前实例在轨道的角度
+
+						const state = player.var.state;
+						const orbit_radius = (info.orbit_special == -1) ? (info.orbit_extra[state] + info.orbit_disabled[state] ? player.var.attr.orbit[0] : player.var.attr.orbit[state]) : info.orbit_special;
 						
-						const x = player.var.pos.x + (info.orbit_extra + player.var.attr.orbit[player.var.state]) * Math.cos(angle); // 目标坐标
-						const y = player.var.pos.y + (info.orbit_extra + player.var.attr.orbit[player.var.state]) * Math.sin(angle);
+						const x = player.var.pos.x + orbit_radius * Math.cos(angle); // 目标坐标
+						const y = player.var.pos.y + orbit_radius * Math.sin(angle);
 	
 						const dx = x - petal.var.pos.x, dy = y - petal.var.pos.y; // 计算 目标坐标 相对于 目前坐标 的 相对坐标
 							
@@ -163,9 +202,12 @@ function updatePlayers() { // Game 调用 更新玩家
 				}
 			} else { // 聚合
 				const angle = player.var.angle + Math.PI * 2 * (clusteridx / clusterCnt); // 计算当前抽象花瓣亚轨道中心在轨道的角度
+
+				const state = player.var.state;
+				const orbit_radius = (info.orbit_special == -1) ? (info.orbit_extra[state] + info.orbit_disabled[state] ? player.var.attr.orbit[0] : player.var.attr.orbit[state]) : info.orbit_special;
 				
-				const cx = player.var.pos.x + (info.orbit_extra + player.var.attr.orbit[player.var.state]) * Math.cos(angle); // 亚轨道中心坐标
-				const cy = player.var.pos.y + (info.orbit_extra + player.var.attr.orbit[player.var.state]) * Math.sin(angle);
+				const cx = player.var.pos.x + orbit_radius * Math.cos(angle); // 亚轨道中心坐标
+				const cy = player.var.pos.y + orbit_radius * Math.sin(angle);
 
 				for (let subidx = 0; subidx < info.count; subidx ++) { // 遍历该抽象花瓣的实例
 					if ( instances[subidx] ) { // 实例存在
@@ -247,6 +289,8 @@ function initPetals(defaultKitInfo) { // Player 调用
 		info.angle ??= defaultInfo.angle;
 		info.rot_speed ??= defaultInfo.rot_speed;
 		info.orbit_extra ??= defaultInfo.orbit_extra;
+		info.orbit_disabled ??= defaultInfo.orbit_disabled;
+		info.orbit_special ??= defaultInfo.orbit_special;
 		info.sub_orbit ??= defaultInfo.sub_orbit;
 		info.cuml_cnt ??= defaultInfo.cuml_cnt;
 
@@ -282,7 +326,7 @@ function handlePlayerDeath(player) { // Game 调用
 	const $ = this.var;
 	player.setSpec(true);
 	const kit = player.var.kit;
-	kit.primary.forEach(data => { // 杀死死亡玩家的所有花瓣
+	kit.primary.forEach(data => { // 移除死亡玩家的所有花瓣
 		if ( !data.id ) // 空花瓣
 			return ;
 		data.instances.forEach(uuid => {
@@ -290,7 +334,7 @@ function handlePlayerDeath(player) { // Game 调用
 			if ( !petal ) // 花瓣不存在
 				return ;
 			petal.var.unbound = true;
-			handlePetalDeath.bind(this)(petal); // 杀死花瓣
+			handlePetalDeath.bind(this)(petal); // 移除花瓣
 			entityHandler.removeEntity.bind(this)(petal.var.uuid);
 		});
 	});
