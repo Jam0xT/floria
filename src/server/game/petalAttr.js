@@ -64,6 +64,10 @@ export default Object.freeze({
 		dmg: 5,
 		radius: 8,
 	},
+	'wing': {
+		max_hp: 15,
+		dmg: 15,
+	}
 });
 
 /*

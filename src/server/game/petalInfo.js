@@ -77,6 +77,11 @@ export default Object.freeze({
 		pattern: 1,
 		sub_orbit: 8,
 	},
+	'wing': {
+		cd: 30,
+		sub_orbit: 10,
+		rot_speed: 0.4,
+	}
 });
 
 /*

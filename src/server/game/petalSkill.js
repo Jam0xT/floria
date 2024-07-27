@@ -153,6 +153,33 @@ export default Object.freeze({
 			}
 		],
 	},
+	'wing': {
+		'onLoad': [
+			function (instance) {
+				const skill = instance.var.skill;
+				skill.on = false; // 是否开始漂浮
+			}
+		],
+		'onTick': [
+			function (instance) {
+				const $ = this.var;
+				const player = $.entities[instance.var.parent];
+				const info = player.var.kit.primary[instance.var.idx].info;
+				const skill = instance.var.skill;
+				if ( player.var.state & 1 ) {
+					if ( !skill.on ) {
+						skill.on = true;
+						info.pattern = 1; // 启动漂浮
+					}
+				} else {
+					if ( skill.on ) {
+						skill.on = false;
+						info.pattern = 0; // 关闭漂浮
+					}
+				}
+			}
+		]
+	}
 });
 
 /*
