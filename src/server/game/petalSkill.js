@@ -186,6 +186,7 @@ export default Object.freeze({
 			function (instance) {
 				const $ = this.var;
 				const player = $.entities[instance.var.parent];
+				// 等比增加血量
 				const hpPercent = player.var.attr.hp / player.var.attr.max_hp;
 				player.var.attr.max_hp += 20;
 				player.var.attr.hp = hpPercent * player.var.attr.max_hp;
@@ -196,6 +197,7 @@ export default Object.freeze({
 			function (instance) {
 				const $ = this.var;
 				const player = $.entities[instance.var.parent];
+				// 等比减少血量
 				const hpPercent = player.var.attr.hp / player.var.attr.max_hp;
 				player.var.attr.max_hp -= 20;
 				player.var.attr.hp = hpPercent * player.var.attr.max_hp;
@@ -217,6 +219,93 @@ export default Object.freeze({
 				const $ = this.var;
 				const player = $.entities[instance.var.parent];
 				player.var.attr.rot_speed -= 0.032;
+			},
+		],
+	},
+	'triple_cactus': {
+		'onFirstLoad': [
+			function (instance) {
+				const $ = this.var;
+				const player = $.entities[instance.var.parent];
+				const hpPercent = player.var.attr.hp / player.var.attr.max_hp;
+				player.var.attr.max_hp += 15;
+				player.var.attr.hp = hpPercent * player.var.attr.max_hp;
+			},
+		],
+		'onUnequip': [
+			function (instance) {
+				const $ = this.var;
+				const player = $.entities[instance.var.parent];
+				const hpPercent = player.var.attr.hp / player.var.attr.max_hp;
+				player.var.attr.max_hp -= 15;
+				player.var.attr.hp = hpPercent * player.var.attr.max_hp;
+			},
+		],
+	},
+	'salt': {
+		'onFirstLoad': [
+			function (instance) {
+				const $ = this.var;
+				const player = $.entities[instance.var.parent];
+				player.var.stack['salt'] ??= 0; // 若首次使用 初始化堆叠计数
+				if ( player.var.stack['salt'] == 0 ) { // 未堆叠
+					player.var.attr.dmg_reflect += 25; // 更新反伤百分比
+				}
+				player.var.stack['salt'] ++; // 更新堆叠计数
+			},
+		],
+		'onUnequip': [
+			function (instance) {
+				const $ = this.var;
+				const player = $.entities[instance.var.parent];
+				if ( player.var.stack['salt'] == 1 ) { // 未堆叠
+					player.var.attr.dmg_reflect -= 25; // 更新反伤百分比
+				}
+				player.var.stack['salt'] --; // 更新堆叠计数
+			},
+		],
+	},
+	'cactus_toxic': {
+		'onFirstLoad': [
+			// 首次 load 时增加 20 点最大血量
+			function (instance) {
+				const $ = this.var;
+				const player = $.entities[instance.var.parent];
+
+				// 等比增加血量
+				const hpPercent = player.var.attr.hp / player.var.attr.max_hp;
+				player.var.attr.max_hp += 20;
+				player.var.attr.hp = hpPercent * player.var.attr.max_hp;
+
+				player.var.stack['cactus_toxic'] ??= 0; // 若首次使用 初始化堆叠计数
+				if ( player.var.stack['cactus_toxic'] == 0 ) { // 未堆叠
+					player.var.attr.poison.duration = 100; // 设置玩家毒伤 duration 100 dmg 0.4(10) total 40
+					player.var.attr.poison.dmg = 0.4;
+				}
+				player.var.stack['cactus_toxic'] ++; // 更新堆叠计数
+			},
+		],
+		'onHit': [
+			// 击中目标时给予中毒效果 duration 15 dmg 0.4(10) total 6
+			function (instance, target) {
+				target.poison(15, 0.4);
+			}
+		],
+		'onUnequip': [
+			// unequip 时减少 20 点最大血量
+			function (instance) {
+				const $ = this.var;
+				const player = $.entities[instance.var.parent];
+				// 等比减少血量
+				const hpPercent = player.var.attr.hp / player.var.attr.max_hp;
+				player.var.attr.max_hp -= 20;
+				player.var.attr.hp = hpPercent * player.var.attr.max_hp;
+				
+				if ( player.var.stack['cactus_toxic'] == 1 ) { // 未堆叠
+					player.var.attr.poison.duration = 0; // 设置玩家毒伤
+					player.var.attr.poison.dmg = 0;
+				}
+				player.var.stack['cactus_toxic'] --; // 更新堆叠计数
 			},
 		],
 	},

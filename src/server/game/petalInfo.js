@@ -87,7 +87,19 @@ export default Object.freeze({
 	},
 	'faster': {
 		cd: 12,
-	}
+	},
+	'cactus_toxic': {
+		cd: 25,
+	},
+	'salt': {
+		cd: 62,
+	},
+	'triple_cactus': {
+		instance_id: 'cactus',
+		cd: 25,
+		count: 3,
+		pattern: 1,
+	},
 });
 
 /*

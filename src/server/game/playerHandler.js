@@ -112,6 +112,9 @@ function updatePlayers() { // Game 调用 更新玩家
 						const attr = structuredClone(petalAttr[info.instance_id]); // 默认属性
 						const defaultAttr = structuredClone(petalAttr['default']); // 未设置值默认值
 
+						if ( !attr ) // 使用了未知的 instance id
+							throw new Error(`instance '${info.instance_id}' does not exist`);
+
 						// 自动设置未设置值为默认值
 						attr.max_hp ??= defaultAttr.max_hp;
 						attr.hp ??= attr.max_hp;

@@ -7,7 +7,10 @@ export default Object.freeze({
 		mass: 10,
 		dmg: 10,
 		ignore_border: true,
+		invulnerable: false,
 		poison_res: 1,
+		poison: {duration: 0, dmg: 0},
+		dmg_reflect: 0,
 	},
 	'basic': { // 实体花瓣 id
 		max_hp: 10,
@@ -76,6 +79,14 @@ export default Object.freeze({
 		max_hp: 5,
 		dmg: 8,	
 	},
+	'cactus_toxic': {
+		max_hp: 15,
+		dmg: 5,
+	},
+	'salt': {
+		max_hp: 10,
+		dmg: 10,
+	}
 });
 
 /*

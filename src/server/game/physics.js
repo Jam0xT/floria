@@ -210,17 +210,23 @@ function solveCollision(source, target) {
 	target.var.attr.hp -= source.var.attr.dmg;
 
 	// 目标受到中毒
-	target.poison(source.var.attr.poison.duration, source.var.attr.poison.dmg);
+	(() => {
+		if ( source.var.attr.poison )
+			target.poison(source.var.attr.poison.duration, source.var.attr.poison.dmg);
+	})();
 
 	// 目标执行反伤
-	const reflect_dmg = (target.var.attr.dmg_reflect * 0.01) * source.var.attr.dmg; // 计算反伤
-	if ( source.var.type != 'petal' ) { // 源不是花瓣 直接执行反伤
-		source.var.attr.hp -= reflect_dmg;
-	} else { // 源是花瓣 执行反伤到玩家
-		const player = $.entities[source.var.parent];
-		player.var.attr.hp -= reflect_dmg;
-	}
-
+	(() => {
+		if ( !target.var.attr.dmg_reflect ) // 目标未设置反伤
+			return ;
+		const reflect_dmg = (target.var.attr.dmg_reflect * 0.01) * source.var.attr.dmg; // 计算反伤
+		if ( source.var.type != 'petal' ) { // 源不是花瓣 直接执行反伤
+			source.var.attr.hp -= reflect_dmg;
+		} else { // 源是花瓣 执行反伤到玩家
+			const player = $.entities[source.var.parent];
+			player.var.attr.hp -= reflect_dmg;
+		}
+	})();
 
 	if ( source.var.type == 'petal' ) { // 源是花瓣
 		const data = $.entities[source.var.parent].var.kit.primary[source.var.idx]; // 找到所属抽象花瓣
