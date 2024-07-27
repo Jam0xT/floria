@@ -57,7 +57,7 @@ function updatePlayers() { // Game 调用 更新玩家
 
 		player.var.angle = (player.var.angle + player.var.attr.rot_speed) % (Math.PI * 2); // 更新轨道起始角度
 		const kit = player.var.kit;
-		let clusterCnt = 0; // 花瓣簇数 聚合算 1 分散算 n
+		let clusterCnt = 0; // 花瓣簇总数 聚合算 1 分散算 n
 
 		kit.primary.forEach((data, idx) => { // 遍历抽象花瓣 更新冷却
 			const id = data.id; // 抽象花瓣 id
@@ -106,33 +106,50 @@ function updatePlayers() { // Game 调用 更新玩家
 				return ;
 			const info = data.info; 			// 抽象花瓣信息
 			const instances = data.instances; 	// 实例列表
-			for (let subidx = 0; subidx < info.count; subidx ++) { // 遍历该抽象花瓣的实例
-				if ( instances[subidx] ) { // 实例存在
-					
-					const angle = player.var.angle + clusteridx * (Math.PI * 2 / clusterCnt); // 计算当前抽象花瓣亚轨道中心在轨道的角度
-					
-					const cx = player.var.pos.x + (info.orbit_extra + player.var.attr.orbit[player.var.state]) * Math.cos(angle); // 亚轨道中心坐标
-					const cy = player.var.pos.y + (info.orbit_extra + player.var.attr.orbit[player.var.state]) * Math.sin(angle);
-					
-					const petal = $.entities[instances[subidx]]; // 当前实例（花瓣实体）
-					let subdx = 0, subdy = 0; // 在亚轨道上相对与亚轨道中心的相对坐标 对于非聚合式花瓣来说为 (0, 0)
-					if ( info.pattern == 1 ) { // 聚合
-						const sub_angle = info.angle + subidx * (Math.PI * 2 / info.count); // 计算当前实例在抽象花瓣亚轨道的角度
-						subdx = info.sub_orbit * Math.cos(sub_angle); // 计算实例在亚轨道上的相对坐标
-						subdy = info.sub_orbit * Math.sin(sub_angle);
-					}
 
-					const dx = cx + subdx - petal.var.pos.x, dy = cy + subdy - petal.var.pos.y; // 计算 目标坐标 相对于 目前坐标 的 相对坐标
+			if ( info.pattern == 0 ) { // 分散
+				for (let subidx = 0; subidx < info.count; subidx ++) { // 遍历该抽象花瓣的实例
+					if ( instances[subidx] ) { // 实例存在
+						const petal = $.entities[instances[subidx]]; // 当前实例（花瓣实体）
+						const angle = player.var.angle + Math.PI * 2 * (clusteridx / clusterCnt); // 计算当前实例在轨道的角度
 						
-					entityHandler.move.bind(petal)( // 更新花瓣 movement
-						Math.atan2(dy, dx), // 方向
-						Math.sqrt(dx * dx + dy * dy) * $.props.petal_speed, // 大小
-					);
+						const x = player.var.pos.x + (info.orbit_extra + player.var.attr.orbit[player.var.state]) * Math.cos(angle); // 目标坐标
+						const y = player.var.pos.y + (info.orbit_extra + player.var.attr.orbit[player.var.state]) * Math.sin(angle);
+	
+						const dx = x - petal.var.pos.x, dy = y - petal.var.pos.y; // 计算 目标坐标 相对于 目前坐标 的 相对坐标
+							
+						entityHandler.move.bind(petal)( // 更新花瓣 movement
+							Math.atan2(dy, dx), // 方向
+							Math.sqrt(dx * dx + dy * dy) * $.props.petal_speed, // 大小
+						);
+					}
+					clusteridx += 1; // 更新花瓣簇编号
 				}
+			} else { // 聚合
+				const angle = player.var.angle + Math.PI * 2 * (clusteridx / clusterCnt); // 计算当前抽象花瓣亚轨道中心在轨道的角度
+				
+				const cx = player.var.pos.x + (info.orbit_extra + player.var.attr.orbit[player.var.state]) * Math.cos(angle); // 亚轨道中心坐标
+				const cy = player.var.pos.y + (info.orbit_extra + player.var.attr.orbit[player.var.state]) * Math.sin(angle);
+
+				for (let subidx = 0; subidx < info.count; subidx ++) { // 遍历该抽象花瓣的实例
+					if ( instances[subidx] ) { // 实例存在
+						const petal = $.entities[instances[subidx]]; // 当前实例（花瓣实体）
+
+						const sub_angle = info.angle + subidx * (Math.PI * 2 / info.count); // 计算当前实例在抽象花瓣亚轨道的角度
+						const subdx = info.sub_orbit * Math.cos(sub_angle); // 在亚轨道上相对与亚轨道中心的相对坐标
+						const subdy = info.sub_orbit * Math.sin(sub_angle);
+	
+						const dx = cx + subdx - petal.var.pos.x, dy = cy + subdy - petal.var.pos.y; // 计算 目标坐标 相对于 目前坐标 的 相对坐标
+							
+						entityHandler.move.bind(petal)( // 更新花瓣 movement
+							Math.atan2(dy, dx), // 方向
+							Math.sqrt(dx * dx + dy * dy) * $.props.petal_speed, // 大小
+						);
+					}
+				}
+				info.angle = (info.angle + info.rot_speed) % (Math.PI * 2); // 更新亚轨道起始角度
+				clusteridx += 1; // 更新花瓣簇编号
 			}
-			
-			info.angle = (info.angle + info.rot_speed) % (Math.PI * 2); // 更新亚轨道起始角度
-			clusteridx += ( info.pattern == 0 ) ? info.count : 1; // 更新花瓣簇编号
 		});
 	});
 }
@@ -205,7 +222,7 @@ function initPetals(defaultKitInfo) { // Player 调用
 			info: info,
 			instances: [],
 		};
-		
+
 		$.kit.primary.push(data);
 	});
 	if ( $.kit.primary.length < $.kit.size ) { // 长度不够，补空的
