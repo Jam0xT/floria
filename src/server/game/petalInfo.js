@@ -41,6 +41,20 @@ export default Object.freeze({
 		cd: 25,
 		count: 5,
 	},
+	'rice': {
+		cd: 1,
+	},
+	'corn': {
+		cd: 875,
+	},
+	'rock': {
+		cd: 250,
+		orbit_extra: -10,
+	},
+	'heavy': {
+		cd: 500,
+		orbit_extra: -10,
+	},
 });
 
 /*

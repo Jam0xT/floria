@@ -248,6 +248,8 @@ function handlePlayerDeath(player) { // Game 调用
 	player.setSpec(true);
 	const kit = player.var.kit;
 	kit.primary.forEach(data => { // 杀死死亡玩家的所有花瓣
+		if ( !data.id ) // 空花瓣
+			return ;
 		data.instances.forEach(uuid => {
 			const petal = $.entities[uuid];
 			if ( !petal ) // 花瓣不存在
