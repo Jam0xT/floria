@@ -4,45 +4,60 @@ import * as playerHandler from './playerHandler.js';
 // 花瓣技能
 
 export default Object.freeze({
-	'leaf': {
+	'consistent_heal': {
+		/*
+			consistent_heal,	// 每刻回血量
+		*/
 		'onFirstLoad': [
-			// 首次 load 时增加 0.04 点每刻自然回血
+			// 首次 load 时增加 heal 点每刻自然回血
 			function (instance) {
 				const $ = this.var;
 				const player = $.entities[instance.var.parent];
-				player.var.heal.point += 0.04;
+				const sv = instance.var.skill_var;
+				player.var.heal.point += sv.consistent_heal;
 			},
 		],
 		'onUnequip': [
-			// unequip 时减少 0.04 点每刻自然回血
+			// unequip 时减少 heal 点每刻自然回血
 			function (instance) {
 				const $ = this.var;
 				const player = $.entities[instance.var.parent];
-				player.var.heal.point -= 0.04;
+				const sv = instance.var.skill_var;
+				player.var.heal.point -= sv.consistent_heal;
 			},
 		],
 	},
-	'iris': {
+	'poison_on_hit': {
+		/*
+			duration,	// 中毒时长
+			dmg,		// 中毒每刻伤害
+		*/
 		'onHit': [
 			// 击中目标时给予中毒效果 duration 150 dmg 0.4
 			function (instance, target) {
-				target.poison(150, 0.4);
+				const sv = instance.var.skill_var;
+				target.poison(sv.poison_on_hit_duration, sv.poison_on_hit_dmg);
 			}
 		],
 	},
-	'rose': {
+	'heal': {
+		/*
+			heal,		// 回血量 单位: 点
+			ready_time,	// 准备时间 从 load 到可以开始判定
+			pend_time,	// 判定时间 从开始判定到回血
+		*/
 		'onLoad': [
 			function (instance) {
-				const skill = instance.var.skill;
-				skill.ready = 0; // 初始化 ready 计时器
-				skill.pend = 0; // 初始化 pend 计时器
+				const sv = instance.var.skill_var;
+				sv.ready = 0; // 初始化 ready 计时器
+				sv.pend = 0; // 初始化 pend 计时器
 			}
 		],
 		'onTick': [
 			function (instance) {
-				const skill = instance.var.skill;
-				if ( skill.ready < 25 ) { // 需要 25 刻准备
-					skill.ready += 1;
+				const sv = instance.var.skill_var;
+				if ( sv.ready < sv.ready_time ) { // 准备时间
+					sv.ready += 1;
 					return ;
 				}
 				// 准备完成
@@ -50,20 +65,20 @@ export default Object.freeze({
 				const player = $.entities[instance.var.parent];
 				const info = player.var.kit.primary[instance.var.idx].info;
 				if ( player.var.attr.hp < player.var.attr.max_hp ) { // 玩家需要回血
-					if ( skill.pend < 25 ) { // 需要 25 刻判定
-						if ( skill.pend == 0 ) { // 判定的第一刻
+					if ( sv.pend < sv.pend_time ) { // 判定时间
+						if ( sv.pend == 0 ) { // 判定的第一刻
 							info.orbit_special = player.var.attr.radius + instance.var.attr.radius * 0.8; // 设置特殊轨道
 						}
-						skill.pend += 1; // 更新计时器
+						sv.pend += 1; // 更新计时器
 						return ;
 					}
 				} else {
-					skill.pend = 0; // 重置 pend 计时器
+					sv.pend = 0; // 重置 pend 计时器
 					info.orbit_special = -1; // 取消特殊轨道
 					return ;
 				}
 				// 判定完成
-				const heal = 10; // 回血量
+				const heal = sv.heal; // 回血量
 				player.var.attr.hp = Math.min(player.var.attr.hp + heal, player.var.attr.max_hp); // 回血
 				playerHandler.handlePetalDeath.bind(this)(instance); // 移除花瓣
 				entityHandler.removeEntity.bind(this)(instance.var.uuid);
@@ -71,93 +86,11 @@ export default Object.freeze({
 			}
 		],
 	},
-	'epic_rose': {
+	'float': {
 		'onLoad': [
 			function (instance) {
-				const skill = instance.var.skill;
-				skill.ready = 0; // 初始化 ready 计时器
-				skill.pend = 0; // 初始化 pend 计时器
-			}
-		],
-		'onTick': [
-			function (instance) {
-				const skill = instance.var.skill;
-				if ( skill.ready < 25 ) { // 需要 25 刻准备
-					skill.ready += 1;
-					return ;
-				}
-				// 准备完成
-				const $ = this.var;
-				const player = $.entities[instance.var.parent];
-				const info = player.var.kit.primary[instance.var.idx].info;
-				if ( player.var.attr.hp < player.var.attr.max_hp ) { // 玩家需要回血
-					if ( skill.pend < 25 ) { // 需要 25 刻判定
-						if ( skill.pend == 0 ) { // 判定的第一刻
-							info.orbit_special = player.var.attr.radius + instance.var.attr.radius * 0.8; // 设置特殊轨道
-						}
-						skill.pend += 1; // 更新计时器
-						return ;
-					}
-				} else {
-					skill.pend = 0; // 重置 pend 计时器
-					info.orbit_special = -1; // 取消特殊轨道
-					return ;
-				}
-				// 判定完成
-				const heal = 22; // 回血量
-				player.var.attr.hp = Math.min(player.var.attr.hp + heal, player.var.attr.max_hp); // 回血
-				playerHandler.handlePetalDeath.bind(this)(instance); // 移除花瓣
-				entityHandler.removeEntity.bind(this)(instance.var.uuid);
-				info.orbit_special = -1; // 取消特殊轨道
-			}
-		],
-	},
-	'dahlia': {
-		'onLoad': [
-			function (instance) {
-				const skill = instance.var.skill;
-				skill.ready = 0; // 初始化 ready 计时器
-				skill.pend = 0; // 初始化 pend 计时器
-			}
-		],
-		'onTick': [
-			function (instance) {
-				const skill = instance.var.skill;
-				if ( skill.ready < 25 ) { // 需要 25 刻准备
-					skill.ready += 1;
-					return ;
-				}
-				// 准备完成
-				const $ = this.var;
-				const player = $.entities[instance.var.parent];
-				const info = player.var.kit.primary[instance.var.idx].info;
-				if ( player.var.attr.hp < player.var.attr.max_hp ) { // 玩家需要回血
-					if ( skill.pend < 25 ) { // 需要 25 刻判定
-						if ( skill.pend == 0 ) { // 判定的第一刻
-							info.orbit_special = player.var.attr.radius + instance.var.attr.radius * 0.8; // 设置特殊轨道
-						}
-						skill.pend += 1; // 更新计时器
-						return ;
-					}
-				} else {
-					skill.pend = 0; // 重置 pend 计时器
-					info.orbit_special = -1; // 取消特殊轨道
-					return ;
-				}
-				// 判定完成
-				const heal = 4; // 回血量
-				player.var.attr.hp = Math.min(player.var.attr.hp + heal, player.var.attr.max_hp); // 回血
-				playerHandler.handlePetalDeath.bind(this)(instance); // 移除花瓣
-				entityHandler.removeEntity.bind(this)(instance.var.uuid);
-				info.orbit_special = -1; // 取消特殊轨道
-			}
-		],
-	},
-	'wing': {
-		'onLoad': [
-			function (instance) {
-				const skill = instance.var.skill;
-				skill.on = false; // 是否开始漂浮
+				const sv = instance.var.skill_var;
+				sv.on = false; // 是否开始漂浮
 			}
 		],
 		'onTick': [
@@ -165,30 +98,34 @@ export default Object.freeze({
 				const $ = this.var;
 				const player = $.entities[instance.var.parent];
 				const info = player.var.kit.primary[instance.var.idx].info;
-				const skill = instance.var.skill;
+				const sv = instance.var.skill_var;
 				if ( player.var.state & 1 ) {
-					if ( !skill.on ) {
-						skill.on = true;
+					if ( !sv.on ) {
+						sv.on = true;
 						info.pattern = 1; // 启动漂浮
 					}
 				} else {
-					if ( skill.on ) {
-						skill.on = false;
+					if ( sv.on ) {
+						sv.on = false;
 						info.pattern = 0; // 关闭漂浮
 					}
 				}
 			}
 		]
 	},
-	'cactus': {
+	'extra_hp': {
+		/*
+			extra_hp, // 额外血量
+		*/
 		'onFirstLoad': [
 			// 首次 load 时增加 20 点最大血量
 			function (instance) {
 				const $ = this.var;
 				const player = $.entities[instance.var.parent];
+				const sv = instance.var.skill_var;
 				// 等比增加血量
 				const hpPercent = player.var.attr.hp / player.var.attr.max_hp;
-				player.var.attr.max_hp += 20;
+				player.var.attr.max_hp += sv.extra_hp;
 				player.var.attr.hp = hpPercent * player.var.attr.max_hp;
 			},
 		],
@@ -197,130 +134,113 @@ export default Object.freeze({
 			function (instance) {
 				const $ = this.var;
 				const player = $.entities[instance.var.parent];
+				const sv = instance.var.skill_var;
 				// 等比减少血量
 				const hpPercent = player.var.attr.hp / player.var.attr.max_hp;
-				player.var.attr.max_hp -= 20;
+				player.var.attr.max_hp -= sv.extra_hp;
 				player.var.attr.hp = hpPercent * player.var.attr.max_hp;
 			},
 		],
 	},
-	'faster': {
+	'extra_rot_speed': {
+		/*
+			extra_rot_speed,	// 额外转速
+		*/
 		'onFirstLoad': [
-			// 首次 load 时增加 0.032 rad/tick 转速
+			// 首次 load 时增加 extra_rot_speed rad/tick 转速
 			function (instance) {
 				const $ = this.var;
 				const player = $.entities[instance.var.parent];
-				player.var.attr.rot_speed += 0.032;
+				const sv = instance.var.skill_var;
+				player.var.attr.rot_speed += sv.extra_rot_speed;
 			},
 		],
 		'onUnequip': [
-			// unequip 时减少 0.032 rad/tick 转速
+			// unequip 时减少 extra_rot_speed rad/tick 转速
 			function (instance) {
 				const $ = this.var;
 				const player = $.entities[instance.var.parent];
-				player.var.attr.rot_speed -= 0.032;
+				const sv = instance.var.skill_var;
+				player.var.attr.rot_speed -= sv.extra_rot_speed;
 			},
 		],
 	},
-	'triple_cactus': {
+	'dmg_reflect_unstackable': {
+		/*
+			stack_id,		// 用于堆叠计数
+			dmg_reflect,	// 反伤百分点
+		*/
 		'onFirstLoad': [
 			function (instance) {
 				const $ = this.var;
 				const player = $.entities[instance.var.parent];
-				const hpPercent = player.var.attr.hp / player.var.attr.max_hp;
-				player.var.attr.max_hp += 15;
-				player.var.attr.hp = hpPercent * player.var.attr.max_hp;
-			},
-		],
-		'onUnequip': [
-			function (instance) {
-				const $ = this.var;
-				const player = $.entities[instance.var.parent];
-				const hpPercent = player.var.attr.hp / player.var.attr.max_hp;
-				player.var.attr.max_hp -= 15;
-				player.var.attr.hp = hpPercent * player.var.attr.max_hp;
-			},
-		],
-	},
-	'salt': {
-		'onFirstLoad': [
-			function (instance) {
-				const $ = this.var;
-				const player = $.entities[instance.var.parent];
-				player.var.stack['salt'] ??= 0; // 若首次使用 初始化堆叠计数
-				if ( player.var.stack['salt'] == 0 ) { // 未堆叠
-					player.var.attr.dmg_reflect += 25; // 更新反伤百分比
+				const sv = instance.var.skill_var;
+				player.var.stack[sv.stack_id] ??= 0; // 若首次使用 初始化堆叠计数
+				if ( player.var.stack[sv.stack_id] == 0 ) { // 未堆叠
+					player.var.attr.dmg_reflect += sv.dmg_reflect; // 更新反伤百分比
 				}
-				player.var.stack['salt'] ++; // 更新堆叠计数
+				player.var.stack[sv.stack_id] ++; // 更新堆叠计数
 			},
 		],
 		'onUnequip': [
 			function (instance) {
 				const $ = this.var;
 				const player = $.entities[instance.var.parent];
-				if ( player.var.stack['salt'] == 1 ) { // 未堆叠
-					player.var.attr.dmg_reflect -= 25; // 更新反伤百分比
+				const sv = instance.var.skill_var;
+				if ( player.var.stack[sv.stack_id] == 1 ) { // 未堆叠
+					player.var.attr.dmg_reflect -= sv.dmg_reflect; // 更新反伤百分比
 				}
-				player.var.stack['salt'] --; // 更新堆叠计数
+				player.var.stack[sv.stack_id] --; // 更新堆叠计数
 			},
 		],
 	},
-	'cactus_toxic': {
+	'poison_unstackable': {
+		/*
+			stack_id,			// 堆叠 id 用于堆叠计数
+			poison_duration,	// 中毒持续时间
+			poison_dmg,			// 中毒每刻伤害
+		*/
 		'onFirstLoad': [
-			// 首次 load 时增加 20 点最大血量
 			function (instance) {
 				const $ = this.var;
 				const player = $.entities[instance.var.parent];
-
-				// 等比增加血量
-				const hpPercent = player.var.attr.hp / player.var.attr.max_hp;
-				player.var.attr.max_hp += 20;
-				player.var.attr.hp = hpPercent * player.var.attr.max_hp;
-
-				player.var.stack['cactus_toxic'] ??= 0; // 若首次使用 初始化堆叠计数
-				if ( player.var.stack['cactus_toxic'] == 0 ) { // 未堆叠
-					player.var.attr.poison.duration = 100; // 设置玩家毒伤 duration 100 dmg 0.4(10) total 40
-					player.var.attr.poison.dmg = 0.4;
+				const sv = instance.var.skill_var;
+				player.var.stack[sv.stack_id] ??= 0; // 若首次使用 初始化堆叠计数
+				if ( player.var.stack[sv.stack_id] == 0 ) { // 未堆叠
+					player.var.attr.poison.duration = sv.poison_duration; // 设置玩家毒伤
+					player.var.attr.poison.dmg = sv.poison_dmg;
 				}
-				player.var.stack['cactus_toxic'] ++; // 更新堆叠计数
+				player.var.stack[sv.stack_id] ++; // 更新堆叠计数
 			},
 		],
-		'onHit': [
-			// 击中目标时给予中毒效果 duration 15 dmg 0.4(10) total 6
-			function (instance, target) {
-				target.poison(15, 0.4);
-			}
-		],
 		'onUnequip': [
-			// unequip 时减少 20 点最大血量
 			function (instance) {
 				const $ = this.var;
 				const player = $.entities[instance.var.parent];
-				// 等比减少血量
-				const hpPercent = player.var.attr.hp / player.var.attr.max_hp;
-				player.var.attr.max_hp -= 20;
-				player.var.attr.hp = hpPercent * player.var.attr.max_hp;
-				
-				if ( player.var.stack['cactus_toxic'] == 1 ) { // 未堆叠
+				const sv = instance.var.skill_var;
+				if ( player.var.stack[sv.stack_id] == 1 ) { // 未堆叠
 					player.var.attr.poison.duration = 0; // 设置玩家毒伤
 					player.var.attr.poison.dmg = 0;
 				}
-				player.var.stack['cactus_toxic'] --; // 更新堆叠计数
+				player.var.stack[sv.stack_id] --; // 更新堆叠计数
 			},
 		],
 	},
-	'bubble': {
+	'push': {
+		/*
+			push_power,		// 推进力
+			push_duration,	// 推进持续系数 [0, 1]
+		*/
 		'onTick': [
 			function (instance) {
 				const $ = this.var;
 				const player = $.entities[instance.var.parent];
-				const power = 10; // 推进力
-				const durability = 0.8; // 衰减系数 [0, 1]
+				const sv = instance.var.skill_var;
 				if ( player.var.state & 2 ) { // 玩家防御
 					entityHandler.appendVelocity.bind(player)( // 推进
-						(player.var.pos.x - instance.var.pos.x) * power, 
-						(player.var.pos.y - instance.var.pos.y) * power,
-						durability, // 泡泡速度衰减系数
+						(player.var.pos.x - instance.var.pos.x) * sv.push_power, 
+						(player.var.pos.y - instance.var.pos.y) * sv.push_power,
+						sv.push_duration, // 泡泡速度衰减系数
 					);
 					playerHandler.handlePetalDeath.bind(this)(instance); // 移除花瓣
 					entityHandler.removeEntity.bind(this)(instance.var.uuid);

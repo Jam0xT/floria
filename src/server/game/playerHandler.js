@@ -56,6 +56,21 @@ function playerNaturalRegen(player) { // 玩家自然会血
 	player.var.attr.hp = Math.min(player.var.attr.max_hp, player.var.attr.hp + $.props.player_natural_regen.point + $.props.player_natural_regen.percent * player.var.attr.max_hp * 0.01);
 }
 
+function togglePetalSkillTrigger(trigger, petal, ...args) { // 触发花瓣技能触发器
+	petal.var.skill_set.forEach(skill_id => {
+		const skill = petalSkill[skill_id];
+		if ( !skill ) { // 未知技能
+			console.log(`Unknown skill id '${skill_id}'.`);
+			return ;
+		}
+		if ( skill[trigger] ) {
+			skill[trigger].forEach(fn => {
+				fn.bind(this)(petal, ...args);
+			});
+		}
+	});
+}
+
 function updatePlayers() { // Game 调用 更新玩家
 	const $ = this.var;
 	Object.values($.players).map(uuid => $.entities[uuid]).forEach(player => { // 遍历玩家
@@ -81,17 +96,7 @@ function updatePlayers() { // Game 调用 更新玩家
 				if ( !instances[subidx] ) // 实例不存在
 					continue;
 				const instance = $.entities[instances[subidx]]; // 实例
-				// 判定花瓣技能触发器
-				(() => {
-					const skill = petalSkill[instance.var.skill_id];
-					if ( !skill ) // 花瓣无技能
-						return ;
-					if ( skill['onTick'] ) { // onTick 触发器
-						skill['onTick'].forEach(fn => {
-							fn.bind(this)(instance);
-						});
-					}
-				})();
+				togglePetalSkillTrigger.bind(this)('onTick', instance); // 判定花瓣技能触发器
 			}
 		});
 
@@ -132,7 +137,8 @@ function updatePlayers() { // Game 调用 更新玩家
 							player.var.uuid, 						// 设置玩家为 parent
 							idx, 									// 所属抽象花瓣的编号
 							subidx,									// 在所属抽象花瓣的实例集合中的编号
-							info.skill_id,							// 技能 id
+							structuredClone(info.skill_set),			// 技能 id
+							structuredClone(info.skill_var),		// 技能变量
 							player.var.pos.x, player.var.pos.y, 	// 继承玩家的位置
 							player.var.team,						// 继承玩家的所在队伍
 							attr,									// 默认属性
@@ -141,29 +147,10 @@ function updatePlayers() { // Game 调用 更新玩家
 						instances[subidx] = uuid; 		// 储存 uuid
 						entityHandler.addEntity.bind(this)(uuid, newPetal); // 添加实体到实体列表
 
-						// 判定花瓣技能触发器
 						if ( info.cuml_cnt == 0 ) {
-							(() => {
-								const skill = petalSkill[newPetal.var.skill_id];
-								if ( !skill ) // 花瓣无技能
-									return ;
-								if ( skill['onFirstLoad'] ) { // onFirstLoad 触发器
-									skill['onFirstLoad'].forEach(fn => {
-										fn.bind(this)(newPetal);
-									});
-								}
-							})();
+							togglePetalSkillTrigger.bind(this)('onFirstLoad', newPetal); // 判定花瓣技能触发器
 						}
-						(() => {
-							const skill = petalSkill[newPetal.var.skill_id];
-							if ( !skill ) // 花瓣无技能
-								return ;
-							if ( skill['onLoad'] ) { // onLoad 触发器
-								skill['onLoad'].forEach(fn => {
-									fn.bind(this)(newPetal);
-								});
-							}
-						})();
+						togglePetalSkillTrigger.bind(this)('onLoad', newPetal);
 						info.cuml_cnt += info.count;	// 更新累计 load 实例数量
 					}
 				}
@@ -348,4 +335,5 @@ export {
 	updatePlayers,
 	handlePlayerDeath,
 	handlePetalDeath,
+	togglePetalSkillTrigger,
 };

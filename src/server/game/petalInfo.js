@@ -12,7 +12,8 @@ export default Object.freeze({
 		orbit_special: -1,
 		sub_orbit: 10,
 		cuml_cnt: 0,
-		skill_id: '',
+		skill_set: [],
+		skill_var: {},
 	},
 	'basic': {
 		cd: 62,
@@ -59,21 +60,38 @@ export default Object.freeze({
 	},
 	'leaf': {
 		cd: 25,
-		skill_id: 'leaf',
+		skill_set: ['consistent_heal'],
+		skill_var: {
+			consistent_heal: 0.04,
+		},
 	},
 	'iris': {
 		cd: 150,
-		skill_id: 'iris',
+		skill_set: ['poison_on_hit'],
+		skill_var: {
+			poison_on_hit_duration: 150,
+			poison_on_hit_damage: 0.4,
+		},
 	},
 	'rose': {
 		cd: 75,
 		orbit_disabled: [false, true, false, true],
-		skill_id: 'rose',
+		skill_set: ['heal'],
+		skill_var: {
+			heal: 10,
+			ready_time: 25,
+			pend_time: 25,
+		},
 	},
 	'epic_rose': {
 		cd: 75,
 		orbit_disabled: [false, true, false, true],
-		skill_id: 'epic_rose',
+		skill_set: ['heal'],
+		skill_var: {
+			heal: 22,
+			ready_time: 25,
+			pend_time: 25,
+		},
 	},
 	'dahlia': {
 		cd: 75,
@@ -81,44 +99,73 @@ export default Object.freeze({
 		count: 3,
 		pattern: 1,
 		sub_orbit: 8,
-		skill_id: 'dhalia',
+		skill_set: ['heal'],
+		skill_var: {
+			heal: 4,
+			ready_time: 25,
+			pend_time: 25,
+		},
 	},
 	'wing': {
 		cd: 30,
 		sub_orbit: 10,
 		rot_speed: 0.4,
-		skill_id: 'wing',
+		skill_set: ['float'],
 	},
 	'cactus': {
 		cd: 25,
-		skill_id: 'cactus',
+		skill_set: ['extra_hp'],
+		skill_var: {
+			extra_hp: 20,
+		},
 	},
 	'faster': {
 		cd: 12,
-		skill_id: 'faster',
+		skill_set: ['extra_rot_speed'],
+		skill_var: {
+			extra_rot_speed: 0.032,
+		},
 	},
 	'cactus_toxic': {
 		cd: 25,
-		skill_id: 'cactus_toxic',
+		skill_set: ['poison_on_hit', 'extra_hp', 'poison_unstackable'],
+		skill_var: {
+			poison_on_hit_duration: 15,
+			poison_on_hit_damage: 0.4,
+			extra_hp: 20,
+			poison_duration: 100,
+			poison_dmg: 0.4,
+		},
 	},
 	'salt': {
 		cd: 62,
-		skill_id: 'salt',
+		skill_set: ['dmg_reflect_unstackable'],
+		skill_var: {
+			stack_id: 'salt',
+			dmg_reflect: 25,
+		},
 	},
 	'triple_cactus': {
 		instance_id: 'cactus',
 		cd: 25,
 		count: 3,
 		pattern: 1,
-		skill_id: 'triple_cactus',
+		skill_set: ['extra_hp'],
+		skill_var: {
+			extra_hp: 15,
+		},
 	},
 	'bubble': {
 		cd: 75,
-		skill_id: 'bubble',
+		skill_set: ['push'],
+		skill_var: {
+			push_power: 10,
+			push_duration: 0.8, 
+		}
 	},
 	'missile': {
 		cd: 75,
-		skill_id: 'missile',
+		// skill_set: ['missile'],
 	}
 });
 

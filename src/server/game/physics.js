@@ -7,6 +7,7 @@ $.chunks: {chunkID -> [{type -> entityType, id -> id}]}
 */
 import * as util from './utility.js';
 import { appendVelocity } from './entityHandler.js';
+import { togglePetalSkillTrigger } from './playerHandler.js';
 import petalSkill from './petalSkill.js';
 
 const chunk_id_constant = 1000000; // 用于计算区块 id
@@ -231,16 +232,7 @@ function solveCollision(source, target) {
 	if ( source.var.type == 'petal' ) { // 源是花瓣
 		
 		// 判定花瓣技能触发器
-		(() => {
-			const skill = petalSkill[source.var.skill_id];
-			if ( !skill ) // 花瓣无技能
-				return ;
-			if ( skill['onHit'] ) { // onHit 触发器
-				skill['onHit'].forEach(fn => {
-					fn.bind(this)(source, target);
-				});
-			}
-		})();
+		togglePetalSkillTrigger.bind(this)('onHit', source, target);
 	}
 }
 

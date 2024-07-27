@@ -5,7 +5,7 @@ export default Object.freeze({
 	chunk_size: 200, // 区块大小 用于碰撞判定
 	default_kit_info: { // 默认抽象花瓣信息
 		size: 5,
-		primary: ['epic_rose'],
+		primary: ['epic_rose', 'bubble', 'cactus_toxic', 'stinger', 'dahlia'],
 		secondary: ['', '', '', '', ''],
 	},
 	/*
