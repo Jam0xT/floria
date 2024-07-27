@@ -87,7 +87,7 @@ function updatePlayers() { // Game 调用 更新玩家
 			const instances = data.instances;
 			for (let subidx = 0; subidx < info.count; subidx ++ ) { // 遍历实例
 				if ( !instances[subidx] ) // 实例不存在
-					return ;
+					continue;
 				const instance = $.entities[instances[subidx]]; // 实例
 				// 判定花瓣技能触发器
 				(() => {
@@ -214,8 +214,8 @@ function updatePlayers() { // Game 调用 更新玩家
 						const petal = $.entities[instances[subidx]]; // 当前实例（花瓣实体）
 
 						const sub_angle = info.angle + subidx * (Math.PI * 2 / info.count); // 计算当前实例在抽象花瓣亚轨道的角度
-						const subdx = info.sub_orbit * Math.cos(sub_angle); // 在亚轨道上相对与亚轨道中心的相对坐标
-						const subdy = info.sub_orbit * Math.sin(sub_angle);
+						const subdx = (info.orbit_special == -1) ? info.sub_orbit * Math.cos(sub_angle) : 0; // 在亚轨道上相对与亚轨道中心的相对坐标
+						const subdy = (info.orbit_special == -1) ? info.sub_orbit * Math.sin(sub_angle) : 0; // 特殊轨道启用时取消亚轨道; 所有实例强制重叠在亚轨道中心
 	
 						const dx = cx + subdx - petal.var.pos.x, dy = cy + subdy - petal.var.pos.y; // 计算 目标坐标 相对于 目前坐标 的 相对坐标
 							

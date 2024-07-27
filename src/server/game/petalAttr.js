@@ -54,7 +54,16 @@ export default Object.freeze({
 	'rose': {
 		max_hp: 5,
 		dmg: 5,
-	}
+	},
+	'epic_rose': {
+		max_hp: 5,
+		dmg: 5,
+	},
+	'dahlia': {
+		max_hp: 5,
+		dmg: 5,
+		radius: 8,
+	},
 });
 
 /*

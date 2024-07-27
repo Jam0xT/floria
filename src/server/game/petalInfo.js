@@ -65,7 +65,18 @@ export default Object.freeze({
 	'rose': {
 		cd: 75,
 		orbit_disabled: [false, true, false, true],
-	}
+	},
+	'epic_rose': {
+		cd: 75,
+		orbit_disabled: [false, true, false, true],
+	},
+	'dahlia': {
+		cd: 75,
+		orbit_disabled: [false, true, false, true],
+		count: 3,
+		pattern: 1,
+		sub_orbit: 8,
+	},
 });
 
 /*

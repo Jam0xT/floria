@@ -49,18 +49,18 @@ export default Object.freeze({
 				const $ = this.var;
 				const player = $.entities[instance.var.parent];
 				const info = player.var.kit.primary[instance.var.idx].info;
-				if ( skill.pend < 25 ) { // 需要 25 刻判定
-					if ( player.var.attr.hp < player.var.attr.max_hp ) { // 玩家需要回血
+				if ( player.var.attr.hp < player.var.attr.max_hp ) { // 玩家需要回血
+					if ( skill.pend < 25 ) { // 需要 25 刻判定
 						if ( skill.pend == 0 ) { // 判定的第一刻
 							info.orbit_special = player.var.attr.radius + instance.var.attr.radius * 0.8; // 设置特殊轨道
 						}
 						skill.pend += 1; // 更新计时器
 						return ;
-					} else {
-						skill.pend = 0; // 重置 pend 计时器
-						info.orbit_special = -1; // 取消特殊轨道
-						return ;
 					}
+				} else {
+					skill.pend = 0; // 重置 pend 计时器
+					info.orbit_special = -1; // 取消特殊轨道
+					return ;
 				}
 				// 判定完成
 				const heal = 10; // 回血量
@@ -70,7 +70,89 @@ export default Object.freeze({
 				info.orbit_special = -1; // 取消特殊轨道
 			}
 		],
-	}
+	},
+	'epic_rose': {
+		'onLoad': [
+			function (instance) {
+				const skill = instance.var.skill;
+				skill.ready = 0; // 初始化 ready 计时器
+				skill.pend = 0; // 初始化 pend 计时器
+			}
+		],
+		'onTick': [
+			function (instance) {
+				const skill = instance.var.skill;
+				if ( skill.ready < 25 ) { // 需要 25 刻准备
+					skill.ready += 1;
+					return ;
+				}
+				// 准备完成
+				const $ = this.var;
+				const player = $.entities[instance.var.parent];
+				const info = player.var.kit.primary[instance.var.idx].info;
+				if ( player.var.attr.hp < player.var.attr.max_hp ) { // 玩家需要回血
+					if ( skill.pend < 25 ) { // 需要 25 刻判定
+						if ( skill.pend == 0 ) { // 判定的第一刻
+							info.orbit_special = player.var.attr.radius + instance.var.attr.radius * 0.8; // 设置特殊轨道
+						}
+						skill.pend += 1; // 更新计时器
+						return ;
+					}
+				} else {
+					skill.pend = 0; // 重置 pend 计时器
+					info.orbit_special = -1; // 取消特殊轨道
+					return ;
+				}
+				// 判定完成
+				const heal = 22; // 回血量
+				player.var.attr.hp = Math.min(player.var.attr.hp + heal, player.var.attr.max_hp); // 回血
+				playerHandler.handlePetalDeath.bind(this)(instance); // 移除花瓣
+				entityHandler.removeEntity.bind(this)(instance.var.uuid);
+				info.orbit_special = -1; // 取消特殊轨道
+			}
+		],
+	},
+	'dahlia': {
+		'onLoad': [
+			function (instance) {
+				const skill = instance.var.skill;
+				skill.ready = 0; // 初始化 ready 计时器
+				skill.pend = 0; // 初始化 pend 计时器
+			}
+		],
+		'onTick': [
+			function (instance) {
+				const skill = instance.var.skill;
+				if ( skill.ready < 25 ) { // 需要 25 刻准备
+					skill.ready += 1;
+					return ;
+				}
+				// 准备完成
+				const $ = this.var;
+				const player = $.entities[instance.var.parent];
+				const info = player.var.kit.primary[instance.var.idx].info;
+				if ( player.var.attr.hp < player.var.attr.max_hp ) { // 玩家需要回血
+					if ( skill.pend < 25 ) { // 需要 25 刻判定
+						if ( skill.pend == 0 ) { // 判定的第一刻
+							info.orbit_special = player.var.attr.radius + instance.var.attr.radius * 0.8; // 设置特殊轨道
+						}
+						skill.pend += 1; // 更新计时器
+						return ;
+					}
+				} else {
+					skill.pend = 0; // 重置 pend 计时器
+					info.orbit_special = -1; // 取消特殊轨道
+					return ;
+				}
+				// 判定完成
+				const heal = 4; // 回血量
+				player.var.attr.hp = Math.min(player.var.attr.hp + heal, player.var.attr.max_hp); // 回血
+				playerHandler.handlePetalDeath.bind(this)(instance); // 移除花瓣
+				entityHandler.removeEntity.bind(this)(instance.var.uuid);
+				info.orbit_special = -1; // 取消特殊轨道
+			}
+		],
+	},
 });
 
 /*
@@ -78,6 +160,7 @@ export default Object.freeze({
 
 触发器列表
 onFirstLoad		// 首次加载
+onLoad			// 加载
 onHit			// 击中目标
 onTick			// 每刻执行
 */

@@ -108,6 +108,8 @@ function handleEntityDeaths() {
 function removeEntity(uuid) {
 	const $ = this.var;
 	const entity = $.entities[uuid];
+	if ( !entity )
+		return ;
 	entity.var.chunks.forEach(chunk => { // 清除区块中对这个实体的记录
 		const id = physics.getChunkID(chunk);
 		if ( $.chunks[id] ) {
