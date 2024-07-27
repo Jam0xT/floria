@@ -86,7 +86,11 @@ export default Object.freeze({
 	'salt': {
 		max_hp: 10,
 		dmg: 10,
-	}
+	},
+	'bubble': {
+		max_hp: 1,
+		dmg: 0,
+	},
 });
 
 /*

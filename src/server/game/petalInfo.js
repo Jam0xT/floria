@@ -100,6 +100,9 @@ export default Object.freeze({
 		count: 3,
 		pattern: 1,
 	},
+	'bubble': {
+		cd: 75,
+	}
 });
 
 /*

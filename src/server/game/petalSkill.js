@@ -309,6 +309,25 @@ export default Object.freeze({
 			},
 		],
 	},
+	'bubble': {
+		'onTick': [
+			function (instance) {
+				const $ = this.var;
+				const player = $.entities[instance.var.parent];
+				const power = 10; // 推进力
+				const durability = 0.8; // 衰减系数 [0, 1]
+				if ( player.var.state & 2 ) {
+					entityHandler.appendVelocity.bind(player)( // 推进
+						(player.var.pos.x - instance.var.pos.x) * power, 
+						(player.var.pos.y - instance.var.pos.y) * power,
+						durability, // 泡泡速度衰减系数
+					);
+					playerHandler.handlePetalDeath.bind(this)(instance); // 移除花瓣
+					entityHandler.removeEntity.bind(this)(instance.var.uuid);
+				}
+			}
+		]
+	}
 });
 
 /*
