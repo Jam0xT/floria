@@ -12,12 +12,21 @@ export default Object.freeze({
 		rot_speed: 0.05,		// 亚轨道旋转速度 单位:弧度 / 刻
 		orbit_extra: 0,			// 额外轨道半径
 		sub_orbit: 0,			// 亚轨道半径
-		special: [], 			// 特殊技能合集
+		special: {},			// 特殊技能
 	},
 });
 
 /*
-special: [
-	
-],
+special: {
+	'trigger': [
+		{
+			stage: 0,
+			events: [
+				
+			],
+			conditions: [
+			],
+		}
+	]
+},
 */

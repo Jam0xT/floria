@@ -72,6 +72,16 @@ function updatePlayers() { // Game 调用 更新玩家
 				if ( !instances[subidx] ) { 	// 如果实例不存在 即 在冷却时间
 					info.cd_remain[subidx] --; 	// 更新冷却时间
 					if ( info.cd_remain[subidx] <= 0 ) { 	// 冷却时间结束
+						const attr = structuredClone(petalAttr[info.instance_id]); // 默认属性
+						
+						// 自动设置未设定值为默认设定
+						attr.max_hp ??= petalAttr['default'].max_hp;
+						attr.hp ??= attr.max_hp;
+						attr.mass ??= petalAttr['default'].mass;
+						attr.radius ??= petalAttr['default'].radius;
+						attr.ignore_border ??= petalAttr['default'].ignore_border;
+						attr.dmg ??= petalAttr['default'].dmg;
+
 						const newPetal = new Petal( 		// 创建新 Petal 实例
 							info.instance_id, 				// 获取实例 id
 							player.var.uuid, 	// 设置玩家为 parent
@@ -79,7 +89,7 @@ function updatePlayers() { // Game 调用 更新玩家
 							subidx,				// 在所属抽象花瓣的实例集合中的编号
 							player.var.pos.x, player.var.pos.y, // 继承玩家的位置
 							player.var.team,	// 继承玩家的所在队伍
-							structuredClone(petalAttr[info.instance_id]),	// 默认属性
+							attr,	// 默认属性
 						);
 						const uuid = newPetal.var.uuid; // 获取新花瓣 uuid
 						instances[subidx] = uuid; 		// 储存 uuid

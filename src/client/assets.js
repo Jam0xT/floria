@@ -47,6 +47,7 @@ const ASSET_NAMES = [
 	'petals/honey.svg',
 	'petals/iris.svg',
 	'petals/leaf.svg',
+	'petals/light.svg',
 	'petals/lightning.svg',
 	'petals/missile.svg',
 	'petals/peas.svg',
