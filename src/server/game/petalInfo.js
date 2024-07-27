@@ -84,6 +84,9 @@ export default Object.freeze({
 	},
 	'cactus': {
 		cd: 25,
+	},
+	'faster': {
+		cd: 12,
 	}
 });
 

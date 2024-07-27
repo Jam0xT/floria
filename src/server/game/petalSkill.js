@@ -202,6 +202,24 @@ export default Object.freeze({
 			},
 		],
 	},
+	'faster': {
+		'onFirstLoad': [
+			// 首次 load 时增加 0.032 rad/tick 转速
+			function (instance) {
+				const $ = this.var;
+				const player = $.entities[instance.var.parent];
+				player.var.attr.rot_speed += 0.032;
+			},
+		],
+		'onUnequip': [
+			// unequip 时减少 0.032 rad/tick 转速
+			function (instance) {
+				const $ = this.var;
+				const player = $.entities[instance.var.parent];
+				player.var.attr.rot_speed -= 0.032;
+			},
+		],
+	},
 });
 
 /*

@@ -71,7 +71,11 @@ export default Object.freeze({
 	'cactus': {
 		max_hp: 15,
 		dmg: 5,
-	}
+	},
+	'faster': {
+		max_hp: 5,
+		dmg: 8,	
+	},
 });
 
 /*
