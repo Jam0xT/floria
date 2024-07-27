@@ -13,12 +13,14 @@ export default Object.freeze({
 		dmg: 10,
 	},
 	'stinger': {
-		max_hp: 5,
+		max_hp: 8,
 		dmg: 35,
+		radius: 8,
 	},
 	'light': {
 		max_hp: 5,
 		dmg: 8,
+		radius: 5,
 	}
 });
 

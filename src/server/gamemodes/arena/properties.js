@@ -5,8 +5,8 @@ export default Object.freeze({
 	chunk_size: 200, // 区块大小 用于碰撞判定
 	default_kit_info: { // 默认抽象花瓣信息
 		size: 5,
-		primary: new Array(5).fill('basic'),
-		secondary: new Array(5).fill(''),
+		primary: ['basic', 'fast', 'triple_stinger', 'triplet', 'stinger'],
+		secondary: ['', '', '', '', ''],
 	},
 	/*
 		以下几个参数决定游戏的物理引擎，含义与现实生活不同，具体请参考下方注释
