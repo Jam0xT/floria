@@ -95,6 +95,11 @@ function updatePlayers() { // Game 调用 更新玩家
 			}
 		});
 
+		player.var.petals.forEach(uuid => {
+			const petal = $.entities[uuid];
+			
+		});
+
 		// 遍历抽象花瓣 更新冷却 花瓣簇计数
 		kit.primary.forEach((data, idx) => {
 			const id = data.id; // 抽象花瓣 id
@@ -266,8 +271,6 @@ function initPetals(defaultKitInfo) { // Player 调用
 		primary: [],
 		secondary: [],	
 	};
-	$.petals = []; // 已解绑花瓣 uuid
-	$.angle = 0; // 轨道起始角度
 	defaultKitInfo.primary.forEach(id => {
 		if ( !id ) { // 空花瓣
 			$.kit.primary.push({id: ''});

@@ -102,6 +102,9 @@ export default Object.freeze({
 	},
 	'bubble': {
 		cd: 75,
+	},
+	'missile': {
+		cd: 75,
 	}
 });
 

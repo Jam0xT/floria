@@ -15,6 +15,8 @@ class Player extends Entity {
 			percent: 0, // 总血量百分点
 		};
 		$.stack = {}; // 花瓣堆叠计数
+		$.petals = []; // 已解绑花瓣 uuid
+		$.angle = 0; // 轨道起始角度
 	}
 
 	setSpec(state) { // 设置是否为观察者

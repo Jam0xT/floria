@@ -91,6 +91,10 @@ export default Object.freeze({
 		max_hp: 1,
 		dmg: 0,
 	},
+	'missile': {
+		max_hp: 10,
+		dmg: 35,
+	}
 });
 
 /*
