@@ -10,6 +10,10 @@ class Player extends Entity {
 		};
 		$.spec = false; // 是否为观察者
 		$.state = 0; // 鼠标按下情况 0:无 1:左键 2:右键 3:左右
+		$.heal = { // 每刻非自然回血
+			point: 0, // 点数
+			percent: 0, // 总血量百分点
+		};
 	}
 
 	setSpec(state) { // 设置是否为观察者
@@ -17,6 +21,11 @@ class Player extends Entity {
 		$.spec = state;
 		$.attr.ghost = true;
 		$.attr.invulnerable = true;
+	}
+
+	regen() { // 非自然回血
+		const $ = this.var;
+		$.attr.hp = Math.min($.attr.hp + $.heal.point + $.heal.percent * $.attr.max_hp, $.attr.max_hp);
 	}
 }
 

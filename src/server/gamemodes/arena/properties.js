@@ -5,7 +5,7 @@ export default Object.freeze({
 	chunk_size: 200, // 区块大小 用于碰撞判定
 	default_kit_info: { // 默认抽象花瓣信息
 		size: 5,
-		primary: ['rice'],
+		primary: ['leaf'],
 		secondary: ['', '', '', '', ''],
 	},
 	/*
@@ -32,7 +32,7 @@ export default Object.freeze({
 	*/
 	player_natural_regen: { // 玩家自然回血
 		interval: 25, // 单位:刻
-		point: 25, // 单位:点
+		point: 1, // 单位:点
 		percent: 0, // 单位:总血量百分点; 取 1 表示 1%
 	},
 	petal_speed: 100, // 花瓣追踪速度乘数

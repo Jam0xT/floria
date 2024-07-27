@@ -9,6 +9,7 @@ export default Object.freeze({
 		rot_speed: 0.05,
 		orbit_extra: 0,
 		sub_orbit: 10,
+		cuml_cnt: 0,
 	},
 	'basic': {
 		cd: 62,
@@ -55,6 +56,9 @@ export default Object.freeze({
 		cd: 500,
 		orbit_extra: -10,
 	},
+	'leaf': {
+		cd: 25,
+	}
 });
 
 /*
@@ -69,18 +73,6 @@ export default Object.freeze({
 	rot_speed: 0.05,		// 亚轨道旋转速度 单位:弧度 / 刻
 	orbit_extra: 0,			// 额外轨道半径
 	sub_orbit: 0,			// 亚轨道半径
-	special: {},			// 特殊技能
-},
-special: {
-	'trigger': [
-		{
-			stage: 0,
-			events: [
-				
-			],
-			conditions: [
-			],
-		}
-	]
+	cuml_cnt: 0,			// cumulative count; 累计 load 实例数量
 },
 */

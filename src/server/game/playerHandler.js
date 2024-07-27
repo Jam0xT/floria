@@ -4,6 +4,7 @@ import * as entityHandler from './entityHandler.js';
 import mobAttr from './mobAttr.js';
 import petalAttr from './petalAttr.js';
 import petalInfo from './petalInfo.js';
+import petalSkill from './petalSkill.js';
 import Petal from './petal.js';
 
 /*
@@ -55,11 +56,14 @@ function updatePlayers() { // Game 调用 更新玩家
 
 		playerNaturalRegen.bind(this)(player);
 
-		player.var.angle = (player.var.angle + player.var.attr.rot_speed) % (Math.PI * 2); // 更新轨道起始角度
+		player.regen();
+
 		const kit = player.var.kit;
 		let clusterCnt = 0; // 花瓣簇总数 聚合算 1 分散算 n
+		player.var.angle = (player.var.angle + player.var.attr.rot_speed) % (Math.PI * 2); // 更新轨道起始角度
 
-		kit.primary.forEach((data, idx) => { // 遍历抽象花瓣 更新冷却
+		// 遍历抽象花瓣 更新冷却 花瓣簇计数
+		kit.primary.forEach((data, idx) => {
 			const id = data.id; // 抽象花瓣 id
 			if ( !id ) 			// 空花瓣
 				return ;
@@ -71,9 +75,10 @@ function updatePlayers() { // Game 调用 更新玩家
 			for (let subidx = 0; subidx < info.count; subidx ++ ) { // 遍历实例 更新 冷却时间
 				if ( !instances[subidx] ) { 	// 如果实例不存在 即 在冷却时间
 					info.cd_remain[subidx] --; 	// 更新冷却时间
-					if ( info.cd_remain[subidx] <= 0 ) { 	// 冷却时间结束
+					if ( info.cd_remain[subidx] <= 0 ) { 	// 冷却时间结束 load 新实例
 						const attr = structuredClone(petalAttr[info.instance_id]); // 默认属性
 						const defaultAttr = structuredClone(petalAttr['default']); // 未设置值默认值
+
 						// 自动设置未设置值为默认值
 						attr.max_hp ??= defaultAttr.max_hp;
 						attr.hp ??= attr.max_hp;
@@ -82,18 +87,32 @@ function updatePlayers() { // Game 调用 更新玩家
 						attr.ignore_border ??= defaultAttr.ignore_border;
 						attr.dmg ??= defaultAttr.dmg;
 
-						const newPetal = new Petal( 		// 创建新 Petal 实例
-							info.instance_id, 				// 获取实例 id
-							player.var.uuid, 	// 设置玩家为 parent
-							idx, 				// 所属抽象花瓣的编号
-							subidx,				// 在所属抽象花瓣的实例集合中的编号
-							player.var.pos.x, player.var.pos.y, // 继承玩家的位置
-							player.var.team,	// 继承玩家的所在队伍
-							attr,	// 默认属性
+						// 创建新 Petal
+						const newPetal = new Petal(
+							info.instance_id, 						// 获取实例 id
+							player.var.uuid, 						// 设置玩家为 parent
+							idx, 									// 所属抽象花瓣的编号
+							subidx,									// 在所属抽象花瓣的实例集合中的编号
+							player.var.pos.x, player.var.pos.y, 	// 继承玩家的位置
+							player.var.team,						// 继承玩家的所在队伍
+							attr,									// 默认属性
 						);
 						const uuid = newPetal.var.uuid; // 获取新花瓣 uuid
 						instances[subidx] = uuid; 		// 储存 uuid
 						entityHandler.addEntity.bind(this)(uuid, newPetal); // 添加实体到实体列表
+
+						// 判定花瓣技能触发器
+						(() => {
+							const skill = petalSkill[info.id];
+							if ( !skill ) // 花瓣无技能
+								return ;
+							if ( skill['onFirstLoad'] ) { // onFirstLoad 触发器
+								skill['onFirstLoad'].forEach(fn => {
+									fn.bind(this)(newPetal);
+								});
+							}
+						})();
+						info.cuml_cnt += info.count;	// 更新累计 load 实例数量
 					}
 				}
 			}
@@ -179,7 +198,6 @@ kit: {size, primary:[{id, info, instances:[uuid]}], secondary:[{id, info}]}
 	rot_speed: 0.05,		// 亚轨道旋转速度 单位:弧度 / 刻
 	orbit_extra: 100,		// 额外轨道半径
 	sub_orbit: 0,			// 亚轨道半径
-	speci6al: [], 			// 特殊技能合集
 }
 具体参考 petalInfo.js
 
@@ -194,7 +212,7 @@ function initPetals(defaultKitInfo) { // Player 调用
 		primary: [],
 		secondary: [],	
 	};
-	$.petals = [];
+	$.petals = []; // 已解绑花瓣 uuid
 	$.angle = 0; // 轨道起始角度
 	defaultKitInfo.primary.forEach(id => {
 		if ( !id ) { // 空花瓣
