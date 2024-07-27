@@ -15,3 +15,9 @@ export default Object.freeze({
 		special: [], 			// 特殊技能合集
 	},
 });
+
+/*
+special: [
+	
+],
+*/
