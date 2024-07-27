@@ -83,7 +83,7 @@ function updatePlayers() { // Game 调用 更新玩家
 				const instance = $.entities[instances[subidx]]; // 实例
 				// 判定花瓣技能触发器
 				(() => {
-					const skill = petalSkill[id];
+					const skill = petalSkill[instance.var.skill_id];
 					if ( !skill ) // 花瓣无技能
 						return ;
 					if ( skill['onTick'] ) { // onTick 触发器
@@ -97,7 +97,7 @@ function updatePlayers() { // Game 调用 更新玩家
 
 		player.var.petals.forEach(uuid => {
 			const petal = $.entities[uuid];
-			
+
 		});
 
 		// 遍历抽象花瓣 更新冷却 花瓣簇计数
@@ -121,12 +121,10 @@ function updatePlayers() { // Game 调用 更新玩家
 							throw new Error(`instance '${info.instance_id}' does not exist`);
 
 						// 自动设置未设置值为默认值
-						attr.max_hp ??= defaultAttr.max_hp;
+						Object.keys(defaultAttr).forEach(key => {
+							attr[key] ??= defaultAttr[key];
+						});
 						attr.hp ??= attr.max_hp;
-						attr.mass ??= defaultAttr.mass;
-						attr.radius ??= defaultAttr.radius;
-						attr.ignore_border ??= defaultAttr.ignore_border;
-						attr.dmg ??= defaultAttr.dmg;
 
 						// 创建新 Petal
 						const newPetal = new Petal(
@@ -134,6 +132,7 @@ function updatePlayers() { // Game 调用 更新玩家
 							player.var.uuid, 						// 设置玩家为 parent
 							idx, 									// 所属抽象花瓣的编号
 							subidx,									// 在所属抽象花瓣的实例集合中的编号
+							info.skill_id,							// 技能 id
 							player.var.pos.x, player.var.pos.y, 	// 继承玩家的位置
 							player.var.team,						// 继承玩家的所在队伍
 							attr,									// 默认属性
@@ -145,7 +144,7 @@ function updatePlayers() { // Game 调用 更新玩家
 						// 判定花瓣技能触发器
 						if ( info.cuml_cnt == 0 ) {
 							(() => {
-								const skill = petalSkill[id];
+								const skill = petalSkill[newPetal.var.skill_id];
 								if ( !skill ) // 花瓣无技能
 									return ;
 								if ( skill['onFirstLoad'] ) { // onFirstLoad 触发器
@@ -156,7 +155,7 @@ function updatePlayers() { // Game 调用 更新玩家
 							})();
 						}
 						(() => {
-							const skill = petalSkill[id];
+							const skill = petalSkill[newPetal.var.skill_id];
 							if ( !skill ) // 花瓣无技能
 								return ;
 							if ( skill['onLoad'] ) { // onLoad 触发器

@@ -12,6 +12,7 @@ export default Object.freeze({
 		orbit_special: -1,
 		sub_orbit: 10,
 		cuml_cnt: 0,
+		skill_id: '',
 	},
 	'basic': {
 		cd: 62,
@@ -58,17 +59,21 @@ export default Object.freeze({
 	},
 	'leaf': {
 		cd: 25,
+		skill_id: 'leaf',
 	},
 	'iris': {
 		cd: 150,
+		skill_id: 'iris',
 	},
 	'rose': {
 		cd: 75,
 		orbit_disabled: [false, true, false, true],
+		skill_id: 'rose',
 	},
 	'epic_rose': {
 		cd: 75,
 		orbit_disabled: [false, true, false, true],
+		skill_id: 'epic_rose',
 	},
 	'dahlia': {
 		cd: 75,
@@ -76,35 +81,44 @@ export default Object.freeze({
 		count: 3,
 		pattern: 1,
 		sub_orbit: 8,
+		skill_id: 'dhalia',
 	},
 	'wing': {
 		cd: 30,
 		sub_orbit: 10,
 		rot_speed: 0.4,
+		skill_id: 'wing',
 	},
 	'cactus': {
 		cd: 25,
+		skill_id: 'cactus',
 	},
 	'faster': {
 		cd: 12,
+		skill_id: 'faster',
 	},
 	'cactus_toxic': {
 		cd: 25,
+		skill_id: 'cactus_toxic',
 	},
 	'salt': {
 		cd: 62,
+		skill_id: 'salt',
 	},
 	'triple_cactus': {
 		instance_id: 'cactus',
 		cd: 25,
 		count: 3,
 		pattern: 1,
+		skill_id: 'triple_cactus',
 	},
 	'bubble': {
 		cd: 75,
+		skill_id: 'bubble',
 	},
 	'missile': {
 		cd: 75,
+		skill_id: 'missile',
 	}
 });
 

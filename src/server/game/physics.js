@@ -229,11 +229,10 @@ function solveCollision(source, target) {
 	})();
 
 	if ( source.var.type == 'petal' ) { // 源是花瓣
-		const data = $.entities[source.var.parent].var.kit.primary[source.var.idx]; // 找到所属抽象花瓣
 		
 		// 判定花瓣技能触发器
 		(() => {
-			const skill = petalSkill[data.id];
+			const skill = petalSkill[source.var.skill_id];
 			if ( !skill ) // 花瓣无技能
 				return ;
 			if ( skill['onHit'] ) { // onHit 触发器
