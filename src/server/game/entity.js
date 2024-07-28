@@ -43,19 +43,35 @@ class Entity { // 所有实体的类
 			effects: { // 状态效果
 				poison: { // 中毒
 					duration: 0,	// 时长 单位: 刻
-					dmg: 0,			// 每刻伤害
+					value: 0,			// 每刻伤害
+				},
+				heal_res: {
+					duration: 0,
+					value: 0,		// 抗性百分点 100 为完全免疫回血
 				},
 			},
 		};
 	}
 
-	poison(duration, dmg) {
+	effect(id, duration, value) {
 		const $ = this.var;
-		const cur = $.effects.poison; // 当前中毒效果
-		if ( cur.duration * cur.dmg <= duration * dmg ) { // 使用总毒伤较高的一方
-			cur.duration = duration;
-			cur.dmg = dmg;
+		const cur = $.effects[id];
+		if ( id == 'poison' ) {
+			if ( cur.duration * cur.dmg <= duration * value ) { // 使用总毒伤较高的一方
+				cur.duration = duration;
+				cur.value = value;
+			}
+		} else {
+			if ( cur.duration < duration ) {
+				cur.duration = duration;
+				cur.value = value;
+			}
 		}
+	}
+
+	heal(value) {
+		const $ = this.var;
+		$.attr.hp = Math.min($.attr.max_hp, $.attr.hp + value * (1 - $.effects.heal_res.value * 0.01) );
 	}
 }
 

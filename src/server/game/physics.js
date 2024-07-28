@@ -213,7 +213,7 @@ function solveCollision(source, target) {
 	// 目标受到中毒
 	(() => {
 		if ( source.var.attr.poison )
-			target.poison(source.var.attr.poison.duration, source.var.attr.poison.dmg);
+			target.effect('poison', source.var.attr.poison.duration, source.var.attr.poison.dmg);
 	})();
 
 	// 目标执行反伤

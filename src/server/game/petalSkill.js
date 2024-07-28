@@ -35,25 +35,26 @@ export default Object.freeze({
 			},
 		],
 	},
-	'poison_on_hit': {
+	'effect_on_hit': {
 		/*
 			技能介绍：
 				击中的实体获得中毒效果
 			前置技能：
 				无
 			参数：
-				poison_on_hit: {
-					duration:, // 中毒持续时间 单位: 刻
-					dmg, // 中毒伤害 单位: 点 / 刻
+				effect_on_hit: {
+					id,		// 效果 id
+					duration:,	// 持续时间 单位: 刻
+					value,		// 效果值
 				}
 			变量域：
-				poison_on_hit
+				effect_on_hit
 		*/
 		'onHit': [
 			// 击中目标时给予中毒效果
 			function (instance, target) {
 				const sv = instance.var.skill_var;
-				target.poison(sv.poison_on_hit.duration, sv.poison_on_hit.dmg);
+				target.effect(sv.effect_on_hit.id, sv.effect_on_hit.duration, sv.effect_on_hit.value);
 			}
 		],
 	},
@@ -79,7 +80,7 @@ export default Object.freeze({
 				const $ = this.var;
 				const player = $.entities[instance.var.parent];
 				const heal = sv.heal.value; // 回血量
-				player.var.attr.hp = Math.min(player.var.attr.hp + heal, player.var.attr.max_hp); // 回血
+				player.heal(heal); // 回血
 			}
 		],
 	},

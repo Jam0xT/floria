@@ -82,11 +82,12 @@ export default Object.freeze({
 	},
 	'iris': {
 		cd: 150,
-		skill_set: ['poison_on_hit'],
+		skill_set: ['effect_on_hit'],
 		skill_var: {
-			poison_on_hit:{
+			effect_on_hit: {
+				id: 'poison',
 				duration: 150,
-				dmg: 0.4,
+				value: 0.4,
 			}
 		},
 	},
@@ -221,11 +222,12 @@ export default Object.freeze({
 	},
 	'cactus_toxic': {
 		cd: 25,
-		skill_set: ['poison_on_hit', 'extra_hp', 'poison_unstackable'],
+		skill_set: ['effect_on_hit', 'extra_hp', 'poison_unstackable'],
 		skill_var: {
-			poison_on_hit: {
+			effect_on_hit: {
+				id: 'poison',
 				duration: 15,
-				dmg: 0.4,
+				value: 0.4,
 			},
 			extra_hp: 20,
 			poison_unstackable: {
@@ -398,7 +400,7 @@ export default Object.freeze({
 				count: 4,
 				child: {
 					id: 'peas_toxic_single',
-					skill_set: ['flag', 'timer', 'project', 'remove', 'poison_on_hit'],
+					skill_set: ['flag', 'timer', 'project', 'remove', 'effect_on_hit'],
 					skill_var: {
 						timer: [
 							{
@@ -415,9 +417,10 @@ export default Object.freeze({
 						remove: {
 							on: 'death',
 						},
-						poison_on_hit:{
+						effect_on_hit: {
+							id: 'poison',
 							duration: 25,
-							dmg: 0.4,
+							value: 0.4,
 						}
 					},
 					attr: petalAttr['peas_single'],
@@ -454,7 +457,7 @@ export default Object.freeze({
 				count: 4,
 				child: {
 					id: 'peas_toxic_single',
-					skill_set: ['flag', 'timer', 'project', 'remove', 'poison_on_hit'],
+					skill_set: ['flag', 'timer', 'project', 'remove', 'effect_on_hit'],
 					skill_var: {
 						timer: [
 							{
@@ -471,9 +474,10 @@ export default Object.freeze({
 						remove: {
 							on: 'death',
 						},
-						poison_on_hit:{
+						effect_on_hit: {
+							id: 'poison',
 							duration: 50,
-							dmg: 0.4,
+							value: 0.4,
 						}
 					},
 					attr: petalAttr['peas_legendary_single'],
@@ -487,6 +491,48 @@ export default Object.freeze({
 			},
 		},
 	},
+	'dandelion': {
+		cd: 50,
+		orbit_disabled: [false, true, false, true],
+		skill_set: ['flag', 'timer', 'player_state', 'effect_on_hit', 'project', 'dir', 'remove'],
+		skill_var: {
+			timer: [
+				{
+					time: 25,
+					start: 'spawn',
+					end: 'ready',
+				},
+				{
+					time: 1,
+					start: 'ready',
+					end: 'use',
+					condition: 'player_attack',
+				},
+				{
+					time: 100,
+					start: 'use',
+					end: 'death',
+				}
+			],
+			effect_on_hit: {
+				id: 'heal_res',
+				duration: 250,
+				value: 100,
+			},
+			project: {
+				start: 'use',
+				speed: 600,
+				coeff: 1,
+			},
+			dir: {
+				type: 'radial',
+			},
+			remove: {
+				on: 'death',
+			},
+		},
+
+	}
 });
 
 /*

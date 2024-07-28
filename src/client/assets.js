@@ -1,7 +1,6 @@
 const ASSET_NAMES = [
 	'player.svg',
 	'player_suffocate.svg',
-	'glass_single.svg',
 	'decorates/beetle_pincer_left.svg',
 	'decorates/beetle_pincer_right.svg',
 	'mobs/ant_hole.svg',
@@ -41,7 +40,6 @@ const ASSET_NAMES = [
 	'petals/empty.svg',
 	'petals/fangs.svg',
 	'petals/faster.svg',
-	'petals/glass.svg',
 	'petals/heavy.svg',
 	'petals/honey.svg',
 	'petals/iris.svg',
@@ -66,7 +64,6 @@ const ASSET_NAMES = [
 	'petals/web.svg',
 	'petals/wing.svg',
 	'petals/yinyang.svg',
-	'petals/yucca.svg',
 ];
 
 const assets = {};

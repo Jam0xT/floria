@@ -133,7 +133,7 @@ function updateEntities() { // Game 调用
 			// 中毒
 			if ( effects.poison.duration > 0 ) {
 				effects.poison.duration -= 1;
-				entity.var.attr.hp -= effects.poison.dmg * (1 - entity.var.attr.poison_res);
+				entity.var.attr.hp -= effects.poison.value * (1 - entity.var.attr.poison_res);
 			}
 		})();
 	});

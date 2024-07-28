@@ -31,7 +31,7 @@ class Player extends Entity {
 
 	regen() { // 非自然回血
 		const $ = this.var;
-		$.attr.hp = Math.min($.attr.hp + $.heal.point + $.heal.percent * $.attr.max_hp, $.attr.max_hp);
+		this.heal($.heal.point + $.heal.percent * $.attr.max_hp * 0.01);
 	}
 }
 

@@ -53,7 +53,7 @@ function playerNaturalRegen(player) { // 玩家自然会血
 	const $ = this.var;
 	if ( $.tick % $.props.player_natural_regen.interval)
 		return ;
-	player.var.attr.hp = Math.min(player.var.attr.max_hp, player.var.attr.hp + $.props.player_natural_regen.point + $.props.player_natural_regen.percent * player.var.attr.max_hp * 0.01);
+	player.heal($.props.player_natural_regen.point + $.props.player_natural_regen.percent * player.var.attr.max_hp * 0.01);
 }
 
 function newUnboundPetal(id, parent, x, y, dir, skill_set, skill_var, attr) { // Game 调用
