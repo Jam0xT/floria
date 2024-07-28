@@ -1,7 +1,7 @@
 export default Object.freeze({
 	tick_per_second: 25, // 游戏 tps
-	map_width: 1000, // 地图宽度
-	map_height: 1000, // 地图高度
+	map_width: 3000, // 地图宽度
+	map_height: 3000, // 地图高度
 	chunk_size: 200, // 区块大小 用于碰撞判定
 	default_kit_info: { // 默认抽象花瓣信息
 		size: 8,
