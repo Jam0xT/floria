@@ -2,6 +2,7 @@
 
 export default Object.freeze({
 	default: {
+		// hp 未设置时会自动设置成 max_hp
 		max_hp: 100,
 		radius: 20,
 		vision: 1000,
@@ -18,8 +19,7 @@ export default Object.freeze({
 		dir: 0,
 	},
 	player: { // 玩家
-		hp: 150,
-		max_hp: 150,
+		max_hp: 150000,
 		radius: 20,
 		vision: 2000,
 		mass: 100,

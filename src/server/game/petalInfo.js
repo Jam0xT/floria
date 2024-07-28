@@ -120,6 +120,8 @@ export default Object.freeze({
 	'wing': {
 		cd: 30,
 		sub_orbit: 10,
+		sub_orbit_type: 'rotate', // 'radial', 'rotate'
+		sub_orbit_rot_speed: 0.4, // rad / tick
 		skill_set: ['float'],
 	},
 	'cactus': {
@@ -170,7 +172,7 @@ export default Object.freeze({
 		cd: 75,
 		skill_set: ['push'],
 		skill_var: {
-			push_power: 500,
+			push_power: 700,
 			push_coeff: 0.8, 
 		},
 	},

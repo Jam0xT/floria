@@ -75,6 +75,7 @@ export default Object.freeze({
 	'cactus': {
 		max_hp: 15,
 		dmg: 5,
+		radius: 12,
 	},
 	'faster': {
 		max_hp: 5,
@@ -83,6 +84,7 @@ export default Object.freeze({
 	'cactus_toxic': {
 		max_hp: 15,
 		dmg: 5,
+		radius: 12,
 	},
 	'salt': {
 		max_hp: 10,
