@@ -6,11 +6,12 @@ export default Object.freeze({
 		count: 1,
 		pattern: 0,
 		angle: 0,
-		rot_speed: 0.05,
 		orbit_extra: [0, 0, 0, 0], // 默认 左键 右键 左右
 		orbit_disabled: [false, false, false, false],
 		orbit_special: -1,
 		sub_orbit: 10,
+		sub_orbit_type: '', // 'radial', 'rotate'
+		sub_orbit_rot_speed: 0, // rad / tick
 		cuml_cnt: 0,
 		skill_set: [],
 		skill_var: {},
@@ -20,12 +21,21 @@ export default Object.freeze({
 	},
 	'stinger': {
 		cd: 100,
+		skill_set: ['dir'],
+		skill_var: {
+			dir_type: 'radial',
+		}
 	},
 	'triple_stinger': {
 		instance_id: 'stinger',
 		cd: 100,
 		count: 3,
 		pattern: 1,
+		sub_orbit_type: 'radial',
+		skill_set: ['dir'],
+		skill_var: {
+			dir_type: 'radial',
+		}
 	},
 	'fast': {
 		instance_id: 'light',
@@ -109,7 +119,6 @@ export default Object.freeze({
 	'wing': {
 		cd: 30,
 		sub_orbit: 10,
-		rot_speed: 0.4,
 		skill_set: ['float'],
 	},
 	'cactus': {
@@ -165,11 +174,14 @@ export default Object.freeze({
 	},
 	'missile': {
 		cd: 75,
-		skill_set: ['project'],
+		skill_set: ['project', 'dir'],
 		skill_var: {
-			project_speed: 500,
+			project_speed: 1000,
 			project_coeff: 1,
-			project_duration: 25,
+			project_duration: 100,
+			project_ready_time: 25,		// 准备时间
+			project_pend_time: 1,		// 判定时间
+			dir_type: 'radial',
 		},
 	}
 });

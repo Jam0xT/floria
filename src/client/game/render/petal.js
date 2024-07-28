@@ -8,13 +8,12 @@ function renderPetal(self, petal) {
 
 	const { x, y } = petal;
 	let asset = getAsset(`petals/${petal.id}.svg`);
+	const width = asset.naturalWidth, height = asset.naturalHeight;
 	const canvasX = W / 2 + (x - self.x) * hpx;
 	const canvasY = H / 2 + (y - self.y) * hpx;
 	const renderRadius = petal.attr.radius * hpx;
 	ctx.translate(canvasX, canvasY);
-	
-	const width = asset.naturalWidth, height = asset.naturalHeight;
-
+	ctx.rotate(petal.attr.dir);
 	if ( width <= height ) {
 		ctx.drawImage(
 			asset,
@@ -32,7 +31,17 @@ function renderPetal(self, petal) {
 			renderRadius * 2,
 		);
 	}
+	
+	// ctx.beginPath();
+	// ctx.arc(0, 0, petal.attr.radius, 0, 2 * Math.PI);
+	// ctx.moveTo(0, 0);
+	// ctx.lineTo(petal.attr.radius, 0);
+	// ctx.closePath();
+	// ctx.strokeStyle = '#78fffa';
+	// ctx.lineWidth = hpx * 1;
+	// ctx.stroke();
 
+	ctx.rotate(-petal.attr.dir);
 	ctx.translate(-canvasX, -canvasY);
 	// canvas.draw(ctx, canvas.ctxMain);
 }

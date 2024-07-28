@@ -55,7 +55,6 @@ const ASSET_NAMES = [
 	'petals/peas_toxic_single.svg',
 	'petals/peas_legendary.svg',
 	'petals/peas_legendary_single.svg',
-	'petals/penta.svg',
 	'petals/pollen.svg',
 	'petals/rice.svg',
 	'petals/rock.svg',

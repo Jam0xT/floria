@@ -87,6 +87,7 @@ export default Object.freeze({
 		],
 	},
 	'float': {
+		// 攻击时变成聚合式
 		'onLoad': [
 			function (instance) {
 				const sv = instance.var.skill_var;
@@ -255,7 +256,7 @@ export default Object.freeze({
 			project_coeff,		// 弹射后速度衰减系数
 			project_duration,	// 弹射后持续时间
 			project_ready_time,		// 准备时间
-			project_pend_time,		// 判定时间
+			project_pend_time,		// 判定时间 设为 0 自动发射
 		*/
 		'onLoad': [
 			function (instance) {
@@ -269,6 +270,8 @@ export default Object.freeze({
 		'onTick': [
 			function (instance) { // 发射前
 				const sv = instance.var.skill_var;
+				if ( sv.projected ) // 已发射
+					return ;
 				if ( sv.project_ready < sv.project_ready_time ) { // 准备时间
 					sv.project_ready += 1;
 					return ;
@@ -303,7 +306,10 @@ export default Object.freeze({
 					playerHandler.handlePetalDeath.bind(this)(instance); // 移除对花瓣的记录
 					instance.var.unbound_idx = player.var.petals.push(instance.var.uuid) - 1; // 记录在已解绑花瓣中 记录 unbound_idx
 					instance.var.unbound = true;
+					sv.dir_type = 'none'; // 停止改变方向
 					const dir = Math.atan2(instance.var.pos.y - player.var.pos.y, instance.var.pos.x - player.var.pos.x); // 计算发射方向
+					// const dir = instance.var.attr.dir;
+					entityHandler.move.bind(instance)(0, 0); // 清空加速度 否则会保留原来维持轨道的加速度
 					entityHandler.appendVelocity.bind(instance)(
 						sv.project_speed * Math.cos(dir),
 						sv.project_speed * Math.sin(dir),
@@ -313,7 +319,59 @@ export default Object.freeze({
 				sv.project_timer += 1;
 			}
 		],
-	}
+	},
+	'dir': {
+		/*
+			dir_type,
+			'radial': 径向
+			'none': 停止改变方向
+			'rotate': 旋转
+			'sub_orbit': 继承亚轨道方向
+			dir_rot_speed, // 旋转速度 单位: 弧度 / 刻
+		*/
+		'onTick': [
+			function (instance) {
+				const $ = this.var;
+				const player = $.entities[instance.var.parent];
+				const sv = instance.var.skill_var;
+				if ( sv.dir_type == 'none' ) {
+					return ;
+				} else if ( sv.dir_type == 'radial' ) {
+					instance.var.attr.dir = Math.atan2(instance.var.pos.y - player.var.pos.y, instance.var.pos.x - player.var.pos.x);
+				} else if ( sv.dir_type == 'rotate' ) {
+					instance.var.attr.dir = (instance.var.attr.dir + sv.dir_rot_speed) % (Math.PI * 2);
+				} else if ( sv.dir_type == 'sub_orbit' ) {
+					const info = player.var.kit.primary[instance.var.idx].info;
+					instance.var.attr.dir = info.angle;
+				}
+			}
+		]
+	},
+	// 'sub_orbit': {
+	// 	/*
+	// 		sub_orbit_type,
+	// 		'none': 停止改变方向
+	// 		'radial': 径向
+	// 		'rotate': 旋转
+	// 		sub_orbit_rot_speed, 旋转速度 单位: 弧度 / 刻
+	// 	*/
+	// 	'onTick': [
+	// 		function (instance) {
+	// 			const $ = this.var;
+	// 			const player = $.entities[instance.var.parent];
+	// 			const info = player.var.kit.primary[instance.var.idx].info;
+	// 			const sv = instance.var.skill_var;
+	// 			if ( sub_orbit_last)
+	// 			if ( sv.sub_orbit_type == 'none' ) {
+	// 				return ;
+	// 			} else if ( sv.sub_orbit_type == 'radial' ) {
+	// 				info.angle = Math.atan2(instance.var.pos.y - player.var.pos.y, instance.var.pos.x - player.var.pos.x);
+	// 			} else if ( sv.sub_orbit_type == 'rotate' ) {
+	// 				info.angle = (info.angle + sv.sub_orbit_rot_speed) % (Math.PI * 2);
+	// 			}
+	// 		}
+	// 	]
+	// }
 });
 
 /*

@@ -86,6 +86,14 @@ function updatePlayers() { // Game 调用 更新玩家
 		let clusterCnt = 0; // 花瓣簇总数 聚合算 1 分散算 n
 		player.var.angle = (player.var.angle + player.var.attr.rot_speed) % (Math.PI * 2); // 更新轨道起始角度
 
+		// 已解绑花瓣判定技能触发器
+		player.var.petals.forEach(uuid => {
+			if ( !uuid )
+				return ;
+			const petal = $.entities[uuid];
+			togglePetalSkillTrigger.bind(this)('onTick', petal);
+		});
+
 		// 判定花瓣技能触发器
 		kit.primary.forEach((data) => {
 			const id = data.id; // 抽象花瓣 id
@@ -99,14 +107,6 @@ function updatePlayers() { // Game 调用 更新玩家
 				const instance = $.entities[instances[subidx]]; // 实例
 				togglePetalSkillTrigger.bind(this)('onTick', instance); // 触发
 			}
-		});
-
-		// 已解绑花瓣判定技能触发器
-		player.var.petals.forEach(uuid => {
-			if ( !uuid )
-				return ;
-			const petal = $.entities[uuid];
-			togglePetalSkillTrigger.bind(this)('onTick', petal);
 		});
 
 		// 遍历抽象花瓣 更新冷却 花瓣簇计数
@@ -215,7 +215,11 @@ function updatePlayers() { // Game 调用 更新玩家
 						);
 					}
 				}
-				info.angle = (info.angle + info.rot_speed) % (Math.PI * 2); // 更新亚轨道起始角度
+				if ( info.sub_orbit_type == 'rotate' ) { // 更新亚轨道起始角度
+					info.angle = (info.angle + info.sub_orbit_rot_speed) % (Math.PI * 2);
+				} else if ( info.sub_orbit_type == 'radial' ) {
+					info.angle = angle;
+				}
 				clusteridx += 1; // 更新花瓣簇编号
 			}
 		});
