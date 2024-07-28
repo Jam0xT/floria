@@ -20,8 +20,6 @@ class Entity { // 所有实体的类
 				speed, // 移动速度
 				ghost, // 无碰撞箱
 				ignore_border,	// 无视地图边界
-				rot_speed,		// 花瓣轨道转速 单位:弧度 / 刻 顺时针为正
-				orbit: [],		// 不同状态下花瓣轨道半径
 				invulnerable,	// 不会死亡判定
 				poison_res,		// 中毒抗性; 1 为免疫中毒伤害
 				poison: {duration, dmg}, // 碰撞对目标造成中毒

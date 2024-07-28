@@ -10,8 +10,6 @@ export default Object.freeze({
 		speed: 2000,
 		ghost: false,
 		ignore_border: false,
-		rot_speed: 0.1,
-		orbit: [50, 100, 25, 100],
 		invulnerable: false,
 		poison_res: 0,
 		poison: {duration: 0, dmg: 0},
@@ -19,13 +17,11 @@ export default Object.freeze({
 		dir: 0,
 	},
 	player: { // 玩家
-		max_hp: 150000,
+		max_hp: 150,
 		radius: 20,
 		vision: 2000,
 		mass: 100,
 		dmg: 25,
 		speed: 2000,
-		rot_speed: 0.1,
-		orbit: [50, 100, 25, 100],
 	},
 });

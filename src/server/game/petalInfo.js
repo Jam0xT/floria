@@ -142,6 +142,7 @@ export default Object.freeze({
 		cd: 25,
 		skill_set: ['poison_on_hit', 'extra_hp', 'poison_unstackable'],
 		skill_var: {
+			stack_id: 'cactus_toxic',
 			poison_on_hit_duration: 15,
 			poison_on_hit_damage: 0.4,
 			extra_hp: 20,
@@ -187,6 +188,13 @@ export default Object.freeze({
 			project_pend_time: 1,		// 判定时间
 			dir_type: 'radial',
 		},
+	},
+	'yinyang': {
+		cd: 25,
+		skill_set: ['yinyang'],
+		skill_var: {
+			stack_id: 'yinyang',
+		}
 	}
 });
 

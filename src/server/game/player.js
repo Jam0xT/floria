@@ -17,6 +17,9 @@ class Player extends Entity {
 		$.stack = {}; // 花瓣堆叠计数
 		$.petals = []; // 已解绑花瓣 uuid
 		$.angle = 0; // 轨道起始角度
+		$.rot_speed = 0.1; // 轨道转速 单位:弧度 / 刻 只能为正值
+		$.rot_dir = 1; // 旋转乘数 -1 / 0 / 1 逆时针 停转 顺时针
+		$.orbit = [50, 100, 25, 100]; // 不同状态下花瓣轨道半径 正常 攻击 防御 同时攻击防御
 	}
 
 	setSpec(state) { // 设置是否为观察者

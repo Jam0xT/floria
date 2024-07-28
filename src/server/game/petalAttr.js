@@ -98,6 +98,10 @@ export default Object.freeze({
 		max_hp: 10,
 		dmg: 35,
 		radius: 8,
+	},
+	'yinyang': {
+		max_hp: 15,
+		dmg: 15,
 	}
 });
 

@@ -84,7 +84,7 @@ function updatePlayers() { // Game 调用 更新玩家
 
 		const kit = player.var.kit;
 		let clusterCnt = 0; // 花瓣簇总数 聚合算 1 分散算 n
-		player.var.angle = (player.var.angle + player.var.attr.rot_speed) % (Math.PI * 2); // 更新轨道起始角度
+		player.var.angle = (player.var.angle + player.var.rot_speed * player.var.rot_dir) % (Math.PI * 2); // 更新轨道起始角度
 
 		// 已解绑花瓣判定技能触发器
 		player.var.petals.forEach(uuid => {
@@ -176,7 +176,7 @@ function updatePlayers() { // Game 调用 更新玩家
 						const angle = player.var.angle + Math.PI * 2 * (clusteridx / clusterCnt); // 计算当前实例在轨道的角度
 
 						const state = player.var.state;
-						const orbit_radius = (info.orbit_special == -1) ? (info.orbit_extra[state] + info.orbit_disabled[state] ? player.var.attr.orbit[0] : player.var.attr.orbit[state]) : info.orbit_special;
+						const orbit_radius = (info.orbit_special == -1) ? (info.orbit_extra[state] + info.orbit_disabled[state] ? player.var.orbit[0] : player.var.orbit[state]) : info.orbit_special;
 						
 						const x = player.var.pos.x + orbit_radius * Math.cos(angle); // 目标坐标
 						const y = player.var.pos.y + orbit_radius * Math.sin(angle);
@@ -194,7 +194,7 @@ function updatePlayers() { // Game 调用 更新玩家
 				const angle = player.var.angle + Math.PI * 2 * (clusteridx / clusterCnt); // 计算当前抽象花瓣亚轨道中心在轨道的角度
 
 				const state = player.var.state;
-				const orbit_radius = (info.orbit_special == -1) ? (info.orbit_extra[state] + info.orbit_disabled[state] ? player.var.attr.orbit[0] : player.var.attr.orbit[state]) : info.orbit_special;
+				const orbit_radius = (info.orbit_special == -1) ? (info.orbit_extra[state] + info.orbit_disabled[state] ? player.var.orbit[0] : player.var.orbit[state]) : info.orbit_special;
 				
 				const cx = player.var.pos.x + orbit_radius * Math.cos(angle); // 亚轨道中心坐标
 				const cy = player.var.pos.y + orbit_radius * Math.sin(angle);
