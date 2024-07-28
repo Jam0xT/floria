@@ -102,7 +102,15 @@ export default Object.freeze({
 	'yinyang': {
 		max_hp: 15,
 		dmg: 15,
-	}
+	},
+	'peas': {
+		max_hp: 20,
+		dmg: 8,
+	},
+	'peas_single': {
+		max_hp: 5,
+		dmg: 8,
+	},
 });
 
 /*

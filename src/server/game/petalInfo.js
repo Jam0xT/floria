@@ -23,7 +23,9 @@ export default Object.freeze({
 		cd: 100,
 		skill_set: ['dir'],
 		skill_var: {
-			dir_type: 'radial',
+			dir: {
+				type: 'radial',
+			}
 		}
 	},
 	'triple_stinger': {
@@ -34,7 +36,9 @@ export default Object.freeze({
 		sub_orbit_type: 'radial',
 		skill_set: ['dir'],
 		skill_var: {
-			dir_type: 'radial',
+			dir: {
+				type: 'radial',
+			}
 		}
 	},
 	'fast': {
@@ -79,28 +83,76 @@ export default Object.freeze({
 		cd: 150,
 		skill_set: ['poison_on_hit'],
 		skill_var: {
-			poison_on_hit_duration: 150,
-			poison_on_hit_damage: 0.4,
+			poison_on_hit:{
+				duration: 150,
+				dmg: 0.4,
+			}
 		},
 	},
 	'rose': {
 		cd: 75,
 		orbit_disabled: [false, true, false, true],
-		skill_set: ['heal'],
+		skill_set: ['flag', 'timer', 'player_state', 'attach', 'heal', 'remove'],
 		skill_var: {
-			heal: 10,
-			heal_ready_time: 25,
-			heal_pend_time: 25,
+			flag_rules: {
+				'attach': ['player_need_heal', 'ready'],
+			},
+			timer: [
+				{
+					time: 25,
+					start: 'spawn',
+					end: 'ready',
+				},
+				{
+					time: 25,
+					start: 'ready',
+					end: 'use',
+					condition: 'player_need_heal',
+				}
+			],
+			attach: {
+				condition: 'attach',
+			},
+			heal: {
+				start: 'use',
+				value: 10,
+			},
+			remove: {
+				on: 'use',
+			},
 		},
 	},
 	'epic_rose': {
 		cd: 75,
 		orbit_disabled: [false, true, false, true],
-		skill_set: ['heal'],
+		skill_set: ['flag', 'timer', 'player_state', 'attach', 'heal', 'remove'],
 		skill_var: {
-			heal: 22,
-			heal_ready_time: 25,
-			heal_pend_time: 25,
+			flag_rules: {
+				'attach': ['player_need_heal', 'ready'],
+			},
+			timer: [
+				{
+					time: 25,
+					start: 'spawn',
+					end: 'ready',
+				},
+				{
+					time: 25,
+					start: 'ready',
+					end: 'use',
+					condition: 'player_need_heal',
+				}
+			],
+			attach: {
+				condition: 'attach',
+			},
+			heal: {
+				start: 'use',
+				value: 22,
+			},
+			remove: {
+				on: 'use',
+			},
 		},
 	},
 	'dahlia': {
@@ -110,11 +162,34 @@ export default Object.freeze({
 		pattern: 1,
 		sub_orbit: 8,
 		sub_orbit_type: 'radial',
-		skill_set: ['heal'],
+		skill_set: ['flag', 'timer', 'player_state', 'attach', 'heal', 'remove'],
 		skill_var: {
-			heal: 4,
-			heal_ready_time: 25,
-			heal_pend_time: 25,
+			flag_rules: {
+				'attach': ['player_need_heal', 'ready'],
+			},
+			timer: [
+				{
+					time: 25,
+					start: 'spawn',
+					end: 'ready',
+				},
+				{
+					time: 25,
+					start: 'ready',
+					end: 'use',
+					condition: 'player_need_heal',
+				}
+			],
+			attach: {
+				condition: 'attach',
+			},
+			heal: {
+				start: 'use',
+				value: 4,
+			},
+			remove: {
+				on: 'use',
+			},
 		},
 	},
 	'wing': {
@@ -122,7 +197,12 @@ export default Object.freeze({
 		sub_orbit: 10,
 		sub_orbit_type: 'rotate', // 'radial', 'rotate'
 		sub_orbit_rot_speed: 0.4, // rad / tick
-		skill_set: ['float'],
+		skill_set: ['flag', 'player_state', 'float'],
+		skill_var: {
+			float: {
+				condition: 'player_attack',
+			}
+		}
 	},
 	'cactus': {
 		cd: 25,
@@ -142,20 +222,26 @@ export default Object.freeze({
 		cd: 25,
 		skill_set: ['poison_on_hit', 'extra_hp', 'poison_unstackable'],
 		skill_var: {
-			stack_id: 'cactus_toxic',
-			poison_on_hit_duration: 15,
-			poison_on_hit_damage: 0.4,
+			poison_on_hit: {
+				duration: 15,
+				dmg: 0.4,
+			},
 			extra_hp: 20,
-			poison_duration: 100,
-			poison_dmg: 0.4,
+			poison_unstackable: {
+				duration: 100,
+				dmg: 0.4,
+				stack_id: 'cactus_toxic',
+			},
 		},
 	},
 	'salt': {
 		cd: 62,
 		skill_set: ['dmg_reflect_unstackable'],
 		skill_var: {
-			stack_id: 'salt',
-			dmg_reflect: 25,
+			dmg_reflect_unstackable: {
+				stack_id: 'salt',
+				dmg_reflect: 25,
+			}
 		},
 	},
 	'triple_cactus': {
@@ -171,31 +257,84 @@ export default Object.freeze({
 	},
 	'bubble': {
 		cd: 75,
-		skill_set: ['push'],
+		skill_set: ['flag', 'timer', 'player_state', 'push', 'remove'],
 		skill_var: {
-			push_power: 700,
-			push_coeff: 0.8, 
-		},
+			timer: [
+				{
+					time: 1,
+					start: 'spawn',
+					end: 'use',
+					condition: 'player_defend',
+				},
+			],
+			push: {
+				start: 'use',
+				power: 700,
+				coeff: 0.8,
+			},
+			remove: {
+				on: 'use',
+			},
+		}
 	},
 	'missile': {
 		cd: 75,
-		skill_set: ['project', 'dir'],
+		orbit_disabled: [false, true, false, true],
+		skill_set: ['flag', 'timer', 'player_state', 'project', 'dir', 'remove'],
 		skill_var: {
-			project_speed: 1000,
-			project_coeff: 1,
-			project_duration: 100,
-			project_ready_time: 25,		// 准备时间
-			project_pend_time: 1,		// 判定时间
-			dir_type: 'radial',
+			timer: [
+				{
+					time: 25,
+					start: 'spawn',
+					end: 'ready',
+				},
+				{
+					time: 1,
+					start: 'ready',
+					end: 'use',
+					condition: 'player_attack',
+				},
+				{
+					time: 100,
+					start: 'use',
+					end: 'death',
+				}
+			],
+			project: {
+				start: 'use',
+				speed: 1000,
+				coeff: 1,
+			},
+			dir: {
+				type: 'radial',
+			},
+			remove: {
+				on: 'death',
+			},
 		},
 	},
 	'yinyang': {
 		cd: 25,
 		skill_set: ['yinyang'],
 		skill_var: {
-			stack_id: 'yinyang',
+			yinyang: {
+				stack_id: 'yinyang',
+			}
 		}
-	}
+	},
+	// 'peas': {
+	// 	cd: 35,
+	// 	skill_set: ['split'],
+	// 	skill_var: {
+	// 		split_speed: 1000,
+	// 		split_coeff: 1,
+	// 		split_duration: 100,
+	// 		split_ready_time: 25,
+	// 		split_pend_time: 1,
+	// 		split_count: 4,
+	// 		split_id: 'peas_single',
+	// 	}
+	// },
 });
 
 /*

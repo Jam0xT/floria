@@ -141,12 +141,13 @@ function updatePlayers() { // Game 调用 更新玩家
 							player.var.uuid, 						// 设置玩家为 parent
 							idx, 									// 所属抽象花瓣的编号
 							subidx,									// 在所属抽象花瓣的实例集合中的编号
-							structuredClone(info.skill_set),			// 技能 id
+							structuredClone(info.skill_set),		// 技能 id
 							structuredClone(info.skill_var),		// 技能变量
 							player.var.pos.x, player.var.pos.y, 	// 继承玩家的位置
 							player.var.team,						// 继承玩家的所在队伍
 							attr,									// 默认属性
 						);
+						togglePetalSkillTrigger.bind(this)('onSpawn', newPetal);
 						const uuid = newPetal.var.uuid; // 获取新花瓣 uuid
 						instances[subidx] = uuid; 		// 储存 uuid
 						entityHandler.addEntity.bind(this)(uuid, newPetal); // 添加实体到实体列表
