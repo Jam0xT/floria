@@ -348,31 +348,6 @@ export default Object.freeze({
 			}
 		]
 	},
-	// 'sub_orbit': {
-	// 	/*
-	// 		sub_orbit_type,
-	// 		'none': 停止改变方向
-	// 		'radial': 径向
-	// 		'rotate': 旋转
-	// 		sub_orbit_rot_speed, 旋转速度 单位: 弧度 / 刻
-	// 	*/
-	// 	'onTick': [
-	// 		function (instance) {
-	// 			const $ = this.var;
-	// 			const player = $.entities[instance.var.parent];
-	// 			const info = player.var.kit.primary[instance.var.idx].info;
-	// 			const sv = instance.var.skill_var;
-	// 			if ( sub_orbit_last)
-	// 			if ( sv.sub_orbit_type == 'none' ) {
-	// 				return ;
-	// 			} else if ( sv.sub_orbit_type == 'radial' ) {
-	// 				info.angle = Math.atan2(instance.var.pos.y - player.var.pos.y, instance.var.pos.x - player.var.pos.x);
-	// 			} else if ( sv.sub_orbit_type == 'rotate' ) {
-	// 				info.angle = (info.angle + sv.sub_orbit_rot_speed) % (Math.PI * 2);
-	// 			}
-	// 		}
-	// 	]
-	// }
 });
 
 /*
