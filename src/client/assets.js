@@ -1,8 +1,5 @@
 const ASSET_NAMES = [
 	'player.svg',
-	'player_suffocate.svg',
-	'decorates/beetle_pincer_left.svg',
-	'decorates/beetle_pincer_right.svg',
 	'mobs/ant_hole.svg',
 	'mobs/ant_baby.svg',
 	'mobs/ant_worker.svg',

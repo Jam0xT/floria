@@ -123,7 +123,7 @@ class Room {
 		// teams: 5, {teams} 重置时更新
 		// jointeam: 6, {id, team, prevTeam} 玩家加入队伍
 		// owner: 7, {id}
-		// ready: 8, {id, isReady}
+		// ready: 8, {id, isReady, quiet}
 		// countdownTime: 9, {countdownTime}
 		// state: 10, {state}
 		// game settings: 11, {settings}
@@ -136,7 +136,7 @@ class Room {
 			'team': -1,
 			'isOwner': (socket.id == this.ownerID),
 			'username': username,
-			'socketid': socket.id,
+			'socketID': socket.id,
 			'isReady': false,
 		};
 		this.playerCount += 1;
@@ -222,7 +222,22 @@ class Room {
 			const player = this.players[id];
 			this.game.addPlayer(socket, player.username, player.team);
 		});
-		this.game.start();
+		this.game.start(this.end.bind(this));
+	}
+	
+	end(winner) {
+		if ( !this.game.var.stopped ) {
+			this.game.stop();
+			Object.keys(this.sockets).forEach(socketID => {
+				const socket = this.sockets[socketID];
+				socket.emit(Constants.MSG_TYPES.SERVER.GAME.OVER, winner);
+			});
+			Object.values(this.players).forEach(player => {
+				player.isReady = false;
+				this.update(8, {id: player.socketID, isReady: player.isReady, quiet: true});
+			});
+			this.updState(0);
+		}
 	}
 
 	countDown(t, resolve, check = () => {return true}, reject = () => {}) {
@@ -292,7 +307,7 @@ function toggleReady(socket) {
 	}
 
 	room.players[socket.id].isReady ^= 1; // 切换状态
-	room.update(8, {id: socket.id, isReady: room.players[socket.id].isReady});
+	room.update(8, {id: socket.id, isReady: room.players[socket.id].isReady, quiet: false});
 	socket.emit(Constants.MSG_TYPES.SERVER.ROOM.READY, 0, room.players[socket.id].isReady);
 	// code 0:成功，返回切换后的状态
 

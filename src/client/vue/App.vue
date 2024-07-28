@@ -200,15 +200,15 @@ function onLeaveRoom(state) {
 
 function onUpdate(type, update) {
 	if ( type == 0 ) {
-		players.value[update.player.socketid] = update.player;
+		players.value[update.player.socketID] = update.player;
 		logs.value.unshift({
 			msg: `Player ${update.player.username} joined. (${Object.keys(players.value).length + '/' + teamSize.value * teamCount.value})`,
 			color: "#9deefc",
 		});
 	} else if ( type == 1 ) {
-		if ( !players.value[update.player.socketid] )
+		if ( !players.value[update.player.socketID] )
 			return ;
-		delete players.value[update.player.socketid];
+		delete players.value[update.player.socketID];
 		logs.value.unshift({
 			msg: `Player ${update.player.username} left. (${Object.keys(players.value).length + '/' + teamSize.value * teamCount.value})`,
 			color: "#9dbbfc",
@@ -261,11 +261,13 @@ function onUpdate(type, update) {
 	} else if ( type == 8 ) {
 		players.value[update.id].isReady = update.isReady;
 		const readyPlayerCount = Object.values(players.value).filter(player => player.isReady).length;
-		if ( update.id != selfID.value ) {
-			logs.value.unshift({
-				msg: `Player ${players.value[update.id].username} ${update.isReady ? 'is ready.' : 'canceled ready.'} (${readyPlayerCount}/${teamCount.value * teamSize.value})`,
-				color: (update.isReady ? '#cbfcb1' : '#fcab9d'),
-			});
+		if ( !update.quiet ) {
+			if ( update.id != selfID.value ) {
+				logs.value.unshift({
+					msg: `Player ${players.value[update.id].username} ${update.isReady ? 'is ready.' : 'canceled ready.'} (${readyPlayerCount}/${teamCount.value * teamSize.value})`,
+					color: (update.isReady ? '#cbfcb1' : '#fcab9d'),
+				});
+			}
 		}
 	} else if ( type == 9 ) {
 		countdownTime.value = update.countdownTime;
@@ -330,7 +332,7 @@ function onToggleReady(state, isReady) {
 
 // 一些房间信息
 
-const players = ref({}); // {username, socketid}
+const players = ref({}); // {username, socketID}
 const teams = ref([]); // {color, playerCount}
 
 // 游戏设置
@@ -406,8 +408,12 @@ function onGameStart() {
 	startRenderGame();
 }
 
-function onGameOver() {
+function onGameOver(winner) {
 	state.value = 0;
+	logs.value.unshift({
+		msg: `The game has ended. The winner is ${winner}!`,
+		color: '#ffbf7a',
+	});
 }
 
 // 日志
