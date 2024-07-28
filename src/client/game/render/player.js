@@ -28,6 +28,19 @@ function renderPlayer(self, player) {
 		renderRadius * 2,
 		renderRadius * 2,
 	);
+	
+	const teamColor = [
+		'#ff9c9c',
+		'#a1d0ff',
+		'#fff7a1',
+		'#aaffa1',
+	];
+
+
+	ctx.fillStyle = teamColor[player.team];
+	ctx.font = `${20 * hpx}px PT-sans`;
+	ctx.textAlign = 'center';
+	ctx.fillText(player.username, 0, -25 * hpx);
 
 	if ( player.attr.ghost )
 		ctx.globalAlpha = 1;

@@ -71,7 +71,8 @@ class Entity { // 所有实体的类
 
 	heal(value) {
 		const $ = this.var;
-		$.attr.hp = Math.min($.attr.max_hp, $.attr.hp + value * (1 - $.effects.heal_res.value * 0.01) );
+		const heal_res = ($.effects.heal_res.duration > 0) ? ($.effects.heal_res.value * 0.01) : 0;
+		$.attr.hp = Math.min($.attr.max_hp, $.attr.hp + value * ( 1 - heal_res ) );
 	}
 }
 

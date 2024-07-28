@@ -131,10 +131,14 @@ function updateEntities() { // Game 调用
 		(() => {
 			const effects = entity.var.effects; // 状态效果
 			// 中毒
-			if ( effects.poison.duration > 0 ) {
-				effects.poison.duration -= 1;
-				entity.var.attr.hp -= effects.poison.value * (1 - entity.var.attr.poison_res);
-			}
+			Object.keys(effects).forEach(effectID => {
+				const effect = effects[effectID];
+				if ( effect.duration > 0 )
+					effect.duration --;
+				if ( effectID == 'poison' ) {
+					entity.var.attr.hp -= effects.poison.value * (1 - entity.var.attr.poison_res);
+				}
+			});
 		})();
 	});
 }
@@ -150,6 +154,7 @@ function getUpdate() { // Entity 调用
 	};
 	if ( $.type == 'player' ) {
 		ret.username = $.playerInfo.username;
+		ret.team = $.team;
 	}
 	if ( $.type == 'petal' ) {
 		ret.id = $.id;

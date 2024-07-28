@@ -21,7 +21,7 @@ export default Object.freeze({
 		radius: 20,
 		vision: 2000,
 		mass: 100,
-		dmg: 25,
+		dmg: 10,
 		speed: 2000,
 	},
 });
