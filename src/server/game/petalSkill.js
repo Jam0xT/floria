@@ -237,10 +237,11 @@ export default Object.freeze({
 				const $ = this.var;
 				const player = $.entities[instance.var.parent];
 				const sv = instance.var.skill_var;
+				const dir = Math.atan2((player.var.pos.y - instance.var.pos.y), (player.var.pos.x - instance.var.pos.x)); // 推进方向
 				if ( player.var.state & 2 ) { // 玩家防御
 					entityHandler.appendVelocity.bind(player)( // 推进
-						(player.var.pos.x - instance.var.pos.x) * sv.push_power, 
-						(player.var.pos.y - instance.var.pos.y) * sv.push_power,
+						Math.cos(dir) * sv.push_power,
+						Math.sin(dir) * sv.push_power,
 						sv.push_coeff, // 泡泡速度衰减系数
 					);
 					playerHandler.handlePetalDeath.bind(this)(instance); // 移除花瓣

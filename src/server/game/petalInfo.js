@@ -109,6 +109,7 @@ export default Object.freeze({
 		count: 3,
 		pattern: 1,
 		sub_orbit: 8,
+		sub_orbit_type: 'radial',
 		skill_set: ['heal'],
 		skill_var: {
 			heal: 4,
@@ -159,6 +160,7 @@ export default Object.freeze({
 		cd: 25,
 		count: 3,
 		pattern: 1,
+		sub_orbit_type: 'radial',
 		skill_set: ['extra_hp'],
 		skill_var: {
 			extra_hp: 15,
@@ -168,7 +170,7 @@ export default Object.freeze({
 		cd: 75,
 		skill_set: ['push'],
 		skill_var: {
-			push_power: 10,
+			push_power: 500,
 			push_coeff: 0.8, 
 		},
 	},
