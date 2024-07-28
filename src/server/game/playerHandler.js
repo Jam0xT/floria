@@ -46,7 +46,19 @@ function addPlayer(socket, username, team) { // 添加玩家
 	const uuid = newPlayer.var.uuid;	// 获取 uuid
 	$.players[socket.id] = uuid;		// 储存 uuid
 	entityHandler.addEntity.bind(this)(uuid, newPlayer);	// 添加实体到实体列表
-	initPetals.bind(newPlayer)($.props.default_kit_info);	// 初始化花瓣相关信息
+	let kit = $.props.kit_info;
+	if ( kit ) {
+		let legal = true;
+		kit.primary.forEach(id => {
+			if ( id && (!petalInfo[id]) )
+				legal = false;
+		});
+		if ( !legal )
+			kit = $.props.default_kit_info;
+	} else {
+		kit = $.props.default_kit_info;
+	}
+	initPetals.bind(newPlayer)(kit);	// 初始化花瓣相关信息
 }
 
 function playerNaturalRegen(player) { // 玩家自然会血

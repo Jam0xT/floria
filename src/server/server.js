@@ -27,8 +27,12 @@ console.log(`Server listening on port ${port}`);
 
 const io = new Server(server);
 
+let totalPlayerCount = 0;
+
 io.on('connection', socket => {
-	console.log(`Player ${socket.id} connected.`);
+	// console.log(`Player ${socket.id} connected.`);
+	totalPlayerCount ++;
+	console.log(`Online Players: ${totalPlayerCount}`);
 	socket.on(Constants.MSG_TYPES.CLIENT.ROOM.CREATE, createRoom);
 	socket.on(Constants.MSG_TYPES.CLIENT.ROOM.JOIN, joinRoom);
 	socket.on(Constants.MSG_TYPES.CLIENT.ROOM.SETTINGS, updSettings);
@@ -63,6 +67,8 @@ function gameInput(type, input) {
 }
 
 function onDisconnect() {
+	totalPlayerCount --;
+	console.log(`Online Players: ${totalPlayerCount}`);
 	room.disconnect(this);
 }
 // function onDisconnect() {

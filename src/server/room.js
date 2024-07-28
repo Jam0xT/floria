@@ -127,6 +127,7 @@ class Room {
 		// countdownTime: 9, {countdownTime}
 		// state: 10, {state}
 		// game settings: 11, {settings}
+		// kit: 12, {kit}
 	}
 
 	addPlayer(socket, username) { // 在房间加入玩家
@@ -214,7 +215,14 @@ class Room {
 			if ( player.team == -1 )
 				player.team = spots[spotIndex++];
 		});
-		this.settings = properties[this.mode]; // 游戏设置，会传入 Game 到 $.props
+
+		const defaultSettings = structuredClone(properties[this.mode]);
+
+		// 将未设置属性设置为默认值
+		Object.keys(defaultSettings).forEach(key => {
+			this.settings[key] ??= defaultSettings[key]; // 游戏设置，会传入 Game 到 $.props
+		});
+
 		this.update(11, {settings: this.settings}); // 传到客户端进行初始化
 		this.game = new gamemodes[this.mode](this.settings); // 创建 Game 类
 		Object.keys(this.sockets).forEach(id => { // id: socket id
@@ -364,6 +372,14 @@ function updSettings(socket, type, update) {
 		if ( prevTeam != -1)
 			room.teams[prevTeam].playerCount -= 1;
 		room.update(6, {id: socket.id, team: team, prevTeam: prevTeam});
+	} else if ( type == 4 ) {
+		let kit = update.kit.split(',');
+		room.settings.kit_info = {
+			size: kit.length,
+			primary: kit,
+			secondary: [],
+		};
+		room.update(12, {kit: update.kit});
 	}
 }
 

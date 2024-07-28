@@ -275,6 +275,9 @@ function onUpdate(type, update) {
 		state.value = update.state;
 	} else if ( type == 11 ) {
 		initGameSettings(update.settings);
+	} else if ( type == 12 ) {
+		unwatchKit = true;
+		kit.value = update.kit;
 	}
 }
 
@@ -288,6 +291,10 @@ function onRecvInfo(info) { // 加入房间时获取房间信息
 	if ( teamSize.value != info.teamSize ) {
 		unwatchTeamSize = true;
 		teamSize.value = info.teamSize;
+	}
+	if ( kit.value != info.kit ) {
+		unwatchKit = true;
+		kit.value = info.kit;
 	}
 	teams.value = info.teams;
 	// settings.value = info.settings;
@@ -340,10 +347,12 @@ const teams = ref([]); // {color, playerCount}
 const teamSize = ref(1);
 const teamCount = ref(2);
 const team = ref(-1); // 所在队伍
+const kit = ref('');
 // const settings = ref({});
 
 let unwatchTeamSize = false;
 let unwatchTeamCount = false;
+let unwatchKit = false;
 
 watch(teamSize, (teamSize_) => {
 	if ( unwatchTeamSize ) {
@@ -363,6 +372,14 @@ watch(teamCount, (teamCount_) => {
 	// code 1: teamCount
 });
 // code 2: username
+
+watch(kit, (kit_) => {
+	if ( unwatchKit ) {
+		unwatchKit = false;
+		return ;
+	}
+	room.updSettings(4, {kit: kit_});
+});
 
 let unwatchTeam = false;
 
@@ -503,6 +520,8 @@ function onDisconnect() {
 				<option :value="i" :disabled="team.playerCount == teamSize" :style="{color: team.color}">{{ `${team.color} ${team.playerCount}/${teamSize}` }}</option>
 			</template>
 		</select><br/>
+		<Text size="2" class="notransform">Kit</Text>
+		<input class="input" v-model="kit" maxlength="100" :disabled="(ownerID != selfID) || (!inRoom) || (state != 0)"/>
 	</Block>
 	<canvas id="canvas" class="canvas" :class="{hidden: state != 2}"></canvas>
 </template>
