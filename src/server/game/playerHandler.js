@@ -56,6 +56,28 @@ function playerNaturalRegen(player) { // 玩家自然会血
 	player.var.attr.hp = Math.min(player.var.attr.max_hp, player.var.attr.hp + $.props.player_natural_regen.point + $.props.player_natural_regen.percent * player.var.attr.max_hp * 0.01);
 }
 
+function newUnboundPetal(id, parent, x, y, dir, skill_set, skill_var, attr) { // Game 调用
+	// 生成解绑花瓣
+	const $ = this.var;
+	const player = $.entities[parent];
+	const newPetal = new Petal(
+		id,
+		player.var.uuid, 				// 设置玩家为 parent
+		-1,
+		-1,
+		structuredClone(skill_set),		// 技能 id
+		structuredClone(skill_var),		// 技能变量
+		x, y,
+		player.var.team,				// 继承玩家的所在队伍
+		structuredClone(attr),			// 默认属性
+	);
+	newPetal.var.attr.dir = dir;
+	newPetal.var.unbound_idx = player.var.petals.push(newPetal.var.uuid) - 1; // 记录在已解绑花瓣中 记录 unbound_idx
+	newPetal.var.unbound = true;
+	entityHandler.addEntity.bind(this)(newPetal.var.uuid, newPetal);
+	togglePetalSkillTrigger.bind(this)('onSpawn', newPetal);
+}
+
 function togglePetalSkillTrigger(trigger, petal, ...args) { // 触发花瓣技能触发器
 	petal.var.skill_set.forEach(skill_id => {
 		const skill = petalSkill[skill_id];
@@ -348,4 +370,5 @@ export {
 	handlePlayerDeath,
 	handlePetalDeath,
 	togglePetalSkillTrigger,
+	newUnboundPetal,
 };

@@ -1,5 +1,6 @@
 import * as entityHandler from './entityHandler.js';
 import * as playerHandler from './playerHandler.js';
+import petalAttr from './petalAttr.js';
 
 // 花瓣技能
 
@@ -333,15 +334,18 @@ export default Object.freeze({
 				const sv = instance.var.skill_var;
 				if ( !sv.flag[sv.project.start] )
 					return ;
-				if ( !instance.var.unbound ) { // 第一刻
-					const $ = this.var;
-					const player = $.entities[instance.var.parent];
-					playerHandler.handlePetalDeath.bind(this)(instance); // 移除对花瓣的记录
-					instance.var.unbound_idx = player.var.petals.push(instance.var.uuid) - 1; // 记录在已解绑花瓣中 记录 unbound_idx
-					instance.var.unbound = true;
-					if ( sv.dir )
-						sv.dir.type = 'none'; // 停止改变方向
-					const dir = Math.atan2(instance.var.pos.y - player.var.pos.y, instance.var.pos.x - player.var.pos.x); // 计算发射方向
+				if ( !sv.project.launch ) { // 第一刻
+					sv.project.launch = true;
+					if ( !instance.var.unbound ) {
+						const $ = this.var;
+						const player = $.entities[instance.var.parent];
+						playerHandler.handlePetalDeath.bind(this)(instance); // 移除对花瓣的记录
+						instance.var.unbound_idx = player.var.petals.push(instance.var.uuid) - 1; // 记录在已解绑花瓣中 记录 unbound_idx
+						instance.var.unbound = true;
+						if ( sv.dir )
+							sv.dir.type = 'none'; // 停止改变方向
+					}
+					const dir = instance.var.attr.dir;
 					entityHandler.move.bind(instance)(0, 0); // 清空加速度 否则会保留原来维持轨道的加速度
 					entityHandler.appendVelocity.bind(instance)(
 						sv.project.speed * Math.cos(dir),
@@ -430,29 +434,53 @@ export default Object.freeze({
 			},
 		],
 	},
-	'split': {
+	'spawn': {
 		/*
 			技能介绍：
-				分裂
+				生成花瓣
 			前置技能：
 				flag
 			参数：
-				split: {
-					start, // start flag
-					speed, // 推进力量
-					coeff, // 推进速度衰减系数
-					count, // 分裂数量
-					split_id,			// 分裂后花瓣实例 id
+				spawn: {
+					start,		// start flag
+					count,		// 生成数量
+					child: {
+						id,	// 生成的花瓣 id
+						skill_set,	// 技能组
+						skill_var,	// 技能变量
+						attr,		// 属性
+					}
 				}
 			变量域：
-				split
+				spawn
 		*/
 		'onTick': [
 			function (instance) {
 				const sv = instance.var.skill_var;
-				if ( !sv.flag[sv.split.start] )
+				if ( !sv.flag[sv.spawn.start] )
 					return ;
-				
+				const $ = this.var;
+				const player = $.entities[instance.var.parent];
+
+				const defaultAttr = structuredClone(petalAttr['default']); // 未设置值默认值
+
+				// 自动设置未设置值为默认值
+				Object.keys(defaultAttr).forEach(key => {
+					sv.spawn.child.attr[key] ??= defaultAttr[key];
+				});
+				sv.spawn.child.attr.hp ??= sv.spawn.child.attr.max_hp;
+
+				for (let i = 0; i < sv.spawn.count; i ++ ) {
+					playerHandler.newUnboundPetal.bind(this)(
+						sv.spawn.child.id,
+						player.var.uuid,
+						instance.var.pos.x, instance.var.pos.y,
+						instance.var.attr.dir + i * (Math.PI * 2 / sv.spawn.count),
+						structuredClone(sv.spawn.child.skill_set),
+						structuredClone(sv.spawn.child.skill_var),
+						structuredClone(sv.spawn.child.attr),
+					);
+				}
 			},
 		],
 	},

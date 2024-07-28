@@ -1,6 +1,4 @@
 import Entity from './entity.js';
-import petalSkill from './petalSkill.js';
-import { togglePetalSkillTrigger } from './playerHandler.js';
 
 class Petal extends Entity {
 	constructor(id, parent, idx, subidx, skill_set, skill_var, x, y, team, attr) {

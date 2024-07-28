@@ -1,4 +1,5 @@
 // 花瓣信息 也就是 抽象花瓣的属性
+import petalAttr from './petalAttr.js';
 
 export default Object.freeze({
 	'default': { // 默认值
@@ -322,19 +323,58 @@ export default Object.freeze({
 			}
 		}
 	},
-	// 'peas': {
-	// 	cd: 35,
-	// 	skill_set: ['split'],
-	// 	skill_var: {
-	// 		split_speed: 1000,
-	// 		split_coeff: 1,
-	// 		split_duration: 100,
-	// 		split_ready_time: 25,
-	// 		split_pend_time: 1,
-	// 		split_count: 4,
-	// 		split_id: 'peas_single',
-	// 	}
-	// },
+	'peas': {
+		cd: 35,
+		orbit_disabled: [false, true, false, true],
+		skill_set: ['flag', 'timer', 'player_state', 'spawn', 'dir', 'remove'],
+		skill_var: {
+			timer: [
+				{
+					time: 25,
+					start: 'spawn',
+					end: 'ready',
+				},
+				{
+					time: 1,
+					start: 'ready',
+					end: 'use',
+					condition: 'player_attack',
+				},
+			],
+			spawn: {
+				start: 'use',
+				count: 4,
+				child: {
+					id: 'peas_single',
+					skill_set: ['flag', 'timer', 'project', 'remove'],
+					skill_var: {
+						timer: [
+							{
+								time: 50,
+								start: 'spawn',
+								end: 'death',
+							},
+						],
+						project: {
+							start: 'spawn',
+							speed: 1000,
+							coeff: 1,
+						},
+						remove: {
+							on: 'death',
+						},
+					},
+					attr: petalAttr['peas_single'],
+				}
+			},
+			dir: {
+				type: 'radial',
+			},
+			remove: {
+				on: 'use',
+			},
+		},
+	},
 });
 
 /*
