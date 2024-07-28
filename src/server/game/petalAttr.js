@@ -11,6 +11,7 @@ export default Object.freeze({
 		poison_res: 1,
 		poison: {duration: 0, dmg: 0},
 		dmg_reflect: 0,
+		dir: 0,
 	},
 	'basic': { // 实体花瓣 id
 		max_hp: 10,
@@ -94,6 +95,7 @@ export default Object.freeze({
 	'missile': {
 		max_hp: 10,
 		dmg: 35,
+		radius: 8,
 	}
 });
 

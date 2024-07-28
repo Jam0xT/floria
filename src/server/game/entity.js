@@ -26,6 +26,7 @@ class Entity { // 所有实体的类
 				poison_res,		// 中毒抗性; 1 为免疫中毒伤害
 				poison: {duration, dmg}, // 碰撞对目标造成中毒
 				dmg_reflect,	// 反伤百分比
+				dir,	// 方向
 			*/
 			v: { // 速度
 				x: 0,

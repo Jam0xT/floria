@@ -13,13 +13,25 @@ function renderPetal(self, petal) {
 	const renderRadius = petal.attr.radius * hpx;
 	ctx.translate(canvasX, canvasY);
 	
-	ctx.drawImage(
-		asset,
-		- renderRadius,
-		- renderRadius,
-		renderRadius * 2,
-		renderRadius * 2,
-	);
+	const width = asset.naturalWidth, height = asset.naturalHeight;
+
+	if ( width <= height ) {
+		ctx.drawImage(
+			asset,
+			- renderRadius,
+			- renderRadius / width * height,
+			renderRadius * 2,
+			renderRadius / width * height * 2,
+		);
+	} else {
+		ctx.drawImage(
+			asset,
+			- renderRadius / height * width,
+			- renderRadius,
+			renderRadius / height * width * 2,
+			renderRadius * 2,
+		);
+	}
 
 	ctx.translate(-canvasX, -canvasY);
 	// canvas.draw(ctx, canvas.ctxMain);

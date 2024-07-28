@@ -79,8 +79,8 @@ export default Object.freeze({
 		skill_set: ['heal'],
 		skill_var: {
 			heal: 10,
-			ready_time: 25,
-			pend_time: 25,
+			heal_ready_time: 25,
+			heal_pend_time: 25,
 		},
 	},
 	'epic_rose': {
@@ -89,8 +89,8 @@ export default Object.freeze({
 		skill_set: ['heal'],
 		skill_var: {
 			heal: 22,
-			ready_time: 25,
-			pend_time: 25,
+			heal_ready_time: 25,
+			heal_pend_time: 25,
 		},
 	},
 	'dahlia': {
@@ -102,8 +102,8 @@ export default Object.freeze({
 		skill_set: ['heal'],
 		skill_var: {
 			heal: 4,
-			ready_time: 25,
-			pend_time: 25,
+			heal_ready_time: 25,
+			heal_pend_time: 25,
 		},
 	},
 	'wing': {
@@ -160,12 +160,17 @@ export default Object.freeze({
 		skill_set: ['push'],
 		skill_var: {
 			push_power: 10,
-			push_duration: 0.8, 
-		}
+			push_coeff: 0.8, 
+		},
 	},
 	'missile': {
 		cd: 75,
-		// skill_set: ['missile'],
+		skill_set: ['project'],
+		skill_var: {
+			project_speed: 500,
+			project_coeff: 1,
+			project_duration: 25,
+		},
 	}
 });
 

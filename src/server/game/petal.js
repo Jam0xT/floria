@@ -11,6 +11,7 @@ class Petal extends Entity {
 		$.skill_set = skill_set; // 技能 id
 		$.skill_var = skill_var; // 技能变量
 		$.unbound = false; // 是否解绑
+		$.unbound_idx = -1; // 用于解绑后查找
 	}
 };
 

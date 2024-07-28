@@ -15,6 +15,7 @@ export default Object.freeze({
 		poison_res: 0,
 		poison: {duration: 0, dmg: 0},
 		dmg_reflect: 0,
+		dir: 0,
 	},
 	player: { // 玩家
 		hp: 150,

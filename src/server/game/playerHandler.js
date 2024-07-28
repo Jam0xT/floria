@@ -86,6 +86,7 @@ function updatePlayers() { // Game 调用 更新玩家
 		let clusterCnt = 0; // 花瓣簇总数 聚合算 1 分散算 n
 		player.var.angle = (player.var.angle + player.var.attr.rot_speed) % (Math.PI * 2); // 更新轨道起始角度
 
+		// 判定花瓣技能触发器
 		kit.primary.forEach((data) => {
 			const id = data.id; // 抽象花瓣 id
 			if ( !id ) // 空花瓣
@@ -96,13 +97,16 @@ function updatePlayers() { // Game 调用 更新玩家
 				if ( !instances[subidx] ) // 实例不存在
 					continue;
 				const instance = $.entities[instances[subidx]]; // 实例
-				togglePetalSkillTrigger.bind(this)('onTick', instance); // 判定花瓣技能触发器
+				togglePetalSkillTrigger.bind(this)('onTick', instance); // 触发
 			}
 		});
 
+		// 已解绑花瓣判定技能触发器
 		player.var.petals.forEach(uuid => {
+			if ( !uuid )
+				return ;
 			const petal = $.entities[uuid];
-
+			togglePetalSkillTrigger.bind(this)('onTick', petal);
 		});
 
 		// 遍历抽象花瓣 更新冷却 花瓣簇计数
@@ -148,7 +152,7 @@ function updatePlayers() { // Game 调用 更新玩家
 						entityHandler.addEntity.bind(this)(uuid, newPetal); // 添加实体到实体列表
 
 						if ( info.cuml_cnt == 0 ) {
-							togglePetalSkillTrigger.bind(this)('onFirstLoad', newPetal); // 判定花瓣技能触发器
+							togglePetalSkillTrigger.bind(this)('onFirstLoad', newPetal); // 触发
 						}
 						togglePetalSkillTrigger.bind(this)('onLoad', newPetal);
 						info.cuml_cnt += info.count;	// 更新累计 load 实例数量
@@ -311,19 +315,22 @@ function handlePlayerDeath(player) { // Game 调用
 			if ( !petal ) // 花瓣不存在
 				return ;
 			petal.var.unbound = true;
-			handlePetalDeath.bind(this)(petal); // 移除花瓣
-			entityHandler.removeEntity.bind(this)(petal.var.uuid);
+			handlePetalDeath.bind(this)(petal); // 移除花瓣记录
+			entityHandler.removeEntity.bind(this)(petal.var.uuid); // 移除花瓣实体
 		});
 	});
 }
 
 function handlePetalDeath(petal) { // Game 调用
+	// 移除玩家对花瓣的记录
 	const $ = this.var;
-	if ( petal.var.unbound ) // 已解绑花瓣
-		return ;
 	const player = $.entities[petal.var.parent]; // 获取花瓣所属玩家
 	if ( !player ) // 玩家已不存在
 		return ;
+	if ( petal.var.unbound ) { // 已解绑花瓣
+		delete player.var.petals[petal.var.unbound_idx]; // 清空记录的 uuid
+		return ;
+	}
 	const data = player.var.kit.primary[petal.var.idx]; // 获取所属抽象花瓣数据
 	data.info.cd_remain[petal.var.subidx] = data.info.cd; // 重置 cd
 	data.instances[petal.var.subidx] = ''; // 清除旧 uuid 不可省略 因为这用于判定是否在冷却期间

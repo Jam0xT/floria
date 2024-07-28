@@ -231,7 +231,7 @@ function solveCollision(source, target) {
 
 	if ( source.var.type == 'petal' ) { // 源是花瓣
 		
-		// 判定花瓣技能触发器
+		// 触发花瓣技能触发器
 		togglePetalSkillTrigger.bind(this)('onHit', source, target);
 	}
 }

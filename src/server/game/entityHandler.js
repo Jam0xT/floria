@@ -50,8 +50,8 @@ function updateVelocity(dt) {
 
 		const v_list = entity.var.v_list; // 其他速度列表
 		v_list.forEach((vel, i)=> {
-			vel.x *= vel.resistance;
-			vel.y *= vel.resistance;
+			vel.x *= vel.coeff;
+			vel.y *= vel.coeff;
 			if ( Math.sqrt(vel.x * vel.x + vel.y * vel.y) < 1 ) { // 衰减到消失
 				delete v_list[i];
 				return ;
@@ -60,12 +60,12 @@ function updateVelocity(dt) {
 	});
 }
 
-function appendVelocity(x, y, resistance) { // Entity 调用
+function appendVelocity(x, y, coeff) { // Entity 调用
 	const $ = this.var;
 	$.v_list.push({
 		x: x,
 		y: y,
-		resistance: resistance,
+		coeff: coeff,
 	});
 }
 
