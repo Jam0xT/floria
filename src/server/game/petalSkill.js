@@ -359,14 +359,10 @@ export default Object.freeze({
 				const sv = instance.var.skill_var;
 				player.var.stack[sv.stack_id] ??= 0; // 若首次使用 初始化堆叠计数
 				player.var.stack[sv.stack_id] ++; // 更新堆叠计数
-				if ( [3, 6].includes(player.var.stack[sv.stack_id]) ) { // 停转
-					player.var.rot_dir = 0;
-				} else if ( [1, 4, 7].includes(player.var.stack[sv.stack_id]) ) { // 逆时针
+				if ( player.var.stack[sv.stack_id] % 2 == 1 ) { // 逆时针
 					player.var.rot_dir = -1;
-				} else if ( [0, 3, 6].includes(player.var.stack[sv.stack_id]) ) { // 顺时针
+				} else { // 顺时针
 					player.var.rot_dir = 1;
-				} else { // 极快速度顺时针
-					player.var.rot_dir = 5;
 				}
 			},
 		],
@@ -376,14 +372,10 @@ export default Object.freeze({
 				const player = $.entities[instance.var.parent];
 				const sv = instance.var.skill_var;
 				player.var.stack[sv.stack_id] --; // 更新堆叠计数
-				if ( [3, 6].includes(player.var.stack[sv.stack_id]) ) { // 停转
-					player.var.rot_dir = 0;
-				} else if ( [1, 4, 7].includes(player.var.stack[sv.stack_id]) ) { // 逆时针
+				if ( player.var.stack[sv.stack_id] % 2 == 1 ) { // 逆时针
 					player.var.rot_dir = -1;
-				} else if ( [0, 3, 6].includes(player.var.stack[sv.stack_id]) ) { // 顺时针
+				} else { // 顺时针
 					player.var.rot_dir = 1;
-				} else { // 极快速度顺时针
-					player.var.rot_dir = 10;
 				}
 			},
 		],
