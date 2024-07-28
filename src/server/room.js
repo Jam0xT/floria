@@ -154,7 +154,7 @@ class Room {
 			if ( this.game )
 				this.game.stop();
 			delete rooms[this.id];
-			console.log(`Room #${this.id} has been deleted.`);
+			// console.log(`Room #${this.id} has been deleted.`);
 			return ;
 		}
 		if ( this.ownerID == socketID ) {
@@ -300,24 +300,24 @@ function toggleReady(socket) {
 }
 
 function updSettings(socket, type, update) {
-	// console.log(`player ${socket.id} tries to update settings:`)
+	// // console.log(`player ${socket.id} tries to update settings:`)
 	const roomID = roomIDOfPlayer[socket.id];
 	if ( !roomID ) {
-		// console.log('Not in a room.')
+		// // console.log('Not in a room.')
 		socket.emit(Constants.MSG_TYPES.SERVER.ROOM.SETTINGS, 1);
 		// code 1:不在房间中
 		return ;
 	}
 	const room = rooms[roomID];
 	if ( !room ) {
-		// console.log(`Room #${roomID} does not exist.`);
+		// // console.log(`Room #${roomID} does not exist.`);
 		socket.emit(Constants.MSG_TYPES.SERVER.ROOM.SETTINGS, 2);
 		// code 2:房间不存在
 		return ;
 	}
 	const ownerOnly = [0, 1]; // 需要 owner 权限的操作编号列表
 	if ( room.ownerID != socket.id && ownerOnly.includes(type) ) {
-		// console.log(`No permission.`);
+		// // console.log(`No permission.`);
 		socket.emit(Constants.MSG_TYPES.SERVER.ROOM.SETTINGS, 3);
 		// code 3:无修改设置权限
 		return ;
@@ -327,17 +327,17 @@ function updSettings(socket, type, update) {
 		// code 4:不是等待阶段，无法修改设置
 		return ;
 	}
-	// console.log(`Room #${roomID}:`);
+	// // console.log(`Room #${roomID}:`);
 	if ( type == 0 ) {
 		room.teamSize = update.teamSize;
 		room.update(2, {teamSize: room.teamSize});
 		room.resetTeams();
-		// console.log(`Settings: TeamSize = ${room.teamSize}.`);
+		// // console.log(`Settings: TeamSize = ${room.teamSize}.`);
 	} else if ( type == 1 ) {
 		room.teamCount = update.teamCount;
 		room.update(3, {teamCount: room.teamCount});
 		room.resetTeams();
-		// console.log(`Settings: TeamCount = ${room.teamCount}.`);
+		// // console.log(`Settings: TeamCount = ${room.teamCount}.`);
 	} else if ( type == 2 ) {
 		room.players[socket.id].username = update.username;
 		room.update(4, {id: socket.id, username: room.players[socket.id].username});
@@ -353,49 +353,49 @@ function updSettings(socket, type, update) {
 }
 
 function createRoom(socket, mode, username) {
-	console.log(`Player ${socket.id} tries to create a new Room with Mode '${mode}':`);
+	// console.log(`Player ${socket.id} tries to create a new Room with Mode '${mode}':`);
 	if ( roomIDOfPlayer[socket.id] ) {
-		console.log(`Already in a room.`);
+		// console.log(`Already in a room.`);
 		socket.emit(Constants.MSG_TYPES.SERVER.ROOM.CREATE, 1); // 用于发送创建房间的状态（若成功附带0和房间号，若失败附带错误码）
 		// code 1:已经在一个房间中
 		return ;
 	}
 	let newRoom = new Room(mode, socket.id);
 	rooms[newRoom.id] = newRoom;
-	console.log(`Player ${socket.id} created Room #${newRoom.id}.`);
+	// console.log(`Player ${socket.id} created Room #${newRoom.id}.`);
 	socket.emit(Constants.MSG_TYPES.SERVER.ROOM.CREATE, 0, newRoom.id);
 	// code 0:成功创建
 	joinRoom(socket, mode, username, newRoom.id); // 创建后加入房间
 }
 
 function joinRoom(socket, mode, username, roomID) {
-	console.log(`Player ${socket.id} tries to join Room #${roomID} with Mode '${mode}':`);
+	// console.log(`Player ${socket.id} tries to join Room #${roomID} with Mode '${mode}':`);
 	if ( roomIDOfPlayer[socket.id] ) {
-		console.log(`Already in a room.`);
+		// console.log(`Already in a room.`);
 		socket.emit(Constants.MSG_TYPES.SERVER.ROOM.JOIN, 4);
 		// code 4:已经在一个房间中
 		return ;
 	}
 	if ( !rooms[roomID] ) {
-		console.log(`Room #${roomID} not found.`);
+		// console.log(`Room #${roomID} not found.`);
 		socket.emit(Constants.MSG_TYPES.SERVER.ROOM.JOIN, 1); // 用于发送加入房间的状态（若成功附带0和房间号，若失败附带错误码）
 		// code 1:房间不存在
 	} else {
 		const room = rooms[roomID];
 		if ( room.players[socket.id] ) {
-			console.log(`Player ${socket.id} is already in the Room`);
+			// console.log(`Player ${socket.id} is already in the Room`);
 			socket.emit(Constants.MSG_TYPES.SERVER.ROOM.JOIN, 2);
 			// code 2:重复加入
 		} else if ( room.playerCount == room.teamCount * room.teamSize ) {
-			console.log(`Room #${roomID} is full`);
+			// console.log(`Room #${roomID} is full`);
 			socket.emit(Constants.MSG_TYPES.SERVER.ROOM.JOIN, 3);
 			// code 3:房间满人
 		} else if ( room.state != 0 ) {
-			console.log(`Room #${roomID} is already starting a game.`); 
+			// console.log(`Room #${roomID} is already starting a game.`); 
 			socket.emit(Constants.MSG_TYPES.SERVER.ROOM.JOIN, 5);
 			// code 5:房间已经开始游戏
 		} else {
-			console.log(`Player ${socket.id} successfully joined the Room #${roomID}`);
+			// console.log(`Player ${socket.id} successfully joined the Room #${roomID}`);
 			socket.emit(Constants.MSG_TYPES.SERVER.ROOM.JOIN, 0, roomID);
 			room.addPlayer(socket, username);
 			// code 0:成功
@@ -405,22 +405,22 @@ function joinRoom(socket, mode, username, roomID) {
 
 function leaveRoom(socket) {
 	const roomID = roomIDOfPlayer[socket.id];
-	console.log(`Player ${socket.id} tries to leave Room #${roomID}:`);
+	// console.log(`Player ${socket.id} tries to leave Room #${roomID}:`);
 	if ( !roomID ) {
-		console.log(`Player ${socket.id} is not in a room.`);
+		// console.log(`Player ${socket.id} is not in a room.`);
 		socket.emit(Constants.MSG_TYPES.SERVER.ROOM.LEAVE, 1);
 		// code 1: 不在房间中
 		return ;
 	}
 	const room = rooms[roomID];
-	console.log(`Player ${socket.id} successfully left Room #${roomID}.`);
+	// console.log(`Player ${socket.id} successfully left Room #${roomID}.`);
 	room.removePlayer(socket.id);
 	socket.emit(Constants.MSG_TYPES.SERVER.ROOM.LEAVE, 0);
 	// code 0: 成功
 }
 
 function disconnect(socket) {
-	console.log(`Player ${socket.id} disconnected.`);
+	// console.log(`Player ${socket.id} disconnected.`);
 	leaveRoom(socket);
 }
 

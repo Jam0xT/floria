@@ -106,10 +106,32 @@ export default Object.freeze({
 	'peas': {
 		max_hp: 20,
 		dmg: 8,
+		radius: 12,
 	},
 	'peas_single': {
 		max_hp: 5,
 		dmg: 8,
+		radius: 6,
+	},
+	'peas_toxic': {
+		max_hp: 20,
+		dmg: 8,
+		radius: 12,
+	},
+	'peas_toxic_single': {
+		max_hp: 5,
+		dmg: 8,
+		radius: 6,
+	},
+	'peas_legendary': {
+		max_hp: 30,
+		dmg: 10,
+		radius: 16,
+	},
+	'peas_legendary_single': {
+		max_hp: 7.5,
+		dmg: 10,
+		radius: 8,
 	},
 });
 

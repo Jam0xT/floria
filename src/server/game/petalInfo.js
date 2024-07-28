@@ -357,7 +357,7 @@ export default Object.freeze({
 						],
 						project: {
 							start: 'spawn',
-							speed: 1000,
+							speed: 700,
 							coeff: 1,
 						},
 						remove: {
@@ -365,6 +365,118 @@ export default Object.freeze({
 						},
 					},
 					attr: petalAttr['peas_single'],
+				}
+			},
+			dir: {
+				type: 'radial',
+			},
+			remove: {
+				on: 'use',
+			},
+		},
+	},
+	'peas_toxic': {
+		cd: 35,
+		orbit_disabled: [false, true, false, true],
+		skill_set: ['flag', 'timer', 'player_state', 'spawn', 'dir', 'remove'],
+		skill_var: {
+			timer: [
+				{
+					time: 25,
+					start: 'spawn',
+					end: 'ready',
+				},
+				{
+					time: 1,
+					start: 'ready',
+					end: 'use',
+					condition: 'player_attack',
+				},
+			],
+			spawn: {
+				start: 'use',
+				count: 4,
+				child: {
+					id: 'peas_toxic_single',
+					skill_set: ['flag', 'timer', 'project', 'remove', 'poison_on_hit'],
+					skill_var: {
+						timer: [
+							{
+								time: 50,
+								start: 'spawn',
+								end: 'death',
+							},
+						],
+						project: {
+							start: 'spawn',
+							speed: 700,
+							coeff: 1,
+						},
+						remove: {
+							on: 'death',
+						},
+						poison_on_hit:{
+							duration: 25,
+							dmg: 0.4,
+						}
+					},
+					attr: petalAttr['peas_single'],
+				}
+			},
+			dir: {
+				type: 'radial',
+			},
+			remove: {
+				on: 'use',
+			},
+		},
+	},
+	'peas_legendary': {
+		cd: 35,
+		orbit_disabled: [false, true, false, true],
+		skill_set: ['flag', 'timer', 'player_state', 'spawn', 'dir', 'remove'],
+		skill_var: {
+			timer: [
+				{
+					time: 25,
+					start: 'spawn',
+					end: 'ready',
+				},
+				{
+					time: 1,
+					start: 'ready',
+					end: 'use',
+					condition: 'player_attack',
+				},
+			],
+			spawn: {
+				start: 'use',
+				count: 4,
+				child: {
+					id: 'peas_toxic_single',
+					skill_set: ['flag', 'timer', 'project', 'remove', 'poison_on_hit'],
+					skill_var: {
+						timer: [
+							{
+								time: 50,
+								start: 'spawn',
+								end: 'death',
+							},
+						],
+						project: {
+							start: 'spawn',
+							speed: 700,
+							coeff: 1,
+						},
+						remove: {
+							on: 'death',
+						},
+						poison_on_hit:{
+							duration: 50,
+							dmg: 0.4,
+						}
+					},
+					attr: petalAttr['peas_legendary_single'],
 				}
 			},
 			dir: {
