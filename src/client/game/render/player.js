@@ -2,6 +2,17 @@ import { W, H, hpx } from '../../canvas.js';
 import * as canvas from '../../canvas.js';
 import { getAsset } from '../../assets.js';
 
+const teamColor = [
+	'#ff9c9c',
+	'#a1d0ff',
+	'#fff7a1',
+	'#aaffa1',
+	'#b3ffe2',
+	'#ffbfea',
+	'#f3bfff',
+	'#ffc799',
+];
+
 function renderPlayer(ctx, self, player) {
 
 	const { x, y } = player;
@@ -55,13 +66,6 @@ function renderPlayer(ctx, self, player) {
 			if ( player.attr.ghost ) { // ghost 状态 用户名半透明
 				ctx.globalAlpha = 0.5;
 			}
-
-			const teamColor = [
-				'#ff9c9c',
-				'#a1d0ff',
-				'#fff7a1',
-				'#aaffa1',
-			];
 		
 			ctx.fillStyle = teamColor[player.team];
 			ctx.font = `${20 * hpx}px PT-sans`;

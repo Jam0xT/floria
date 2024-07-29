@@ -12,6 +12,10 @@ const defaultColor = [
 	'#a1d0ff',
 	'#fff7a1',
 	'#aaffa1',
+	'#b3ffe2',
+	'#ffbfea',
+	'#f3bfff',
+	'#ffc799',
 ];
 
 /*
@@ -173,7 +177,8 @@ class Room {
 	}
 
 	checkReady() { // 阶段 2 检查 ready 情况，此时房间 state 只可能是 0(wait) 或 1(load)
-		if ( Object.values(this.players).filter(player => player.isReady).length == this.teamCount * this.teamSize ) { // ready 人数 = 房间人数上限
+		const maxPlayerCnt = this.teamCount * this.teamSize;
+		if ( Object.values(this.players).filter(player => player.isReady).length >= maxPlayerCnt - ((maxPlayerCnt == 2) ? 0 : 1) ) { // ready 人数 >= 房间人数上限 - 1
 			this.load(); // 执行阶段 3
 		} else { // 未完全 ready
 			if ( this.state == 1 ) { // 现在在 load 状态
