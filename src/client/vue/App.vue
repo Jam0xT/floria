@@ -7,6 +7,7 @@ import Text from './Text.vue';
 import * as room from '../room.js';
 import * as nw from '../networking.js';
 import Constants from '../../shared/constants.js';
+import * as util from '../utility.js';
 import { startRenderGame, stopRenderGame, initGameSettings } from '../game/main.js';
 import { resetState } from '../state.js';
 import { startCapturingInput, stopCapturingInput } from '../input.js';
@@ -109,7 +110,7 @@ function onRoomIDInput(e) {
 }
 
 function copyRoomID() {
-	navigator.clipboard.writeText(roomID.value);
+	util.copyToClipboard(roomID.value);
 	logs.value.unshift({
 		msg: 'Room ID has been copeid to the clipboard.',
 		color: '#dedede',
