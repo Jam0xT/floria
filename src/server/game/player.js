@@ -26,6 +26,7 @@ class Player extends Entity {
 		const $ = this.var;
 		$.spec = state;
 		$.attr.ghost = true;
+		// $.attr.speed = 200;
 		$.attr.invulnerable = true;
 	}
 

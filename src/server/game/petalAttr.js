@@ -80,6 +80,7 @@ export default Object.freeze({
 	'faster': {
 		max_hp: 5,
 		dmg: 8,	
+		radius: 8,
 	},
 	'cactus_toxic': {
 		max_hp: 15,

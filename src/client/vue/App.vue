@@ -112,7 +112,7 @@ function onRoomIDInput(e) {
 function copyRoomID() {
 	util.copyToClipboard(roomID.value);
 	logs.value.unshift({
-		msg: 'Room ID has been copeid to the clipboard.',
+		msg: 'Room ID has been copied to the clipboard.',
 		color: '#dedede',
 	});
 }

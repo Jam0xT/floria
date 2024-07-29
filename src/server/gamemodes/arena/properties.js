@@ -37,5 +37,6 @@ export default Object.freeze({
 		percent: 0, // 单位:总血量百分点; 取 1 表示 1%
 	},
 	petal_speed: 150, // 花瓣追踪速度乘数
+	// spec_speed: 200, // 观察者速度
 	ghost_friendly_petal: true, // 同队花瓣无碰撞
 });
