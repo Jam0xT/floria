@@ -133,10 +133,11 @@ function updateEntities() { // Game 调用
 			// 中毒
 			Object.keys(effects).forEach(effectID => {
 				const effect = effects[effectID];
-				if ( effect.duration > 0 )
+				if ( effect.duration > 0 ) {
 					effect.duration --;
-				if ( effectID == 'poison' ) {
-					entity.var.attr.hp -= effects.poison.value * (1 - entity.var.attr.poison_res);
+					if ( effectID == 'poison' ) {
+						entity.var.attr.hp -= effects.poison.value * (1 - entity.var.attr.poison_res);
+					}
 				}
 			});
 		})();

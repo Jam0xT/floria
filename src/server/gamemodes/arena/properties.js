@@ -5,7 +5,7 @@ export default Object.freeze({
 	chunk_size: 200, // 区块大小 用于碰撞判定
 	default_kit_info: { // 默认抽象花瓣信息
 		size: 8,
-		primary: ['pollen'],
+		primary: ['cactus_toxic', 'basic'],
 		// primary: ['triple_stinger', 'iris', 'stinger', 'dandelion', 'cactus_toxic', 'epic_rose', 'salt', 'bubble'],
 		// primary: ['faster', 'triplet', 'corn', 'heavy', 'rock', 'rice', 'leaf', 'rose'],
 		// primary: ['dahlia', 'wing', 'cactus', 'triple_cactus', 'missile', 'peas', 'peas_toxic', 'peas_legendary'],

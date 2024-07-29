@@ -245,20 +245,20 @@ export default Object.freeze({
 	'poison_unstackable': {
 		/*
 			技能介绍：
-				无堆叠玩家本体毒伤
+				无堆叠玩家本体毒伤，卸下时失效
 				使用此技能的花瓣不可解绑
 			前置技能：
 				无
 			参数：
 				poison_unstackable: {
 					stack_id,		// 堆叠 id
-					poison_duration,	// 中毒持续时间
-					poison_dmg,			// 中毒每刻伤害
+					duration,	// 中毒持续时间
+					dmg,			// 中毒每刻伤害
 				}
 			变量域：
 				poison_unstackable
 		*/
-		'onFirstLoad': [
+		'onLoad': [
 			function (instance) {
 				const $ = this.var;
 				const player = $.entities[instance.var.parent];
@@ -266,12 +266,12 @@ export default Object.freeze({
 				player.var.stack[sv.poison_unstackable.stack_id] ??= 0; // 若首次使用 初始化堆叠计数
 				player.var.stack[sv.poison_unstackable.stack_id] ++; // 更新堆叠计数
 				if ( player.var.stack[sv.poison_unstackable.stack_id] == 1 ) { // 未堆叠
-					player.var.attr.poison.duration = sv.poison_unstackable.poison_duration; // 设置玩家毒伤
-					player.var.attr.poison.dmg = sv.poison_unstackable.poison_dmg;
+					player.var.attr.poison.duration = sv.poison_unstackable.duration; // 设置玩家毒伤
+					player.var.attr.poison.dmg = sv.poison_unstackable.dmg;
 				}
 			},
 		],
-		'onUnequip': [
+		'onDeath': [
 			function (instance) {
 				const $ = this.var;
 				const player = $.entities[instance.var.parent];
@@ -676,6 +676,7 @@ unbound onTick -> bound onTick -> onFirstLoad -> onLoad -> onHit
 onSpawn			// 生成实体时最先触发的触发器 该触发器不能使用 this
 onFirstLoad		// 首次被抽象花瓣加载
 onLoad			// 被抽象花瓣加载
+onDeath			// 死亡
 onHit			// 击中目标
 onTick			// 每刻执行
 */

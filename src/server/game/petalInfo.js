@@ -185,7 +185,7 @@ export default Object.freeze({
 					end: 'ready',
 				},
 				{
-					time: 6,
+					time: 8,
 					start: 'ready',
 					end: 'use',
 					condition: 'player_need_heal',
@@ -196,7 +196,7 @@ export default Object.freeze({
 			},
 			heal: {
 				start: 'use',
-				value: 1.5,
+				value: 1.8,
 			},
 			remove: {
 				on: 'use',

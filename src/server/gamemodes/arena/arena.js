@@ -78,7 +78,6 @@ class Game_Arena {
 			setTimeout(() => {
 				$.endFn(winners); // 执行房间传来的结束函数
 			}, 5000);
-			$.endFn(winners);
 		}
 	}
 

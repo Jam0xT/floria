@@ -368,6 +368,7 @@ function handlePlayerDeath(player) { // Game 调用
 
 function handlePetalDeath(petal) { // Game 调用
 	// 移除玩家对花瓣的记录
+	togglePetalSkillTrigger.bind(this)('onDeath', petal); // 触发花瓣技能触发器
 	const $ = this.var;
 	const player = $.entities[petal.var.parent]; // 获取花瓣所属玩家
 	if ( !player ) // 玩家已不存在

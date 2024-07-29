@@ -13,7 +13,7 @@ export default Object.freeze({
 		dmg_reflect: 0,
 		dir: 0,
 		friction: 0.7,
-		knockback: 0,
+		kb: 0,
 		elasticity: 0.7,
 	},
 	'basic': { // 实体花瓣 id
