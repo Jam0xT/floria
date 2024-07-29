@@ -15,13 +15,17 @@ export default Object.freeze({
 		poison: {duration: 0, dmg: 0},
 		dmg_reflect: 0,
 		dir: 0,
+		friction: 0.7,
+		kb: 0,
+		elasticity: 0.7,
 	},
 	player: { // 玩家
 		max_hp: 150,
 		radius: 20,
 		vision: 2000,
 		mass: 100,
-		dmg: 10,
+		dmg: 25,
 		speed: 2000,
+		kb: 20,
 	},
 });

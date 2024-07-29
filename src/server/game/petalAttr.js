@@ -12,6 +12,9 @@ export default Object.freeze({
 		poison: {duration: 0, dmg: 0},
 		dmg_reflect: 0,
 		dir: 0,
+		friction: 0.7,
+		knockback: 0,
+		elasticity: 0.7,
 	},
 	'basic': { // 实体花瓣 id
 		max_hp: 10,

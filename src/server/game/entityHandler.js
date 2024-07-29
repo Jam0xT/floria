@@ -39,10 +39,10 @@ function updateAcceleration(dt) { // 更新加速度
 
 function updateVelocity(dt) {
 	const $ = this.var;
-	const friction = $.props.friction ??= 0.7; // 摩擦力 若摩擦力未设置 则设为 0.7
 	Object.values($.entities).forEach(entity => {
 		const a = entity.var.a; // 实体加速度
 		const v = entity.var.v;
+		const friction = entity.var.attr.friction;
 		v.x *= friction;
 		v.y *= friction;
 		v.x += a.x * dt;

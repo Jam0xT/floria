@@ -260,6 +260,7 @@ export default Object.freeze({
 	},
 	'bubble': {
 		cd: 75,
+		orbit_disabled: [false, true, false, true],
 		skill_set: ['flag', 'timer', 'player_state', 'push', 'remove'],
 		skill_var: {
 			timer: [
