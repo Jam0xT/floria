@@ -518,12 +518,20 @@ function onDisconnect() {
 		<select v-model="teamSize" :disabled="(ownerID != selfID) || (!inRoom) || (state != 0)">
 			<option value="1">1 Player</option>
 			<option value="2">2 Players</option>
+			<option value="3">3 Players</option>
 			<option value="4">4 Players</option>
+			<option value="5">5 Players</option>
+			<option value="6">6 Players</option>
 		</select>
 		<Text size="2" class="notransform">Team Count</Text>
 		<select v-model="teamCount" :disabled="(ownerID != selfID) || (!inRoom) || (state != 0)">
 			<option value="2">2 Teams</option>
+			<option value="3">3 Teams</option>
 			<option value="4">4 Teams</option>
+			<option value="5">5 Teams</option>
+			<option value="6">6 Teams</option>
+			<option value="7">7 Teams</option>
+			<option value="8">8 Teams</option>
 		</select>
 		<Text size="2" class="notransform">Team</Text>
 		<select v-model="team" :disabled="(!inRoom) || (state != 0)">
