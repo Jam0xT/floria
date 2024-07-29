@@ -3,6 +3,7 @@ import { getCurrentState } from '../state.js';
 import { renderBackground } from './render/background.js';
 import { renderPlayer } from './render/player.js';
 import { renderPetal } from './render/petal.js';
+import * as canvas from '../canvas.js';
 
 let settings;
 let animationFrameRequestID;
@@ -18,15 +19,23 @@ function startRenderGame() { // 开始游戏
 function render() {
 	const state = getCurrentState();
 	if ( state.self ) {
-		renderBackground(state.self.x, state.self.y);
-		renderPlayer(state.self, state.self);
+		// 创建不同图层
+		const backgroundCtx = canvas.getTmpCtx();
+		const entityCtx = canvas.getTmpCtx();
+
+		renderBackground(backgroundCtx, state.self.x, state.self.y);
+		renderPlayer(entityCtx, state.self, state.self);
 		state.entities.forEach(e => {
 			if ( e.type == 'player' ) {
-				renderPlayer(state.self, e);
+				renderPlayer(entityCtx, state.self, e);
 			} else if ( e.type == 'petal' ) {
-				renderPetal(state.self, e);
+				renderPetal(entityCtx, state.self, e);
 			}
 		});
+
+		// 按顺序渲染不同图层
+		canvas.draw(backgroundCtx, canvas.ctxMain);
+		canvas.draw(entityCtx, canvas.ctxMain);
 	}
 	animationFrameRequestID = requestAnimationFrame(render);
 }

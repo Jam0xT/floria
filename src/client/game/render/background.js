@@ -2,10 +2,7 @@ import { W, H, hpx } from '../../canvas.js';
 import * as canvas from '../../canvas.js';
 import { settings } from '../main.js';
 
-function renderBackground(x, y) {
-	// const ctx = canvas.getTmpCtx();
-	const ctx = canvas.ctxMain;
-
+function renderBackground(ctx, x, y) {
 	const gridInterval = hpx * 50;
 	
 	const startX = ( W / 2 - x * hpx ) % gridInterval;

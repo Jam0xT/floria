@@ -2,9 +2,7 @@ import { W, H, hpx } from '../../canvas.js';
 import * as canvas from '../../canvas.js';
 import { getAsset } from '../../assets.js';
 
-function renderPetal(self, petal) {
-	// const ctx = canvas.getTmpCtx();
-	const ctx = canvas.ctxMain;
+function renderPetal(ctx, self, petal) {
 
 	const { x, y } = petal;
 	let asset = getAsset(`petals/${petal.id}.svg`);
