@@ -371,20 +371,20 @@ function updSettings(socket, type, update) {
 		return ;
 	}
 	// // console.log(`Room #${roomID}:`);
-	if ( type == 0 ) {
+	if ( type == 0 ) { // teamSize
 		room.teamSize = update.teamSize;
 		room.update(2, {teamSize: room.teamSize});
 		room.resetTeams();
 		// // console.log(`Settings: TeamSize = ${room.teamSize}.`);
-	} else if ( type == 1 ) {
+	} else if ( type == 1 ) { // teamCount
 		room.teamCount = update.teamCount;
 		room.update(3, {teamCount: room.teamCount});
 		room.resetTeams();
 		// // console.log(`Settings: TeamCount = ${room.teamCount}.`);
-	} else if ( type == 2 ) {
+	} else if ( type == 2 ) { // username
 		room.players[socket.id].username = update.username;
 		room.update(4, {id: socket.id, username: room.players[socket.id].username});
-	} else if ( type == 3 ) {
+	} else if ( type == 3 ) { // team
 		let team = update.team, prevTeam = update.prevTeam;
 		room.players[socket.id].team = team;
 		if ( team != -1 )
@@ -392,7 +392,7 @@ function updSettings(socket, type, update) {
 		if ( prevTeam != -1)
 			room.teams[prevTeam].playerCount -= 1;
 		room.update(6, {id: socket.id, team: team, prevTeam: prevTeam});
-	} else if ( type == 4 ) {
+	} else if ( type == 4 ) { // kit
 		let kit = update.kit.split(',');
 		room.settings.kit_info = {
 			size: kit.length,

@@ -277,7 +277,6 @@ function onUpdate(type, update) {
 	} else if ( type == 11 ) {
 		initGameSettings(update.settings);
 	} else if ( type == 12 ) {
-		unwatchKit = true;
 		kit.value = update.kit;
 	}
 }
@@ -293,10 +292,8 @@ function onRecvInfo(info) { // 加入房间时获取房间信息
 		unwatchTeamSize = true;
 		teamSize.value = info.teamSize;
 	}
-	if ( kit.value != info.kit ) {
-		unwatchKit = true;
-		kit.value = info.kit;
-	}
+	unwatchKit = true;
+	kit.value = info.kit;
 	teams.value = info.teams;
 	// settings.value = info.settings;
 }
