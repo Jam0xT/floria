@@ -391,6 +391,9 @@ function updSettings(socket, type, update) {
 		room.update(4, {id: socket.id, username: room.players[socket.id].username});
 	} else if ( type == 3 ) { // team
 		let team = update.team, prevTeam = update.prevTeam;
+		if ( room.teams[team].playerCount >= room.teamSize ) { // 不能加入满人队伍
+			return ;
+		}
 		room.players[socket.id].team = team;
 		if ( team != -1 )
 			room.teams[team].playerCount += 1;

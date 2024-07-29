@@ -537,7 +537,7 @@ function onDisconnect() {
 		<select v-model="team" :disabled="(!inRoom) || (state != 0)">
 			<option value="-1">Random</option>
 			<template v-for="(team, i) in teams">
-				<option :value="i" :disabled="team.playerCount == teamSize" :style="{color: team.color}">{{ `${team.color} ${team.playerCount}/${teamSize}` }}</option>
+				<option :value="i" :disabled="team.playerCount >= teamSize" :style="{color: team.color}">{{ `${team.color} ${team.playerCount}/${teamSize}` }}</option>
 			</template>
 		</select><br/>
 		<Text size="2" class="notransform">Kit</Text>
