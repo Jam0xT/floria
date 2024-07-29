@@ -283,9 +283,10 @@ function gameInput(socket, type, input) { // 接受玩家游戏输入
 	}
 
 	const game = room.game;
-	if ( !game ) {
+	if ( !game ) { // 游戏不存在
 		return ;
 	}
+
 	if ( !game.var.isStarted ) { // 游戏未开始（未初始化）
 		return ;
 	}

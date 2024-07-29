@@ -57,7 +57,7 @@ class Entity { // 所有实体的类
 		const $ = this.var;
 		const cur = $.effects[id];
 		if ( id == 'poison' ) {
-			if ( cur.duration * cur.dmg <= duration * value ) { // 使用总毒伤较高的一方
+			if ( cur.duration * cur.value <= duration * value ) { // 使用总毒伤较高的一方
 				cur.duration = duration;
 				cur.value = value;
 			}
