@@ -207,25 +207,32 @@ function solveCollisions(dt) {
 function solveCollision(source, target) {
 	const $ = this.var;
 
-	// 目标受到伤害
-	target.var.attr.hp -= source.var.attr.dmg;
+	// 进行伤害与反伤判定
+	(() => {
+		if ( source.var.team != target.var.team ) { // 如果队伍不同
+			target.var.attr.hp -= source.var.attr.dmg; // 对目标造成伤害
+
+			// 目标执行反伤
+			(() => {
+				if ( !target.var.attr.dmg_reflect ) // 目标未设置反伤
+					return ;
+				const reflect_dmg = (target.var.attr.dmg_reflect * 0.01) * source.var.attr.dmg; // 计算反伤
+				if ( source.var.type != 'petal' ) { // 源不是花瓣 直接执行反伤
+					source.var.attr.hp -= reflect_dmg;
+				} else { // 源是花瓣 执行反伤到玩家
+					const player = $.entities[source.var.parent];
+					player.var.attr.hp -= reflect_dmg;
+				}
+			})();
+		}
+	})();
+
 
 	// 目标受到中毒
 	(() => {
-		if ( source.var.attr.poison )
-			target.effect('poison', source.var.attr.poison.duration, source.var.attr.poison.dmg);
-	})();
-
-	// 目标执行反伤
-	(() => {
-		if ( !target.var.attr.dmg_reflect ) // 目标未设置反伤
-			return ;
-		const reflect_dmg = (target.var.attr.dmg_reflect * 0.01) * source.var.attr.dmg; // 计算反伤
-		if ( source.var.type != 'petal' ) { // 源不是花瓣 直接执行反伤
-			source.var.attr.hp -= reflect_dmg;
-		} else { // 源是花瓣 执行反伤到玩家
-			const player = $.entities[source.var.parent];
-			player.var.attr.hp -= reflect_dmg;
+		if ( source.var.team != target.var.team ) { // 如果队伍不同
+			if ( source.var.attr.poison ) // 是否存在碰撞给予中毒属性
+				target.effect('poison', source.var.attr.poison.duration, source.var.attr.poison.dmg);
 		}
 	})();
 

@@ -71,14 +71,14 @@ function renderPlayer(ctx, self, player) {
 		ctx.restore();
 	
 		if ( !player.attr.ghost ) { // ghost 状态不显示血条
-			healthBar(ctx, self, player);
+			healthBar(ctx, player);
 		}
 	})();
 
 	ctx.restore();
 }
 
-function healthBar(ctx, self, player) { // 渲染血条
+function healthBar(ctx, player) { // 渲染血条
 	
 	// 玩家半径（用于决定血条长度）
 	const renderRadius = player.attr.radius * hpx;
