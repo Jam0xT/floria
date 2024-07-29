@@ -179,39 +179,34 @@ function solveCollisions(dt) {
 	}, []);
 
 	collisions.forEach(collision => {
-		const entity1 = $.entities[collision.uuid1], entity2 = $.entities[collision.uuid2];
-		if ( !entity1 || !entity2 )
+		const e1 = $.entities[collision.uuid1], e2 = $.entities[collision.uuid2]; // 碰撞的两个实体
+		if ( !e1 || !e2 || (e1.var.attr.hp <= 0) || (e2.var.attr.hp <= 0) ) // 实体不存在或血量欠费
 			return ;
 		
-		const pos1 = entity1.var.pos, pos2 = entity2.var.pos;
-		// const v1 = entity1.var.v, v2 = entity2.var.v;
+		const pos1 = e1.var.pos, pos2 = e2.var.pos;
+		// const v1 = e1.var.v, v2 = e2.var.v;
 		const x1 = pos1.x, y1 = pos1.y, x2 = pos2.x, y2 = pos2.y;
 		const d = util.getDistance(pos1, pos2); // 距离
-		const r1 = entity1.var.attr.radius, r2 = entity2.var.attr.radius; // 半径
+		const r1 = e1.var.attr.radius, r2 = e2.var.attr.radius; // 半径
 		const p = r1 + r2 - d; // 穿透深度
-		const m1 = entity1.var.attr.mass, m2 = entity2.var.attr.mass; // 重量
+		const m1 = e1.var.attr.mass, m2 = e2.var.attr.mass; // 重量
 		const theta1 = Math.atan2(y2 - y1, x2 - x1); // e2 相对于 e1 的方向，水平向右为 0
 		const theta2 = theta1 - Math.PI;
-		const kb1 = entity1.var.attr.kb, kb2 = entity2.var.attr.kb; // 额外击退量
+		const kb1 = e1.var.attr.kb, kb2 = e2.var.attr.kb; // 额外击退量
 
 		const kbv1 = (p * $.props.pkb + kb1) * m2 / (m1 + m2), kbv2 = (p * $.props.pkb + kb2) * m1 / (m1 + m2); // 速度
-		const q1 = entity1.var.attr.elasticity, q2 = entity2.var.attr.elasticity; // 弹力系数
+		const q1 = e1.var.attr.elasticity, q2 = e2.var.attr.elasticity; // 弹力系数
 
-		appendVelocity.bind(entity1)(kbv1 * Math.cos(theta2) / dt, kbv1 * Math.sin(theta2) / dt, q1);
-		appendVelocity.bind(entity2)(kbv2 * Math.cos(theta1) / dt, kbv2 * Math.sin(theta1) / dt, q2);
+		appendVelocity.bind(e1)(kbv1 * Math.cos(theta2) / dt, kbv1 * Math.sin(theta2) / dt, q1); // 应用击退速度
+		appendVelocity.bind(e2)(kbv2 * Math.cos(theta1) / dt, kbv2 * Math.sin(theta1) / dt, q2);
 
-		solveCollision.bind(this)(entity1, entity2);
-		solveCollision.bind(this)(entity2, entity1);
+		solveCollision.bind(this)(e1, e2); // 进行碰撞判定（伤害，技能等）
+		solveCollision.bind(this)(e2, e1);
 	});
 }
 
 function solveCollision(source, target) {
 	const $ = this.var;
-
-	// 血量欠费判定
-	if( source.var.attr.hp <= 0 ) {
-		return ;
-	}
 
 	// 进行伤害与反伤判定
 	(() => {

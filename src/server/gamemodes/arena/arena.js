@@ -57,18 +57,28 @@ class Game_Arena {
 
 	checkGameOver() {
 		const $ = this.var;
-		let alivePlayerCnt = 0, winner = 'The Dandelion Gods';
+		let aliveTeams = {}, winners = []; // 记录存活队伍，获胜者列表
 		Object.values($.players).forEach(uuid => {
 			const player = $.entities[uuid];
 			if ( !player.var.spec ) {
-				alivePlayerCnt ++;
-				winner = player.var.playerInfo.username;
+				aliveTeams[player.var.team] = true;
 			}
 		});
-		if ( alivePlayerCnt <= 1 ) {
+		if ( Object.keys(aliveTeams).length <= 1 ) { // 只剩不超过一个队伍存活
+			if ( Object.keys(aliveTeams).length == 0 ) { // 同归于尽
+				winners = ['The Dandelion Gods'];
+			} else {
+				Object.values($.players).forEach(uuid => { // 统计存活队伍的成员
+					const player = $.entities[uuid];
+					if ( player.var.team == aliveTeams[Object.keys(aliveTeams)[0]] ) {
+						winners.push(player.var.playerInfo.username);
+					}
+				});
+			}
 			setTimeout(() => {
-				$.endFn(winner); // 执行房间传来的结束函数
-			}, 3000);
+				$.endFn(winners); // 执行房间传来的结束函数
+			}, 5000);
+			$.endFn(winners);
 		}
 	}
 

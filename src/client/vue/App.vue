@@ -426,10 +426,16 @@ function onGameStart() {
 	startRenderGame();
 }
 
-function onGameOver(winner) {
-	state.value = 0;
+function onGameOver(winners) {
+	state.value = 0; // 设置房间状态
+	let str = '';
+	winners.forEach((winner, idx) => {
+		str += winner;
+		if ( idx < winners.length - 1 )
+			str += ',';
+	});
 	logs.value.unshift({
-		msg: `The game has ended. The winner is ${winner}!`,
+		msg: `The game has ended. The winner is ${str}!`,
 		color: '#ffbf7a',
 	});
 	stopCapturingInput();

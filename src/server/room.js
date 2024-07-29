@@ -241,12 +241,12 @@ class Room {
 		this.game.start(this.end.bind(this));
 	}
 	
-	end(winner) {
+	end(winners) {
 		if ( !this.game.var.stopped ) {
 			this.game.stop();
 			Object.keys(this.sockets).forEach(socketID => {
 				const socket = this.sockets[socketID];
-				socket.emit(Constants.MSG_TYPES.SERVER.GAME.OVER, winner);
+				socket.emit(Constants.MSG_TYPES.SERVER.GAME.OVER, winners);
 			});
 			Object.values(this.players).forEach(player => {
 				player.isReady = false;
@@ -259,7 +259,7 @@ class Room {
 				const socket = this.sockets[socketID];
 				this.sendInfo(socket);
 			});
-
+	
 			this.updState(0);
 		}
 	}
