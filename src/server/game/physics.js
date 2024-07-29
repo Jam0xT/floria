@@ -208,6 +208,11 @@ function solveCollisions(dt) {
 function solveCollision(source, target) {
 	const $ = this.var;
 
+	// 血量欠费判定
+	if( source.var.attr.hp <= 0 ) {
+		return ;
+	}
+
 	// 进行伤害与反伤判定
 	(() => {
 		if ( source.var.team != target.var.team ) { // 如果队伍不同
