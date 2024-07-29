@@ -100,7 +100,9 @@ export default Object.freeze({
 		skill_set: ['flag', 'timer', 'player_state', 'attach', 'heal', 'remove'],
 		skill_var: {
 			flag_rules: {
-				'attach': ['player_need_heal', 'ready'],
+				'and': {
+					'attach': ['player_need_heal', 'ready'],
+				}
 			},
 			timer: [
 				{
@@ -133,7 +135,9 @@ export default Object.freeze({
 		skill_set: ['flag', 'timer', 'player_state', 'attach', 'heal', 'remove'],
 		skill_var: {
 			flag_rules: {
-				'attach': ['player_need_heal', 'ready'],
+				'and': {
+					'attach': ['player_need_heal', 'ready'],
+				}
 			},
 			timer: [
 				{
@@ -170,7 +174,9 @@ export default Object.freeze({
 		skill_set: ['flag', 'timer', 'player_state', 'attach', 'heal', 'remove'],
 		skill_var: {
 			flag_rules: {
-				'attach': ['player_need_heal', 'ready'],
+				'and': {
+					'attach': ['player_need_heal', 'ready'],
+				}
 			},
 			timer: [
 				{
@@ -537,21 +543,67 @@ export default Object.freeze({
 			},
 		},
 
-	}
+	},
+	'pollen': {
+		cd: 25,
+		count: 3,
+		orbit_disabled: [false, true, false, true],
+		skill_set: ['flag', 'timer', 'player_state', 'project', 'dir', 'remove'],
+		skill_var: {
+			flag_rules: {
+				'or': {
+					'ok': ['player_attack', 'player_defend'],
+				}
+			},
+			timer: [
+				{
+					time: 10,
+					start: 'spawn',
+					end: 'ready',
+				},
+				{
+					time: 1,
+					start: 'ready',
+					end: 'use',
+					condition: 'ok',
+				},
+				{
+					time: 125,
+					start: 'use',
+					end: 'death',
+				}
+			],
+			project: {
+				start: 'use',
+				speed: 500,
+				coeff: 0.7,
+			},
+			dir: {
+				type: 'radial',
+			},
+			remove: {
+				on: 'death',
+			},
+		},
+	},
 });
 
 /*
 'basic': { 					// key 与抽象花瓣 id 对应
-	id: 'basic', 			// 抽象花瓣 id
 	instance_id: 'basic', 	// 实体花瓣 id
 	cd: 62, 				// 单位:刻 冷却时间 1 为瞬间重生 设置为 <= 0 可能会导致一些问题
-	cd_remain: [], 			// 各实例剩余冷却时间
 	count: 3,				// 数量，等于 1 表示单子，多于 1 表示多子
 	pattern: 0, 			// 多子形态，0 表示分散，1 表示聚合
-	angle: 0,				// 多子花瓣的亚轨道起始角度
-	rot_speed: 0.05,		// 亚轨道旋转速度 单位:弧度 / 刻
-	orbit_extra: 0,			// 额外轨道半径
-	sub_orbit: 0,			// 亚轨道半径
+	orbit_extra: [0, 0, 0, 0],
+	// 默认 左键 右键 左右
+	orbit_disabled: [false, false, false, false],
+	// 禁用轨道
+	orbit_special: -1,		// 特殊轨道
+	sub_orbit: 10,			// 亚轨道半径
+	sub_orbit_type: '', 	// 'radial', 'rotate', 'radial_reverse'
+	sub_orbit_rot_speed: 0, // rad / tick
 	cuml_cnt: 0,			// cumulative count; 累计 load 实例数量
+	skill_set: [],			// 技能列表
+	skill_var: {},			// 技能变量
 },
 */

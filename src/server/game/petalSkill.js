@@ -581,7 +581,15 @@ export default Object.freeze({
 				无
 			参数：
 				flag_rules: {
-					flag: flag_list // flag_list 全都为 true 时 flag 设为 true
+					'and': {
+						flag: flag_list // flag_list 全都为 true 时 flag 设为 true
+					},
+					'or': {
+						flag: flag_list // flag_list 至少一个为 true 时 flag 设为 true
+					},
+					'not': {
+						flag: flag_list // flag_list 全都为 false 时 flag 设为 true
+					}
 				}
 			变量域：
 				flag, flag_rules
@@ -598,13 +606,37 @@ export default Object.freeze({
 				const rules = sv.flag_rules; // 规则 obj
 				if ( !rules )
 					return ;
-				Object.keys(rules).forEach(key => {
-					const flag_list = rules[key];
-					sv.flag[key] = true;
-					flag_list.forEach(flag => {
-						sv.flag[key] &= sv.flag[flag];
+				if ( rules['and'] ) {
+					const r = rules['and'];
+					Object.keys(r).forEach(key => {
+						const flag_list = r[key];
+						sv.flag[key] = true;
+						flag_list.forEach(flag => {
+							sv.flag[key] &= sv.flag[flag];
+						});
 					});
-				});
+				}
+				if ( rules['or'] ) {
+					const r = rules['or'];
+					Object.keys(r).forEach(key => {
+						const flag_list = r[key];
+						sv.flag[key] = false;
+						flag_list.forEach(flag => {
+							sv.flag[key] |= sv.flag[flag];
+						});
+					});
+				}
+				if ( rules['not'] ) {
+					const r = rules['not'];
+					Object.keys(r).forEach(key => {
+						const flag_list = r[key];
+						sv.flag[key] = false;
+						flag_list.forEach(flag => {
+							sv.flag[key] |= sv.flag[flag];
+						});
+						sv.flag[key] ^= true;
+					});
+				}
 			}
 		]
 	}

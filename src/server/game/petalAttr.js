@@ -139,6 +139,11 @@ export default Object.freeze({
 		max_hp: 10,
 		dmg: 5,
 	},
+	'pollen': {
+		max_hp: 5,
+		dmg: 8,
+		radius: 6,
+	},
 });
 
 /*
