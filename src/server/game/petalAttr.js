@@ -3,7 +3,7 @@
 export default Object.freeze({
 	'default': { // 未设置必设置项时的默认设置
 		max_hp: 10,
-		radius: 10,
+		radius: 12,
 		mass: 10,
 		dmg: 10,
 		ignore_border: true,
@@ -28,22 +28,20 @@ export default Object.freeze({
 	'light': {
 		max_hp: 5,
 		dmg: 8,
-		radius: 5,
+		radius: 6,
 	},
 	'corn': {
 		max_hp: 2000,
 		dmg: 1,
-		radius: 8,
 	},
 	'rice': {
 		max_hp: 5,
 		dmg: 5,
-		radius: 8,
 	},
 	'heavy': {
 		max_hp: 200,
 		dmg: 10,
-		mass: 1000,
+		radius: 20,
 	},
 	'rock': {
 		max_hp: 90,
@@ -69,7 +67,7 @@ export default Object.freeze({
 	'dahlia': {
 		max_hp: 5,
 		dmg: 5,
-		radius: 8,
+		radius: 6,
 	},
 	'wing': {
 		max_hp: 15,
@@ -78,7 +76,7 @@ export default Object.freeze({
 	'cactus': {
 		max_hp: 15,
 		dmg: 5,
-		radius: 12,
+		radius: 15,
 	},
 	'faster': {
 		max_hp: 5,
@@ -88,7 +86,7 @@ export default Object.freeze({
 	'cactus_toxic': {
 		max_hp: 15,
 		dmg: 5,
-		radius: 12,
+		radius: 15,
 	},
 	'salt': {
 		max_hp: 10,
@@ -110,36 +108,36 @@ export default Object.freeze({
 	'peas': {
 		max_hp: 20,
 		dmg: 8,
-		radius: 12,
+		radius: 16,
 	},
 	'peas_single': {
 		max_hp: 5,
 		dmg: 8,
-		radius: 6,
+		radius: 8,
 	},
 	'peas_toxic': {
 		max_hp: 20,
 		dmg: 8,
-		radius: 12,
+		radius: 16,
 	},
 	'peas_toxic_single': {
 		max_hp: 5,
 		dmg: 8,
-		radius: 6,
+		radius: 8,
 	},
 	'peas_legendary': {
 		max_hp: 30,
 		dmg: 10,
-		radius: 16,
+		radius: 20,
 	},
 	'peas_legendary_single': {
 		max_hp: 7.5,
 		dmg: 10,
-		radius: 8,
+		radius: 10,
 	},
 	'dandelion': {
-		max_hp: 5,
-		dmg: 5,
+		max_hp: 8,
+		dmg: 15,
 	},
 });
 

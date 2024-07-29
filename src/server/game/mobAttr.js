@@ -21,7 +21,7 @@ export default Object.freeze({
 	},
 	player: { // 玩家
 		max_hp: 150,
-		radius: 20,
+		radius: 25,
 		vision: 2000,
 		mass: 100,
 		dmg: 25,

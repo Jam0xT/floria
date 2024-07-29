@@ -66,7 +66,7 @@ function renderPlayer(ctx, self, player) {
 			ctx.fillStyle = teamColor[player.team];
 			ctx.font = `${20 * hpx}px PT-sans`;
 			ctx.textAlign = 'center';
-			ctx.fillText(player.username, 0, -25 * hpx);
+			ctx.fillText(player.username, 0, -player.attr.radius * 1.25 * hpx);
 		})();
 		ctx.restore();
 	
@@ -84,9 +84,9 @@ function healthBar(ctx, player) { // 渲染血条
 	const renderRadius = player.attr.radius * hpx;
 
 	// 底色
-	const baseWidth = hpx * 10;
+	const baseWidth = (renderRadius * 0.5) * hpx;
 	const baseStyle = 'rgb(51, 51, 51)';
-	const baseLength = renderRadius * 2 + hpx * 20;
+	const baseLength = (renderRadius * 2 + 20) * hpx;
 
 	// 血条
 	const outline = hpx * 3;

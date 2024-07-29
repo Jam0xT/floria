@@ -252,6 +252,7 @@ export default Object.freeze({
 		cd: 25,
 		count: 3,
 		pattern: 1,
+		sub_orbit: 12,
 		sub_orbit_type: 'radial',
 		skill_set: ['extra_hp'],
 		skill_var: {
@@ -306,7 +307,7 @@ export default Object.freeze({
 			],
 			project: {
 				start: 'use',
-				speed: 1000,
+				speed: 900,
 				coeff: 1,
 			},
 			dir: {
@@ -499,7 +500,7 @@ export default Object.freeze({
 		skill_var: {
 			timer: [
 				{
-					time: 25,
+					time: 5,
 					start: 'spawn',
 					end: 'ready',
 				},
@@ -522,7 +523,7 @@ export default Object.freeze({
 			},
 			project: {
 				start: 'use',
-				speed: 600,
+				speed: 800,
 				coeff: 1,
 			},
 			dir: {
