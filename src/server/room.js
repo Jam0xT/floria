@@ -149,6 +149,14 @@ class Room {
 		this.update(1, {player: this.players[socketID]});
 		delete roomIDOfPlayer[socketID];
 		delete this.sockets[socketID];
+		
+		// 删除队伍中的记录
+		const team = this.players[socketID].team;
+		if ( team != -1 ) {
+			this.teams[team].playerCount --;
+			this.update(5, {teams: this.teams});
+		}
+
 		delete this.players[socketID];
 		this.playerCount -= 1;
 		if ( this.playerCount == 0 ) {
@@ -242,8 +250,16 @@ class Room {
 			});
 			Object.values(this.players).forEach(player => {
 				player.isReady = false;
-				this.update(8, {id: player.socketID, isReady: player.isReady, quiet: true});
+				player.team = -1;
+				// this.update(8, {id: player.socketID, isReady: player.isReady, quiet: true});
 			});
+			this.resetTeams();
+			
+			Object.keys(this.sockets).forEach(socketID => {
+				const socket = this.sockets[socketID];
+				this.sendInfo(socket);
+			});
+
 			this.updState(0);
 		}
 	}

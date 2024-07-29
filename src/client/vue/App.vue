@@ -438,7 +438,7 @@ function onGameOver(winner) {
 
 // 日志
 
-const logs = ref([{msg: "Log will be printed here.", color: ""}]);
+const logs = ref([{msg: "Log will be printed here.", color: "#dedede"}]);
 
 // 网络
 
@@ -457,7 +457,13 @@ nw.connectedPromise.then(() => {
 });
 
 function onDisconnect() {
-	onGameOver();
+	state.value = 0;
+	logs.value.unshift({
+		msg: `Disconnected from server.`,
+		color: '#fcab9d',
+	});
+	stopCapturingInput();
+	stopRenderGame();
 }
 
 </script>

@@ -136,8 +136,8 @@ export default Object.freeze({
 		radius: 10,
 	},
 	'dandelion': {
-		max_hp: 8,
-		dmg: 15,
+		max_hp: 10,
+		dmg: 5,
 	},
 });
 
