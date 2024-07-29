@@ -109,7 +109,7 @@ export default Object.freeze({
 					end: 'ready',
 				},
 				{
-					time: 25,
+					time: 12,
 					start: 'ready',
 					end: 'use',
 					condition: 'player_need_heal',
@@ -142,7 +142,7 @@ export default Object.freeze({
 					end: 'ready',
 				},
 				{
-					time: 25,
+					time: 12,
 					start: 'ready',
 					end: 'use',
 					condition: 'player_need_heal',
@@ -174,12 +174,12 @@ export default Object.freeze({
 			},
 			timer: [
 				{
-					time: 25,
+					time: 12,
 					start: 'spawn',
 					end: 'ready',
 				},
 				{
-					time: 25,
+					time: 6,
 					start: 'ready',
 					end: 'use',
 					condition: 'player_need_heal',
@@ -190,7 +190,7 @@ export default Object.freeze({
 			},
 			heal: {
 				start: 'use',
-				value: 4,
+				value: 1.5,
 			},
 			remove: {
 				on: 'use',
@@ -292,7 +292,7 @@ export default Object.freeze({
 		skill_var: {
 			timer: [
 				{
-					time: 25,
+					time: 5,
 					start: 'spawn',
 					end: 'ready',
 				},
@@ -337,7 +337,7 @@ export default Object.freeze({
 		skill_var: {
 			timer: [
 				{
-					time: 25,
+					time: 5,
 					start: 'spawn',
 					end: 'ready',
 				},
@@ -389,7 +389,7 @@ export default Object.freeze({
 		skill_var: {
 			timer: [
 				{
-					time: 25,
+					time: 5,
 					start: 'spawn',
 					end: 'ready',
 				},
@@ -446,7 +446,7 @@ export default Object.freeze({
 		skill_var: {
 			timer: [
 				{
-					time: 25,
+					time: 5,
 					start: 'spawn',
 					end: 'ready',
 				},
