@@ -67,7 +67,7 @@ export default Object.freeze({
 	'dahlia': {
 		max_hp: 5,
 		dmg: 5,
-		radius: 6,
+		radius: 8,
 	},
 	'wing': {
 		max_hp: 15,

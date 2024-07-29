@@ -46,6 +46,10 @@ function addPlayer(socket, username, team) { // 添加玩家
 	const uuid = newPlayer.var.uuid;	// 获取 uuid
 	$.players[socket.id] = uuid;		// 储存 uuid
 	entityHandler.addEntity.bind(this)(uuid, newPlayer);	// 添加实体到实体列表
+
+	if ( $.props.random_initial_angle ) // 如果设置为 true
+		newPlayer.var.angle = util.random(0, Math.PI * 2); // 设置随机玩家初始起始角度
+	
 	let kit = $.props.kit_info;
 	if ( kit ) {
 		let legal = true;
@@ -254,6 +258,8 @@ function updatePlayers() { // Game 调用 更新玩家
 					info.angle = (info.angle + info.sub_orbit_rot_speed) % (Math.PI * 2);
 				} else if ( info.sub_orbit_type == 'radial' ) {
 					info.angle = angle;
+				} else if ( info.sub_orbit_type == 'radial_reverse' ) {
+					info.angle = angle + Math.PI;
 				}
 				clusteridx += 1; // 更新花瓣簇编号
 			}

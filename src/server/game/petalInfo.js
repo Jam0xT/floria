@@ -11,7 +11,7 @@ export default Object.freeze({
 		orbit_disabled: [false, false, false, false],
 		orbit_special: -1,
 		sub_orbit: 10,
-		sub_orbit_type: '', // 'radial', 'rotate'
+		sub_orbit_type: '', // 'radial', 'rotate', 'radial_reverse'
 		sub_orbit_rot_speed: 0, // rad / tick
 		cuml_cnt: 0,
 		skill_set: [],
@@ -25,7 +25,8 @@ export default Object.freeze({
 		skill_set: ['dir'],
 		skill_var: {
 			dir: {
-				type: 'radial',
+				type: 'rotate',
+				rot_speed: 0.05,
 			}
 		}
 	},
@@ -34,11 +35,13 @@ export default Object.freeze({
 		cd: 100,
 		count: 3,
 		pattern: 1,
-		sub_orbit_type: 'radial',
+		sub_orbit_type: 'rotate',
+		sub_orbit_rot_speed: 0.15,
 		skill_set: ['dir'],
 		skill_var: {
 			dir: {
-				type: 'radial',
+				type: 'rotate',
+				rot_speed: 0.05,
 			}
 		}
 	},
@@ -163,7 +166,7 @@ export default Object.freeze({
 		count: 3,
 		pattern: 1,
 		sub_orbit: 8,
-		sub_orbit_type: 'radial',
+		sub_orbit_type: 'radial_reverse',
 		skill_set: ['flag', 'timer', 'player_state', 'attach', 'heal', 'remove'],
 		skill_var: {
 			flag_rules: {
