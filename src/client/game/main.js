@@ -31,12 +31,13 @@ function render() {
 	animationFrameRequestID = requestAnimationFrame(render);
 }
 
-function stop() {
+function stopRenderGame() {
 	cancelAnimationFrame(animationFrameRequestID);
 }
 
 export {
 	startRenderGame,
+	stopRenderGame,
 	initGameSettings,
 	settings,
 };

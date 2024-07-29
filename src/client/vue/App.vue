@@ -7,9 +7,9 @@ import Text from './Text.vue';
 import * as room from '../room.js';
 import * as nw from '../networking.js';
 import Constants from '../../shared/constants.js';
-import { startRenderGame, initGameSettings } from '../game/main.js';
+import { startRenderGame, stopRenderGame, initGameSettings } from '../game/main.js';
 import { resetState } from '../state.js';
-import { startCapturingInput } from '../input.js';
+import { startCapturingInput, stopCapturingInput } from '../input.js';
 
 const attr = ref({
 	title: {
@@ -412,7 +412,7 @@ function onUpdSettings(state) {
 	});
 }
 
-// 游戏渲染
+// 游戏开始 / 结束
 
 function onGameStart() {
 	logs.value.unshift({
@@ -431,6 +431,8 @@ function onGameOver(winner) {
 		msg: `The game has ended. The winner is ${winner}!`,
 		color: '#ffbf7a',
 	});
+	stopCapturingInput();
+	stopRenderGame();
 }
 
 // 日志

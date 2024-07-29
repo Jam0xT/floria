@@ -42,6 +42,15 @@ function startCapturingInput() {
 	window.addEventListener('keyup', onKeyUp);
 }
 
+function stopCapturingInput() {
+	window.removeEventListener('mousemove', onMouseMove);
+	window.removeEventListener('mousedown', onMouseDown);
+	window.removeEventListener('mouseup', onMouseUp);
+	window.removeEventListener('keydown', handleKeyDownInput);
+	window.removeEventListener('keyup', handleKeyUpInput);
+}
+
 export {
 	startCapturingInput,
+	stopCapturingInput,
 }
