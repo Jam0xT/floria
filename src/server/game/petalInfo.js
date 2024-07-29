@@ -272,7 +272,7 @@ export default Object.freeze({
 			],
 			push: {
 				start: 'use',
-				power: 700,
+				power: 1000,
 				coeff: 0.8,
 			},
 			remove: {
