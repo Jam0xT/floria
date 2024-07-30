@@ -55,17 +55,6 @@ onMounted(() => { // 这个做法可能有潜在出错风险
 	}, 100);
 });
 
-// 用户名输入
-
-const username = ref('');
-
-watch(username, (username_) => {
-	if ( inRoom.value ) {
-		players.value[selfID.value].username = username_;
-		room.setUsername(username_ || "Random Flower");
-	}
-});
-
 // 模式选择
 
 const mode = ref('');
@@ -279,6 +268,7 @@ function onUpdate(type, update) {
 	} else if ( type == 11 ) {
 		initGameSettings(update.settings);
 	} else if ( type == 12 ) {
+		unwatch['kit'] = true;
 		kit.value = update.kit;
 	}
 }
@@ -349,8 +339,9 @@ const unwatch = {}; // 取消监听
 const teamSize = ref(1);
 const teamCount = ref(2);
 const team = ref(-1); // 所在队伍
-const kit = ref('');
+const kit = ref(0);
 // const settings = ref({});
+const username = ref(''); // 用户名
 
 watch(teamSize, (teamSize_) => {
 	if ( unwatch['teamSize'] ) {
@@ -362,7 +353,6 @@ watch(teamSize, (teamSize_) => {
 		color: "#dedede",
 	});
 	room.updSettings(0, {teamSize: teamSize_});
-	// code 0: teamSize
 });
 
 watch(teamCount, (teamCount_) => {
@@ -375,16 +365,13 @@ watch(teamCount, (teamCount_) => {
 		color: "#dedede",
 	});
 	room.updSettings(1, {teamCount: teamCount_});
-	// code 1: teamCount
 });
-// code 2: username
 
-watch(kit, (kit_) => {
-	if ( unwatch['kit'] ) {
-		unwatch['kit'] = false;
-		return ;
+watch(username, (username_) => {
+	if ( inRoom.value ) {
+		players.value[selfID.value].username = username_;
+		room.setUsername(username_ || "Random Flower");
 	}
-	room.updSettings(4, {kit: kit_});
 });
 
 watch(team, (team_, prevTeam_) => {
@@ -404,7 +391,14 @@ watch(team, (team_, prevTeam_) => {
 		color: "#dedede",
 	});
 	room.updSettings(3, {team: team_, prevTeam: prevTeam_});
-	// code 3: team
+});
+
+watch(kit, (kit_) => {
+	if ( unwatch['kit'] ) {
+		unwatch['kit'] = false;
+		return ;
+	}
+	room.updSettings(4, {kit: kit_});
 });
 
 function onUpdSettings(state) {
@@ -558,7 +552,16 @@ function onDisconnect() {
 			</template>
 		</select><br/>
 		<Text size="2" class="notransform">Kit</Text>
-		<input class="input" v-model="kit" maxlength="100" :disabled="(ownerID != selfID) || (!inRoom) || (state != 0)"/>
+		<select v-model="kit" :disabled="(ownerID != selfID) || (!inRoom) || (state != 0)">
+			<option value="0">Classic</option>
+			<option value="1">Classic+</option>
+			<option value="2">Classic+ NoIris</option>
+			<option value="3">Advanced</option>
+			<option value="4">Assassin</option>
+			<option value="5">Archer</option>
+			<option value="6">Archer Simple</option>
+			<option value="7">Overlord</option>
+		</select>
 	</Block>
 	<canvas id="canvas" class="canvas" :class="{hidden: state != 2}"></canvas>
 </template>
