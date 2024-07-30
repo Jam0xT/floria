@@ -503,7 +503,7 @@ export default Object.freeze({
 		},
 	},
 	'dandelion': {
-		cd: 50,
+		cd: 62,
 		orbit_disabled: [false, true, false, true],
 		skill_set: ['flag', 'timer', 'player_state', 'effect_on_hit', 'project', 'dir', 'remove'],
 		skill_var: {
