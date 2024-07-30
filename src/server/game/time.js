@@ -13,6 +13,7 @@ function update() {
 	const $ = this.var.time ??= {};
 	const now = Date.now();
 	$.dt = now - $.lastUpdTime; // 两次更新经过的时间
+	$.lastUpdTime = now;
 }
 
 export {

@@ -2,7 +2,7 @@ import { W, H, hpx } from '../../canvas.js';
 import * as canvas from '../../canvas.js';
 import { settings } from '../main.js';
 
-function renderBackground(ctx, x, y) {
+function renderBackground(ctx, x, y, mspt) {
 	const gridInterval = hpx * 50;
 	
 	const startX = ( W / 2 - x * hpx ) % gridInterval;
@@ -35,6 +35,11 @@ function renderBackground(ctx, x, y) {
 		ctx.stroke();
 		ctx.closePath();
 	}
+
+	ctx.fillStyle = '#FFFFFF';
+	ctx.font = `${10 * hpx}px PT-sans`;
+	ctx.textAlign = 'center';
+	ctx.fillText(mspt, W - 10 * hpx, H - 10 * hpx);
 
 	// canvas.draw(ctx, canvas.ctxMain);
 }

@@ -112,6 +112,7 @@ class Game_Arena {
 
 		return {
 			t: Date.now(), // current time
+			mspt: Date.now() - this.var.time.lastUpdTime, // mspt
 			self: entityHandler.getUpdate.bind(player)(),
 			entities: nearbyEntities.map(e => entityHandler.getUpdate.bind(e)()), // 视距内实体
 		};

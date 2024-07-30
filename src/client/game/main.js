@@ -24,7 +24,7 @@ function render() {
 		const playerCtx = canvas.getTmpCtx();
 		const petalCtx = canvas.getTmpCtx();
 
-		renderBackground(backgroundCtx, state.self.x, state.self.y);
+		renderBackground(backgroundCtx, state.self.x, state.self.y, state.mspt);
 		renderPlayer(playerCtx, state.self, state.self);
 		state.entities.forEach(e => {
 			if ( e.type == 'player' ) {
