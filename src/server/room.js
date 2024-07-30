@@ -363,7 +363,7 @@ function updSettings(socket, type, update) {
 		// code 2:房间不存在
 		return ;
 	}
-	const ownerOnly = [0, 1]; // 需要 owner 权限的操作编号列表
+	const ownerOnly = [0, 1, 4]; // 需要 owner 权限的操作编号列表
 	if ( room.ownerID != socket.id && ownerOnly.includes(type) ) {
 		// // console.log(`No permission.`);
 		socket.emit(Constants.MSG_TYPES.SERVER.ROOM.SETTINGS, 3);
@@ -378,28 +378,30 @@ function updSettings(socket, type, update) {
 	// // console.log(`Room #${roomID}:`);
 	if ( type == 0 ) { // teamSize
 		room.teamSize = update.teamSize;
-		room.update(2, {teamSize: room.teamSize});
+		room.update(2, {teamSize: room.teamSize}, socket.id);
 		room.resetTeams();
 		// // console.log(`Settings: TeamSize = ${room.teamSize}.`);
 	} else if ( type == 1 ) { // teamCount
 		room.teamCount = update.teamCount;
-		room.update(3, {teamCount: room.teamCount});
+		room.update(3, {teamCount: room.teamCount}, socket.id);
 		room.resetTeams();
 		// // console.log(`Settings: TeamCount = ${room.teamCount}.`);
 	} else if ( type == 2 ) { // username
 		room.players[socket.id].username = update.username;
-		room.update(4, {id: socket.id, username: room.players[socket.id].username});
+		room.update(4, {id: socket.id, username: room.players[socket.id].username}, socket.id);
 	} else if ( type == 3 ) { // team
 		let team = update.team, prevTeam = update.prevTeam;
-		if ( room.teams[team].playerCount >= room.teamSize ) { // 不能加入满人队伍
-			return ;
+		if ( team != -1 ) {
+			if ( room.teams[team].playerCount >= room.teamSize ) { // 不能加入满人队伍
+				return ;
+			}
 		}
 		room.players[socket.id].team = team;
 		if ( team != -1 )
 			room.teams[team].playerCount += 1;
 		if ( prevTeam != -1)
 			room.teams[prevTeam].playerCount -= 1;
-		room.update(6, {id: socket.id, team: team, prevTeam: prevTeam});
+		room.update(6, {id: socket.id, team: team, prevTeam: prevTeam}, socket.id);
 	} else if ( type == 4 ) { // kit
 		let kit = update.kit.split(',');
 		room.settings.kit_info = {
@@ -407,7 +409,7 @@ function updSettings(socket, type, update) {
 			primary: kit,
 			secondary: [],
 		};
-		room.update(12, {kit: update.kit});
+		room.update(12, {kit: update.kit}, socket.id);
 	}
 }
 

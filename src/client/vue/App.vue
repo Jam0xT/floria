@@ -60,8 +60,10 @@ onMounted(() => { // 这个做法可能有潜在出错风险
 const username = ref('');
 
 watch(username, (username_) => {
-	if ( inRoom.value )
+	if ( inRoom.value ) {
+		players.value[selfID.value].username = username_;
 		room.setUsername(username_ || "Random Flower");
+	}
 });
 
 // 模式选择
@@ -214,7 +216,7 @@ function onUpdate(type, update) {
 			msg: `Player ${update.player.username} left. (${Object.keys(players.value).length + '/' + teamSize.value * teamCount.value})`,
 			color: "#9dbbfc",
 		});
-	} else if ( type == 2 ) {
+	} else if ( type == 2 ) { // 不会执行
 		teamSize.value = update.teamSize;
 		logs.value.unshift({
 			msg: `Settings: TeamSize = ${teamSize.value}`,
@@ -234,7 +236,7 @@ function onUpdate(type, update) {
 			player.team = -1;
 		});
 		if ( team.value != -1 ) {
-			unwatchTeam = true;
+			unwatch['team'] = true;
 			team.value = -1;
 		}
 		logs.value.unshift({
@@ -285,14 +287,14 @@ function onRecvInfo(info) { // 加入房间时获取房间信息
 	players.value = info.players;
 	ownerID.value = info.ownerID;
 	if ( teamCount.value != info.teamCount ) {
-		unwatchTeamCount = true;
+		unwatch['teamCount'] = true;
 		teamCount.value = info.teamCount;
 	}
 	if ( teamSize.value != info.teamSize ) {
-		unwatchTeamSize = true;
+		unwatch['teamSize'] = true;
 		teamSize.value = info.teamSize;
 	}
-	unwatchKit = true;
+	unwatch['kit'] = true;
 	kit.value = info.kit;
 	teams.value = info.teams;
 	// settings.value = info.settings;
@@ -342,50 +344,65 @@ const teams = ref([]); // {color, playerCount}
 
 // 游戏设置
 
+const unwatch = {}; // 取消监听
+
 const teamSize = ref(1);
 const teamCount = ref(2);
 const team = ref(-1); // 所在队伍
 const kit = ref('');
 // const settings = ref({});
 
-let unwatchTeamSize = false;
-let unwatchTeamCount = false;
-let unwatchKit = false;
-
 watch(teamSize, (teamSize_) => {
-	if ( unwatchTeamSize ) {
-		unwatchTeamSize = false;
+	if ( unwatch['teamSize'] ) {
+		unwatch['teamSize'] = false;
 		return ;
 	}
+	logs.value.unshift({
+		msg: `Settings: TeamSize = ${teamSize.value}`,
+		color: "#dedede",
+	});
 	room.updSettings(0, {teamSize: teamSize_});
 	// code 0: teamSize
 });
 
 watch(teamCount, (teamCount_) => {
-	if ( unwatchTeamCount ) {
-		unwatchTeamCount = false;
+	if ( unwatch['teamCount'] ) {
+		unwatch['TeamCount'] = false;
 		return ;
 	}
+	logs.value.unshift({
+		msg: `Settings: TeamCount = ${teamCount.value}`,
+		color: "#dedede",
+	});
 	room.updSettings(1, {teamCount: teamCount_});
 	// code 1: teamCount
 });
 // code 2: username
 
 watch(kit, (kit_) => {
-	if ( unwatchKit ) {
-		unwatchKit = false;
+	if ( unwatch['kit'] ) {
+		unwatch['kit'] = false;
 		return ;
 	}
 	room.updSettings(4, {kit: kit_});
 });
 
-let unwatchTeam = false;
-
 watch(team, (team_, prevTeam_) => {
-	if ( unwatchTeam ) {
-		unwatchTeam = false;
+	if ( unwatch['team'] ) {
+		unwatch['team'] = false;
 		return ;
 	}
+	players.value[selfID.value].team = team_;
+	if ( team_ != -1 )
+		teams.value[team_].playerCount += 1;
+	if ( prevTeam_ != -1)
+		teams.value[prevTeam_].playerCount -= 1;
+	logs.value.unshift({
+		msg: `Player ${players.value[selfID.value].username} joined team `
+			+ `${team_ == -1 ? 'Random' : teams.value[team_].color}`
+			+ `${team_ == -1 ? '' : ' (' + teams.value[team_].playerCount + '/' + teamSize.value + ')'}`,
+		color: "#dedede",
+	});
 	room.updSettings(3, {team: team_, prevTeam: prevTeam_});
 	// code 3: team
 });
