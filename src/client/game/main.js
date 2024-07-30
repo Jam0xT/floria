@@ -7,6 +7,7 @@ import * as canvas from '../canvas.js';
 
 let settings;
 let animationFrameRequestID;
+let vision = 1; // 视距
 
 function initGameSettings(settings_) { // 游戏开始时获取的游戏设定信息
 	settings = settings_;
@@ -24,6 +25,7 @@ function render() {
 		const playerCtx = canvas.getTmpCtx();
 		const petalCtx = canvas.getTmpCtx();
 
+		vision = state.self.vision;
 		renderBackground(backgroundCtx, state.self.x, state.self.y, state.mspt);
 		renderPlayer(playerCtx, state.self, state.self);
 		state.entities.forEach(e => {
@@ -51,4 +53,5 @@ export {
 	stopRenderGame,
 	initGameSettings,
 	settings,
+	vision,
 };
