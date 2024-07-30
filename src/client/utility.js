@@ -1,4 +1,4 @@
-import { W, H } from './canvas.js';
+import { W, H, ctxMain } from './canvas.js';
 
 let unsecuredCopyWarned = false; // 防止报错刷屏
 
@@ -12,6 +12,26 @@ function copyToClipboard(text) {
 		}
 		unsecuredCopyToClipboard(text);
 	}
+}
+
+function shakeScreen(duration = 200, intensity = 10) {
+	const startTime = Date.now();
+	const canvas = ctxMain.canvas;
+	function shake() {
+	    const elapsed = Date.now() - startTime;
+	    const amplitude = 1 - elapsed / duration
+		const randomX = (Math.random() - 0.5) * 2 * amplitude * intensity
+		const randomY = (Math.random() - 0.5) * 2 * amplitude * intensity
+		
+	    canvas.style.transform = `translate(${randomX}px, ${randomY}px)`;
+	
+	    if (elapsed < duration) {
+	        requestAnimationFrame(shake);
+	    } else {
+	        canvas.style.transform = 'translateX(0)';
+	    }
+	}
+    shake();
 }
 
 function unsecuredCopyToClipboard(text) {
@@ -43,6 +63,7 @@ function getStorage(key, preset) {
 
 export {
 	copyToClipboard,
+        shakeScreen
 	fillBackground,
 	setStorage,
 	getStorage,
