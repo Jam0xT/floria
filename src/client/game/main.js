@@ -25,20 +25,13 @@ function render() {
 		const playerCtx = canvas.getTmpCtx();
 		const petalCtx = canvas.getTmpCtx();
 		
-		entityAnim.loadEntitiesAnimationsCtx(canvas.getTmpCtx());
-
 		renderBackground(backgroundCtx, state.self.x, state.self.y, state.mspt);
 		renderPlayer(playerCtx, state.self, state.self);
-		
-		entityAnim.recordNewEntitiesList(state.self); // 自己必定渲染
 		
 		// 自己受伤了就抖动屏幕
 		if (state.self.isHurt) util.shakeScreen(200, 2);
 		
 		state.entities.forEach(e => {
-			
-			entityAnim.recordNewEntitiesList(e);
-			
 			if ( e.type == 'player' ) {
 				renderPlayer(playerCtx, state.self, e);
 			} else if ( e.type == 'petal' ) {
@@ -52,7 +45,6 @@ function render() {
 		canvas.draw(backgroundCtx, canvas.ctxMain);
 		canvas.draw(petalCtx, canvas.ctxMain);
 		canvas.draw(playerCtx, canvas.ctxMain);
-		canvas.draw(entityAnim.getEntitiesAnimationsCtx(), canvas.ctxMain);
 	}
 	animationFrameRequestID = requestAnimationFrame(render);
 }

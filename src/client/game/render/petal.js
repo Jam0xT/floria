@@ -11,9 +11,20 @@ function renderPetal(ctx, self, petal) {
 	const canvasY = H / 2 + (y - self.y) * hpx;
 	const renderRadius = petal.attr.radius * hpx;
 	
-	updateAnimation(self, petal)
+	entityAnim.recordEntity(petal);
 	
 	canvas.drawImage(ctx, asset, canvasX, canvasY, petal.attr.dir, renderRadius);
+	
+	const attributes = entityAnim.getEntityRenderAttributes(petal);
+	if (attributes.color.cover != `none`) {
+		const color = attributes.color.cover;
+		const alpha = petal.attr.ghost ? 0.2 : attributes.color.alpha.get();
+		canvas.fillColorOnAsset(ctx, asset, color, alpha, canvasX, canvasY, petal.attr.dir, renderRadius);
+		return;
+	}
+	
+	
+	//canvas.drawImage(ctx, asset, canvasX, canvasY, petal.attr.dir, renderRadius, alpha);
 	
 	// ctx.beginPath();
 	// ctx.arc(0, 0, petal.attr.radius, 0, 2 * Math.PI);
@@ -25,17 +36,6 @@ function renderPetal(ctx, self, petal) {
 	// ctx.stroke();
 
 	// canvas.draw(ctx, canvas.ctxMain);
-}
-
-function updateAnimation(self, petal) { // 更新动画
-	if (petal.isHurt) {
-		entityAnim.addEntityAnimation(petal, `hurt`);
-	} else if (petal.effects.poison.duration > 0) {
-		entityAnim.addEntityAnimation(petal, `poison`);
-	} else if (petal.effects.heal_res.duration > 0) {
-		entityAnim.addEntityAnimation(petal, `heal_res`);
-	}
-	entityAnim.updateEntityAnimations(self, petal);
 }
 
 export {

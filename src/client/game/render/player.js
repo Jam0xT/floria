@@ -28,15 +28,24 @@ function renderPlayer(ctx, self, player) {
 
 		// 玩家本体
 		(() => {
-			updateAnimation(self, player)
-		
-			// 如果玩家是 ghost 状态，设置本体透明度
-			if ( player.attr.ghost ) 
-				ctx.globalAlpha = 0.2;
-		
+			entityAnim.recordEntity(player);
+			
+			
+			updateAnimation(player)
+			
+			//此注释被注释 -> // 如果玩家是 ghost 状态，设置本体透明度
+			
 			canvas.drawImage(ctx, asset, canvasX, canvasY, player.attr.dir, renderRadius);
 			
-			ctx.globalAlpha = 1;
+			
+			const attributes = entityAnim.getEntityRenderAttributes(player);
+			if (attributes.color.cover != `none`) {
+				const color = attributes.color.cover
+				const alpha = player.attr.ghost ? 0.2 : attributes.color.alpha.get();
+				canvas.fillColorOnAsset(ctx, asset, color, alpha, canvasX, canvasY, player.attr.dir, renderRadius);
+			}
+			
+			
 		})();
 		
 		ctx.translate(canvasX, canvasY);
@@ -99,15 +108,14 @@ function healthBar(ctx, player) { // 渲染血条
 	ctx.closePath();
 }
 
-function updateAnimation(self, player) { // 更新动画
+function updateAnimation(player) { // 更新动画
 	if (player.isHurt) {
-		entityAnim.addEntityAnimation(player, `hurt`);
+		entityAnim.play(player, `hurt`);
 	} else if (player.effects.poison.duration > 0) {
-		entityAnim.addEntityAnimation(player, `poison`);
+		entityAnim.play(player, `poison`);
 	} else if (player.effects.heal_res.duration > 0) {
-		entityAnim.addEntityAnimation(player, `heal_res`);
+		entityAnim.play(player, `heal_res`);
 	}
-	entityAnim.updateEntityAnimations(self, player);
 }
 
 export {

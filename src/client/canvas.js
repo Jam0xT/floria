@@ -26,9 +26,10 @@ function draw(ctx, onCtx, x = 0, y = 0, remove = true) {
 }
 
 // 以指定位置为图像中心绘制图像
-function drawImage(ctx, asset, x, y, dir, renderRadius) {
+function drawImage(ctx, asset, x, y, dir, renderRadius, alpha = 1) {
 	const width = asset.naturalWidth, height = asset.naturalHeight;
 	ctx.save();
+	ctx.globalAlpha = alpha;
 	ctx.translate(x, y);
 	ctx.rotate(dir);
 	if ( width <= height ) {
@@ -52,7 +53,8 @@ function drawImage(ctx, asset, x, y, dir, renderRadius) {
 }
 
 // 先将asset填充为同种颜色，再绘制asset
-function fillColorOnAsset(ctx, asset, rectColor, alpha, x, y, dir, renderRadius) { 
+function fillColorOnAsset(onCtx, asset, rectColor, alpha, x, y, dir, renderRadius) { 
+	const ctx = getTmpCtx();
 	ctx.save();
 	
 	ctx.globalCompositeOperation = "source-over";
@@ -85,6 +87,7 @@ function fillColorOnAsset(ctx, asset, rectColor, alpha, x, y, dir, renderRadius)
 	}
 	
 	ctx.restore()
+	draw(ctx, onCtx);
 }
 
 function createCanvas(id = undefined) { // 创建canvas

@@ -15,36 +15,38 @@ function copyToClipboard(text) {
 }
 
 class DynamicNumber {
-	constructor (value, target, duration, mode, k) {
+	constructor (value, target, mode, k) {
 		this.value = value;
 		this.target = target;
-		this.duration = duration;
-		this.counter = 0;
 		this.mode = mode;
 		this.k = k;
 	}
 	
 	to(newTarget) {
+		this.isDone = false;
 		this.target = newTarget
 	}
 	
 	get() {
-		if (this.isDone) return this.target;
+		if (this.isDone) return this.target
 		
 		if (this.mode == `exp`) {
 			this.value = this.target - (this.target - this.value) * this.k;
 		}
 		
-		this.counter ++;
-		if (this.counter == this.duration) {
-			this.isDone = true;
-		}
+		if (Math.abs(this.value - this.target) < 0.01) this.isDone = true;
+		
 		
 		return this.value;
 	}
 	
-	static create(value, target, duration = Infinity, mode = `exp`, k = 0.8) {
-		return new DynamicNumber(value, target, duration, mode, k)
+	set(newValue) {
+		this.isDone = false;
+		this.value = newValue;
+	}
+	
+	static create(value, target, k = 0.8, mode = `exp`) {
+		return new DynamicNumber(value, target, mode, k)
 	}
 }
 
