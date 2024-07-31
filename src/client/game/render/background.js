@@ -1,19 +1,20 @@
 import { W, H, hpx } from '../../canvas.js';
 import * as canvas from '../../canvas.js';
-import { settings } from '../main.js';
+import { settings, vision } from '../main.js';
 
 function renderBackground(ctx, x, y, mspt) {
-	const gridInterval = hpx * 50;
+	let u = hpx / vision;
+	const gridInterval = u * 50;
 	
-	const startX = ( W / 2 - x * hpx ) % gridInterval;
-	const startY = ( H / 2 - y * hpx ) % gridInterval;
+	const startX = ( W / 2 - x * u ) % gridInterval;
+	const startY = ( H / 2 - y * u ) % gridInterval;
 	
-	const gridLineWidth = hpx * 0.5;
+	const gridLineWidth = u * 0.5;
 
 	ctx.fillStyle = `rgb(28, 154, 89)`;
 	ctx.fillRect(0, 0, W, H);
 	ctx.fillStyle = `rgb(30, 167, 97)`;
-	ctx.fillRect(W / 2 - x * hpx, H / 2 - y * hpx, settings.map_width * hpx, settings.map_height * hpx)
+	ctx.fillRect(W / 2 - x * u, H / 2 - y * u, settings.map_width * u, settings.map_height * u)
 
 	const gridLineStyle = `rgba(0, 0, 0, 0.3)`;
 	for ( let ix = startX; ix < W; ix += gridInterval) {
@@ -37,9 +38,9 @@ function renderBackground(ctx, x, y, mspt) {
 	}
 
 	ctx.fillStyle = '#FFFFFF';
-	ctx.font = `${10 * hpx}px PT-sans`;
+	ctx.font = `${10 * u}px PT-sans`;
 	ctx.textAlign = 'center';
-	ctx.fillText(mspt, W - 10 * hpx, H - 10 * hpx);
+	ctx.fillText(mspt, W - 10 * u, H - 10 * u);
 
 	// canvas.draw(ctx, canvas.ctxMain);
 }
