@@ -14,6 +14,40 @@ function copyToClipboard(text) {
 	}
 }
 
+class DynamicNumber {
+	constructor (value, target, duration, mode, k) {
+		this.value = value;
+		this.target = target;
+		this.duration = duration;
+		this.counter = 0;
+		this.mode = mode;
+		this.k = k;
+	}
+	
+	to(newTarget) {
+		this.target = newTarget
+	}
+	
+	get() {
+		if (this.isDone) return this.target;
+		
+		if (this.mode == `exp`) {
+			this.value = this.target - (this.target - this.value) * this.k;
+		}
+		
+		this.counter ++;
+		if (this.counter == this.duration) {
+			this.isDone = true;
+		}
+		
+		return this.value;
+	}
+	
+	static create(value, target, duration = Infinity, mode = `exp`, k = 0.8) {
+		return new DynamicNumber(value, target, duration, mode, k)
+	}
+}
+
 function shakeScreen(duration = 200, intensity = 10) {
 	const startTime = Date.now();
 	const canvas = ctxMain.canvas;
@@ -63,7 +97,8 @@ function getStorage(key, preset) {
 
 export {
 	copyToClipboard,
-        shakeScreen
+	DynamicNumber,
+    shakeScreen,
 	fillBackground,
 	setStorage,
 	getStorage,

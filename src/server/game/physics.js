@@ -212,6 +212,7 @@ function solveCollision(source, target) {
 	(() => {
 		if ( source.var.team != target.var.team ) { // 如果队伍不同
 			target.var.attr.hp -= source.var.attr.dmg; // 对目标造成伤害
+			target.var.isHurt = true;
 
 			// 目标执行反伤
 			(() => {

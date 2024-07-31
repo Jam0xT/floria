@@ -63,6 +63,7 @@ class Entity { // 所有实体的类
 					value: 0,		// 抗性百分点 100 为完全免疫回血
 				},
 			},
+			isHurt: false // 此tick内是否受伤
 		};
 	}
 

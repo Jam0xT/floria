@@ -25,6 +25,68 @@ function draw(ctx, onCtx, x = 0, y = 0, remove = true) {
 	}
 }
 
+// 以指定位置为图像中心绘制图像
+function drawImage(ctx, asset, x, y, dir, renderRadius) {
+	const width = asset.naturalWidth, height = asset.naturalHeight;
+	ctx.save();
+	ctx.translate(x, y);
+	ctx.rotate(dir);
+	if ( width <= height ) {
+		ctx.drawImage(
+			asset,
+			- renderRadius,
+			- renderRadius / width * height,
+			renderRadius * 2,
+			renderRadius / width * height * 2,
+		);
+	} else {
+		ctx.drawImage(
+			asset,
+			- renderRadius / height * width,
+			- renderRadius,
+			renderRadius / height * width * 2,
+			renderRadius * 2,
+		);
+	}
+	ctx.restore();
+}
+
+// 先将asset填充为同种颜色，再绘制asset
+function fillColorOnAsset(ctx, asset, rectColor, alpha, x, y, dir, renderRadius) { 
+	ctx.save();
+	
+	ctx.globalCompositeOperation = "source-over";
+	drawImage(ctx, asset, x, y, dir, renderRadius);
+	
+	ctx.globalCompositeOperation = "source-in";
+	ctx.globalAlpha = alpha;
+	ctx.fillStyle = rectColor;
+	
+	const width = asset.naturalWidth, height = asset.naturalHeight;
+	
+	ctx.translate(x, y);
+	
+	ctx.rotate(dir);
+	
+	if ( width <= height ) {
+		ctx.fillRect(
+			- renderRadius,
+			- renderRadius / width * height,
+			renderRadius * 2,
+			renderRadius / width * height * 2,
+		);
+	} else {
+		ctx.fillRect(
+			- renderRadius / height * width,
+			- renderRadius,
+			renderRadius / height * width * 2,
+			renderRadius * 2,
+		);
+	}
+	
+	ctx.restore()
+}
+
 function createCanvas(id = undefined) { // 创建canvas
 	let newCanvas = document.createElement('canvas');
 	if ( id ) {
@@ -56,4 +118,6 @@ export {
 	init,
 	getTmpCtx,
 	draw,
+	drawImage,
+	fillColorOnAsset,
 };
