@@ -63,7 +63,7 @@ function getStorage(key, preset) {
 
 export {
 	copyToClipboard,
-        shakeScreen
+    shakeScreen,
 	fillBackground,
 	setStorage,
 	getStorage,

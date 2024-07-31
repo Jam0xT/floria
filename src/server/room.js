@@ -179,7 +179,9 @@ class Room {
 	checkReady() { // 阶段 2 检查 ready 情况，此时房间 state 只可能是 0(wait) 或 1(load)
 		const maxPlayerCnt = this.teamCount * this.teamSize;
 		if ( Object.values(this.players).filter(player => player.isReady).length >= maxPlayerCnt - ((maxPlayerCnt == 2) ? 0 : 1) ) { // ready 人数 >= 房间人数上限 - 1
-			this.load(); // 执行阶段 3
+			if ( this.state == 0 ) { // 在 wait 状态
+				this.load(); // 执行阶段 3
+			}
 		} else { // 未完全 ready
 			if ( this.state == 1 ) { // 现在在 load 状态
 				this.unload();
@@ -265,6 +267,7 @@ class Room {
 				this.sendInfo(socket);
 			});
 	
+			this.update(12, {kit: 0});
 			this.updState(0);
 		}
 	}
@@ -403,12 +406,56 @@ function updSettings(socket, type, update) {
 			room.teams[prevTeam].playerCount -= 1;
 		room.update(6, {id: socket.id, team: team, prevTeam: prevTeam}, socket.id);
 	} else if ( type == 4 ) { // kit
-		let kit = update.kit.split(',');
-		room.settings.kit_info = {
-			size: kit.length,
-			primary: kit,
-			secondary: [],
-		};
+		const kit = update.kit;
+		if ( kit == 0 ) { // Classic
+			room.settings.kit_info = {
+				size: 5,
+				primary: ['stinger', 'stinger', 'stinger', 'rose', 'bubble'],
+				secondary: [],
+			};
+		} else if ( kit == 1 ) { // Classic+
+			room.settings.kit_info = {
+				size: 5,
+				primary: ['stinger', 'iris', 'dandelion', 'epic_rose', 'bubble'],
+				secondary: [],
+			};
+		} else if ( kit == 2 ) { // Classic+ NoIris
+			room.settings.kit_info = {
+				size: 5,
+				primary: ['triple_stinger', 'stinger', 'dandelion', 'epic_rose', 'bubble'],
+				secondary: [],
+			};
+		} else if ( kit == 3 ) { // Advanced
+			room.settings.kit_info = {
+				size: 8,
+				primary: ['stinger', 'iris', 'stinger', 'dandelion', 'cactus_toxic', 'epic_rose', 'salt', 'bubble'],
+				secondary: [],
+			};
+		} else if ( kit == 4 ) { // Assassin
+			room.settings.kit_info = {
+				size: 8,
+				primary: ['stinger', 'iris', 'stinger', 'dandelion', 'dahlia', 'salt', 'dahlia', 'bubble'],
+				secondary: [],
+			};
+		} else if ( kit == 5 ) { // Archer
+			room.settings.kit_info = {
+				size: 5,
+				primary: ['iris', 'missile', 'pollen', 'rose', 'bubble'],
+				secondary: [],
+			};
+		} else if ( kit == 6 ) { // Archer Simple
+			room.settings.kit_info = {
+				size: 1,
+				primary: ['missile'],
+				secondary: [],
+			};
+		} else if ( kit == 7 ) { // Overlord
+			room.settings.kit_info = {
+				size: 5,
+				primary: ['triple_stinger', 'triple_stinger', 'triple_stinger', 'triple_cactus', 'epic_rose', 'triple_cactus', 'epic_rose', 'bubble'],
+				secondary: [],
+			};
+		}
 		room.update(12, {kit: update.kit}, socket.id);
 	}
 }
