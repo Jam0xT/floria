@@ -1,6 +1,7 @@
 import { W, H, hpx } from '../../canvas.js';
 import * as canvas from '../../canvas.js';
-import { getAsset } from '../../assets.js';
+import { getAssetByEntity } from '../../assets.js';
+import * as entityAnim from './entityAnimation.js';
 import { vision } from '../main.js';
 
 const teamColor = [
@@ -18,49 +19,40 @@ function renderPlayer(ctx, self, player) {
 	let u = hpx / vision;
 
 	const { x, y } = player;
-	let asset;
-	if ( player.username == "Pop!") {
-		asset = getAsset('mobs/bubble.svg');
-	} else {
-		asset = getAsset('player.svg');
-	}
-	const width = asset.naturalWidth, height = asset.naturalHeight;
+	const asset = getAssetByEntity(player);
 	const canvasX = W / 2 + (x - self.x) * u;
 	const canvasY = H / 2 + (y - self.y) * u;
 	const renderRadius = player.attr.radius * u;
 
 	ctx.save();
 	(() => {
-		ctx.translate(canvasX, canvasY);
+		
 
 		// 玩家本体
-		ctx.save();
 		(() => {
-			ctx.rotate(player.attr.dir);
-		
-			// 如果玩家是 ghost 状态，设置本体透明度
-			if ( player.attr.ghost ) 
-				ctx.globalAlpha = 0.2;
-		
-			if ( width <= height ) {
-				ctx.drawImage(
-					asset,
-					- renderRadius,
-					- renderRadius / width * height,
-					renderRadius * 2,
-					renderRadius / width * height * 2,
-				);
-			} else {
-				ctx.drawImage(
-					asset,
-					- renderRadius / height * width,
-					- renderRadius,
-					renderRadius / height * width * 2,
-					renderRadius * 2,
-				);
+			//如果玩家是 ghost 状态，设置本体透明度
+			if (player.attr.ghost) {
+				canvas.drawImage(ctx, asset, canvasX, canvasY, player.attr.dir, renderRadius, 0.2);
+				return
 			}
+			
+			entityAnim.recordEntity(player);
+			
+			updateAnimation(player)
+
+			canvas.drawImage(ctx, asset, canvasX, canvasY, player.attr.dir, renderRadius);
+			
+			const attributes = entityAnim.getEntityRenderAttributes(player);
+			if (attributes.color.cover != `none`) {
+				const color = attributes.color.cover
+				const alpha = player.attr.ghost ? 0.2 : attributes.color.alpha.get();
+				canvas.fillColorOnAsset(ctx, asset, color, alpha, canvasX, canvasY, player.attr.dir, renderRadius);
+			}
+			
+			
 		})();
-		ctx.restore();
+		
+		ctx.translate(canvasX, canvasY);
 
 		// 玩家用户名
 		ctx.save();
@@ -119,6 +111,16 @@ function healthBar(ctx, player) { // 渲染血条
 	ctx.lineCap = 'round';
 	ctx.stroke();
 	ctx.closePath();
+}
+
+function updateAnimation(player) { // 更新动画
+	if (player.isHurt) {
+		entityAnim.play(player, `hurt`);
+	} else if (player.effects.poison.duration > 0) {
+		entityAnim.play(player, `poison`);
+	} else if (player.effects.heal_res.duration > 0) {
+		entityAnim.play(player, `heal_res`);
+	}
 }
 
 export {

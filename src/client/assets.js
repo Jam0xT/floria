@@ -82,7 +82,21 @@ const downloadAssets = () => downloadPromise;
 
 const getAsset = assetName => assets[assetName];
 
+// 依据实体获得图像资源
+function getAssetByEntity(entity) {
+	if (entity.type == `player`) {
+		if ( entity.username == "Pop!") {
+			return getAsset('mobs/bubble.svg');
+		} else {
+			return getAsset('player.svg');
+		}
+	} else if (entity.type == `petal`) {
+		return getAsset(`petals/${entity.id}.svg`)
+	}
+}
+
 export {
 	downloadAssets,
 	getAsset,
+	getAssetByEntity,
 }
