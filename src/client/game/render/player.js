@@ -2,6 +2,7 @@ import { W, H, hpx } from '../../canvas.js';
 import * as canvas from '../../canvas.js';
 import { getAssetByEntity } from '../../assets.js';
 import * as entityAnim from './entityAnimation.js';
+import { vision } from '../main.js';
 
 const teamColor = [
 	'#ff9c9c',
@@ -15,12 +16,13 @@ const teamColor = [
 ];
 
 function renderPlayer(ctx, self, player) {
+	let u = hpx / vision;
 
 	const { x, y } = player;
 	const asset = getAssetByEntity(player);
-	const canvasX = W / 2 + (x - self.x) * hpx;
-	const canvasY = H / 2 + (y - self.y) * hpx;
-	const renderRadius = player.attr.radius * hpx;
+	const canvasX = W / 2 + (x - self.x) * u;
+	const canvasY = H / 2 + (y - self.y) * u;
+	const renderRadius = player.attr.radius * u;
 
 	ctx.save();
 	(() => {
@@ -60,9 +62,9 @@ function renderPlayer(ctx, self, player) {
 			}
 		
 			ctx.fillStyle = teamColor[player.team];
-			ctx.font = `${20 * hpx}px PT-sans`;
+			ctx.font = `${20 * u}px PT-sans`;
 			ctx.textAlign = 'center';
-			ctx.fillText(player.username, 0, -player.attr.radius * 1.25 * hpx);
+			ctx.fillText(player.username, 0, -player.attr.radius * 1.25 * u);
 		})();
 		ctx.restore();
 	
@@ -75,17 +77,18 @@ function renderPlayer(ctx, self, player) {
 }
 
 function healthBar(ctx, player) { // 渲染血条
+	let u = hpx / vision;
 	
 	// 玩家半径（用于决定血条长度）
-	const renderRadius = player.attr.radius * hpx;
+	const renderRadius = player.attr.radius * u;
 
 	// 底色
-	const baseWidth = (renderRadius * 0.5) * hpx;
+	const baseWidth = (renderRadius * 0.5) * u;
 	const baseStyle = 'rgb(51, 51, 51)';
-	const baseLength = (renderRadius * 2 + 20) * hpx;
+	const baseLength = (renderRadius * 2 + 20) * u;
 
 	// 血条
-	const outline = hpx * 3;
+	const outline = u * 3;
 	const width = baseWidth - outline;
 	const styleNormal = 'rgb(117, 221, 52)';
 	const styleHurt = 'rgb(221, 52, 52)';
@@ -93,8 +96,8 @@ function healthBar(ctx, player) { // 渲染血条
 
 	ctx.beginPath();
 	ctx.lineWidth = baseWidth;
-	ctx.moveTo(-baseLength / 2, hpx * 45);
-	ctx.lineTo(+baseLength / 2, hpx * 45);
+	ctx.moveTo(-baseLength / 2, u * 45);
+	ctx.lineTo(+baseLength / 2, u * 45);
 	ctx.strokeStyle = baseStyle;
 	ctx.lineCap = 'round';
 	ctx.stroke();
@@ -102,8 +105,8 @@ function healthBar(ctx, player) { // 渲染血条
 
 	ctx.beginPath();
 	ctx.lineWidth = width;
-	ctx.moveTo(-baseLength / 2, hpx * 45);
-	ctx.lineTo(-baseLength / 2 + length, hpx * 45);
+	ctx.moveTo(-baseLength / 2, u * 45);
+	ctx.lineTo(-baseLength / 2 + length, u * 45);
 	ctx.strokeStyle = styleNormal;
 	ctx.lineCap = 'round';
 	ctx.stroke();

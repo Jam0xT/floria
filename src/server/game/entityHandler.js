@@ -161,6 +161,7 @@ function getUpdate() { // Entity 调用
 	if ( $.type == 'player' ) {
 		ret.username = $.playerInfo.username;
 		ret.team = $.team;
+		ret.vision = $.vision; // 客户端视距
 	}
 	if ( $.type == 'petal' ) {
 		ret.id = $.id;

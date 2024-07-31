@@ -100,7 +100,7 @@ function getStorage(key, preset) {
 export {
 	copyToClipboard,
 	DynamicNumber,
-    shakeScreen,
+  shakeScreen,
 	fillBackground,
 	setStorage,
 	getStorage,

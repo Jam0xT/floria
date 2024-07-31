@@ -2,14 +2,16 @@ import { W, H, hpx } from '../../canvas.js';
 import * as canvas from '../../canvas.js';
 import { getAssetByEntity } from '../../assets.js';
 import * as entityAnim from './entityAnimation.js';
+import { vision } from '../main.js';
 
 function renderPetal(ctx, self, petal) {
+	let u = hpx / vision;
 
 	const { x, y } = petal;
 	const asset = getAssetByEntity(petal);
-	const canvasX = W / 2 + (x - self.x) * hpx;
-	const canvasY = H / 2 + (y - self.y) * hpx;
-	const renderRadius = petal.attr.radius * hpx;
+	const canvasX = W / 2 + (x - self.x) * u;
+	const canvasY = H / 2 + (y - self.y) * u;
+	const renderRadius = petal.attr.radius * u;
 	
 	entityAnim.recordEntity(petal);
 	
@@ -32,7 +34,7 @@ function renderPetal(ctx, self, petal) {
 	// ctx.lineTo(petal.attr.radius, 0);
 	// ctx.closePath();
 	// ctx.strokeStyle = '#78fffa';
-	// ctx.lineWidth = hpx * 1;
+	// ctx.lineWidth = u * 1;
 	// ctx.stroke();
 
 	// canvas.draw(ctx, canvas.ctxMain);
