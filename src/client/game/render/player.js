@@ -28,15 +28,17 @@ function renderPlayer(ctx, self, player) {
 
 		// 玩家本体
 		(() => {
+			//如果玩家是 ghost 状态，设置本体透明度
+			if (player.attr.ghost) {
+				canvas.drawImage(ctx, asset, canvasX, canvasY, player.attr.dir, renderRadius, 0.2);
+				return
+			}
+			
 			entityAnim.recordEntity(player);
 			
-			
 			updateAnimation(player)
-			
-			//此注释被注释 -> // 如果玩家是 ghost 状态，设置本体透明度
-			
+
 			canvas.drawImage(ctx, asset, canvasX, canvasY, player.attr.dir, renderRadius);
-			
 			
 			const attributes = entityAnim.getEntityRenderAttributes(player);
 			if (attributes.color.cover != `none`) {
