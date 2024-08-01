@@ -23,7 +23,7 @@ export default Object.freeze({
 	'stinger': {
 		max_hp: 8,
 		dmg: 35,
-		radius: 8,
+		radius: 6,
 	},
 	'light': {
 		max_hp: 5,
@@ -54,7 +54,7 @@ export default Object.freeze({
 	'iris': {
 		max_hp: 5,
 		dmg: 5,
-		radius: 8,
+		radius: 6,
 	},
 	'rose': {
 		max_hp: 5,
