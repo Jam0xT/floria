@@ -67,13 +67,12 @@ class Game_Arena {
 			}
 		});
 		if ( Object.keys(aliveTeams).length <= 1 ) { // 只剩不超过一个队伍存活
-			console.log(aliveTeams);
 			if ( Object.keys(aliveTeams).length == 0 ) { // 同归于尽
 				winners = ['The Dandelion Gods'];
 			} else {
 				Object.values($.players).forEach(uuid => { // 统计存活队伍的成员
 					const player = $.entities[uuid];
-					if ( player.var.team == aliveTeams[Object.keys(aliveTeams)[0]] ) {
+					if ( player.var.team == Object.keys(aliveTeams) ) {
 						winners.push(player.var.playerInfo.username);
 					}
 				});
