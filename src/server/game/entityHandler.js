@@ -127,6 +127,9 @@ function removeEntity(uuid) {
 function updateEntities() { // Game 调用
 	const $ = this.var;
 	Object.values($.entities).forEach(entity => {
+		//init
+		entity.var.isHurt = false;
+		
 		// 处理状态效果
 		(() => {
 			const effects = entity.var.effects; // 状态效果
@@ -152,10 +155,13 @@ function getUpdate() { // Entity 调用
 		x: $.pos.x,
 		y: $.pos.y,
 		attr: $.attr,
+		isHurt: $.isHurt,
+		effects: $.effects,
 	};
 	if ( $.type == 'player' ) {
 		ret.username = $.playerInfo.username;
 		ret.team = $.team;
+		ret.vision = $.vision; // 客户端视距
 	}
 	if ( $.type == 'petal' ) {
 		ret.id = $.id;

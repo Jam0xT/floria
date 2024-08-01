@@ -11,6 +11,7 @@ class Game_Arena {
 			isStarted: false, 
 			isOver: false,
 			tick: 0, // 游戏刻计数
+			ended: false,
 			stopped: false,
 		};
 		this.init(settings);
@@ -50,7 +51,8 @@ class Game_Arena {
 			physics.solveCollisions.bind(this)(dt); // 计算碰撞
 			physics.solveBorderCollisions.bind(this)(); // 处理边界碰撞
 			entityHandler.handleEntityDeaths.bind(this)(); // 处理实体死亡
-			this.checkGameOver();
+			if ( !this.var.ended )
+				this.checkGameOver();
 			this.sendUpdate();
 		}
 	}
@@ -65,6 +67,7 @@ class Game_Arena {
 			}
 		});
 		if ( Object.keys(aliveTeams).length <= 1 ) { // 只剩不超过一个队伍存活
+			console.log(aliveTeams);
 			if ( Object.keys(aliveTeams).length == 0 ) { // 同归于尽
 				winners = ['The Dandelion Gods'];
 			} else {
@@ -75,6 +78,7 @@ class Game_Arena {
 					}
 				});
 			}
+			this.var.ended = true;
 			setTimeout(() => {
 				$.endFn(winners); // 执行房间传来的结束函数
 			}, 5000);

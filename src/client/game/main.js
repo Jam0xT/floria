@@ -4,9 +4,11 @@ import { renderBackground } from './render/background.js';
 import { renderPlayer } from './render/player.js';
 import { renderPetal } from './render/petal.js';
 import * as canvas from '../canvas.js';
+import * as entityAnim from './render/entityAnimation.js';
 
 let settings;
 let animationFrameRequestID;
+let vision = 1; // 视距
 
 function initGameSettings(settings_) { // 游戏开始时获取的游戏设定信息
 	settings = settings_;
@@ -24,8 +26,14 @@ function render() {
 		const playerCtx = canvas.getTmpCtx();
 		const petalCtx = canvas.getTmpCtx();
 
+		vision = state.self.vision;
+    
 		renderBackground(backgroundCtx, state.self.x, state.self.y, state.mspt);
 		renderPlayer(playerCtx, state.self, state.self);
+		
+		// 自己受伤了就抖动屏幕
+		if (state.self.isHurt) util.shakeScreen(200, 2);
+		
 		state.entities.forEach(e => {
 			if ( e.type == 'player' ) {
 				renderPlayer(playerCtx, state.self, e);
@@ -33,6 +41,8 @@ function render() {
 				renderPetal(petalCtx, state.self, e);
 			}
 		});
+		
+		entityAnim.setNewEntitiesList();
 
 		// 按顺序渲染不同图层
 		canvas.draw(backgroundCtx, canvas.ctxMain);
@@ -51,4 +61,5 @@ export {
 	stopRenderGame,
 	initGameSettings,
 	settings,
+	vision,
 };

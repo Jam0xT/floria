@@ -20,6 +20,7 @@ class Player extends Entity {
 		$.rot_speed = 0.1; // 轨道转速 单位:弧度 / 刻 只能为正值
 		$.rot_dir = 1; // 旋转乘数 -1 / 0 / 1 逆时针 停转 顺时针
 		$.orbit = [65, 130, 35, 130]; // 不同状态下花瓣轨道半径 正常 攻击 防御 同时攻击防御
+		$.vision = 1; // 客户端视距
 	}
 
 	setSpec(state) { // 设置是否为观察者
@@ -29,6 +30,8 @@ class Player extends Entity {
 		$.attr.speed = 2500;
 		$.attr.friction = 0.85;
 		$.attr.invulnerable = true;
+		$.attr.vision = 3000;
+		$.vision = 2;
 	}
 
 	regen() { // 非自然回血
