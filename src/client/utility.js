@@ -87,7 +87,7 @@ function unsecuredCopyToClipboard(text) {
 function fillBackground(ctx, fillStyle) {
 	ctx.fillStyle = fillStyle;
 	ctx.fillRect(0, 0, W, H);
-}
+} 
 
 function setStorage(key, value) {
 	window.localStorage.setItem(key, value);
