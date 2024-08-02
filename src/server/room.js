@@ -157,8 +157,10 @@ class Room {
 		// 删除队伍中的记录
 		const team = this.players[socketID].team;
 		if ( team != -1 ) {
-			this.teams[team].playerCount --;
-			this.update(5, {teams: this.teams});
+			if ( this.teams[team] ) {
+				this.teams[team].playerCount --;
+				this.update(5, {teams: this.teams});
+			}
 		}
 
 		delete this.players[socketID];
