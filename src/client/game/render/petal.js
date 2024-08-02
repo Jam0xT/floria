@@ -4,7 +4,7 @@ import { getAssetByEntity } from '../../assets.js';
 import * as entityAnim from './entityAnimation.js';
 import { vision } from '../main.js';
 
-function renderPetal(ctx, self, petal) {
+function renderPetal(ctx, self, petal) { 
 	let u = hpx / vision;
 
 	const { x, y } = petal;
