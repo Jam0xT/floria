@@ -26,7 +26,7 @@ function move(dir, val) { // Entity 调用
 	$.movement.val = val;
 }
 
-function updateAcceleration(dt) { // 更新加速度
+function updateAcceleration(dt) { // Game 调用 更新加速度
 	const $ = this.var;
 	Object.values($.entities).forEach(entity => {
 		const movement = entity.var.movement;
@@ -37,7 +37,7 @@ function updateAcceleration(dt) { // 更新加速度
 	});
 }
 
-function updateVelocity(dt) {
+function updateVelocity(dt) { // Game 调用 更新速度
 	const $ = this.var;
 	Object.values($.entities).forEach(entity => {
 		const a = entity.var.a; // 实体加速度
@@ -60,7 +60,7 @@ function updateVelocity(dt) {
 	});
 }
 
-function appendVelocity(x, y, coeff) { // Entity 调用
+function appendVelocity(x, y, coeff) { // Entity 调用 添加速度
 	const $ = this.var;
 	$.v_list.push({
 		x: x,
@@ -69,7 +69,7 @@ function appendVelocity(x, y, coeff) { // Entity 调用
 	});
 }
 
-function updatePosition(dt) {
+function updatePosition(dt) { // Game 调用 更新位置
 	const $ = this.var;
 	Object.values($.entities).forEach(entity => {
 		const v = entity.var.v; // 速度
@@ -84,7 +84,7 @@ function updatePosition(dt) {
 	});
 }
 
-function handleEntityDeaths() {
+function handleEntityDeaths() { // Game 调用 判定实体死亡
 	const $ = this.var;
 	Object.values($.entities).forEach(entity => {
 		if ( !entity )
@@ -105,7 +105,7 @@ function handleEntityDeaths() {
 	});
 }
 
-function removeEntity(uuid) {
+function removeEntity(uuid) { // Game 调用 移除实体
 	const $ = this.var;
 	const entity = $.entities[uuid];
 	if ( !entity )
@@ -124,7 +124,7 @@ function removeEntity(uuid) {
 	delete $.entities[uuid];
 }
 
-function updateEntities() { // Game 调用
+function updateEntities() { // Game 调用 更新实体状态
 	const $ = this.var;
 	Object.values($.entities).forEach(entity => {
 		//init
@@ -147,7 +147,7 @@ function updateEntities() { // Game 调用
 	});
 }
 
-function getUpdate() { // Entity 调用
+function getUpdate() { // Entity 调用 获取更新信息
 	const $ = this.var;
 	const ret = {
 		uuid: $.uuid,

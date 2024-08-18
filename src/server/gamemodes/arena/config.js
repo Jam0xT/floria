@@ -1,0 +1,1 @@
+export { default as properties } from './config/properties';
