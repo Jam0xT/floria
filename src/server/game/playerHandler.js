@@ -1,10 +1,6 @@
 import * as util from './utility.js';
 import Player from './player.js';
 import * as entityHandler from './entityHandler.js';
-import mobAttr from './mobAttr.js';
-import petalAttr from './petalAttr.js';
-import petalInfo from './petalInfo.js';
-import petalSkill from './petalSkill.js';
 import Petal from './petal.js';
 
 /*
@@ -25,10 +21,10 @@ function init() { // 初始化
 function addPlayer(socket, username, team) { // 添加玩家
 	const $ = this.var;
 	$.sockets[socket.id] = socket; // 储存 socket
-	const x = util.randomInt(0, $.props.map_width); // 生成随机出生点
-	const y = util.randomInt(0, $.props.map_height);
-	const attr = structuredClone(mobAttr.player);
-	const defaultAttr = structuredClone(mobAttr.default);
+	const x = util.randomInt(0, $.map.width); // 生成随机出生点
+	const y = util.randomInt(0, $.map.height);
+	const attr = structuredClone($.config.mobAttr.player);
+	const defaultAttr = structuredClone($.config.mobAttr.default);
 
 	// 将未设置属性设置为默认值
 	Object.keys(defaultAttr).forEach(key => {
@@ -54,7 +50,7 @@ function addPlayer(socket, username, team) { // 添加玩家
 	if ( kit ) {
 		let legal = true;
 		kit.primary.forEach(id => {
-			if ( id && (!petalInfo[id]) )
+			if ( id && (!$.config.petalInfo[id]) )
 				legal = false;
 		});
 		if ( !legal )
@@ -65,7 +61,7 @@ function addPlayer(socket, username, team) { // 添加玩家
 	initPetals.bind(newPlayer)(kit);	// 初始化花瓣相关信息
 }
 
-function playerNaturalRegen(player) { // 玩家自然会血
+function playerNaturalRegen(player) { // 玩家自然回血
 	const $ = this.var;
 	if ( $.tick % $.props.player_natural_regen.interval)
 		return ;
@@ -95,8 +91,9 @@ function newUnboundPetal(id, parent, x, y, dir, skill_set, skill_var, attr) { //
 }
 
 function togglePetalSkillTrigger(trigger, petal, ...args) { // 触发花瓣技能触发器
+	const $ = this.var;
 	petal.var.skill_set.forEach(skill_id => {
-		const skill = petalSkill[skill_id];
+		const skill = $.config.petalSkill[skill_id];
 		if ( !skill ) { // 未知技能
 			console.log(`Unknown skill id '${skill_id}'.`);
 			return ;
@@ -161,8 +158,8 @@ function updatePlayers() { // Game 调用 更新玩家
 				if ( !instances[subidx] ) { 	// 如果实例不存在 即 在冷却时间
 					info.cd_remain[subidx] --; 	// 更新冷却时间
 					if ( info.cd_remain[subidx] <= 0 ) { 	// 冷却时间结束 load 新实例
-						const attr = structuredClone(petalAttr[info.instance_id]); // 默认属性
-						const defaultAttr = structuredClone(petalAttr['default']); // 未设置值默认值
+						const attr = structuredClone($.config.petalAttr[info.instance_id]); // 默认属性
+						const defaultAttr = structuredClone($.config.petalAttr['default']); // 未设置值默认值
 
 						if ( !attr ) // 使用了未知的 instance id
 							throw new Error(`instance '${info.instance_id}' does not exist`);
@@ -311,8 +308,8 @@ function initPetals(defaultKitInfo) { // Player 调用
 			$.kit.primary.push({id: ''});
 			return ;
 		}
-		const info = structuredClone(petalInfo[id]); // 获取抽象花瓣信息
-		const defaultInfo = structuredClone(petalInfo['default']); // 默认信息
+		const info = structuredClone($.config.petalInfo[id]); // 获取抽象花瓣信息
+		const defaultInfo = structuredClone($.config.petalInfo['default']); // 默认信息
 
 		// 自动设置未设定值为默认设定
 		Object.keys(defaultInfo).forEach(key => {
@@ -338,7 +335,7 @@ function initPetals(defaultKitInfo) { // Player 调用
 	defaultKitInfo.secondary.forEach(id => {
 		$.kit.secondary.push({
 			id: id,
-			info: petalInfo[id],
+			info: $.config.petalInfo[id],
 		});
 	});
 	if ( $.kit.secondary.length < $.kit.size ) { // 长度不够，补空的

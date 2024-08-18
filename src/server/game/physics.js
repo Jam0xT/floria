@@ -8,7 +8,7 @@ $.chunks: {chunkID -> [{type -> entityType, id -> id}]}
 import * as util from './utility.js';
 import { appendVelocity } from './entityHandler.js';
 import { togglePetalSkillTrigger } from './playerHandler.js';
-import petalSkill from './petalSkill.js';
+import petalSkill from './config/petalSkill.js';
 
 const chunk_id_constant = 1000000; // 用于计算区块 id
 
@@ -19,7 +19,7 @@ function init() {
 
 function solveBorderCollisions() { // 解决与地图边界碰撞
 	const $ = this.var;
-	const w = $.props.map_width, h = $.props.map_height; // 地图宽高
+	const w = $.map.width, h = $.map.height; // 地图宽高
 	Object.values($.entities).forEach(entity => {
 		if ( entity.var.attr.ignore_border ) // 无视边界属性判定
 			return ;

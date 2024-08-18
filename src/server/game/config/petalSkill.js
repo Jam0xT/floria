@@ -1,6 +1,5 @@
-import * as entityHandler from './entityHandler.js';
-import * as playerHandler from './playerHandler.js';
-import petalAttr from './petalAttr.js';
+import * as entityHandler from '../entityHandler.js';
+import * as playerHandler from '../playerHandler.js';
 
 // 花瓣技能
 
@@ -463,7 +462,7 @@ export default Object.freeze({
 				const $ = this.var;
 				const player = $.entities[instance.var.parent];
 
-				const defaultAttr = structuredClone(petalAttr['default']); // 未设置值默认值
+				const defaultAttr = structuredClone($.config.petalAttr['default']); // 未设置值默认值
 
 				// 自动设置未设置值为默认值
 				Object.keys(defaultAttr).forEach(key => {
