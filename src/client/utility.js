@@ -27,11 +27,12 @@ function unsecuredCopyToClipboard(text) {
 }
 
 class DynamicNumber {
-	constructor (value, target, mode, k) {
+	constructor (value, target = value, mode = 'exp', k = 0.8) {
 		this.value = value;
 		this.target = target;
 		this.mode = mode;
 		this.k = k;
+		this.isDone = (value == target);
 	}
 	
 	to(newTarget) {
@@ -57,8 +58,8 @@ class DynamicNumber {
 		this.value = newValue;
 	}
 	
-	static create(value, target, k = 0.8, mode = `exp`) {
-		return new DynamicNumber(value, target, mode, k)
+	static create(value, target = value, k = 0.8, mode = `exp`) {
+		return new DynamicNumber(value, target, mode, k);
 	}
 }
 

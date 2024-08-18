@@ -40,7 +40,7 @@ async function render() {
 	const curtain = {
 		graphics: new pixi.Graphics(),
 		alphaFilter: new pixi.AlphaFilter(),
-		alpha: util.DynamicNumber.create(1, 1),
+		alpha: new util.DynamicNumber(1),
 		setAlpha: function(alpha) {
 			this.alpha.to(alpha);
 		},
