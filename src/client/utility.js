@@ -1,5 +1,3 @@
-import { W, H, ctxMain } from './canvas.js';
-
 let unsecuredCopyWarned = false; // 防止报错刷屏
 
 function copyToClipboard(text) {
@@ -14,6 +12,20 @@ function copyToClipboard(text) {
 	}
 }
 
+function unsecuredCopyToClipboard(text) {
+	const textArea = document.createElement("textarea");
+	textArea.value = text;
+	document.body.appendChild(textArea);
+	textArea.focus();
+	textArea.select();
+	try {
+		document.execCommand('copy');
+	} catch (err) {
+		console.error('Unable to copy to clipboard', err);
+	}
+	document.body.removeChild(textArea);
+}
+
 class DynamicNumber {
 	constructor (value, target, mode, k) {
 		this.value = value;
@@ -24,7 +36,7 @@ class DynamicNumber {
 	
 	to(newTarget) {
 		this.isDone = false;
-		this.target = newTarget
+		this.target = newTarget;
 	}
 	
 	get() {
@@ -50,6 +62,7 @@ class DynamicNumber {
 	}
 }
 
+/*
 function shakeScreen(duration = 200, intensity = 10) {
 	const startTime = Date.now();
 	const canvas = ctxMain.canvas;
@@ -69,25 +82,7 @@ function shakeScreen(duration = 200, intensity = 10) {
 	}
     shake();
 }
-
-function unsecuredCopyToClipboard(text) {
-	const textArea = document.createElement("textarea");
-	textArea.value = text;
-	document.body.appendChild(textArea);
-	textArea.focus();
-	textArea.select();
-	try {
-		document.execCommand('copy');
-	} catch (err) {
-		console.error('Unable to copy to clipboard', err);
-	}
-	document.body.removeChild(textArea);
-  }
-
-function fillBackground(ctx, fillStyle) {
-	ctx.fillStyle = fillStyle;
-	ctx.fillRect(0, 0, W, H);
-} 
+*/
 
 function setStorage(key, value) {
 	window.localStorage.setItem(key, value);
@@ -100,8 +95,6 @@ function getStorage(key, preset) {
 export {
 	copyToClipboard,
 	DynamicNumber,
-	shakeScreen,
-	fillBackground,
 	setStorage,
 	getStorage,
 }
