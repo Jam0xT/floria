@@ -1,7 +1,7 @@
 import * as playerHandler from './playerHandler.js';
 import * as entityHandler from './entityHandler.js';
 import * as physics from './physics.js';
-import Constants from '../../../shared/constants.js';
+import Constants from '../../shared/constants.js';
 import * as util from './utility.js';
 import * as defaultConfig from './defaultConfig.js';
 

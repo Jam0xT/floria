@@ -7,6 +7,6 @@
 	"noImplicitAny": false,
 	"allowSyntheticDefaultImports": true
   },
-  "include": ["src/**/*.js"],
-  "exclude": ["node_modules"]
+//   "include": ["src/**/*.js"],
+  "exclude": ["node_modules", "src"]
 }

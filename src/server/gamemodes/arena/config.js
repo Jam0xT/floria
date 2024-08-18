@@ -1,1 +1,1 @@
-export { default as properties } from './config/properties';
+export { default as properties } from './config/properties.js';

@@ -633,7 +633,7 @@ export default Object.freeze({
 						flag_list.forEach(flag => {
 							sv.flag[key] |= sv.flag[flag];
 						});
-						sv.flag[key] ^= true;
+						sv.flag[key] ^= 1;
 					});
 				}
 			}
