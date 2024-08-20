@@ -1,5 +1,6 @@
 import Team from '../teams.js';
 import Room from './room-static.js';
+import { TeamPresets } from '../teams.js';
 
 export default class Room_Template {
 	id = Room.getNewRoomID();
@@ -16,23 +17,44 @@ export default class Room_Template {
 	
 	maxPlayerAmount = 0;
 	
-	constructor(teamSetting) {
-		this.setTeamByArray(teamSetting);
+	isPrivate = false
+	
+	constructor(settings) {
+		this.isPrivate = settings.isPrivate;
+		this.setTeamByArray(settings.team);
 	}
 	
 	//增加玩家，可能不成功
 	tryAddPlayer(player) {
+		const canAddPlayer = this.determineCanRoomAddPlayer();
+		
+		if (canAddPlayer.bool) {
+			this.players[player.uuid] = player;
+			player.room = this;
+			player.gameState = `waiting`;
+			console.log(`player added:` + player.uuid)
+		}
+		
+		return canAddPlayer.reason;
+	}
+	
+	determineCanRoomAddPlayer() {
 		//游戏开始且不允许中途加入游戏就阻止加入
-		if (this.isGameStarted && !this.canPlayerJoinIfStarted) return `started`;
+		if (this.isGameStarted && !this.canPlayerJoinIfStarted) return {
+			bool: false,
+			reason: `started`
+		};
 		
 		//房间人满，不予加入
-		if (this.maxPlayerAmount == Object.keys(this.players).length) return `full`;
+		if (this.maxPlayerAmount == Object.keys(this.players).length) return {
+			bool: false,
+			reason: `full`
+		};
 		
-		this.players[player.uuid] = player;
-		player.room = this;
-		player.gameState = `waiting`;
-		console.log(`player added:` + player.uuid)
-		return `success`;
+		return {
+			bool: true,
+			reason: `success`
+		};
 	}
 	
 	removePlayer(player) {
@@ -43,6 +65,12 @@ export default class Room_Template {
 		if (Object.keys(this.players).length == 0) {
 			Room.removeRoom(this);
 		}
+		
+		if (player == this.owner) {
+			this.setOwner(Object.values(this.players)[0]);
+		}
+		
+		
 		console.log(`player removed:` + player.uuid)
 	}
 	
@@ -65,6 +93,22 @@ export default class Room_Template {
 		
 		//^^^
 		if (!isAtLeastOnePlayerNotReady && playerAmount >= playerAmountMinToStart) this.startGame();
+	}
+	
+	updateSettings(settings) {
+		if (this.isGameStarted) return;
+		
+		const mapSettings = Room.getMapSettings(this.type, settings.map);
+		
+		const teamSetting = TeamPresets.fair(mapSettings.teamCount, mapSettings.teamSize);
+		
+		this.setTeamByArray(teamSetting);
+		
+		this.isPrivate = settings.isPrivate;
+	}
+	
+	setOwner(player) {
+		this.owner = player
 	}
 	
 	//获取要发送到前端的数据
@@ -96,6 +140,10 @@ export default class Room_Template {
 	
 	getTeamById(teamId) {
 		return this.teams[teamId];
+	}
+	
+	getPlayerByUUID(uuid) {
+		return this.players[uuid]
 	}
 	
 	//分配玩家队伍函数
