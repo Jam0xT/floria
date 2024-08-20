@@ -7,18 +7,14 @@ export default Object.freeze({
 		CLIENT: {
 			PLAYER:{
 				CONNECT: '0',
-				CHANGE_USERNAME: '4',
-				FIND_PUBLIC_ROOM: '7',
 			},
 			ROOM: {
 				CREATE: 'kYNwIRRsnVOade3K2xxhmP8ro5xlRFwcGLQ9AGOregZpvjD0PAdIhrYm58OGnTby',
 				JOIN: 'nk301wI3jGXW9Raz6VBUKVgbxsdTs6qppM8BNNv9Qo3xmUdHaQzIy5uiFbOLNR5P',
 				LEAVE: 'iDW344Gm0CdEHASKTLalkOETh7qSnT7Eey97ejBYArtuBNaeD5yVOoCnnGqRiLAt',
-				READY: 'jRKbIsuMHTYu0v7J6c2bI2aYewjluRJzMCfqT0xSWwYVvCb7YY5ObiTBf6YIqAe6',
-				UPDATE_SETTINGS: '5',
-				KICK_PLAYER: '8',
 				INFO: 'WsUVLIiGCIJU12UOKn602QCGgiAJaPX0cLy8ZMn6DOEZFpeVvUDod63qhqatAfff',
 				SETTINGS: 'DhkIfoAbCPybNZPGSapzxGJtvXTjFbgSNIuDdtafmXMIovmouJTQDUnJxffPINek',
+				READY: 'jRKbIsuMHTYu0v7J6c2bI2aYewjluRJzMCfqT0xSWwYVvCb7YY5ObiTBf6YIqAe6',
 				CHANGE_TEAM: '2'
 			},
 			GAME: {

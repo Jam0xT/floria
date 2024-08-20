@@ -28,22 +28,14 @@ export default class Player {
 	
 	delayRemove; 
 	
-	constructor() {
-		
+	constructor(username) {
+		this.username = username;
 	}
 	
 	getData() {
 		return {
 			username: this.username
 		}
-	}
-	
-	setUsername(newName) {
-		//判断用户名是否可用
-		const isUsernameAvailable = Player.getUsernameUsability(value.self.username);
-		if (!isUsernameAvailable) return false;
-		this.username = newName;
-		return true
 	}
 	
 	//玩家列表
@@ -61,11 +53,11 @@ export default class Player {
 	}
 	
 	//创建新玩家并加入列表
-	static createNewPlayer(ws) {
-		const newPlayer = new Player();
+	static createNewPlayer(ws, username) {
+		const newPlayer = new Player(username);
 		Player.list[newPlayer.uuid] = newPlayer;
 		ws.player = newPlayer;
-		console.log(`a player joined`)
+		console.log(username + ` joined`)
 		return newPlayer;
 	}
 	
