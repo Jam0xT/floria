@@ -25,6 +25,19 @@ function preventDefaultActions() {
 	});
 }
 
+class Player { // 房间中的玩家信息类
+	username;
+	isReady;
+	constructor(username) {
+		this.username = username;
+		this.isReady = false;
+	}
+
+	ready(toState = true) { // 设置 isReady 状态
+		this.isReady = toState;
+	}
+};
+
 const client = {
 	title: 'floria.io',
 	gamemode: 'none',
@@ -33,6 +46,28 @@ const client = {
 		id: '',
 		isPublic: false,
 		isOwner: false,
+		players: [],
+		teamSize: 0,
+		teamCount: 0,
+		// functions: onJoin, onLeave, onPlayerJoin, onPlayerLeave, 
+	},
+	maps: {
+		'arena': {
+			'1v1': {
+				id: '1v1',
+				display: 'square1000;1v1',
+				teamSize: 1,
+				teamCount: 2,
+			},
+			'2v2': {
+				id: '2v2',
+				display: 'square1500;2v2',
+				teamSize: 2,
+				teamCount: 2,
+			}
+		},
+		'uhc': {
+		}
 	},
 };
 
@@ -46,7 +81,7 @@ async function render() {
 
 	document.body.appendChild(app.canvas);
 
-	let W, H; // 画布 width 与 height
+	let W, H, U; // 画布 width 与 height; U 用于计算单位长度
 
 	// 幕布 黑色
 	const curtain = {
@@ -78,6 +113,7 @@ async function render() {
 	};
 	curtain.init(); // 初始化
 
+	// 文字样式预设
 	const textStyles = {
 		'default': function(fontSize) {
 			return new pixi.TextStyle({
@@ -613,15 +649,58 @@ async function render() {
 	}
 	roomMenu.init();
 
+	// 房间相关函数
+	client.room.onJoin = function() {
+
+	};
+
+	client.room.onLeave = function() {
+		
+	}
+
 	// Arena 菜单
 	const arenaMenu = {
 		container: new pixi.Container(),
+		resize: function() {
+
+		},
+		init: function() {
+
+		},
 	};
+	arenaMenu.init();
+
+	// UHC 菜单
+	const uhcMenu = {
+		container: new pixi.Container(),
+		resize: function() {
+
+		},
+		init: function() {
+
+		},
+	};
+	uhcMenu.init();
+
+	// 游戏本身
+	const game = {
+		container: new pixi.Container(),
+		resize: function() {
+
+		},
+		init: function() {
+
+		},
+	};
+	game.init();
 
 	// 按图层顺序添加 container 到 app.stage
 	(() => {
 		app.stage.addChild(mainMenu.container); // 菜单
 		app.stage.addChild(roomMenu.container); // 房间菜单
+		app.stage.addChild(arenaMenu.container); // Arena 菜单
+		app.stage.addChild(uhcMenu.container); // UHC 菜单
+		app.stage.addChild(game.container); // 游戏
 		app.stage.addChild(curtain.graphics); // 幕布
 	})();
 
@@ -636,6 +715,7 @@ async function render() {
 			const dpr = window.devicePixelRatio;
 			W = window.innerWidth * dpr;
 			H = window.innerHeight * dpr;
+			U = Math.max(0.5, W / 1000, H / 1000);
 
 			// 设置 app 固定大小
 			app.renderer.resolution = 1 / dpr;
@@ -644,6 +724,9 @@ async function render() {
 			// 刷新各个相关元素大小
 			curtain.resize();
 			mainMenu.resize();
+			arenaMenu.resize();
+			uhcMenu.resize();
+			game.resize();
 			roomMenu.resize();
 		}
 	})();
