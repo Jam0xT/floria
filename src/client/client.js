@@ -78,6 +78,24 @@ async function render() {
 	await app.init({
 		background: '#1ea761',
 	});
+/*
+
+
+	const devicePixelRatio = window.devicePixelRatio || 1;
+	W = window.innerWidth * devicePixelRatio;
+	H = window.innerHeight * devicePixelRatio;
+	hpx = H / 1000;
+	setCanvasDimensions(canvas);
+}
+
+function setCanvasDimensions(canvas_) {
+	canvas_.width = W;
+	canvas_.height = H;
+	canvas_.style.width = window.innerWidth + `px`;
+	canvas_.style.height = window.innerHeight + `px`;
+}
+
+*/
 
 	document.body.appendChild(app.canvas);
 

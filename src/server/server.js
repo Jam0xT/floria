@@ -9,6 +9,16 @@ import webpackConfigProd from '../../webpack.prod.js';
 
 import Room from './rooms/room-static.js';
 import Player from "./server-player.js";
+import onPlayerConnect from "./solveRequests/connect.js";
+import onPlayerRequestCreateRoom from "./solveRequests/create-room.js";
+import onPlayerRequestJoinRoom from "./solveRequests/join-room.js";
+import onPlayerRequestLeaveRoom from "./solveRequests/leave-room.js";
+import onPlayerRequestReady from "./solveRequests/ready.js";
+import onPlayerRequestChangeTeam from "./solveRequests/change-team.js";
+import onPlayerRequestChangeUsername from "./solveRequests/change-username.js";
+import onPlayerRequestUpdateRoomSettings from "./solveRequests/update-room-settings.js";
+import onPlayerRequestKickPlayer from "./solveRequests/kick-player.js";
+import onPlayerRequestFindPublicRoom from "./solveRequests/find-public-room.js";
 
 const app = express();
 app.use(express.static('public'));
@@ -58,95 +68,57 @@ function solveRequestFromClient(ws, text) {
 	
 	switch (request) {
 		//客户端请求连接玩家，有就连接（reconnect）没有就创建
-		case Constants.MSG_TYPES.CLIENT.PLAYER.CONNECT: 
-			const uuid = value.self.uuid
-			const isReconnectionSuccess = Player.tryReconnect(ws, uuid);
-			
-			if (isReconnectionSuccess) {
-				Player.removeDelayRemove(ws.player);
-				return
-			} 
-			
-			//为新连接，创建玩家
-			//判断用户名是否可用
-			const isUsernameAvailable = Player.getUsernameUsability(value.self.username);
-			if (!isUsernameAvailable) {
-				ws.close()
-				return;
-			}
-			
-			Player.createNewPlayer(ws, value.self.username);
+		case Constants.MSG_TYPES.CLIENT.PLAYER.CONNECT: {
+			onPlayerConnect(value, ws);
 			break;
+		}
 		
 		//客户端请求创建房间
 		case Constants.MSG_TYPES.CLIENT.ROOM.CREATE: {
-			//创建房间，添加玩家进入房间
-			const newRoom = Room.createRoom(value.room.type);
-			newRoom.tryAddPlayer(ws.player)
-			
-			//返回房间数据
-			const roomData = newRoom.getData();
-			const data = createData(Constants.MSG_TYPES.SERVER.ROOM.UPDATE, { roomData: roomData });
-			ws.send(data);
+			onPlayerRequestCreateRoom(value, ws);
 			break;
 		}
 			
 		//客户端要求加入房间
 		case Constants.MSG_TYPES.CLIENT.ROOM.JOIN: {
-			if (ws.player.room) ws.player.room.removePlayer(ws.player);
-			
-			const room = Room.getRoomById(value.room.id);
-			if (!room) return;
-			
-			const joinResult = room.tryAddPlayer(ws.player);
-			
-			//success
-			if (joinResult == `success`) {
-				const roomData = room.getData();
-				const data = createData(Constants.MSG_TYPES.SERVER.ROOM.UPDATE, { roomData: roomData });
-				ws.send(data);
-				return;
-			}
-			
-			//failed
-			const data = createData(Constants.MSG_TYPES.SERVER.ROOM.JOIN_REJECTED, { reason: joinResult })
-			ws.send(data);
-			return;
+			onPlayerRequestJoinRoom(value, ws);
+			break;
 		}
 		
 		//离开房间
 		case Constants.MSG_TYPES.CLIENT.ROOM.LEAVE: {
-			const player = ws.player;
-			
-			if (!player.room) return;
-			
-			player.room.removePlayer(player);
+			onPlayerRequestLeaveRoom(value, ws);
 			break;
 		}
 		
 		//玩家准备
 		case Constants.MSG_TYPES.CLIENT.ROOM.READY: {
-			const player = ws.player;
-			
-			if (!player.room || player.room.isGameStarted) return;
-			
-			player.room.playerSwitchReady(player);
-			break;
+			onPlayerRequestReady(value, ws);
 		}
 		
 		//切换队伍
 		case Constants.MSG_TYPES.CLIENT.ROOM.CHANGE_TEAM: {
-			const player = ws.player;
-			
-			if (!player.room) return;
-			
-			//将玩家移出目前所在队伍
-			if (player.team) player.team.removePlayer(player);
-			
-			const newTeam = player.room.getTeamById(value.room.team.id);
-			
-			if (newTeam) newTeam.addPlayer(player);
-			
+			onPlayerRequestChangeTeam(value, ws);
+			break;
+		}
+		
+		case Constants.MSG_TYPES.CLIENT.PLAYER.CHANGE_USERNAME: {
+			onPlayerRequestChangeUsername(value, ws);
+			break;
+		}
+		
+		case Constants.MSG_TYPES.CLIENT.ROOM.UPDATE_SETTINGS: {
+			onPlayerRequestUpdateRoomSettings(value, ws);
+			break;
+		}
+		
+		case Constants.MSG_TYPES.CLIENT.ROOM.KICK_PLAYER: {
+			onPlayerRequestKickPlayer(value, ws);
+			break;
+		}
+		
+		case Constants.MSG_TYPES.CLIENT.PLAYER.FIND_PUBLIC_ROOM: {
+			onPlayerRequestFindPublicRoom(value, ws);
 			break;
 		}
 			
@@ -155,7 +127,7 @@ function solveRequestFromClient(ws, text) {
 	}
 }
 
-function createData(request, value) {
+export function createData(request, value) {
 	const data = {
 		request: request,
 		value: value

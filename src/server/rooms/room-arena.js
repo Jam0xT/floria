@@ -1,12 +1,12 @@
-import { TeamPresets } from "../teams.js";
 import Room_Template from "./room-template.js";
 import Game_Arena from '../gamemodes/arena/arena.js';
 
 export default class Room_Arena extends Room_Template {
 	canPlayerJoinIfStarted = false;
 	
-	constructor(teamSetting = TeamPresets.fair(4, 1)) {
-		super(teamSetting);
+	constructor(settings) {
+		super(settings);
+		this.type = `arena`;
 	}
 	
 	//分配队伍
