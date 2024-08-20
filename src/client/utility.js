@@ -89,8 +89,13 @@ function setStorage(key, value) {
 	window.localStorage.setItem(key, value);
 }
 
-function getStorage(key, preset) {
-	return window.localStorage.getItem(key) ?? preset;
+function getStorage(key, preset = null) {
+	const value = window.localStorage.getItem(key);
+	if ( value === null ) {
+		setStorage(key, preset);
+		return preset;
+	}
+	return value;
 }
 
 export {

@@ -1,4 +1,5 @@
 import * as pixi from 'pixi.js';
+import * as pixiui from '@pixi/ui';
 import * as util from './utility.js';
 
 import { downloadAssets } from './assets.js';
@@ -26,6 +27,13 @@ function preventDefaultActions() {
 
 const client = {
 	title: 'floria.io',
+	gamemode: 'none',
+	username: util.getStorage('username'),
+	room: {
+		id: '',
+		isPublic: false,
+		isOwner: false,
+	},
 };
 
 async function render() {
@@ -95,10 +103,49 @@ async function render() {
 			}),
 			resize: function() {
 				this.text.x = W * 0.5;
-				this.text.y = H * 0.3;
+				this.text.y = H * 0.2;
 			},
 			init: function() {
 				this.text.anchor.set(0.5);
+			},
+		},
+		input: {
+			container: new pixi.Container(),
+			input: new pixiui.Input({
+				textStyle: textStyles.default(24),
+				maxLength: 20,
+				align: 'center',
+				placeholder: 'username',
+			}),
+			resize: function() {
+				this.container.x = W * 0.5;
+				this.container.y = H * 0.8;
+			},
+			init: function() {
+				// 底部的圆角长方形图案
+				const g = new pixi.Graphics();
+				const width = 500; // 长
+				const height = 40; // 宽
+				const radius = 5; // 圆角半径
+				const strokeWidth = 3; // 边线半径
+
+				g.roundRect(0, 0, width, height, radius);
+				g.fill('#cfcfcf');
+				g.stroke({
+					color: '#919191',
+					width: strokeWidth,
+				});
+
+				// 输入框
+				const input = this.input;
+				input.bg = g;
+
+				input.pivot.x = input.width / 2;
+				input.pivot.y = input.height / 2;
+
+				this.container.addChild(
+					input,
+				);
 			},
 		},
 		gamemodeArena: { // Arena 游戏模式按钮
@@ -144,7 +191,11 @@ async function render() {
 
 				// 点击时执行
 				function onClick() {
-					// tbd
+					client.gamemode = 'arena';
+					client.username = mainMenu.getInput();
+					util.setStorage('username', client.username);
+					mainMenu.off();
+					roomMenu.on();
 				}
 			},
 		},
@@ -191,23 +242,83 @@ async function render() {
 
 				// 点击时执行
 				function onClick() {
-					// tbd
+					client.gamemode = 'uhc';
+					client.username = mainMenu.getInput();
+					util.setStorage('username', client.username);
+					mainMenu.off();
+					roomMenu.on();
 				}
 			},
 		},
+		discordButton: {
+			container: new pixi.Container(),
+			resize: function() {
+				this.container.x = W * 0.05;
+				this.container.y = H * 0.05;
+			},
+			init: function() {
+				// 底部的圆角长方形图案
+				const g = new pixi.Graphics();
+				const width = 100; // 长
+				const height = 30; // 宽
+				const radius = 5; // 圆角半径
+				const strokeWidth = 3; // 边线半径
+
+				g.roundRect(0, 0, width, height, radius);
+				g.fill('#cfcfcf');
+				g.stroke({
+					color: '#919191',
+					width: strokeWidth,
+				});
+
+				// 转换成 Sprite 便于使用
+				const base = new pixi.Sprite(app.renderer.generateTexture(g));
+				base.anchor.set(0.5);
+				base.eventMode = 'static';
+				base.cursor = 'pointer';
+				base.on('pointerdown', onClick);
+
+				// 文字
+				const text = new pixi.Text({
+					text: 'Discord',
+					style: textStyles.default(18),
+				});
+				text.anchor.set(0.5);
+
+				// 加入 container
+				this.container.addChild(
+					base,
+					text,
+				);
+
+				// 点击时执行
+				function onClick() {
+					window.open().location = 'https://discord.gg/invite/sMAr7Q48xf';
+				}
+			},
+		},
+		getInput: function() {
+			return this.input.input.text;
+		},
 		resize: function() {
 			this.title.resize();
+			this.input.resize();
 			this.gamemodeArena.resize();
 			this.gamemodeUHC.resize();
+			this.discordButton.resize();
 		},
 		init: function() {
 			this.title.init();
+			this.input.init();
 			this.gamemodeArena.init();
 			this.gamemodeUHC.init();
+			this.discordButton.init();
 			this.container.addChild(
 				this.title.text,
+				this.input.container,
 				this.gamemodeArena.container,
 				this.gamemodeUHC.container,
+				this.discordButton.container,
 			);
 		},
 		on: function() {
@@ -219,6 +330,289 @@ async function render() {
 	};
 	mainMenu.init();
 
+	// 房间菜单
+	const roomMenu = {
+		container: new pixi.Container(),
+		title: {
+			text: new pixi.Text({
+				text: 'Room',
+				style: textStyles.default(72),
+			}),
+			resize: function() {
+				this.text.x = W * 0.5;
+				this.text.y = H * 0.2;
+			},
+			init: function() {
+				this.text.anchor.set(0.5);
+			},
+		},
+		backButton: {
+			container: new pixi.Container(),
+			resize: function() {
+				this.container.x = W * 0.1;
+				this.container.y = H * 0.9;
+			},
+			init: function() {
+				// 底部的圆角长方形图案
+				const g = new pixi.Graphics();
+				const width = 150; // 长
+				const height = 60; // 宽
+				const radius = 10; // 圆角半径
+				const strokeWidth = 5; // 边线半径
+
+				g.roundRect(0, 0, width, height, radius);
+				g.fill('#cfcfcf');
+				g.stroke({
+					color: '#919191',
+					width: strokeWidth,
+				});
+
+				// 转换成 Sprite 便于使用
+				const base = new pixi.Sprite(app.renderer.generateTexture(g));
+				base.anchor.set(0.5);
+				base.eventMode = 'static';
+				base.cursor = 'pointer';
+				base.on('pointerdown', onClick);
+
+				// 文字
+				const text = new pixi.Text({
+					text: 'Back',
+					style: textStyles.default(36),
+				});
+				text.anchor.set(0.5);
+
+				// 加入 container
+				this.container.addChild(
+					base,
+					text,
+				);
+
+				// 点击时执行
+				function onClick() {
+					client.gamemode = 'none';
+					roomMenu.off();
+					mainMenu.on();
+				}
+			},
+		},
+		input: {
+			container: new pixi.Container(),
+			input: new pixiui.Input({
+				textStyle: textStyles.default(36),
+				maxLength: 6,
+				align: 'center',
+			}),
+			resize: function() {
+				this.container.x = W * 0.5;
+				this.container.y = H * 0.36;
+			},
+			init: function() {
+				// 底部的圆角长方形图案
+				const g = new pixi.Graphics();
+				const width = 250; // 长
+				const height = 60; // 宽
+				const radius = 10; // 圆角半径
+				const strokeWidth = 5; // 边线半径
+
+				g.roundRect(0, 0, width, height, radius);
+				g.fill('#cfcfcf');
+				g.stroke({
+					color: '#919191',
+					width: strokeWidth,
+				});
+
+				// 输入框
+				const input = this.input;
+				input.bg = g;
+
+				input.pivot.x = input.width / 2;
+				input.pivot.y = input.height / 2;
+
+				this.container.addChild(
+					input,
+				);
+			},
+		},
+		createButton: {
+			container: new pixi.Container(),
+			resize: function() {
+				this.container.x = W * 0.5;
+				this.container.y = H * 0.44;
+			},
+			init: function() {
+				// 底部的圆角长方形图案
+				const g = new pixi.Graphics();
+				const width = 200; // 长
+				const height = 60; // 宽
+				const radius = 10; // 圆角半径
+				const strokeWidth = 5; // 边线半径
+
+				g.roundRect(0, 0, width, height, radius);
+				g.fill('#cfcfcf');
+				g.stroke({
+					color: '#919191',
+					width: strokeWidth,
+				});
+
+				// 转换成 Sprite 便于使用
+				const base = new pixi.Sprite(app.renderer.generateTexture(g));
+				base.anchor.set(0.5);
+				base.eventMode = 'static';
+				base.cursor = 'pointer';
+				base.on('pointerdown', onClick);
+
+				// 文字
+				const text = new pixi.Text({
+					text: 'Create',
+					style: textStyles.default(36),
+				});
+				text.anchor.set(0.5);
+
+				// 加入 container
+				this.container.addChild(
+					base,
+					text,
+				);
+
+				// 点击时执行
+				function onClick() {
+					// tbd
+				}
+			},
+		},
+		joinButton: {
+			container: new pixi.Container(),
+			resize: function() {
+				this.container.x = W * 0.5;
+				this.container.y = H * 0.52;
+			},
+			init: function() {
+				// 底部的圆角长方形图案
+				const g = new pixi.Graphics();
+				const width = 200; // 长
+				const height = 60; // 宽
+				const radius = 10; // 圆角半径
+				const strokeWidth = 5; // 边线半径
+
+				g.roundRect(0, 0, width, height, radius);
+				g.fill('#cfcfcf');
+				g.stroke({
+					color: '#919191',
+					width: strokeWidth,
+				});
+
+				// 转换成 Sprite 便于使用
+				const base = new pixi.Sprite(app.renderer.generateTexture(g));
+				base.anchor.set(0.5);
+				base.eventMode = 'static';
+				base.cursor = 'pointer';
+				base.on('pointerdown', onClick);
+
+				// 文字
+				const text = new pixi.Text({
+					text: 'Join',
+					style: textStyles.default(36),
+				});
+				text.anchor.set(0.5);
+
+				// 加入 container
+				this.container.addChild(
+					base,
+					text,
+				);
+
+				// 点击时执行
+				function onClick() {
+					// tbd
+				}
+			},
+
+		},
+		findPublicButton: {
+			container: new pixi.Container(),
+			resize: function() {
+				this.container.x = W * 0.5;
+				this.container.y = H * 0.6;
+			},
+			init: function() {
+				// 底部的圆角长方形图案
+				const g = new pixi.Graphics();
+				const width = 300; // 长
+				const height = 60; // 宽
+				const radius = 10; // 圆角半径
+				const strokeWidth = 5; // 边线半径
+
+				g.roundRect(0, 0, width, height, radius);
+				g.fill('#cfcfcf');
+				g.stroke({
+					color: '#919191',
+					width: strokeWidth,
+				});
+
+				// 转换成 Sprite 便于使用
+				const base = new pixi.Sprite(app.renderer.generateTexture(g));
+				base.anchor.set(0.5);
+				base.eventMode = 'static';
+				base.cursor = 'pointer';
+				base.on('pointerdown', onClick);
+
+				// 文字
+				const text = new pixi.Text({
+					text: 'Find Public',
+					style: textStyles.default(36),
+				});
+				text.anchor.set(0.5);
+
+				// 加入 container
+				this.container.addChild(
+					base,
+					text,
+				);
+
+				// 点击时执行
+				function onClick() {
+					// tbd
+				}
+			},
+
+		},
+		getInput: function() {
+			return this.input.input.text;
+		},
+		resize: function() {
+			this.title.resize();
+			this.backButton.resize();
+			this.input.resize();
+			this.createButton.resize();
+			this.joinButton.resize();
+			this.findPublicButton.resize();
+		},
+		init: function() {
+			this.title.init();
+			this.backButton.init();
+			this.input.init();
+			this.createButton.init();
+			this.joinButton.init();
+			this.findPublicButton.init();
+			this.container.addChild(
+				this.title.text,
+				this.backButton.container,
+				this.input.container,
+				this.createButton.container,
+				this.joinButton.container,
+				this.findPublicButton.container,
+			);
+			this.off();
+		},
+		on: function() {
+			this.container.visible = true;
+		},
+		off: function() {
+			this.container.visible = false;
+		}
+	}
+	roomMenu.init();
+
 	// Arena 菜单
 	const arenaMenu = {
 		container: new pixi.Container(),
@@ -227,6 +621,7 @@ async function render() {
 	// 按图层顺序添加 container 到 app.stage
 	(() => {
 		app.stage.addChild(mainMenu.container); // 菜单
+		app.stage.addChild(roomMenu.container); // 房间菜单
 		app.stage.addChild(curtain.graphics); // 幕布
 	})();
 
@@ -249,10 +644,11 @@ async function render() {
 			// 刷新各个相关元素大小
 			curtain.resize();
 			mainMenu.resize();
+			roomMenu.resize();
 		}
 	})();
 
-	curtain.setAlpha(0);
+	curtain.off();
 }
 
 export default client;
