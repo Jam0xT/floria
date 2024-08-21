@@ -40,7 +40,7 @@ export default class Player {
 	
 	setUsername(newName) {
 		//判断用户名是否可用
-		const isUsernameAvailable = Player.getUsernameUsability(value.self.username);
+		const isUsernameAvailable = Player.getUsernameUsability(newName);
 		if (!isUsernameAvailable) return false;
 		this.username = newName;
 		return true
