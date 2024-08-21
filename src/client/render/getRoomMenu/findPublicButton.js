@@ -4,7 +4,7 @@ import textStyles from '../textStyles.js';
 import Room from '../../room/room.js';
 import maps from '../../maps.js';
 
-class CreateButton {
+class FindPublicButton {
 	parent;
 
 	container;
@@ -18,7 +18,7 @@ class CreateButton {
 	init() {
 		// 底部的圆角长方形图案
 		const g = new pixi.Graphics();
-		const width = 200; // 长
+		const width = 300; // 长
 		const height = 60; // 宽
 		const radius = 10; // 圆角半径
 		const strokeWidth = 5; // 边线半径
@@ -39,7 +39,7 @@ class CreateButton {
 
 		// 文字
 		const text = new pixi.Text({
-			text: 'Create',
+			text: 'Find Public',
 			style: textStyles.default(36),
 		});
 		text.anchor.set(0.5);
@@ -57,16 +57,15 @@ class CreateButton {
 	onResize() {
 		const W = client.app.W, H = client.app.H;
 		this.container.x = W * 0.5;
-		this.container.y = H * 0.44;
+		this.container.y = H * 0.6;
 	}
 
 	onClick() {
-		Room.createRoom(
-			client.gamemode,
-			Object.keys(maps[client.gamemode])[0],
-			true,
-		);
+		Room.findPublicRoom();
+		client.setState('to_room');
+		client.app.getRoomMenu.off();
+		client.app.toRoomMenu.on();
 	}
 }
 
-export default CreateButton;
+export default FindPublicButton;

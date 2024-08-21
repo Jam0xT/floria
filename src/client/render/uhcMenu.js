@@ -15,6 +15,7 @@ class UHCMenu {
 	}
 
 	init() {
+		this.off();
 		const application = this.app.application;
 		this.app.appendOnResizeFnList(this.onResizeFnList);
 		application.stage.addChild(this.container);

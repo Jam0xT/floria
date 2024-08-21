@@ -1,19 +1,13 @@
 import * as pixi from 'pixi.js';
-import GamemodeText from './roomMenu/gamemodeText.js';
+import Text from './toRoomMenu/text.js';
 
-class RoomMenu {
+class ToRoomMenu {
 	app;
 
 	container;
 
-	// 游戏模式文字
-	gamemodeText;
-
-	// 地图列表
-	mapList;
-
-	// 玩家列表
-	playerList;
+	// 文字
+	text;
 
 	onResizeFnList;
 
@@ -21,7 +15,7 @@ class RoomMenu {
 		this.app = app;
 		this.container = new pixi.Container();
 		this.onResizeFnList = [];
-		this.gamemodeText = new GamemodeText(this);
+		this.text = new Text(this);
 		this.init();
 	}
 
@@ -51,4 +45,4 @@ class RoomMenu {
 	}
 }
 
-export default RoomMenu;
+export default ToRoomMenu;

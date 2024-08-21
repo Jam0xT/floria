@@ -63,8 +63,9 @@ class GamemodeUHCButton {
 		// find the module you need from 'client'
 		client.setGamemode('uhc');
 		client.setUsername(client.app.mainMenu.usernameInput.get());
+		client.setState('get_room');
 		client.app.mainMenu.off();
-		client.app.roomMenu.on();
+		client.app.getRoomMenu.on();
 	}
 }
 
