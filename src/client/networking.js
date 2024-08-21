@@ -62,11 +62,16 @@ export function createData(request, value) {
 
 function onMessage(event) {
 	const parsedData = JSON.parse(event.data);
-	console.log(parsedData)
+	console.log(parsedData);
+	switch(parsedData.request) {
+		case Constants.MSG_TYPES.SERVER.ROOM.UPDATE: {
+			client.onRoomUpdate(parsedData.value);
+		}
+	}
 }
 
 function onClose(event) {
-	console.log(event)
+	console.log(event);
 }
 
 /*

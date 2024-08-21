@@ -1,6 +1,8 @@
 import * as pixi from 'pixi.js';
 import Curtain from './curtain.js';
 import MainMenu from './mainMenu.js';
+import ToRoomMenu from './toRoomMenu.js';
+import GetRoomMenu from './getRoomMenu.js';
 import RoomMenu from './roomMenu.js';
 import ArenaMenu from './arenaMenu.js';
 import UHCMenu from './uhcMenu.js';
@@ -27,6 +29,12 @@ class App {
 	// 主菜单
 	mainMenu;
 	
+	// 获取房间菜单
+	getRoomMenu;
+
+	// 等待加入房间菜单
+	toRoomMenu;
+
 	// 房间菜单
 	roomMenu;
 
@@ -53,6 +61,8 @@ class App {
 
 		this.curtain = new Curtain(this);
 		this.mainMenu = new MainMenu(this);
+		this.toRoomMenu = new ToRoomMenu(this);
+		this.getRoomMenu = new GetRoomMenu(this);
 		this.roomMenu = new RoomMenu(this);
 		this.arenaMenu = new ArenaMenu(this);
 		this.uhcMenu = new UHCMenu(this);

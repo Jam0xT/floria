@@ -4,7 +4,7 @@ import textStyles from '../textStyles.js';
 import Room from '../../room/room.js';
 import maps from '../../maps.js';
 
-class JoinButton {
+class CreateButton {
 	parent;
 
 	container;
@@ -39,7 +39,7 @@ class JoinButton {
 
 		// 文字
 		const text = new pixi.Text({
-			text: 'Join',
+			text: 'Create',
 			style: textStyles.default(36),
 		});
 		text.anchor.set(0.5);
@@ -57,12 +57,19 @@ class JoinButton {
 	onResize() {
 		const W = client.app.W, H = client.app.H;
 		this.container.x = W * 0.5;
-		this.container.y = H * 0.52;
+		this.container.y = H * 0.44;
 	}
 
 	onClick() {
-		Room.joinRoom(client.app.roomMenu.roomIDInput.get());
+		Room.createRoom(
+			client.gamemode,
+			Object.keys(maps[client.gamemode])[0],
+			true,
+		);
+		client.setState('to_room');
+		client.app.getRoomMenu.off();
+		client.app.toRoomMenu.on();
 	}
 }
 
-export default JoinButton;
+export default CreateButton;

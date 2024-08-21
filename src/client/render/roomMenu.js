@@ -1,33 +1,27 @@
 import * as pixi from 'pixi.js';
-import Title from './roomMenu/title.js';
-import BackButton from './roomMenu/backButton.js';
-import CreateButton from './roomMenu/createButton.js';
-import FindPublicButton from './roomMenu/findPublicButton.js';
-import JoinButton from './roomMenu/joinButton.js';
-import RoomIDInput from './roomMenu/roomIDInput.js';
+import GamemodeText from './roomMenu/gamemodeText.js';
+import MapList from './roomMenu/mapList.js';
+import PlayerList from './roomMenu/playerList.js';
+import RoomIDText from './roomMenu/roomIDText.js';
+import CopyRoomIDButton from './roomMenu/copyRoomIDButton.js';
 
 class RoomMenu {
 	app;
 
 	container;
 
-	// 标题文字
-	title;
+	// 游戏模式文字
+	gamemodeText;
 
-	// 后退按钮
-	backButton;
+	// 地图列表
+	mapList;
 
-	// 房间号输入
-	roomIDInput;
+	// 玩家列表
+	playerList;
 
-	// 创建房间按钮
-	createButton;
+	roomIDText;
 
-	// 加入房间按钮
-	joinButton;
-
-	// 寻找公开房间按钮
-	findPublicButton;
+	copyRoomIDButton;
 
 	onResizeFnList;
 
@@ -35,12 +29,11 @@ class RoomMenu {
 		this.app = app;
 		this.container = new pixi.Container();
 		this.onResizeFnList = [];
-		this.title = new Title(this);
-		this.backButton = new BackButton(this);
-		this.roomIDInput = new RoomIDInput(this);
-		this.createButton = new CreateButton(this);
-		this.joinButton = new JoinButton(this);
-		this.findPublicButton = new FindPublicButton(this);
+		this.gamemodeText = new GamemodeText(this);
+		this.mapList = new MapList(this);
+		// this.playerList = new PlayerList(this);
+		this.roomIDText = new RoomIDText(this);
+		this.copyRoomIDButton = new CopyRoomIDButton(this);
 		this.init();
 	}
 
@@ -59,6 +52,11 @@ class RoomMenu {
 		this.onResizeFnList.forEach(onResizeFn => {
 			onResizeFn();
 		});
+	}
+
+	setGamemode(gamemode) {
+		this.gamemodeText.set(gamemode);
+		this.mapList.setGamemode(gamemode);
 	}
 
 	on() {

@@ -1,9 +1,13 @@
 import * as pixi from 'pixi.js';
+import Text from './toRoomMenu/text.js';
 
-class ArenaMenu {
+class ToRoomMenu {
 	app;
 
 	container;
+
+	// 文字
+	text;
 
 	onResizeFnList;
 
@@ -11,6 +15,7 @@ class ArenaMenu {
 		this.app = app;
 		this.container = new pixi.Container();
 		this.onResizeFnList = [];
+		this.text = new Text(this);
 		this.init();
 	}
 
@@ -40,4 +45,4 @@ class ArenaMenu {
 	}
 }
 
-export default ArenaMenu;
+export default ToRoomMenu;
