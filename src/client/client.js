@@ -1,6 +1,7 @@
 import * as pixi from 'pixi.js';
 import * as pixiui from '@pixi/ui';
 import * as util from './utility.js';
+import Room from './room.js';
 
 import { downloadAssets } from './assets.js';
 

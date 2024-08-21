@@ -2,7 +2,7 @@ import * as nw from './networking.js';
 import client from './client.js';
 import Constants from '../shared/constants.js';
 
-export default class Room {
+class Room {
 	static createRoom(type) {
 		const data = nw.createData(Constants.MSG_TYPES.CLIENT.ROOM.CREATE, {
 			room: {
@@ -59,8 +59,4 @@ export default class Room {
 	}
 }
 
-/*
-const updSettings = (type, update) => {
-	nw.socket.emit(Constants.MSG_TYPES.CLIENT.ROOM.SETTINGS, type, update);
-};
-*/
+export default Room;

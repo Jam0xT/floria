@@ -1,4 +1,3 @@
-import { WebSocket } from 'ws';
 import { processGameUpdate } from './state.js';
 import Constants from '../shared/constants.js';
 import { getStorage } from './utility.js';
@@ -13,17 +12,17 @@ export const connectedPromise = new Promise(resolve => {
 		const data = createData(Constants.MSG_TYPES.CLIENT.PLAYER.CONNECT, {
 			self: {
 				uuid: getStorage(`uuid`),
-				username: client.username || ``
+				username: client.username || ``,
 			}
 		})
-		ws.send(data)
-		console.log("Connected to server")
-		resolve()
+		ws.send(data);
+		console.log("Connected to server");
+		resolve();
 	}
 	
-	ws.onmessage = onMessage
+	ws.onmessage = onMessage;
 	
-	ws.onclose = onClose
+	ws.onclose = onClose;
 });
 
 
