@@ -1,5 +1,9 @@
 import * as pixi from 'pixi.js';
 import GamemodeText from './roomMenu/gamemodeText.js';
+import MapList from './roomMenu/mapList.js';
+import PlayerList from './roomMenu/playerList.js';
+import RoomIDText from './roomMenu/roomIDText.js';
+import CopyRoomIDButton from './roomMenu/copyRoomIDButton.js';
 
 class RoomMenu {
 	app;
@@ -15,6 +19,10 @@ class RoomMenu {
 	// 玩家列表
 	playerList;
 
+	roomIDText;
+
+	copyRoomIDButton;
+
 	onResizeFnList;
 
 	constructor(app) {
@@ -22,6 +30,10 @@ class RoomMenu {
 		this.container = new pixi.Container();
 		this.onResizeFnList = [];
 		this.gamemodeText = new GamemodeText(this);
+		this.mapList = new MapList(this);
+		// this.playerList = new PlayerList(this);
+		this.roomIDText = new RoomIDText(this);
+		this.copyRoomIDButton = new CopyRoomIDButton(this);
 		this.init();
 	}
 
@@ -40,6 +52,11 @@ class RoomMenu {
 		this.onResizeFnList.forEach(onResizeFn => {
 			onResizeFn();
 		});
+	}
+
+	setGamemode(gamemode) {
+		this.gamemodeText.set(gamemode);
+		this.mapList.setGamemode(gamemode);
 	}
 
 	on() {

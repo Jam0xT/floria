@@ -1,8 +1,9 @@
 import * as pixi from 'pixi.js';
 import client from '../../client.js';
 import textStyles from '../textStyles.js';
+import * as util from '../../utility.js';
 
-class BackButton {
+class CopyRoomIDButton {
 	parent;
 
 	container;
@@ -16,10 +17,10 @@ class BackButton {
 	init() {
 		// 底部的圆角长方形图案
 		const g = new pixi.Graphics();
-		const width = 150; // 长
-		const height = 60; // 宽
-		const radius = 10; // 圆角半径
-		const strokeWidth = 5; // 边线半径
+		const width = 100; // 长
+		const height = 30; // 宽
+		const radius = 5; // 圆角半径
+		const strokeWidth = 3; // 边线半径
 
 		g.roundRect(0, 0, width, height, radius);
 		g.fill('#cfcfcf');
@@ -37,8 +38,8 @@ class BackButton {
 
 		// 文字
 		const text = new pixi.Text({
-			text: 'Back',
-			style: textStyles.default(36),
+			text: 'Copy',
+			style: textStyles.default(18),
 		});
 		text.anchor.set(0.5);
 
@@ -55,14 +56,12 @@ class BackButton {
 	onResize() {
 		const W = client.app.W, H = client.app.H;
 		this.container.x = W * 0.1;
-		this.container.y = H * 0.9;
+		this.container.y = H * 0.3;
 	}
 
 	onClick() {
-		client.setGamemode('');
-		client.app.getRoomMenu.off();
-		client.app.mainMenu.on();
+		util.copyToClipboard(client.app.roomMenu.roomIDText.text.text);
 	}
 }
 
-export default BackButton;
+export default CopyRoomIDButton;

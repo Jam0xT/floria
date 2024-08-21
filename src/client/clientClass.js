@@ -40,7 +40,7 @@ class Client {
 
 	setGamemode(gamemode) {
 		this.gamemode = gamemode;
-		this.app.roomMenu.gamemodeText.set(gamemode);
+		this.app.roomMenu.setGamemode(gamemode);
 	}
 
 	setState(state) {
@@ -54,6 +54,7 @@ class Client {
 	onRoomUpdate(value) {
 		if ( this.state == 'to_room' ) {
 			this.state = 'room';
+			this.app.roomMenu.roomIDText.set(value.roomData.id);
 			this.app.toRoomMenu.off();
 			this.app.roomMenu.on();
 		}
