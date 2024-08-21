@@ -37,8 +37,10 @@ const port = process.env.PORT || 25564;
 app.listen(port);
 console.log(`Server listening on port ${port}`);
 
+const wsPort = Constants.WS_PORT;
+
 const wss = new WebSocketServer({
-	port: 25563,
+	port: wsPort,
 });
 
 wss.on('connection', (ws) => {

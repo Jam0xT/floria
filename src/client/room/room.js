@@ -1,15 +1,17 @@
-import * as nw from './networking.js';
-import client from './client.js';
-import Constants from '../shared/constants.js';
+import * as nw from '../networking.js';
+import client from '../client.js';
+import Constants from '../../shared/constants.js';
 
-export default class Room {
-	static createRoom(type) {
+class Room {
+	static createRoom(type, map, isPrivate) {
 		const data = nw.createData(Constants.MSG_TYPES.CLIENT.ROOM.CREATE, {
 			room: {
-				type: type
+				type: type,
+				map: map,
+				isPrivate: isPrivate,
 			}
-		})
-		nw.ws.send(data)
+		});
+		nw.ws.send(data);
 	}
 	
 	static joinRoom(roomId) {
@@ -20,18 +22,18 @@ export default class Room {
 			room: {
 				id: roomId
 			}
-		})
-		nw.ws.send(data)
+		});
+		nw.ws.send(data);
 	}
 	
 	static leaveRoom() {
-		const data = nw.createData(Constants.MSG_TYPES.CLIENT.ROOM.LEAVE, { })
-		nw.ws.send(data)
+		const data = nw.createData(Constants.MSG_TYPES.CLIENT.ROOM.LEAVE, { });
+		nw.ws.send(data);
 	}
 	
 	static switchReady() {
-		const data = nw.createData(Constants.MSG_TYPES.CLIENT.PLAYER.READY, { })
-		nw.ws.send(data)
+		const data = nw.createData(Constants.MSG_TYPES.CLIENT.PLAYER.READY, { });
+		nw.ws.send(data);
 	}
 	
 	static kickPlayer(uuid) {
@@ -39,8 +41,8 @@ export default class Room {
 			player: {
 				uuid: uuid
 			}
-		})
-		nw.ws.send(data)
+		});
+		nw.ws.send(data);
 	}
 	
 	static updateSettings(settings) {
@@ -50,17 +52,13 @@ export default class Room {
 				map: settings.map,
 			}
 		})
-		nw.ws.send(data)
+		nw.ws.send(data);
 	}
 	
 	static findPublicRoom() {
-		const data = nw.createData(Constants.MSG_TYPES.CLIENT.PLAYER.FIND_PUBLIC_ROOM, { })
-		nw.ws.send(data)
+		const data = nw.createData(Constants.MSG_TYPES.CLIENT.PLAYER.FIND_PUBLIC_ROOM, { });
+		nw.ws.send(data);
 	}
 }
 
-/*
-const updSettings = (type, update) => {
-	nw.socket.emit(Constants.MSG_TYPES.CLIENT.ROOM.SETTINGS, type, update);
-};
-*/
+export default Room;

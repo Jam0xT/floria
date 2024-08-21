@@ -7,6 +7,8 @@ export default function onPlayerRequestJoinRoom(value, ws) {
 	
 	const room = Room.getRoomById(value.room.id);
 	if (!room) return;
+
+	ws.player.setUsername(value.self.username);
 	
 	const joinResult = room.tryAddPlayer(ws.player);
 	

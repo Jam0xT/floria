@@ -1,5 +1,6 @@
 import Room from "../rooms/room-static.js";
 import { createData } from "../server.js";
+import Constants from '../../shared/constants.js';
 
 export default function onPlayerRequestCreateRoom(value, ws) {
 	//创建房间，添加玩家进入房间
