@@ -5,7 +5,7 @@ import client from './client.js';
 
 const socketProtocol = (window.location.protocol.includes('https')) ? 'wss' : 'ws';
 
-const wsPort = 25563;
+const wsPort = Constants.WS_PORT;
 
 export const ws = new WebSocket(`${socketProtocol}://${window.location.hostname}:${wsPort}`);
 
