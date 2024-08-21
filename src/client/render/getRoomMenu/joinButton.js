@@ -61,7 +61,7 @@ class JoinButton {
 	}
 
 	onClick() {
-		Room.joinRoom(client.app.roomMenu.roomIDInput.get());
+		Room.joinRoom(client.app.getRoomMenu.roomIDInput.get());
 		client.setState('to_room');
 		client.app.getRoomMenu.off();
 		client.app.toRoomMenu.on();
