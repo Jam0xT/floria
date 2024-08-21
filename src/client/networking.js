@@ -5,7 +5,9 @@ import client from './client.js';
 
 const socketProtocol = (window.location.protocol.includes('https')) ? 'wss' : 'ws';
 
-export const ws = new WebSocket(`${socketProtocol}://${window.location.host}`)
+const wsPort = 25563;
+
+export const ws = new WebSocket(`${socketProtocol}://${window.location.hostname}:${wsPort}`);
 
 export const connectedPromise = new Promise(resolve => {
 	ws.onopen = function () {
