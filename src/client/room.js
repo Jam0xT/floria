@@ -1,5 +1,5 @@
 import * as nw from './networking.js';
-
+import client from './client.js';
 import Constants from '../shared/constants.js';
 
 export default class Room {
@@ -14,6 +14,9 @@ export default class Room {
 	
 	static joinRoom(roomId) {
 		const data = nw.createData(Constants.MSG_TYPES.CLIENT.ROOM.JOIN, {
+			self: {
+				username: client.username
+			},
 			room: {
 				id: roomId
 			}
@@ -47,6 +50,11 @@ export default class Room {
 				map: settings.map,
 			}
 		})
+		nw.ws.send(data)
+	}
+	
+	static findPublicRoom() {
+		const data = nw.createData(Constants.MSG_TYPES.CLIENT.PLAYER.FIND_PUBLIC_ROOM, { })
 		nw.ws.send(data)
 	}
 }

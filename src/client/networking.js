@@ -1,5 +1,8 @@
 import { WebSocket } from 'ws';
 import { processGameUpdate } from './state.js';
+import Constants from '../shared/constants.js';
+import { getStorage } from './utility.js';
+import client from './client.js';
 
 const socketProtocol = (window.location.protocol.includes('https')) ? 'wss' : 'ws';
 
@@ -7,6 +10,13 @@ export const ws = new WebSocket(`${socketProtocol}://${window.location.host}`)
 
 export const connectedPromise = new Promise(resolve => {
 	ws.onopen = function () {
+		const data = createData(Constants.MSG_TYPES.CLIENT.PLAYER.CONNECT, {
+			self: {
+				uuid: getStorage(`uuid`),
+				username: client.username || ``
+			}
+		})
+		ws.send(data)
 		console.log("Connected to server")
 		resolve()
 	}
