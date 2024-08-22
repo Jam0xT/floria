@@ -1,7 +1,7 @@
 import * as pixi from 'pixi.js';
 import client from '../../client.js';
 import textStyles from '../textStyles.js';
-import Room from '../../room/room.js';
+import Room from '../../room.js';
 import maps from '../../maps.js';
 
 class CreateButton {
@@ -61,7 +61,7 @@ class CreateButton {
 	}
 
 	onClick() {
-		Room.createRoom(
+		Room.requestCreateRoom(
 			client.gamemode,
 			Object.keys(maps[client.gamemode])[0],
 			true,

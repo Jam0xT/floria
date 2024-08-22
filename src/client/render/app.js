@@ -6,6 +6,7 @@ import GetRoomMenu from './getRoomMenu.js';
 import RoomMenu from './roomMenu.js';
 import ArenaMenu from './arenaMenu.js';
 import UHCMenu from './uhcMenu.js';
+import client from '../client.js';
 
 class App {
 	// pixi application

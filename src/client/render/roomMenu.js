@@ -32,7 +32,7 @@ class RoomMenu {
 		this.onResizeFnList = [];
 		this.gamemodeText = new GamemodeText(this);
 		this.mapList = new MapList(this);
-		// this.playerList = new PlayerList(this);
+		this.playerList = new PlayerList(this);
 		this.readyButton = new ReadyButton(this);
 		this.roomIDText = new RoomIDText(this);
 		this.copyRoomIDButton = new CopyRoomIDButton(this);

@@ -1,9 +1,10 @@
-import * as nw from '../networking.js';
-import client from '../client.js';
-import Constants from '../../shared/constants.js';
+import * as nw from './networking.js';
+import client from './client.js';
+import Constants from '../shared/constants.js';
 
 class Room {
-	static createRoom(type, map, isPrivate) {
+	static requestCreateRoom(type, map, isPrivate) {
+		console.log('client username:', client.username);
 		const data = nw.createData(Constants.MSG_TYPES.CLIENT.ROOM.CREATE, {
 			self: {
 				username: client.username
@@ -17,7 +18,7 @@ class Room {
 		nw.ws.send(data);
 	}
 	
-	static joinRoom(roomId) {
+	static requestJoinRoom(roomId) {
 		const data = nw.createData(Constants.MSG_TYPES.CLIENT.ROOM.JOIN, {
 			self: {
 				username: client.username
@@ -29,17 +30,17 @@ class Room {
 		nw.ws.send(data);
 	}
 	
-	static leaveRoom() {
+	static requestLeaveRoom() {
 		const data = nw.createData(Constants.MSG_TYPES.CLIENT.ROOM.LEAVE, { });
 		nw.ws.send(data);
 	}
 	
-	static switchReady() {
+	static requestSwitchReady() {
 		const data = nw.createData(Constants.MSG_TYPES.CLIENT.ROOM.READY, { });
 		nw.ws.send(data);
 	}
 	
-	static kickPlayer(uuid) {
+	static requestKickPlayer(uuid) {
 		const data = nw.createData(Constants.MSG_TYPES.CLIENT.ROOM.KICK_PLAYER, {
 			player: {
 				uuid: uuid
@@ -48,7 +49,7 @@ class Room {
 		nw.ws.send(data);
 	}
 	
-	static updateSettings(settings) {
+	static requestUpdateSettings(settings) {
 		const data = nw.createData(Constants.MSG_TYPES.CLIENT.ROOM.UPDATE_SETTINGS, {
 			room: {
 				isPrivate: settings.isPrivate,
@@ -58,7 +59,7 @@ class Room {
 		nw.ws.send(data);
 	}
 	
-	static findPublicRoom() {
+	static requestFindPublicRoom() {
 		const data = nw.createData(Constants.MSG_TYPES.CLIENT.PLAYER.FIND_PUBLIC_ROOM, { });
 		nw.ws.send(data);
 	}

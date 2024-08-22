@@ -1,7 +1,7 @@
 import * as pixi from 'pixi.js';
 import client from '../../client.js';
 import textStyles from '../textStyles.js';
-import Room from '../../room/room.js';
+import Room from '../../room.js';
 import maps from '../../maps.js';
 
 class JoinButton {
@@ -62,7 +62,7 @@ class JoinButton {
 
 	onClick() {
 		console.log(client.app.getRoomMenu.roomIDInput)
-		Room.joinRoom(client.app.getRoomMenu.roomIDInput.get());
+		Room.requestJoinRoom(client.app.getRoomMenu.roomIDInput.get());
 		client.setState('to_room');
 		client.app.getRoomMenu.off();
 		client.app.toRoomMenu.on();

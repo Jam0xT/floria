@@ -1,5 +1,5 @@
 import * as util from './utility.js';
-import Room from './room/room.js';
+import Room from './room.js';
 import App from './render/app.js';
 
 // 主菜单，寻找房间，等待服务器返回房间信息，房间中，游戏中，错误
@@ -15,7 +15,7 @@ class Client {
 	// 自身用户名
 	username;
 
-	// 锁在房间
+	// 所在房间
 	room;
 
 	// pixi app
@@ -55,6 +55,7 @@ class Client {
 		if ( this.state == 'to_room' ) {
 			this.state = 'room';
 			this.app.roomMenu.roomIDText.set(value.roomData.id);
+			this.app.roomMenu.playerList.set(value.roomData.playerDatas);
 			this.app.toRoomMenu.off();
 			this.app.roomMenu.on();
 		}

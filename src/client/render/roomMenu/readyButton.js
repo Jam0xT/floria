@@ -1,7 +1,7 @@
 import * as pixi from 'pixi.js';
 import client from '../../client.js';
 import textStyles from '../textStyles.js';
-import Room from '../../room/room.js';
+import Room from '../../room.js';
 
 class ReadyButton {
 	parent;
@@ -60,7 +60,7 @@ class ReadyButton {
 	}
 
 	onClick() {
-		Room.switchReady();
+		Room.requestSwitchReady();
 	}
 }
 

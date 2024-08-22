@@ -1,14 +1,14 @@
 import * as pixi from 'pixi.js';
 
-class textStyles {
-	static default(fontSize, color = '#000000') {
+const textStyles = {
+	'default': function(fontSize, color = '#ffffff') {
 		return new pixi.TextStyle({
 			fontFamily: 'Ubuntu',
 			fontWeight: 700,
 			fontSize: fontSize,
-			fill: '#ffffff',
+			fill: color,
 			stroke: {
-				color: color,
+				color: '#000000',
 				width: fontSize / 8,
 			},
 		});
