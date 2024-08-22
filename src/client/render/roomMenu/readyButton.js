@@ -61,6 +61,7 @@ class ReadyButton {
 
 	onClick() {
 		Room.requestSwitchReady();
+		client.app.roomMenu.playerList.ready(client.uuid);
 	}
 }
 

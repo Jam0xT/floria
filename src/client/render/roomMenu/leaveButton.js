@@ -61,6 +61,7 @@ class LeaveButton {
 
 	onClick() {
 		Room.requestLeaveRoom();
+		client.onLeaveRoom();
 	}
 }
 

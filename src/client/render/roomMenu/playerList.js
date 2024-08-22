@@ -14,7 +14,7 @@ class PlayerList {
 	constructor(parent) {
 		this.parent = parent;
 		this.container = new pixi.Container();
-		this.players = [];
+		this.players = {};
 		this.onResizeFnList = [];
 		this.init();
 	}
@@ -25,7 +25,7 @@ class PlayerList {
 	}
 
 	appendOnResizeFnList(onResizeFnList) {
-		this.onResizeFnList.push(...onResizeFnList);
+		return this.onResizeFnList.push(...onResizeFnList);
 	}
 
 	onResize() {
@@ -38,18 +38,34 @@ class PlayerList {
 	}
 
 	set(playerDatas) {
-		this.players.forEach(playerDisplay => {
+		Object.values(this.players).forEach(playerDisplay => {
 			playerDisplay.destroy();
 		});
-		this.players = [];
+		this.players = {};
 		this.onResizeFnList = [];
 
 		playerDatas.forEach((playerData, index) => {
 			const newPlayerDisplay = new PlayerDisplay(this, playerData, index);
-			this.players.push(newPlayerDisplay);
+			this.players[playerData.uuid] = newPlayerDisplay;
 		});
 	}
 
+	add(playerData) {
+		const newPlayerDisplay = new PlayerDisplay(this, playerData, Object.keys(this.players).length);
+		this.players[playerData.uuid] = newPlayerDisplay;
+	}
+
+	remove(playerUUID) {
+		const playerDisplay = this.players[playerUUID];
+		playerDisplay.destroy();
+		delete this.players[playerUUID];
+		delete this.onResizeFnList[playerDisplay.onResizeFnIndex];
+	}
+
+	ready(playerUUID) {
+		const playerDisplay = this.players[playerUUID];
+		playerDisplay.ready();
+	}
 }
 
 export default PlayerList;

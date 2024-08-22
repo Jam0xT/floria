@@ -1,6 +1,7 @@
 import Team from '../teams.js';
 import * as roomManager from '../roomManager.js';
 import { TeamPresets } from '../teams.js';
+import log from '../log.js';
 
 export default class Room_Template {
 	id = roomManager.getNewRoomID();
@@ -31,7 +32,7 @@ export default class Room_Template {
 			this.players[player.uuid] = player;
 			player.room = this;
 			player.gameState = `waiting`;
-			console.log(`player added:` + player.uuid)
+			console.log(`${log.gray('[')}${log.gray('#')}${log.blue(this.id)}${log.gray(']')} ${log.green('+')} ${log.gray(player.uuid)}`);
 		}
 		
 		return canAddPlayer.reason;
@@ -62,22 +63,21 @@ export default class Room_Template {
 		delete this.players[player.uuid];
 		
 		if (Object.keys(this.players).length == 0) {
-			Room.removeRoom(this);
+			roomManager.removeRoom(this);
 		}
 		
 		if (player == this.owner) {
 			this.setOwner(Object.values(this.players)[0]);
 		}
 		
-		
-		console.log(`player removed:` + player.uuid)
+		console.log(`${log.gray('[')}${log.gray('#')}${log.blue(this.id)}${log.gray(']')} ${log.red('-')} ${log.gray(player.uuid)}`);
 	}
 	
 	//切换玩家准备状态
 	playerSwitchReady(player) {
 		//切换玩家游戏状态
 		player.gameState = player.gameState == `waiting` ? `ready` : `waiting`;
-		console.log(`player state:` + player.gameState)
+		console.log(`${log.gray('[')}${log.gray('#')}${log.blue(this.id)}${log.gray(']')} ${player.gameState == 'waiting' ? log.red('R') : log.green('R')} ${log.gray(player.uuid)}`);
 		//是否有至少一位玩家没有准备，为undefind就是全部准备
 		const isAtLeastOnePlayerNotReady = Object.values(this.players).find((player) => {
 			return player.gameState == `waiting`;
@@ -91,19 +91,24 @@ export default class Room_Template {
 		const playerAmount = Object.keys(this.players).length;
 		
 		//^^^
-		if (!isAtLeastOnePlayerNotReady && playerAmount >= playerAmountMinToStart) this.startGame();
+		if (!isAtLeastOnePlayerNotReady && playerAmount >= playerAmountMinToStart)
+			this.startGame();
 	}
 	
 	updateSettings(settings) {
 		if (this.isGameStarted) return;
 		
-		const mapSettings = Room.getMapSettings(this.type, settings.map);
-		
-		const teamSetting = TeamPresets.fair(mapSettings.teamCount, mapSettings.teamSize);
-		
-		this.setTeamByArray(teamSetting);
-		
-		this.isPrivate = settings.isPrivate;
+		if ( settings.mapID ) {
+			const mapSettings = roomManager.getMapSettings(this.type, settings.mapID);
+			
+			const teamSetting = TeamPresets.fair(mapSettings.teamCount, mapSettings.teamSize);
+			
+			this.setTeamByArray(teamSetting);
+		}
+
+		if ( settings.isPrivate ) {
+			this.isPrivate = settings.isPrivate;
+		}
 	}
 	
 	setOwner(player) {
@@ -143,6 +148,15 @@ export default class Room_Template {
 	
 	getPlayerByUUID(uuid) {
 		return this.players[uuid]
+	}
+
+	sendAll(data, excludedUUIDList) {
+		Object.values(this.players).forEach(player => {
+			if ( excludedUUIDList.includes(player.uuid) )
+				return ;
+			const ws = player.ws;
+			ws.send(data);
+		});
 	}
 	
 	//分配玩家队伍函数

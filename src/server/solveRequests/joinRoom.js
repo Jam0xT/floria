@@ -3,21 +3,35 @@ import Constants from "../../shared/constants.js";
 import { createData } from "../server.js";
 
 export default function onPlayerRequestJoinRoom(value, ws) {
-	if (ws.player.room) ws.player.room.removePlayer(ws.player);
+	const player = ws.player;
+	if ( player.room )
+		player.room.removePlayer(player);
 	
-	const room = roomManager.getRoomById(value.roomID);
+	const room = roomManager.getRoomById(value.options.roomID);
 	if ( !room )
 		return;
 
-	ws.player.setUsername(value.username);
+	player.setUsername(value.options.username);
 	
-	const joinResult = room.tryAddPlayer(ws.player);
+	const joinResult = room.tryAddPlayer(player);
 	
 	//success
 	if (joinResult == `success`) {
 		const roomData = room.getData();
-		const data = createData(Constants.MSG_TYPES.SERVER.ROOM.JOIN, { roomData: roomData });
-		ws.send(data);
+		ws.send(createData(
+			Constants.MSG_TYPES.SERVER.ROOM.JOIN,
+			{
+				roomData: roomData,
+			}
+		));
+
+		room.sendAll(createData(
+			Constants.MSG_TYPES.SERVER.ROOM.PLAYER_JOIN,
+			{
+				playerData: player.getData(),
+			}
+		), [player.uuid]);
+
 		return;
 	}
 	

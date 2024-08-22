@@ -6,6 +6,7 @@ import RoomIDText from './roomMenu/roomIDText.js';
 import CopyRoomIDButton from './roomMenu/copyRoomIDButton.js';
 import ReadyButton from './roomMenu/readyButton.js';
 import LeaveButton from './roomMenu/leaveButton.js';
+import TogglePrivateButton from './roomMenu/togglePrivateButton.js';
 
 class RoomMenu {
 	app;
@@ -37,6 +38,7 @@ class RoomMenu {
 		this.readyButton = new ReadyButton(this);
 		this.roomIDText = new RoomIDText(this);
 		this.leaveButton = new LeaveButton(this);
+		this.togglePrivateButton = new TogglePrivateButton(this);
 		this.copyRoomIDButton = new CopyRoomIDButton(this);
 		this.init();
 	}

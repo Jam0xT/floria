@@ -12,6 +12,8 @@ class Client {
 	// 游戏模式 id
 	gamemode;
 
+	uuid;
+
 	// 自身用户名
 	username;
 
@@ -51,6 +53,10 @@ class Client {
 		}
 	}
 
+	onConnect(value) {
+		this.uuid = value.data.uuid;
+	}
+
 	onJoinRoom(value) {
 		if ( this.state == 'to_room' ) {
 			this.state = 'room';
@@ -58,6 +64,44 @@ class Client {
 			this.app.roomMenu.playerList.set(value.roomData.playerDatas);
 			this.app.toRoomMenu.off();
 			this.app.roomMenu.on();
+		}
+	}
+
+	onLeaveRoom() {
+		if ( this.state == 'room' ) {
+			this.state = 'get_room';
+			this.app.roomMenu.off();
+			this.app.mainMenu.on();
+		}
+	}
+
+	onPlayerJoinRoom(value) {
+		if ( this.state == 'room' ) {
+			this.app.roomMenu.playerList.add(value.playerData);
+		}
+	}
+
+	onPlayerLeaveRoom(value) {
+		if ( this.state =='room' ) {
+			this.app.roomMenu.playerList.remove(value.playerData.uuid);
+		}
+	}
+
+	onPlayerReady(value) {
+		if ( this.state == 'room' ) {
+			this.app.roomMenu.playerList.ready(value.playerData.uuid);
+		}
+	}
+
+	onSettingsUpdate(value) {
+		if ( this.state == 'room' ) {
+			const settings = value.settings;
+			if ( settings.mapID ) {
+				this.app.roomMenu.mapList.select(settings.mapID);
+			}
+			if ( settings.isPrivate ) {
+				this.app.roomMenu.togglePrivateButton.toggle();
+			}
 		}
 	}
 }

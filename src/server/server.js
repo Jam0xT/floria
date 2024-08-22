@@ -54,8 +54,8 @@ wss.on('connection', (ws) => {
 	});
 
 	ws.on('message', (text) => {
+		// console.log(`received ${text}`);
 		solveRequestFromClient(ws, text);
-		console.log(`received ${text}`);
 	});
 });
 

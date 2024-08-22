@@ -44,10 +44,7 @@ class Room {
 	
 	static requestUpdateSettings(settings) {
 		const data = nw.createData(Constants.MSG_TYPES.CLIENT.ROOM.UPDATE_SETTINGS, {
-			room: {
-				isPrivate: settings.isPrivate,
-				map: settings.map,
-			}
+			settings: settings,
 		})
 		nw.ws.send(data);
 	}

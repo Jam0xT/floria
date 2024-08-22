@@ -11,7 +11,10 @@ export default function onPlayerRequestLeaveRoom(value, ws) {
 	
 	room.removePlayer(player);
 
-	const roomData = room.getData();
-	const data = createData(Constants.MSG_TYPES.SERVER.ROOM.UPDATE, { roomData: roomData });
-	ws.send(data);
+	room.sendAll(createData(
+		Constants.MSG_TYPES.SERVER.ROOM.PLAYER_LEAVE,
+		{
+			playerData: player.getData(),
+		}
+	), [player.uuid]);
 }

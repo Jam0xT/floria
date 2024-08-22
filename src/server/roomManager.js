@@ -6,9 +6,9 @@ import log from './log.js';
 const roomList = {}; // 房间列表
 
 function createRoom(options) {
-	switch (options.type) {
+	switch (options.gamemode) {
 		case `arena`: {
-			const mapSettings = Room.getMapSettings(`arena`, map);
+			const mapSettings = getMapSettings(`arena`, Object.keys(Arena_Maps)[0]);
 			if ( !mapSettings )
 				return false;
 			
@@ -18,7 +18,7 @@ function createRoom(options) {
 				team: teamSetting,
 			});
 			
-			console.log(`Created Room #${log.data(newRoom.id)}.`);
+			console.log(`${log.green('+')} ${log.gray('#')}${log.blue(newRoom.id)}`);
 			roomList[newRoom.id] = newRoom;
 			return newRoom;
 		}
@@ -26,11 +26,11 @@ function createRoom(options) {
 }
 
 function removeRoom(room) {
-	delete Room.list[room.id];
+	delete roomList[room.id];
 }
 
 function getRoomById(roomId) {
-	return Room.list[roomId];
+	return roomList[roomId];
 }
 
 function getNewRoomID() {
@@ -51,13 +51,13 @@ function getNewRoomID() {
 }
 
 function findPublic() {
-	return Object.values(Room.list).find((room) => {
+	return Object.values(roomList).find((room) => {
 		return !room.isPrivate && room.determineCanRoomAddPlayer().bool;
 	})
 }
 
-function getMapSettings(type, map) {
-	switch (type) {
+function getMapSettings(gamemode, map) {
+	switch (gamemode) {
 		case `arena`: {
 			return Arena_Maps[map];
 		}

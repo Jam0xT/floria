@@ -1,4 +1,5 @@
 import { randomUUID } from "crypto";
+import log from './log.js';
 
 /*
 export type ConnectionState = `connected` | `disconnected`; //玩家连接状态
@@ -23,7 +24,7 @@ class Player {
 	
 	username = ``;
 	
-	//public ws: WebsocketConnection;
+	ws;
 	
 	delayRemove; 
 	
@@ -65,8 +66,9 @@ class Player {
 	static createNewPlayer(ws) {
 		const newPlayer = new Player();
 		Player.list[newPlayer.uuid] = newPlayer;
+		newPlayer.ws = ws;
 		ws.player = newPlayer;
-		console.log(`a player joined`)
+		console.log(`${log.green('+')} ${log.gray(newPlayer.uuid)}`);
 		return newPlayer;
 	}
 	

@@ -10,7 +10,10 @@ export default function onPlayerRequestReady(value, ws) {
 	
 	room.playerSwitchReady(player);
 
-	const roomData = room.getData();
-	const data = createData(Constants.MSG_TYPES.SERVER.ROOM.UPDATE, { roomData: roomData });
-	ws.send(data);
+	room.sendAll(createData(
+		Constants.MSG_TYPES.SERVER.ROOM.PLAYER_READY,
+		{
+			playerData: player.getData(),
+		}
+	), [player.uuid]);
 }

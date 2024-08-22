@@ -6,11 +6,11 @@ class PlayerNameText {
 
 	text;
 	
-	constructor(parent, text, isReady) {
+	constructor(parent, text) {
 		this.parent = parent;
 		this.text = new pixi.Text({
 			text: text,
-			style: textStyles.default(36, isReady ? '#b4fa9b' : "#ffffff"),
+			style: textStyles.default(36),
 		});
 		this.init();
 	}

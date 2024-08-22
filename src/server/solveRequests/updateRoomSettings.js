@@ -1,10 +1,27 @@
-
+import Constants from "../../shared/constants.js";
+import { createData } from "../server.js";
 
 export default function onPlayerRequestUpdateRoomSettings(value, ws) {
-	if (!ws.player.room) return;
+	const player = ws.player;
+
+	if (!player.room) return;
 	
-	ws.player.room.updateSettings({
-		map: value.room.map,
-		isPrivate: value.room.isPrivate
-	})
+	const settings = value.settings;
+	if ( settings.mapID ) {
+		player.room.updateSettings({
+			mapID: settings.mapID,
+		});
+	}
+	if ( settings.isPrivate ) {
+		player.room.updateSettings({
+			isPrivate: settings.isPrivate,
+		});
+	}
+
+	player.room.sendAll(createData(
+		Constants.MSG_TYPES.SERVER.ROOM.UPDATE_SETTINGS,
+		{
+			settings: settings,
+		}
+	), [player.uuid]);
 }

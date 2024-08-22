@@ -63,9 +63,39 @@ export function createData(request, value) {
 function onMessage(event) {
 	const parsedData = JSON.parse(event.data);
 	console.log(parsedData);
-	switch(parsedData.request) {
+	const {request, value} = parsedData;
+	switch(request) {
+		case Constants.MSG_TYPES.SERVER.CONNECT: {
+			client.onConnect(value);
+			break;
+		}
 		case Constants.MSG_TYPES.SERVER.ROOM.JOIN: {
-			client.onJoinRoom(parsedData.value);
+			client.onJoinRoom(value);
+			break;
+		}
+		case Constants.MSG_TYPES.SERVER.ROOM.LEAVE: {
+			client.onLeaveRoom(value);
+			break;
+		}
+		case Constants.MSG_TYPES.SERVER.ROOM.PLAYER_JOIN: {
+			client.onPlayerJoinRoom(value);
+			break;
+		}
+		case Constants.MSG_TYPES.SERVER.ROOM.PLAYER_LEAVE: {
+			client.onPlayerLeaveRoom(value);
+			break;
+		}
+		case Constants.MSG_TYPES.SERVER.ROOM.PLAYER_READY: {
+			client.onPlayerReady(value);
+			break;
+		}
+		case Constants.MSG_TYPES.SERVER.ROOM.UPDATE_SETTINGS: {
+			client.onSettingsUpdate(value);
+			break;
+		}
+		case Constants.MSG_TYPES.SERVER.GAME.START: {
+			
+			break;
 		}
 	}
 }

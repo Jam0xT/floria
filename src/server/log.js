@@ -2,9 +2,21 @@ import chalk from 'chalk';
 
 const error = chalk.red;
 
-const data = chalk.blue;
+const blue = chalk.blue;
+
+const green = chalk.green;
+
+const red = chalk.red;
+
+const gray = chalk.gray;
+
+const lightGray = chalk.hex('#c2c2c2');
 
 export default {
 	error,
-	data,
+	blue,
+	green,
+	red,
+	gray,
+	lightGray,
 };

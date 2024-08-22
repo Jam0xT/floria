@@ -17,16 +17,22 @@ export default Object.freeze({
 				INFO: 'client_room_info',
 				SETTINGS: 'client_room_settings',
 				CHANGE_TEAM: 'client_room_change_team',
+				MAP_UPDATE: 'client_room_map_update',
 			},
 			GAME: {
 				INPUT: 'client_game_input',
 			}
 		},
 		SERVER: {
+			CONNECT: 'server_connect',
 			ROOM: {
 				CREATE: 'server_room_create',
 				JOIN: 'server_room_join',
 				LEAVE: 'server_room_leave',
+				PLAYER_JOIN: 'server_room_player_join',
+				PLAYER_LEAVE: 'server_room_player_leave',
+				PLAYER_READY: 'server_room_player_ready',
+				UPDATE_SETTINGS: 'server_room_update_settings',
 				UPDATE: 'server_room_update',
 				INFO: 'server_room_info',
 				SETTINGS: 'server_room_settings',

@@ -2,6 +2,7 @@ import * as pixi from 'pixi.js';
 import textStyles from '../textStyles.js';
 import client from '../../client.js';
 import maps from '../../maps.js';
+import Room from '../../room.js';
 
 class MapList {
 	parent;
@@ -77,10 +78,15 @@ class MapList {
 		if ( !maps[this.gamemode][mapID] ) {
 			throw new Error(`Selecting undefined map '${this.gamemode}-${mapID}'.`);
 		}
+		if ( this.selected == mapID )
+			return ;
 		if ( this.selected )
 			this.maps[this.selected].unselect();
 		this.selected = mapID;
 		this.maps[this.selected].select();
+		Room.requestUpdateSettings({
+			mapID: mapID,
+		});
 	}
 }
 
