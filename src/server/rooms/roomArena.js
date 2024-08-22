@@ -1,4 +1,4 @@
-import Room_Template from "./room-template.js";
+import Room_Template from "./roomTemplate.js";
 import Game_Arena from '../gamemodes/arena/arena.js';
 
 export default class Room_Arena extends Room_Template {
@@ -29,6 +29,8 @@ export default class Room_Arena extends Room_Template {
 	startGame() {
 		this.assignTeamsToPlayers()
 		
+		console.log(`nerd started`)
+		
 		const game = new Game_Arena();
 		
 		Object.values(this.players).forEach((player) => {
@@ -36,7 +38,5 @@ export default class Room_Arena extends Room_Template {
 			player.game = game;
 		})
 		this.isGameStarted = true;
-		
-		console.log(`nerd started`)
 	}
 }
