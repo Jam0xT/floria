@@ -5,6 +5,7 @@ import PlayerList from './roomMenu/playerList.js';
 import RoomIDText from './roomMenu/roomIDText.js';
 import CopyRoomIDButton from './roomMenu/copyRoomIDButton.js';
 import ReadyButton from './roomMenu/readyButton.js';
+import LeaveButton from './roomMenu/leaveButton.js';
 
 class RoomMenu {
 	app;
@@ -35,6 +36,7 @@ class RoomMenu {
 		this.playerList = new PlayerList(this);
 		this.readyButton = new ReadyButton(this);
 		this.roomIDText = new RoomIDText(this);
+		this.leaveButton = new LeaveButton(this);
 		this.copyRoomIDButton = new CopyRoomIDButton(this);
 		this.init();
 	}
