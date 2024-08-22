@@ -63,10 +63,10 @@ class PasteButton {
 		const value = util.copyFromClipboard();
 		if ( typeof value == 'object' ) {
 			value.then((text) => {
-				client.app.getRoomMenu.roomIDInput.set(text);
+				client.app.getRoomMenu.roomIDInput.set(text.slice(0, 6));
 			});
 		} else {
-			client.app.getRoomMenu.roomIDInput.set(value);
+			client.app.getRoomMenu.roomIDInput.set(value.slice(0, 6));
 		}
 	}
 }
