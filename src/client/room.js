@@ -3,29 +3,23 @@ import client from './client.js';
 import Constants from '../shared/constants.js';
 
 class Room {
-	static requestCreateRoom(type, map, isPrivate) {
-		const data = nw.createData(Constants.MSG_TYPES.CLIENT.ROOM.CREATE, {
-			self: {
-				username: client.username
-			},
-			room: {
-				type: type,
-				map: map,
-				isPrivate: isPrivate,
+	static requestCreateRoom(options) {
+		const data = nw.createData(
+			Constants.MSG_TYPES.CLIENT.ROOM.CREATE,
+			{
+				options,
 			}
-		});
+		);
 		nw.ws.send(data);
 	}
 	
-	static requestJoinRoom(roomId) {
-		const data = nw.createData(Constants.MSG_TYPES.CLIENT.ROOM.JOIN, {
-			self: {
-				username: client.username
-			},
-			room: {
-				id: roomId
+	static requestJoinRoom(options) {
+		const data = nw.createData(
+			Constants.MSG_TYPES.CLIENT.ROOM.JOIN,
+			{
+				options,
 			}
-		});
+		);
 		nw.ws.send(data);
 	}
 	

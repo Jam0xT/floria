@@ -1,9 +1,9 @@
 import Team from '../teams.js';
-import Room from './roomStatic.js';
+import * as roomManager from '../roomManager.js';
 import { TeamPresets } from '../teams.js';
 
 export default class Room_Template {
-	id = Room.getNewRoomID();
+	id = roomManager.getNewRoomID();
 	
 	andomTeamColorSeed = Math.random(); // 随机颜色种子
 	
@@ -17,10 +17,9 @@ export default class Room_Template {
 	
 	maxPlayerAmount = 0;
 	
-	isPrivate = false
+	isPrivate = true;
 	
 	constructor(settings) {
-		this.isPrivate = settings.isPrivate;
 		this.setTeamByArray(settings.team);
 	}
 	

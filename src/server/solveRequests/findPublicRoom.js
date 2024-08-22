@@ -1,7 +1,7 @@
-import Room from "../rooms/roomStatic.js";
+import * as roomManager from "../roomManager.js";
 
 export default function onPlayerRequestFindPublicRoom(value, ws) {
-	const room = Room.findPublic()
+	const room = roomManager.findPublic()
 	if (room) {
 		room.tryAddPlayer(ws.player);
 		const roomData = room.getData();

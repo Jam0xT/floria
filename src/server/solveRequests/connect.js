@@ -11,5 +11,5 @@ export default function onPlayerConnect(value, ws) {
 	
 	//为新连接，创建玩家
 	const player = Player.createNewPlayer(ws);
-	player.setUsername(value.self.username);
+	// player.setUsername(value.self.username);
 }

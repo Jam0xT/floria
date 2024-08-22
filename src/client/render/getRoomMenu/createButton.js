@@ -61,11 +61,10 @@ class CreateButton {
 	}
 
 	onClick() {
-		Room.requestCreateRoom(
-			client.gamemode,
-			Object.keys(maps[client.gamemode])[0],
-			true,
-		);
+		Room.requestCreateRoom({
+			gamemode: client.gamemode,
+			username: client.username,
+		});
 		client.setState('to_room');
 		client.app.getRoomMenu.off();
 		client.app.toRoomMenu.on();

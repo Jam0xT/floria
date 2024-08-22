@@ -6,8 +6,7 @@ export type ConnectionState = `connected` | `disconnected`; //玩家连接状态
 //不在房间中，在房间中但没有准备，在房间中且准备，在游戏中
 export type GameState = `idle` | `waiting` | `ready` | `inGame`;
 */
-
-export default class Player {
+class Player {
 	uuid = randomUUID();
 	
 	connectionState = `connected`;
@@ -35,6 +34,7 @@ export default class Player {
 	getData() {
 		return {
 			username: this.username,
+			uuid: this.uuid,
 			isReady: this.gameState == `ready` ? true : false
 		}
 	}
@@ -93,3 +93,5 @@ export default class Player {
 		return true;
 	}
 }
+
+export default Player;

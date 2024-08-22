@@ -64,8 +64,8 @@ function onMessage(event) {
 	const parsedData = JSON.parse(event.data);
 	console.log(parsedData);
 	switch(parsedData.request) {
-		case Constants.MSG_TYPES.SERVER.ROOM.UPDATE: {
-			client.onRoomUpdate(parsedData.value);
+		case Constants.MSG_TYPES.SERVER.ROOM.JOIN: {
+			client.onJoinRoom(parsedData.value);
 		}
 	}
 }
