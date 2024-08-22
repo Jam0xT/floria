@@ -58,6 +58,9 @@ class Client {
 			this.app.roomMenu.playerList.set(value.roomData.playerDatas);
 			this.app.toRoomMenu.off();
 			this.app.roomMenu.on();
+		} else if ( this.state == 'room' ) {
+			this.app.roomMenu.roomIDText.set(value.roomData.id);
+			this.app.roomMenu.playerList.set(value.roomData.playerDatas);
 		}
 	}
 }

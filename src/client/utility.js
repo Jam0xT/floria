@@ -34,7 +34,7 @@ function copyFromClipboard() {
 			console.log('USING UNSECURE COPY METHOD');
 			unsecuredCopyWarned = true;
 		}
-		unsecuredCopyFromClipboard();
+		return unsecuredCopyFromClipboard();
 	}
 }
 

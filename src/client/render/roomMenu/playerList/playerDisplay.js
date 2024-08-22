@@ -51,7 +51,7 @@ class PlayerDisplay {
 	}
 
 	destroy() {
-		this.playerNameText.container.destroy(true);
+		this.playerNameText.text.destroy(true);
 		this.kickButton.container.destroy(true);
 	}
 };

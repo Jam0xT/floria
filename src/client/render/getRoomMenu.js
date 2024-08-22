@@ -5,6 +5,7 @@ import CreateButton from './getRoomMenu/createButton.js';
 import FindPublicButton from './getRoomMenu/findPublicButton.js';
 import JoinButton from './getRoomMenu/joinButton.js';
 import RoomIDInput from './getRoomMenu/roomIDInput.js';
+import PasteButton from './getRoomMenu/pasteButton.js';
 
 class GetRoomMenu {
 	app;
@@ -29,6 +30,9 @@ class GetRoomMenu {
 	// 寻找公开房间按钮
 	findPublicButton;
 
+	// 粘贴房间号按钮
+	pasteButton;
+
 	onResizeFnList;
 
 	constructor(app) {
@@ -40,6 +44,7 @@ class GetRoomMenu {
 		this.roomIDInput = new RoomIDInput(this);
 		this.createButton = new CreateButton(this);
 		this.joinButton = new JoinButton(this);
+		this.pasteButton = new PasteButton(this);
 		this.findPublicButton = new FindPublicButton(this);
 		this.init();
 	}
