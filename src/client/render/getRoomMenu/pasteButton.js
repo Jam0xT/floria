@@ -1,30 +1,23 @@
 import * as pixi from 'pixi.js';
-import * as pixiui from '@pixi/ui';
-import textStyles from '../textStyles.js';
 import client from '../../client.js';
+import textStyles from '../textStyles.js';
+import * as util from '../../utility.js';
 
-class RoomIDInput {
+class PasteButton {
 	parent;
 
 	container;
 
-	input;
-
 	constructor(parent) {
 		this.parent = parent;
 		this.container = new pixi.Container();
-		this.input = new pixiui.Input({
-			textStyle: textStyles.default(36),
-			maxLength: 6,
-			align: 'center',
-		});
 		this.init();
 	}
 
 	init() {
 		// 底部的圆角长方形图案
 		const g = new pixi.Graphics();
-		const width = 250; // 长
+		const width = 200; // 长
 		const height = 60; // 宽
 		const radius = 10; // 圆角半径
 		const strokeWidth = 5; // 边线半径
@@ -36,15 +29,24 @@ class RoomIDInput {
 			width: strokeWidth,
 		});
 
-		// 输入框
-		const input = this.input;
-		input.bg = g;
+		// 转换成 Sprite 便于使用
+		const base = new pixi.Sprite(client.app.application.renderer.generateTexture(g));
+		base.anchor.set(0.5);
+		base.eventMode = 'static';
+		base.cursor = 'pointer';
+		base.on('pointerdown', this.onClick);
 
-		input.pivot.x = input.width / 2;
-		input.pivot.y = input.height / 2;
+		// 文字
+		const text = new pixi.Text({
+			text: 'Create',
+			style: textStyles.default(36),
+		});
+		text.anchor.set(0.5);
 
+		// 加入 container
 		this.container.addChild(
-			input,
+			base,
+			text,
 		);
 
 		this.parent.appendOnResizeFnList([this.onResize.bind(this)]);
@@ -54,16 +56,12 @@ class RoomIDInput {
 	onResize() {
 		const W = client.app.W, H = client.app.H;
 		this.container.x = W * 0.5;
-		this.container.y = H * 0.36;
+		this.container.y = H * 0.44;
 	}
 
-	set(text) {
-		this.input.value = text;
-	}
-
-	get() {
-		return this.input.value;
+	onClick() {
+		client.app.getRoomMenu.roomIDInput.set(util.copyFromClipboard());
 	}
 }
 
-export default RoomIDInput;
+export default PasteButton;

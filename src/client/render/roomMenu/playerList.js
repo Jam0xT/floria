@@ -42,6 +42,7 @@ class PlayerList {
 			playerDisplay.destroy();
 		});
 		this.players = [];
+		this.onResizeFnList = [];
 
 		playerDatas.forEach((playerData, index) => {
 			const newPlayerDisplay = new PlayerDisplay(this, playerData, index);

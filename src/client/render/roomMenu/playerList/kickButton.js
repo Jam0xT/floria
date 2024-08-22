@@ -53,8 +53,8 @@ class KickButton {
 	}
 
 	onResize() {
-		// const W = client.app.W, H = client.app.H;
-		this.container.x = 500;
+		const W = client.app.W, H = client.app.H;
+		this.container.x = 0;
 		this.container.y = 0;
 	}
 

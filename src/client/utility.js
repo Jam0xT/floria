@@ -26,6 +26,32 @@ function unsecuredCopyToClipboard(text) {
 	document.body.removeChild(textArea);
 }
 
+function copyFromClipboard() {
+	if ( navigator.clipboard ) {
+		return navigator.clipboard.readText();
+	} else {
+		if ( !unsecuredCopyWarned ) { // 不安全复制方法
+			console.log('USING UNSECURE COPY METHOD');
+			unsecuredCopyWarned = true;
+		}
+		unsecuredCopyFromClipboard();
+	}
+}
+
+function unsecuredCopyFromClipboard() {
+	const textArea = document.createElement("textarea");
+	document.body.appendChild(textArea);
+	textArea.focus();
+	textArea.select();
+	try {
+		document.execCommand('paste');
+		return textArea.value = text;
+	} catch (err) {
+		console.error('Unable to copy to clipboard', err);
+	}
+	document.body.removeChild(textArea);
+}
+
 class DynamicNumber {
 	constructor (value, target = value, mode = 'exp', k = 0.8) {
 		this.value = value;
@@ -100,6 +126,7 @@ function getStorage(key, preset = null) {
 
 export {
 	copyToClipboard,
+	copyFromClipboard,
 	DynamicNumber,
 	setStorage,
 	getStorage,

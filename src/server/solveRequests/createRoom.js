@@ -5,6 +5,7 @@ import Constants from '../../shared/constants.js';
 export default function onPlayerRequestCreateRoom(value, ws) {
 	//创建房间，添加玩家进入房间
 	const newRoom = Room.createRoom(value.room.type, value.room.map, value.room.isPrivate);
+	ws.player.setUsername(value.self.username);
 	newRoom.tryAddPlayer(ws.player);
 	newRoom.setOwner(ws.player)
 	

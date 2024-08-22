@@ -32,6 +32,7 @@ class PlayerDisplay {
 	init() {
 		this.playerNameText = new PlayerNameText(this, this.username, this.isReady);
 		this.kickButton = new KickButton(this);
+		this.onResize();
 		this.parent.appendOnResizeFnList([this.onResize.bind(this)]);
 		this.parent.container.addChild(this.container);
 	}

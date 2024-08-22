@@ -2,6 +2,7 @@ import * as pixi from 'pixi.js';
 import * as pixiui from '@pixi/ui';
 import textStyles from '../textStyles.js';
 import client from '../../client.js';
+import * as util from '../../utility.js';
 
 class UsernameInput {
 	parent;
@@ -18,6 +19,7 @@ class UsernameInput {
 			maxLength: 20,
 			align: 'center',
 			placeholder: 'username',
+			value: util.getStorage('username'),
 		});
 		this.init();
 	}

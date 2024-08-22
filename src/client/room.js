@@ -4,7 +4,6 @@ import Constants from '../shared/constants.js';
 
 class Room {
 	static requestCreateRoom(type, map, isPrivate) {
-		console.log('client username:', client.username);
 		const data = nw.createData(Constants.MSG_TYPES.CLIENT.ROOM.CREATE, {
 			self: {
 				username: client.username

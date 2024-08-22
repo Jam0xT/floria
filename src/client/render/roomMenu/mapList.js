@@ -145,10 +145,8 @@ class Map {
 			base,
 			text,
 		);
-		
-		this.container.x = 0;
-		this.container.y = 40 * this.displayIndex;
 
+		this.onResize();
 		this.parent.appendOnResizeFnList([this.onResize.bind(this)]);
 		this.parent.container.addChild(this.container);
 	}
