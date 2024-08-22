@@ -58,7 +58,7 @@ class RoomIDInput {
 	}
 
 	get() {
-		return this.input.text;
+		return this.input.value;
 	}
 }
 

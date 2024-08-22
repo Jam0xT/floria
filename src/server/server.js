@@ -7,18 +7,17 @@ import Constants from '../shared/constants.js';
 import webpackConfigDev from "../../webpack.dev.js";
 import webpackConfigProd from '../../webpack.prod.js';
 
-import Room from './rooms/room-static.js';
 import Player from "./server-player.js";
 import onPlayerConnect from "./solveRequests/connect.js";
-import onPlayerRequestCreateRoom from "./solveRequests/create-room.js";
-import onPlayerRequestJoinRoom from "./solveRequests/join-room.js";
-import onPlayerRequestLeaveRoom from "./solveRequests/leave-room.js";
+import onPlayerRequestCreateRoom from "./solveRequests/createRoom.js";
+import onPlayerRequestJoinRoom from "./solveRequests/joinRoom.js";
+import onPlayerRequestLeaveRoom from "./solveRequests/leaveRoom.js";
 import onPlayerRequestReady from "./solveRequests/ready.js";
-import onPlayerRequestChangeTeam from "./solveRequests/change-team.js";
-import onPlayerRequestChangeUsername from "./solveRequests/change-username.js";
-import onPlayerRequestUpdateRoomSettings from "./solveRequests/update-room-settings.js";
-import onPlayerRequestKickPlayer from "./solveRequests/kick-player.js";
-import onPlayerRequestFindPublicRoom from "./solveRequests/find-public-room.js";
+import onPlayerRequestChangeTeam from "./solveRequests/changeTeam.js";
+import onPlayerRequestChangeUsername from "./solveRequests/changeUsername.js";
+import onPlayerRequestUpdateRoomSettings from "./solveRequests/updateRoomSettings.js";
+import onPlayerRequestKickPlayer from "./solveRequests/kickPlayer.js";
+import onPlayerRequestFindPublicRoom from "./solveRequests/findPublicRoom.js";
 
 const app = express();
 app.use(express.static('public'));

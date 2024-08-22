@@ -1,4 +1,4 @@
-import Room_Arena from "./room-arena.js";
+import Room_Arena from "./roomArena.js";
 import { TeamPresets } from "../teams.js";
 import Arena_Maps from '../gamemodes/arena/config/maps.js';
 

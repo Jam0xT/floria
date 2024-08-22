@@ -1,5 +1,5 @@
 import Team from '../teams.js';
-import Room from './room-static.js';
+import Room from './roomStatic.js';
 import { TeamPresets } from '../teams.js';
 
 export default class Room_Template {
@@ -85,7 +85,7 @@ export default class Room_Template {
 		})
 		
 		//启动游戏所需最少玩家，k为常量, <= 1
-		const k = 0.75;
+		const k = 1;
 		const playerAmountMinToStart = Math.floor(this.maxPlayerAmount * k);
 		
 		//当前玩家数

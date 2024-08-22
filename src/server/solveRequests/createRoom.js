@@ -1,4 +1,4 @@
-import Room from "../rooms/room-static.js";
+import Room from "../rooms/roomStatic.js";
 import { createData } from "../server.js";
 import Constants from '../../shared/constants.js';
 

@@ -34,7 +34,8 @@ export default class Player {
 	
 	getData() {
 		return {
-			username: this.username
+			username: this.username,
+			isReady: this.gameState == `ready` ? true : false
 		}
 	}
 	

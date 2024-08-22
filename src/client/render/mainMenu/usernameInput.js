@@ -59,7 +59,7 @@ class UsernameInput {
 	}
 
 	get() {
-		return this.input.text;
+		return this.input.value;
 	}
 }
 

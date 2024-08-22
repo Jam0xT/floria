@@ -5,6 +5,9 @@ import Constants from '../../shared/constants.js';
 class Room {
 	static createRoom(type, map, isPrivate) {
 		const data = nw.createData(Constants.MSG_TYPES.CLIENT.ROOM.CREATE, {
+			self: {
+				username: client.username
+			},
 			room: {
 				type: type,
 				map: map,
@@ -32,7 +35,7 @@ class Room {
 	}
 	
 	static switchReady() {
-		const data = nw.createData(Constants.MSG_TYPES.CLIENT.PLAYER.READY, { });
+		const data = nw.createData(Constants.MSG_TYPES.CLIENT.ROOM.READY, { });
 		nw.ws.send(data);
 	}
 	
