@@ -95,6 +95,7 @@ function solveRequestFromClient(ws, text) {
 		//玩家准备
 		case Constants.MSG_TYPES.CLIENT.ROOM.READY: {
 			onPlayerRequestReady(value, ws);
+			break;
 		}
 		
 		//切换队伍

@@ -1,9 +1,17 @@
-
+import Constants from "../../shared/constants.js";
+import { createData } from "../server.js";
 
 export default function onPlayerRequestLeaveRoom(value, ws) {
 	const player = ws.player;
+
+	const room = player.room;
 	
-	if (!player.room) return;
+	if ( !room )
+		return;
 	
-	player.room.removePlayer(player);
+	room.removePlayer(player);
+
+	const roomData = room.getData();
+	const data = createData(Constants.MSG_TYPES.SERVER.ROOM.UPDATE, { roomData: roomData });
+	ws.send(data);
 }

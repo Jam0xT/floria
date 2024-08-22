@@ -84,8 +84,8 @@ class App {
 		this.H = window.innerHeight * dpr;
 		this.U = Math.min(this.W, this.H) / 1000;
 
-		application.renderer.resolution = 1 / dpr;
-		application.renderer.resize(this.W, this.H);
+		application.renderer.resize(this.W / dpr, this.H / dpr);
+		application.stage.scale = 1 / dpr;
 
 		this.onResizeFnList.forEach(onResizeFn => {
 			onResizeFn();
