@@ -69,9 +69,18 @@ class TogglePrivateButton {
 			return ;
 		
 		this.toggle();
-		Room.requestUpdateSettings({
-			isPrivate: this.isPrivate
-		});
+		client.room.setPrivate(this.isPrivate);
+		client.room.requestUpdateSettings([
+			{
+				key: 'isPrivate',
+				value: this.isPrivate,
+			},
+		]);
+	}
+
+	set(isPrivate) {
+		this.isPrivate = isPrivate;
+		this.text.text = this.isPrivate ? 'Private' : 'Public';
 	}
 
 	toggle() {

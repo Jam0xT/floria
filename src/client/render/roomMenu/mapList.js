@@ -75,20 +75,18 @@ class MapList {
 	}
 
 	select(mapID) {
-		if ( !client.app.roomMenu.isOwner )
-			return ;
 		if ( !maps[this.gamemode][mapID] ) {
 			throw new Error(`Selecting undefined map '${this.gamemode}-${mapID}'.`);
 		}
+
 		if ( this.selected == mapID )
 			return ;
+
 		if ( this.selected )
 			this.maps[this.selected].unselect();
+
 		this.selected = mapID;
-		this.maps[this.selected].select();
-		Room.requestUpdateSettings({
-			mapID: mapID,
-		});
+		this.maps[mapID].select();
 	}
 }
 
@@ -166,7 +164,16 @@ class Map {
 	}
 
 	onClick() {
+		if ( !client.app.roomMenu.isOwner )
+			return ;
 		this.parent.select(this.id);
+		client.room.setMap(this.id);
+		client.room.requestUpdateSettings([
+			{
+				key: 'mapID',
+				value: this.id,
+			},
+		]);
 	}
 
 	select() {

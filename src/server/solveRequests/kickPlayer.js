@@ -3,7 +3,10 @@ import { sendWsMsg } from '../utility.js';
 import server from '../index.js';
 
 export default function (data, ws) {
+	// 发送请求的客户端
 	const client = ws.client;
+
+	// 请求的房间
 	const room = client.room;
 
 	if ( !room ) {
@@ -36,5 +39,6 @@ export default function (data, ws) {
 		{},
 	);
 
+	// 从房间中移除被踢的客户端
 	room.removeClient(data.uuid);
 }

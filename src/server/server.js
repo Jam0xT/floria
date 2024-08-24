@@ -86,6 +86,11 @@ class Server {
 				break;
 			}
 
+			case Constants.MSG_TYPES.CLIENT.ROOM.UPDATE_SETTINGS: {
+				wsMsgHandler.updateRoomSettings(data, ws);
+				break;
+			}
+
 			default:
 				break;
 		}

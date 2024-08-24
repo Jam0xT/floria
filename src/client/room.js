@@ -53,6 +53,18 @@ class Room {
 		this.ownerUUID = ownerUUID;
 		menu.setOwner(ownerUUID);
 	}
+
+	setPrivate(isPrivate) {
+		const menu = client.app.roomMenu;
+		this.isPrivate = isPrivate;
+		menu.setPrivate(isPrivate);
+	}
+
+	setMap(mapID) {
+		const menu = client.app.roomMenu;
+		this.mapID = mapID;
+		menu.setMap(mapID);
+	}
 	
 	setPlayers(players) {
 		const menu = client.app.roomMenu;
@@ -81,6 +93,25 @@ class Room {
 		const menu = client.app.roomMenu;
 		this.players[player.uuid].isReady = player.isReady;
 		menu.setReady(player.uuid, player.isReady);
+	}
+
+	updateSettings(data) {
+		data.forEach(item => {
+			const {key, value} = item;
+
+			switch ( key ) {
+				case 'isPrivate': {
+					this.setPrivate(value);
+					break;
+				}
+				case 'mapID': {
+					this.setMap(value);
+					break;
+				}
+				default:
+					break;
+			}
+		});
 	}
 
 	requestCreateRoom() {
@@ -119,18 +150,10 @@ class Room {
 			uuid: uuid,
 		});
 	}
-	
-	// requestUpdateSettings(settings) {
-	// 	const data = nw.createData(Constants.MSG_TYPES.CLIENT.ROOM.UPDATE_SETTINGS, {
-	// 		settings: settings,
-	// 	})
-	// 	nw.ws.send(data);
-	// }
-	
-	// requestFindPublicRoom() {
-	// 	const data = nw.createData(Constants.MSG_TYPES.CLIENT.PLAYER.FIND_PUBLIC_ROOM, { });
-	// 	nw.ws.send(data);
-	// }
+
+	requestUpdateSettings(data) {
+		nw.sendWsMsg(Constants.MSG_TYPES.CLIENT.ROOM.UPDATE_SETTINGS, data);
+	}
 }
 
 export default Room;

@@ -31,7 +31,7 @@ function sendWsMsg(type, data) {
 
 function onMessage(event) {
 	const msg = JSON.parse(event.data);
-	console.log(msg);
+	// console.log(msg);
 	const {type, data} = msg;
 	switch ( type ) {
 		case Constants.MSG_TYPES.SERVER.CONNECT: {

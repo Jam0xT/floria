@@ -100,15 +100,9 @@ class Client {
 		}
 	}
 
-	onSettingsUpdate(value) {
+	onSettingsUpdate(data) {
 		if ( this.state == 'room' ) {
-			const settings = value.settings;
-			if ( settings.mapID ) {
-				this.app.roomMenu.mapList.select(settings.mapID);
-			}
-			if ( settings.isPrivate ) {
-				this.app.roomMenu.togglePrivateButton.toggle();
-			}
+			this.room.updateSettings(data);
 		}
 	}
 }

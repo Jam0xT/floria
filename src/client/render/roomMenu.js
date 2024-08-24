@@ -94,6 +94,14 @@ class RoomMenu {
 	setID(roomID) {
 		this.roomIDText.set(roomID);
 	}
+	
+	setPrivate(isPrivate) {
+		this.togglePrivateButton.set(isPrivate);
+	}
+
+	setMap(mapID) {
+		this.mapList.select(mapID);
+	}
 
 	setGamemode(gamemode) {
 		this.gamemodeText.set(gamemode);

@@ -2,26 +2,43 @@ import Constants from "../../shared/constants.js";
 import { sendWsMsg } from '../utility.js';
 
 export default function (data, ws) {
-	// const player = ws.player;
-
-	// if (!player.room) return;
+	// 发送请求的客户端
+	const client = ws.client;
 	
-	// const settings = value.settings;
-	// if ( settings.mapID ) {
-	// 	player.room.updateSettings({
-	// 		mapID: settings.mapID,
-	// 	});
-	// }
-	// if ( settings.isPrivate ) {
-	// 	player.room.updateSettings({
-	// 		isPrivate: settings.isPrivate,
-	// 	});
-	// }
+	// 请求的房间
+	const room = client.room;
 
-	// player.room.sendAll(createData(
-	// 	Constants.MSG_TYPES.SERVER.ROOM.UPDATE_SETTINGS,
-	// 	{
-	// 		settings: settings,
-	// 	}
-	// ), [player.uuid]);
+	if ( !room ) {
+		return ;
+	}
+
+	// 不是房主 不能修改设置
+	if ( !room.players[client.uuid].isOwner ) {
+		return ;
+	}
+
+	// 遍历所有修改项
+	data.forEach(item => {
+		const {key, value} = item;
+
+		switch ( key ) {
+			case 'isPrivate': {
+				room.setPrivate(value);
+				break;
+			}
+			case 'mapID': {
+				room.setMap(value);
+				break;
+			}
+			default:
+				break;
+		}
+	});
+
+	// 广播更新信息
+	room.broadcast(
+		Constants.MSG_TYPES.SERVER.ROOM.UPDATE_SETTINGS,
+		data,
+		[client.uuid],
+	);
 }

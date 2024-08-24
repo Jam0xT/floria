@@ -104,20 +104,19 @@ class Room {
 	// 		this.startGame();
 	// }
 	
-	updateSettings(settings) {
-		if (this.isGameStarted) return;
-		
-		if ( settings.mapID ) {
-			const mapSettings = roomManager.getMapSettings(this.type, settings.mapID);
-			
-			const teamSetting = TeamPresets.fair(mapSettings.teamCount, mapSettings.teamSize);
-			
-			this.setTeamByArray(teamSetting);
+	setPrivate(isPrivate) {
+		if ( this.isGameStarted ) {
+			return ;
 		}
+		this.isPrivate = isPrivate;
+	}
 
-		if ( settings.isPrivate ) {
-			this.isPrivate = settings.isPrivate;
+	setMap(mapID) {
+		if ( this.isGameStarted ) {
+			return ;
 		}
+		this.map = mapSet[this.gamemode][mapID];
+		this.maxPlayerCount = this.map.teamCount * this.map.teamSize;
 	}
 	
 	setOwner(client) { // 添加 player 有一样的效果，因为 player.uuid 来自于其连接的 client
