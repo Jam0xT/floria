@@ -17,5 +17,5 @@ export default function (data, ws) {
 		[client.uuid],
 	);
 
-	room.removeClient(client);
+	room.removeClient(client.uuid);
 }

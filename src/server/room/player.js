@@ -4,7 +4,9 @@ class Player {
 
 	client;
 
-	isReady;
+	isReady = false;
+
+	isOwner = false;
 
 	constructor(client) {
 		this.client = client;

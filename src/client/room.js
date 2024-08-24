@@ -24,6 +24,10 @@ class Room {
 	constructor() {
 	}
 
+	onLeave() {
+		client.onLeaveRoom();
+	}
+
 	onJoin(room) {
 		this.setID(room.id);
 		this.setOwner(room.ownerUUID);
@@ -110,14 +114,11 @@ class Room {
 		});
 	}
 
-	// requestKickPlayer(uuid) {
-	// 	const data = nw.createData(Constants.MSG_TYPES.CLIENT.ROOM.KICK_PLAYER, {
-	// 		player: {
-	// 			uuid: uuid
-	// 		}
-	// 	});
-	// 	nw.ws.send(data);
-	// }
+	requestKickPlayer(uuid) {
+		nw.sendWsMsg(Constants.MSG_TYPES.CLIENT.ROOM.KICK_PLAYER, {
+			uuid: uuid,
+		});
+	}
 	
 	// requestUpdateSettings(settings) {
 	// 	const data = nw.createData(Constants.MSG_TYPES.CLIENT.ROOM.UPDATE_SETTINGS, {

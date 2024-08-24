@@ -21,19 +21,22 @@ class PlayerDisplay {
 
 	onResizeFnIndex;
 
+	uuid;
+
 	constructor(parent, data, index) {
 		this.parent = parent;
 		this.container = new pixi.Container();
 		this.isReady = data.isReady;
 		this.displayIndex = index;
 		this.username = data.username;
+		this.uuid = data.uuid;
 		this.onResizeFnList = [];
 		this.init();
 	}
 
 	init() {
 		this.playerNameText = new PlayerNameText(this, this.username);
-		this.kickButton = new KickButton(this);
+		this.kickButton = new KickButton(this, this.uuid);
 		this.onResize();
 		this.onResizeFnIndex = this.parent.appendOnResizeFnList([this.onResize.bind(this)]) - 1;
 		this.parent.container.addChild(this.container);

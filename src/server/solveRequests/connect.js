@@ -16,6 +16,7 @@ export default function (data, ws) {
 	} else { // 新的客户端
 		// 创建新的 Client 实例
 		const client = new Client(ws);
+		server.clients[client.uuid] = client;
 
 		// 发送客户端 uuid
 		sendWsMsg(ws, Constants.MSG_TYPES.SERVER.CONNECT, {

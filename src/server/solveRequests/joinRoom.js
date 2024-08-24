@@ -15,7 +15,7 @@ export default function (data, ws) {
 
 	client.setUsername(data.username);
 	
-	const result = room.addClient(client);
+	const result = room.addClient(client.uuid);
 	
 	if ( result == 0 ) { // 成功加入
 		sendWsMsg(ws, Constants.MSG_TYPES.SERVER.ROOM.JOIN, {

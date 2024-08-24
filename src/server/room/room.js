@@ -5,6 +5,7 @@ import { sendWsMsg } from '../utility.js';
 import Player from './player.js'; 
 import logger from '../logger.js';
 import * as mapSet from '../gamemodes/mapSet.js';
+import server from '../index.js';
 
 class Room {
 	id = roomManager.getNewRoomID();
@@ -36,7 +37,8 @@ class Room {
 	}
 	
 	// 将一个客户端加入房间
-	addClient(client) {
+	addClient(uuid) {
+		const client = server.clients[uuid];
 		if ( this.isGameStarted && !this.canPlayerJoinIfStarted ) {
 			// 游戏开始且不允许加入
 			return 1;
@@ -48,15 +50,15 @@ class Room {
 		}
 
 		// 成功加入
-		this.players[client.uuid] = new Player(client);
+		this.players[uuid] = new Player(client);
 		client.setRoom(this);
-		logger.room.addPlayer(this.id, client.uuid);
+		logger.room.addPlayer(this.id, uuid);
 		return 0;
 	}
 	
 	// 移除一个客户端
-	removeClient(client) {
-		const uuid = client.uuid;
+	removeClient(uuid) {
+		const client = server.clients[uuid];
 		client.room = '';
 		delete this.players[uuid];
 
@@ -120,6 +122,7 @@ class Room {
 	
 	setOwner(client) { // 添加 player 有一样的效果，因为 player.uuid 来自于其连接的 client
 		this.ownerUUID = client.uuid;
+		this.players[client.uuid].isOwner = true;
 	}
 	
 	// 获取要发送到客户端的数据

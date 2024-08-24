@@ -11,7 +11,7 @@ export default function (data, ws) {
 	client.setUsername(data.username);
 
 	// 在新建房间中添加客户端
-	const result = newRoom.addClient(client);
+	const result = newRoom.addClient(client.uuid);
 	
 	if ( result == 0 ) { // 加入成功
 		newRoom.setOwner(client);

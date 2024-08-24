@@ -7,8 +7,11 @@ class KickButton {
 
 	container;
 
-	constructor(parent) {
+	uuid;
+
+	constructor(parent, uuid) {
 		this.parent = parent;
+		this.uuid = uuid;
 		this.container = new pixi.Container();
 		this.init();
 	}
@@ -33,7 +36,7 @@ class KickButton {
 		base.anchor.set(0.5);
 		base.eventMode = 'static';
 		base.cursor = 'pointer';
-		base.on('pointerdown', this.onClick);
+		base.on('pointerdown', this.onClick.bind(this));
 
 		// 文字
 		const text = new pixi.Text({
@@ -59,7 +62,7 @@ class KickButton {
 	}
 
 	onClick() {
-		// kick player;
+		client.room.requestKickPlayer(this.uuid);
 	}
 }
 

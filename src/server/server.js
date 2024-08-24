@@ -51,6 +51,7 @@ class Server {
 		// 如果这个 ws 没有 client，则直接判定为连接请求
 		if ( !ws.client ) {
 			wsMsgHandler.connect(data, ws);
+			return ;
 		}
 
 		switch ( type ) {
@@ -77,6 +78,11 @@ class Server {
 
 			case Constants.MSG_TYPES.CLIENT.ROOM.READY: {
 				wsMsgHandler.ready(data, ws);
+				break;
+			}
+
+			case Constants.MSG_TYPES.CLIENT.ROOM.KICK_PLAYER: {
+				wsMsgHandler.kickPlayer(data, ws);
 				break;
 			}
 
