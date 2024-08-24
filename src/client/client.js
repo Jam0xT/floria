@@ -94,10 +94,9 @@ class Client {
 		}
 	}
 
-	onPlayerReady(value) {
+	onPlayerReady(data) {
 		if ( this.state == 'room' ) {
-			const playerData = value.playerData;
-			this.room.playerReady(playerData);
+			this.room.playerReady(data.player);
 		}
 	}
 

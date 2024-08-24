@@ -62,9 +62,9 @@ class PlayerList {
 		delete this.onResizeFnList[playerDisplay.onResizeFnIndex];
 	}
 
-	ready(playerUUID) {
-		const playerDisplay = this.players[playerUUID];
-		playerDisplay.ready();
+	setReady(uuid, isReady) {
+		const playerDisplay = this.players[uuid];
+		playerDisplay.setReady(isReady);
 	}
 }
 

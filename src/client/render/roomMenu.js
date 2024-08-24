@@ -81,8 +81,8 @@ class RoomMenu {
 		this.playerList.remove(playerData.uuid);
 	}
 
-	setReady(isReady, playerUUID) {
-
+	setReady(uuid, isReady) {
+		this.playerList.setReady(uuid, isReady);
 	}
 
 	setOwner(ownerUUID) {

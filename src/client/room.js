@@ -33,7 +33,8 @@ class Room {
 	toggleReady() {
 		const menu = client.app.roomMenu;
 		this.isReady = !this.isReady;
-		menu.setReady(this.isReady, client.uuid);
+		this.players[client.uuid].isReady = this.isReady;
+		menu.setReady(client.uuid, this.isReady);
 		this.requestSetReady();
 	}
 
@@ -49,29 +50,33 @@ class Room {
 		menu.setOwner(ownerUUID);
 	}
 	
-	setPlayers(playerDatas) {
+	setPlayers(players) {
 		const menu = client.app.roomMenu;
-		playerDatas.forEach(playerData => {
-			this.players[playerData.uuid] = playerData;
+		players.forEach(player => {
+			this.players[player.uuid] = player;
 		});
-		menu.setPlayerList(playerDatas);
+		menu.setPlayerList(players);
 	}
 
+	// 加入玩家啊
 	addPlayer(player) {
 		const menu = client.app.roomMenu;
 		this.players[player.uuid] = player;
 		menu.addPlayer(player);
 	}
 
+	// 移除玩家
 	removePlayer(player) {
 		const menu = client.app.roomMenu;
 		delete this.players[player.uuid];
 		menu.removePlayer(player);
 	}
 
-	playerReady(playerData) {
+	// 设置玩家准备状态
+	playerReady(player) {
 		const menu = client.app.roomMenu;
-		menu.setReady()
+		this.players[player.uuid].isReady = player.isReady;
+		menu.setReady(player.uuid, player.isReady);
 	}
 
 	requestCreateRoom() {

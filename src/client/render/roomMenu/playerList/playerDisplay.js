@@ -39,8 +39,8 @@ class PlayerDisplay {
 		this.parent.container.addChild(this.container);
 	}
 
-	ready() {
-		this.isReady = !this.isReady;
+	setReady(isReady) {
+		this.isReady = isReady;
 		this.playerNameText.text.style.fill = this.isReady ? '#b4fa9b' : "#ffffff";
 	}
 
