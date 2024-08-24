@@ -2,17 +2,14 @@ export default Object.freeze({
 	WS_PORT: 25563,
 	MSG_TYPES: {
 		CLIENT: {
-			PLAYER:{
-				CONNECT: 'client_player_connect',
-				CHANGE_USERNAME: 'client_player_change_username',
-				FIND_PUBLIC_ROOM: 'client_player_find_public_room',
-			},
+			CONNECT: 'client_connect',
 			ROOM: {
 				CREATE: 'client_room_create',
 				JOIN: 'client_room_join',
 				LEAVE: 'client_room_leave',
 				READY: 'client_room_ready',
 				UPDATE_SETTINGS: 'client_room_update_settings',
+				FIND_PUBLIC: 'client_room_find_public',
 				KICK_PLAYER: 'client_room_kick_player',
 				INFO: 'client_room_info',
 				SETTINGS: 'client_room_settings',

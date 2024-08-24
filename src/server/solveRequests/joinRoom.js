@@ -1,41 +1,37 @@
 import * as roomManager from "../roomManager.js";
 import Constants from "../../shared/constants.js";
-import { createData } from "../server.js";
+import { sendWsMsg } from '../utility.js';
 
-export default function onPlayerRequestJoinRoom(value, ws) {
-	const player = ws.player;
-	if ( player.room )
-		player.room.removePlayer(player);
+export default function (data, ws) {
+	const client = ws.client;
+
+	// 如果已经在一个房间里就先从这个房间里移除
+	if ( client.room )
+		client.room.removePlayer(client);
 	
-	const room = roomManager.getRoomById(value.options.roomID);
+	const room = roomManager.get(data.roomID);
 	if ( !room )
 		return;
 
-	player.setUsername(value.options.username);
+	client.setUsername(data.username);
 	
-	const joinResult = room.tryAddPlayer(player);
+	const result = room.addClient(client);
 	
-	//success
-	if (joinResult == `success`) {
-		const roomData = room.getData();
-		ws.send(createData(
-			Constants.MSG_TYPES.SERVER.ROOM.JOIN,
-			{
-				roomData: roomData,
-			}
-		));
-
-		room.sendAll(createData(
+	if ( result == 0 ) { // 成功加入
+		sendWsMsg(ws, Constants.MSG_TYPES.SERVER.ROOM.JOIN, {
+			result: result,
+			room: room.getData(),
+		});
+		room.broadcast(
 			Constants.MSG_TYPES.SERVER.ROOM.PLAYER_JOIN,
 			{
-				playerData: player.getData(),
-			}
-		), [player.uuid]);
-
-		return;
+				player: room.getPlayerData(client.uuid),
+			},
+			[client.uuid],
+		)
+	} else { // 加入失败
+		sendWsMsg(ws, Constants.MSG_TYPES.SERVER.ROOM.JOIN, {
+			result: result,
+		});
 	}
-	
-	//failed
-	const data = createData(Constants.MSG_TYPES.SERVER.ROOM.JOIN_REJECTED, { reason: joinResult })
-	ws.send(data);
 }

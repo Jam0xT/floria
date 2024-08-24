@@ -1,5 +1,5 @@
 import * as pixi from 'pixi.js';
-import client from '../../client.js';
+import client from '../../index.js';
 import PlayerDisplay from './playerList/playerDisplay.js';
 
 class PlayerList {
@@ -37,22 +37,22 @@ class PlayerList {
 		});
 	}
 
-	set(playerDatas) {
+	set(players) {
 		Object.values(this.players).forEach(playerDisplay => {
 			playerDisplay.destroy();
 		});
 		this.players = {};
 		this.onResizeFnList = [];
 
-		playerDatas.forEach((playerData, index) => {
-			const newPlayerDisplay = new PlayerDisplay(this, playerData, index);
-			this.players[playerData.uuid] = newPlayerDisplay;
+		players.forEach((player, index) => {
+			const newPlayerDisplay = new PlayerDisplay(this, player, index);
+			this.players[player.uuid] = newPlayerDisplay;
 		});
 	}
 
-	add(playerData) {
-		const newPlayerDisplay = new PlayerDisplay(this, playerData, Object.keys(this.players).length);
-		this.players[playerData.uuid] = newPlayerDisplay;
+	add(player) {
+		const newPlayerDisplay = new PlayerDisplay(this, player, Object.keys(this.players).length);
+		this.players[player.uuid] = newPlayerDisplay;
 	}
 
 	remove(playerUUID) {

@@ -1,6 +1,6 @@
 import * as pixi from 'pixi.js';
 import textStyles from '../textStyles.js';
-import client from '../../client.js';
+import client from '../../index.js';
 import * as util from '../../utility.js';
 
 class RoomIDText {

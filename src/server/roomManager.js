@@ -1,36 +1,21 @@
-import Room_Arena from "./rooms/roomArena.js";
-import { TeamPresets } from "./teams.js";
-import Arena_Maps from './gamemodes/arena/config/maps.js';
-import log from './log.js';
+import Room from './room/room.js';
+import logger from './logger.js';
 
 const roomList = {}; // 房间列表
 
-function createRoom(options) {
-	switch (options.gamemode) {
-		case `arena`: {
-			const mapSettings = getMapSettings(`arena`, Object.keys(Arena_Maps)[0]);
-			if ( !mapSettings )
-				return false;
-			
-			const teamSetting = TeamPresets.fair(mapSettings.teamCount, mapSettings.teamSize);
-			
-			const newRoom = new Room_Arena({
-				team: teamSetting,
-			});
-			
-			console.log(`${log.green('+')} ${log.gray('#')}${log.blue(newRoom.id)}`);
-			roomList[newRoom.id] = newRoom;
-			return newRoom;
-		}
-	}
+function createRoom(gamemode) {
+	const newRoom = new Room(gamemode);
+	roomList[newRoom.id] = newRoom;
+	logger.room.create(newRoom.id);
+	return newRoom;
 }
 
-function removeRoom(room) {
+function remove(room) {
 	delete roomList[room.id];
 }
 
-function getRoomById(roomId) {
-	return roomList[roomId];
+function get(roomID) {
+	return roomList[roomID];
 }
 
 function getNewRoomID() {
@@ -56,19 +41,10 @@ function findPublic() {
 	})
 }
 
-function getMapSettings(gamemode, map) {
-	switch (gamemode) {
-		case `arena`: {
-			return Arena_Maps[map];
-		}
-	}
-}
-
 export {
 	createRoom,
-	removeRoom,
-	getRoomById,
+	remove,
+	get,
 	getNewRoomID,
 	findPublic,
-	getMapSettings,
 };

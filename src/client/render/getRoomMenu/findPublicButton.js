@@ -1,5 +1,5 @@
 import * as pixi from 'pixi.js';
-import client from '../../client.js';
+import client from '../../index.js';
 import textStyles from '../textStyles.js';
 import Room from '../../room.js';
 import maps from '../../maps.js';

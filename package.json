@@ -27,8 +27,8 @@
 	"main": "./src/server/server.js",
 	"private": "true",
 	"scripts": {
-		"dev": "cross-env NODE_ENV=development node src/server/server.js",
-		"prod": "cross-env NODE_ENV=production node src/server/server.js"
+		"dev": "cross-env NODE_ENV=development node src/server/index.js",
+		"prod": "cross-env NODE_ENV=production node src/server/index.js"
 	},
 	"type": "module",
 	"dependencies": {

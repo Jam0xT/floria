@@ -1,19 +1,20 @@
 import Constants from "../../shared/constants.js";
-import { createData } from "../server.js";
 
-export default function onPlayerRequestReady(value, ws) {
-	const player = ws.player;
-
-	const room = player.room;
+export default function (data, ws) {
+	const client = ws.client;
+	const room = client.room;
 	
-	if (!room || room.isGameStarted) return;
-	
-	room.playerSwitchReady(player);
+	if ( !room || room.isGameStarted ) {
+		return ;
+	}
 
-	room.sendAll(createData(
+	room.setReady(client, data.isReady);
+
+	room.broadcast(
 		Constants.MSG_TYPES.SERVER.ROOM.PLAYER_READY,
 		{
-			playerData: player.getData(),
-		}
-	), [player.uuid]);
+			player: room.getPlayerData(client.uuid),
+		},
+		[client.uuid],
+	);
 }

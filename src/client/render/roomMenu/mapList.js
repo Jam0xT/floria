@@ -1,6 +1,6 @@
 import * as pixi from 'pixi.js';
 import textStyles from '../textStyles.js';
-import client from '../../client.js';
+import client from '../../index.js';
 import maps from '../../maps.js';
 import Room from '../../room.js';
 
@@ -75,6 +75,8 @@ class MapList {
 	}
 
 	select(mapID) {
+		if ( !client.app.roomMenu.isOwner )
+			return ;
 		if ( !maps[this.gamemode][mapID] ) {
 			throw new Error(`Selecting undefined map '${this.gamemode}-${mapID}'.`);
 		}

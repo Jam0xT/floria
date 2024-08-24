@@ -1,25 +1,25 @@
-import Player from "../server-player.js";
-import { createData } from "../server.js";
+import server from '../index.js';
+import Client from "../client.js";
+import { sendWsMsg } from '../utility.js';
 import Constants from "../../shared/constants.js";
 
-export default function onPlayerConnect(value, ws) {
-	const uuid = value.self.uuid
-	const isReconnectionSuccess = Player.tryReconnect(ws, uuid);
-	
-	if (isReconnectionSuccess) {
-		Player.removeDelayRemove(ws.player);
-		return
-	} 
-	
-	//为新连接，创建玩家
-	const player = Player.createNewPlayer(ws);
-	ws.send(createData(
-		Constants.MSG_TYPES.SERVER.CONNECT,
-		{
-			data: {
-				uuid: player.uuid,
-			}
+export default function (data, ws) {
+	// 获取 uuid
+	const uuid = data.uuid;
+
+	if ( uuid ) { // 可能是断开连接的客户端，尝试重连
+		if ( server.reconnect(ws, uuid) ) {
+			// 重连成功
+		} else {
+			// 重连失败
 		}
-	));
-	// player.setUsername(value.self.username);
+	} else { // 新的客户端
+		// 创建新的 Client 实例
+		const client = new Client(ws);
+
+		// 发送客户端 uuid
+		sendWsMsg(ws, Constants.MSG_TYPES.SERVER.CONNECT, {
+			uuid: client.uuid,
+		});
+	}
 }

@@ -7,7 +7,7 @@ class PlayerDisplay {
 
 	container;
 
-	isReady = false;
+	isReady;
 
 	username;
 
@@ -24,6 +24,7 @@ class PlayerDisplay {
 	constructor(parent, data, index) {
 		this.parent = parent;
 		this.container = new pixi.Container();
+		this.isReady = data.isReady;
 		this.displayIndex = index;
 		this.username = data.username;
 		this.onResizeFnList = [];

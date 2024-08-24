@@ -1,6 +1,4 @@
-
-
-export default function onPlayerRequestKickPlayer(value, ws) {
+export default function (value, ws) {
 	if (!ws.player.room) return;
 	
 	if (ws.player.room.owner != ws.player) return;

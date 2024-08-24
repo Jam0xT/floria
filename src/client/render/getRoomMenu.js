@@ -60,6 +60,10 @@ class GetRoomMenu {
 		this.onResizeFnList.push(...onResizeFnList);
 	}
 
+	getRoomIDInput() {
+		return this.roomIDInput.get();
+	}
+
 	onResize() {
 		this.onResizeFnList.forEach(onResizeFn => {
 			onResizeFn();

@@ -1,5 +1,5 @@
 import * as pixi from 'pixi.js';
-import client from '../../client.js';
+import client from '../../index.js';
 import textStyles from '../textStyles.js';
 import Room from '../../room.js';
 import maps from '../../maps.js';
@@ -61,13 +61,7 @@ class CreateButton {
 	}
 
 	onClick() {
-		Room.requestCreateRoom({
-			gamemode: client.gamemode,
-			username: client.username,
-		});
-		client.setState('to_room');
-		client.app.getRoomMenu.off();
-		client.app.toRoomMenu.on();
+		client.room.requestCreateRoom();
 	}
 }
 

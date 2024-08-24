@@ -1,16 +1,28 @@
 import * as roomManager from "../roomManager.js";
-import { createData } from "../server.js";
 import Constants from '../../shared/constants.js';
+import { sendWsMsg } from '../utility.js';
 
-export default function onPlayerRequestCreateRoom(value, ws) {
-	//创建房间，添加玩家进入房间
-	const newRoom = roomManager.createRoom(value.options);
-	ws.player.setUsername(value.options.username);
-	newRoom.tryAddPlayer(ws.player);
-	newRoom.setOwner(ws.player);
+export default function (data, ws) {
+	// 创建新房间
+	const newRoom = roomManager.createRoom(data.gamemode);
+
+	const client = ws.client;
+
+	client.setUsername(data.username);
+
+	// 在新建房间中添加客户端
+	const result = newRoom.addClient(client);
 	
-	//返回房间数据
-	const roomData = newRoom.getData();
-	const data = createData(Constants.MSG_TYPES.SERVER.ROOM.JOIN, { roomData: roomData });
-	ws.send(data);
+	if ( result == 0 ) { // 加入成功
+		newRoom.setOwner(client);
+		sendWsMsg(ws, Constants.MSG_TYPES.SERVER.ROOM.JOIN, {
+			result: result,
+			room: newRoom.getData(),
+		});
+	} else { // 加入失败
+		console.log('join room after creating failed');
+		sendWsMsg(ws, Constants.MSG_TYPES.SERVER.ROOM.JOIN, {
+			result: result,
+		});
+	}
 }

@@ -8,7 +8,7 @@ import webpack from 'webpack';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const entry = {
-	game: './src/client/client.js',
+	game: './src/client/index.js',
 };
 const output = {
 	filename: '[name].[contenthash].js',

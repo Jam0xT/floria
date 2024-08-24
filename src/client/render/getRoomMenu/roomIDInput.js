@@ -1,7 +1,7 @@
 import * as pixi from 'pixi.js';
 import * as pixiui from '@pixi/ui';
 import textStyles from '../textStyles.js';
-import client from '../../client.js';
+import client from '../../index.js';
 
 class RoomIDInput {
 	parent;

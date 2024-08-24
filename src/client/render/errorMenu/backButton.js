@@ -2,7 +2,7 @@ import * as pixi from 'pixi.js';
 import client from '../../index.js';
 import textStyles from '../textStyles.js';
 
-class DiscordButton {
+class BackButton {
 	parent;
 
 	container;
@@ -16,10 +16,10 @@ class DiscordButton {
 	init() {
 		// 底部的圆角长方形图案
 		const g = new pixi.Graphics();
-		const width = 100; // 长
-		const height = 30; // 宽
-		const radius = 5; // 圆角半径
-		const strokeWidth = 3; // 边线半径
+		const width = 150; // 长
+		const height = 60; // 宽
+		const radius = 10; // 圆角半径
+		const strokeWidth = 5; // 边线半径
 
 		g.roundRect(0, 0, width, height, radius);
 		g.fill('#cfcfcf');
@@ -37,8 +37,8 @@ class DiscordButton {
 
 		// 文字
 		const text = new pixi.Text({
-			text: 'Discord',
-			style: textStyles.default(18),
+			text: 'Back',
+			style: textStyles.default(36),
 		});
 		text.anchor.set(0.5);
 
@@ -54,13 +54,16 @@ class DiscordButton {
 
 	onResize() {
 		const W = client.app.W, H = client.app.H;
-		this.container.x = W * 0.05;
-		this.container.y = H * 0.05;
+		this.container.x = W * 0.1;
+		this.container.y = H * 0.9;
 	}
 
 	onClick() {
-		window.open().location = 'https://discord.gg/invite/sMAr7Q48xf';
+		client.setState('main');
+		client.setGamemode('');
+		client.app.errorMenu.off();
+		client.app.mainMenu.on();
 	}
 }
 
-export default DiscordButton;
+export default BackButton;

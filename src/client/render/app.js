@@ -6,7 +6,8 @@ import GetRoomMenu from './getRoomMenu.js';
 import RoomMenu from './roomMenu.js';
 import ArenaMenu from './arenaMenu.js';
 import UHCMenu from './uhcMenu.js';
-import client from '../client.js';
+import ErrorMenu from './errorMenu.js';
+import client from '../index.js';
 
 class App {
 	// pixi application
@@ -36,6 +37,9 @@ class App {
 	// 等待加入房间菜单
 	toRoomMenu;
 
+	// 报错菜单
+	errorMenu;
+
 	// 房间菜单
 	roomMenu;
 
@@ -64,6 +68,7 @@ class App {
 		this.mainMenu = new MainMenu(this);
 		this.toRoomMenu = new ToRoomMenu(this);
 		this.getRoomMenu = new GetRoomMenu(this);
+		this.errorMenu = new ErrorMenu(this);
 		this.roomMenu = new RoomMenu(this);
 		this.arenaMenu = new ArenaMenu(this);
 		this.uhcMenu = new UHCMenu(this);

@@ -1,5 +1,5 @@
 import * as pixi from 'pixi.js';
-import client from '../../client.js';
+import client from '../../index.js';
 import textStyles from '../textStyles.js';
 
 class BackButton {
@@ -59,6 +59,7 @@ class BackButton {
 	}
 
 	onClick() {
+		client.setState('main');
 		client.setGamemode('');
 		client.app.getRoomMenu.off();
 		client.app.mainMenu.on();

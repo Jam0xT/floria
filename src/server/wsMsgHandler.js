@@ -1,0 +1,10 @@
+export { default as connect } from "./solveRequests/connect.js";
+export { default as createRoom } from "./solveRequests/createRoom.js";
+export { default as joinRoom } from "./solveRequests/joinRoom.js";
+export { default as leaveRoom } from "./solveRequests/leaveRoom.js";
+export { default as ready } from "./solveRequests/ready.js";
+export { default as changeTeam } from "./solveRequests/changeTeam.js";
+export { default as changeUsername } from "./solveRequests/changeUsername.js";
+export { default as updateRoomSettings } from "./solveRequests/updateRoomSettings.js";
+export { default as kickPlayer } from "./solveRequests/kickPlayer.js";
+export { default as findPublicRoom } from "./solveRequests/findPublicRoom.js";

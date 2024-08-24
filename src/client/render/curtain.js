@@ -1,6 +1,6 @@
 import * as pixi from 'pixi.js';
 import * as util from '../utility.js';
-import client from '../client.js';
+import client from '../index.js';
 
 class Curtain {
 	// App

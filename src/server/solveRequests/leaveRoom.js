@@ -1,20 +1,21 @@
 import Constants from "../../shared/constants.js";
-import { createData } from "../server.js";
 
-export default function onPlayerRequestLeaveRoom(value, ws) {
-	const player = ws.player;
+export default function (data, ws) {
+	const client = ws.client;
+	const room = client.room;
 
-	const room = player.room;
-	
-	if ( !room )
-		return;
-	
-	room.removePlayer(player);
+	// 房间不存在 / 不在一个房间中
+	if ( !room ) {
+		return ;
+	}
 
-	room.sendAll(createData(
+	room.broadcast(
 		Constants.MSG_TYPES.SERVER.ROOM.PLAYER_LEAVE,
 		{
-			playerData: player.getData(),
-		}
-	), [player.uuid]);
+			player: room.getPlayerData(client.uuid),
+		},
+		[client.uuid],
+	);
+
+	room.removeClient(client);
 }
