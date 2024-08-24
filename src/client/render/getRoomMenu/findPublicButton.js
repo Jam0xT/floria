@@ -61,10 +61,7 @@ class FindPublicButton {
 	}
 
 	onClick() {
-		Room.requestFindPublicRoom();
-		client.setState('to_room');
-		client.app.getRoomMenu.off();
-		client.app.toRoomMenu.on();
+		client.room.requestFindPublicRoom();
 	}
 }
 

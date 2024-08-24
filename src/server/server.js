@@ -91,6 +91,11 @@ class Server {
 				break;
 			}
 
+			case Constants.MSG_TYPES.CLIENT.ROOM.FIND_PUBLIC: {
+				wsMsgHandler.findPublicRoom(data, ws);
+				break;
+			}
+
 			default:
 				break;
 		}

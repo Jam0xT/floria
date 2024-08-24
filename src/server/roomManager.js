@@ -37,8 +37,8 @@ function getNewRoomID() {
 
 function findPublic() {
 	return Object.values(roomList).find((room) => {
-		return !room.isPrivate && room.determineCanRoomAddPlayer().bool;
-	})
+		return (!room.isPrivate) && (!room.isFull);
+	});
 }
 
 export {

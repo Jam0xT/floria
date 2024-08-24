@@ -13,15 +13,16 @@ export default function (data, ws) {
 	if ( !room )
 		return;
 
-	client.setUsername(data.username);
-	
 	const result = room.addClient(client.uuid);
 	
 	if ( result == 0 ) { // 成功加入
+		client.setUsername(data.username);
+
 		sendWsMsg(ws, Constants.MSG_TYPES.SERVER.ROOM.JOIN, {
 			result: result,
 			room: room.getData(),
 		});
+		
 		room.broadcast(
 			Constants.MSG_TYPES.SERVER.ROOM.PLAYER_JOIN,
 			{

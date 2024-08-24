@@ -29,6 +29,8 @@ class Room {
 	gamemode;
 
 	map;
+
+	isFull = false;
 	
 	constructor(gamemode) {
 		this.gamemode = gamemode;
@@ -51,6 +53,9 @@ class Room {
 
 		// 成功加入
 		this.players[uuid] = new Player(client);
+		if ( Object.keys(this.players).length >= this.maxPlayerCount ) {
+			this.isFull = true;
+		}
 		client.setRoom(this);
 		logger.room.addPlayer(this.id, uuid);
 		return 0;
@@ -71,6 +76,9 @@ class Room {
 				// 设置新的 owner
 				this.setOwner(Object.values(this.players)[0].client);
 			}
+		}
+		if ( Object.keys(this.players).length < this.maxPlayerCount ) {
+			this.isFull = false;
 		}
 		logger.room.removePlayer(this.id, uuid);
 	}

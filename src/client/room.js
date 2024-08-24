@@ -154,6 +154,15 @@ class Room {
 	requestUpdateSettings(data) {
 		nw.sendWsMsg(Constants.MSG_TYPES.CLIENT.ROOM.UPDATE_SETTINGS, data);
 	}
+
+	requestFindPublicRoom() {
+		nw.sendWsMsg(Constants.MSG_TYPES.CLIENT.ROOM.FIND_PUBLIC, {
+			username: client.username,
+		});
+		client.setState('to_room');
+		client.app.getRoomMenu.off();
+		client.app.toRoomMenu.on();
+	}
 }
 
 export default Room;
