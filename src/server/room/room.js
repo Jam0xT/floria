@@ -1,11 +1,11 @@
-import Team from '../teams.js';
+import Team from './team.js';
 import * as roomManager from '../roomManager.js';
-import { TeamPresets } from '../teams.js';
 import { sendWsMsg } from '../utility.js';
 import Player from './player.js'; 
 import logger from '../logger.js';
 import * as mapSet from '../gamemodes/mapSet.js';
 import server from '../index.js';
+import gamemodes from '../gamemodes/gamemodes.js';
 
 class Room {
 	id = roomManager.getNewRoomID();
@@ -29,6 +29,8 @@ class Room {
 	gamemode;
 
 	map;
+
+	game;
 
 	isFull = false;
 	
@@ -88,29 +90,17 @@ class Room {
 		const uuid = client.uuid;
 		const player = this.players[uuid];
 		player.isReady = isReady;
+
+		let readyPlayerCount = 0;
+		Object.values(this.players).forEach(player => {
+			readyPlayerCount += player.isReady ? 1 : 0;
+		});
+
+		// 满人且全都准备
+		if ( readyPlayerCount == this.maxPlayerCount ) {
+			this.startGame();
+		}
 	}
-	
-	// //切换玩家准备状态
-	// playerSwitchReady(player) {
-	// 	//切换玩家游戏状态
-	// 	player.gameState = player.gameState == `waiting` ? `ready` : `waiting`;
-	// 	console.log(`${log.gray('[')}${log.gray('#')}${log.blue(this.id)}${log.gray(']')} ${player.gameState == 'waiting' ? log.red('R') : log.green('R')} ${log.gray(player.uuid)}`);
-	// 	//是否有至少一位玩家没有准备，为undefind就是全部准备
-	// 	const isAtLeastOnePlayerNotReady = Object.values(this.players).find((player) => {
-	// 		return player.gameState == `waiting`;
-	// 	})
-		
-	// 	//启动游戏所需最少玩家，k为常量, <= 1
-	// 	const k = 1;
-	// 	const playerAmountMinToStart = Math.floor(this.maxPlayerAmount * k);
-		
-	// 	//当前玩家数
-	// 	const playerAmount = Object.keys(this.players).length;
-		
-	// 	//^^^
-	// 	if (!isAtLeastOnePlayerNotReady && playerAmount >= playerAmountMinToStart)
-	// 		this.startGame();
-	// }
 	
 	setPrivate(isPrivate) {
 		if ( this.isGameStarted ) {
@@ -150,23 +140,23 @@ class Room {
 		return this.players[uuid].getData();
 	}
 	
-	//使用数组设置team属性 示例：[2,2,2,2] 为4team，每team的人数为2人
-	setTeamByArray(teamArray) {
-		//reset
-		this.teams = [];
-		this.maxPlayerAmount = 0;
+	// //使用数组设置team属性 示例：[2,2,2,2] 为4team，每team的人数为2人
+	// setTeamByArray(teamArray) {
+	// 	//reset
+	// 	this.teams = [];
+	// 	this.maxPlayerAmount = 0;
 		
-		for (let i = 0; i < teamArray.length; i++) {
-			const teamSize = teamArray[i];
-			this.maxPlayerAmount += teamSize;
-			const newTeam = new Team(teamSize, i);
-			this.teams.push(newTeam);
-		}
-	}
+	// 	for (let i = 0; i < teamArray.length; i++) {
+	// 		const teamSize = teamArray[i];
+	// 		this.maxPlayerAmount += teamSize;
+	// 		const newTeam = new Team(teamSize, i);
+	// 		this.teams.push(newTeam);
+	// 	}
+	// }
 	
-	getTeamById(teamId) {
-		return this.teams[teamId];
-	}
+	// getTeamById(teamId) {
+	// 	return this.teams[teamId];
+	// }
 	
 	getPlayerByUUID(uuid) {
 		return this.players[uuid]
@@ -181,32 +171,45 @@ class Room {
 	}
 	
 	//分配玩家队伍函数
-	assignTeamsToPlayers() {
+	assignTeams() {
+		this.teams = [];
+		for (let i = 0; i < this.map.teamCount; i ++ ) {
+			const team = new Team(i, this.map.teamSize);
+			this.teams.push(team);
+		}
+
 		Object.values(this.players).forEach((player) => {
-			if (player.team) return;
+			if ( player.team )
+				return;
 			
 			//获取所有队伍中目前人数最少的队伍
 			const teamPlayerCountMin = Math.min(...this.teams.map((team) => team.playerCount));
 			const team = this.teams.find((team) => team.playerCount == teamPlayerCountMin);
 			team.addPlayer(player);
-		})
-
+		});
 		
-		console.log(this.teams)
+		console.log(this.teams);
 	}
 	
 	//开始游戏函数
 	startGame() {
-		this.assignTeamsToPlayers()
+		// this.assignTeamsToPlayers();
+
+		console.log('game start');
 		
-		console.log(`nerd started`)
-		
-		const game = new Game_Arena();
-		
-		Object.values(this.players).forEach((player) => {
-			player.gameState = `inGame`;
-			player.game = game;
-		})
+		const game = new gamemodes[this.gamemode]();
+		this.game = game;
+
+		game.setMap(this.map.id);
+
+		this.assignTeams();
+
+		Object.values(this.players).forEach(player => {
+			this.game.addPlayer(player);
+		});
+
+		this.game.start();
+
 		this.isGameStarted = true;
 	}
 }

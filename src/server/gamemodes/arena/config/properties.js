@@ -1,5 +1,6 @@
 export default Object.freeze({
-	map: 'default',
+	tick_per_second: 25, // 游戏 tps
+	chunk_size: 200, // 区块大小 用于碰撞判定
 	default_kit_info: { // 默认抽象花瓣信息
 		size: 8,
 		primary: ['stinger', 'iris', 'stinger', 'dandelion', 'cactus_toxic', 'epic_rose', 'salt', 'bubble'],
@@ -13,4 +14,8 @@ export default Object.freeze({
 		point: 1, // 单位:点
 		percent: 0, // 单位:总血量百分点; 取 1 表示 1%
 	},
+	petal_speed: 150, // 花瓣追踪速度乘数
+	// spec_speed: 200, // 观察者速度
+	ghost_friendly_petal: true, // 同队花瓣无碰撞
+	random_initial_angle: true, // 玩家初始随机轨道起始角度
 });

@@ -8,7 +8,6 @@ $.chunks: {chunkID -> [{type -> entityType, id -> id}]}
 import * as util from './utility.js';
 import { appendVelocity } from './entityHandler.js';
 import { togglePetalSkillTrigger } from './playerHandler.js';
-import petalSkill from './config/petalSkill.js';
 
 const chunk_id_constant = 1000000; // 用于计算区块 id
 
