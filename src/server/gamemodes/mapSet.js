@@ -1,0 +1,1 @@
+export { default as arena } from './arena/config/maps.js';

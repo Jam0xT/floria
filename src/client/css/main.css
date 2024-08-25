@@ -1,9 +1,25 @@
 html, body {
 	margin: 0;
 	padding: 0;
-	background-color: #FFFFFF;
+	background-color: #181818;
     max-width: 100%;
     max-height: 100%;
     overflow-x: hidden;
     overflow-y: hidden;
+}
+
+#status-container {
+	position:absolute;
+	top:50%;
+	left:50%;
+	transform:translate(-50%,-50%);
+	text-align:center;
+	color:#ffffff;
+	z-index:-1;
+}
+
+#status-text {
+	font-size:48pt;
+	font-family:sans-serif;
+	font-weight:bold
 }

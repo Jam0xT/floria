@@ -1,5 +1,3 @@
-import { W, H, ctxMain } from './canvas.js';
-
 let unsecuredCopyWarned = false; // 防止报错刷屏
 
 function copyToClipboard(text) {
@@ -14,17 +12,58 @@ function copyToClipboard(text) {
 	}
 }
 
+function unsecuredCopyToClipboard(text) {
+	const textArea = document.createElement("textarea");
+	textArea.value = text;
+	document.body.appendChild(textArea);
+	textArea.focus();
+	textArea.select();
+	try {
+		document.execCommand('copy');
+	} catch (err) {
+		console.error('Unable to copy to clipboard', err);
+	}
+	document.body.removeChild(textArea);
+}
+
+function copyFromClipboard() {
+	if ( navigator.clipboard ) {
+		return navigator.clipboard.readText();
+	} else {
+		if ( !unsecuredCopyWarned ) { // 不安全复制方法
+			console.log('USING UNSECURE COPY METHOD');
+			unsecuredCopyWarned = true;
+		}
+		return unsecuredCopyFromClipboard();
+	}
+}
+
+function unsecuredCopyFromClipboard() {
+	const textArea = document.createElement("textarea");
+	document.body.appendChild(textArea);
+	textArea.focus();
+	textArea.select();
+	try {
+		document.execCommand('paste');
+		return textArea.value = text;
+	} catch (err) {
+		console.error('Unable to copy to clipboard', err);
+	}
+	document.body.removeChild(textArea);
+}
+
 class DynamicNumber {
-	constructor (value, target, mode, k) {
+	constructor (value, target = value, mode = 'exp', k = 0.8) {
 		this.value = value;
 		this.target = target;
 		this.mode = mode;
 		this.k = k;
+		this.isDone = (value == target);
 	}
 	
 	to(newTarget) {
 		this.isDone = false;
-		this.target = newTarget
+		this.target = newTarget;
 	}
 	
 	get() {
@@ -45,11 +84,12 @@ class DynamicNumber {
 		this.value = newValue;
 	}
 	
-	static create(value, target, k = 0.8, mode = `exp`) {
-		return new DynamicNumber(value, target, mode, k)
+	static create(value, target = value, k = 0.8, mode = `exp`) {
+		return new DynamicNumber(value, target, mode, k);
 	}
 }
 
+/*
 function shakeScreen(duration = 200, intensity = 10) {
 	const startTime = Date.now();
 	const canvas = ctxMain.canvas;
@@ -69,39 +109,25 @@ function shakeScreen(duration = 200, intensity = 10) {
 	}
     shake();
 }
-
-function unsecuredCopyToClipboard(text) {
-	const textArea = document.createElement("textarea");
-	textArea.value = text;
-	document.body.appendChild(textArea);
-	textArea.focus();
-	textArea.select();
-	try {
-		document.execCommand('copy');
-	} catch (err) {
-		console.error('Unable to copy to clipboard', err);
-	}
-	document.body.removeChild(textArea);
-  }
-
-function fillBackground(ctx, fillStyle) {
-	ctx.fillStyle = fillStyle;
-	ctx.fillRect(0, 0, W, H);
-} 
+*/
 
 function setStorage(key, value) {
 	window.localStorage.setItem(key, value);
 }
 
-function getStorage(key, preset) {
-	return window.localStorage.getItem(key) ?? preset;
+function getStorage(key, preset = null) {
+	const value = window.localStorage.getItem(key);
+	if ( value === null ) {
+		setStorage(key, preset);
+		return preset;
+	}
+	return value;
 }
 
 export {
 	copyToClipboard,
+	copyFromClipboard,
 	DynamicNumber,
-  shakeScreen,
-	fillBackground,
 	setStorage,
 	getStorage,
 }

@@ -1,25 +1,18 @@
-import * as nw from './networking.js';
-
+import Client from './client.js';
 import { downloadAssets } from './assets.js';
-
-// import { initState } from './state.js';
-
-import * as room from './room.js';
-
-import * as canvas from './canvas.js';
-
 import './css/main.css';
 
-import './vue.js';
+window.onload = onLoad;
 
-window.onload = () => {
+const client = new Client('floria.io');
+
+function onLoad() {
 	document.body.style.cursor = "default";
 	preventDefaultActions();
-	canvas.init();
 	Promise.all([
 		downloadAssets(),
 	]).then(() => {
-		// .
+		// 开始渲染
 	});
 }
 
@@ -31,3 +24,5 @@ function preventDefaultActions() {
 		event.preventDefault();
 	});
 }
+
+export default client;

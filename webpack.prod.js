@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { merge } from "webpack-merge";
 import * as common from "./webpack.common.js";
 import WebpackObfuscator from 'webpack-obfuscator';
