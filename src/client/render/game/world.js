@@ -38,7 +38,7 @@ class World {
 
 		const w = window.innerWidth, h = window.innerHeight;
 
-		const targetX = x - w / 2, targetY = y - h / 2;
+		const targetX = w / 2 - x, targetY = h / 2 - y;
 
 		this.container.x += (targetX - this.container.x) * 0.1;
 		this.container.y += (targetY - this.container.y) * 0.1;

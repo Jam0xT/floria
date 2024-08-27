@@ -119,7 +119,7 @@ class Game {
 			const player = $.entities[$.players[clientUUID]];
 			const update = this.createInitUpdate(player);
 
-			sendWsMsg(ws, Constants.MSG_TYPES.SERVER.GAME.UPDATE, update);
+			sendWsMsg(ws, Constants.MSG_TYPES.SERVER.GAME.INIT, update);
 		});
 	}
 
