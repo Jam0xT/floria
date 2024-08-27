@@ -6,6 +6,7 @@ import logger from '../logger.js';
 import * as mapSet from '../gamemodes/mapSet.js';
 import server from '../index.js';
 import gamemodes from '../gamemodes/gamemodes.js';
+import Constants from '../../shared/constants.js';
 
 class Room {
 	id = roomManager.getNewRoomID();
@@ -188,13 +189,11 @@ class Room {
 			team.addPlayer(player);
 		});
 		
-		console.log(this.teams);
+		// console.log(this.teams);
 	}
 	
 	//开始游戏函数
 	startGame() {
-		// this.assignTeamsToPlayers();
-
 		console.log('game start');
 		
 		const game = new gamemodes[this.gamemode]();
@@ -203,6 +202,16 @@ class Room {
 		game.setMap(this.map.id);
 
 		this.assignTeams();
+
+		const teamColors = this.teams.map(team => team.color);
+
+		this.broadcast(
+			Constants.MSG_TYPES.SERVER.ROOM.START,
+			{
+				teamColors: teamColors,
+			},
+			[],
+		);
 
 		Object.values(this.players).forEach(player => {
 			this.game.addPlayer(player);

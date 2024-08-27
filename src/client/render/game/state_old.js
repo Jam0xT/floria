@@ -1,16 +1,16 @@
-import Constants from '../shared/constants.js';
+const renderDelay = 150;
 
 let gameUpdates = [];
 let gameStart = 0;
 let firstServerTimestamp = 0;
 
-export function resetState() {
+function resetState() {
 	gameStart = 0;
 	firstServerTimestamp = 0;
 	gameUpdates = [];
 }
 
-export function processGameUpdate(update) {
+function processGameUpdate(update) {
 	if ( !firstServerTimestamp ) {
 		firstServerTimestamp = update.t;
 		gameStart = Date.now();
@@ -25,7 +25,7 @@ export function processGameUpdate(update) {
 }
 
 function currentServerTime() {
-	return firstServerTimestamp + (Date.now() - gameStart) - Constants.RENDER_DELAY;
+	return firstServerTimestamp + (Date.now() - gameStart) - renderDelay;
 }
 
 function getBaseUpdateIndex() {
@@ -38,7 +38,7 @@ function getBaseUpdateIndex() {
 	return -1;
 }
 
-export function getCurrentState() {
+function getCurrentState() {
 	if ( !firstServerTimestamp ) {
 		return [];
 	}
@@ -103,3 +103,9 @@ function interpolateDirection(d1, d2, ratio) {
 		return d1 + (d2 - d1) * ratio;
 	}
 }
+
+export {
+	resetState,
+	processGameUpdate,
+	getCurrentState,
+};

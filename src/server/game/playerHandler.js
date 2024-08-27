@@ -53,18 +53,9 @@ function addPlayer(playerInRoom) { // 添加玩家
 	if ( $.props.random_initial_angle ) // 如果设置为 true
 		newPlayer.var.angle = util.random(0, Math.PI * 2); // 设置随机玩家初始起始角度
 	
-	let kit = $.props.kit_info;
-	if ( kit ) {
-		let legal = true;
-		kit.primary.forEach(id => {
-			if ( id && (!$.config.petalInfo[id]) )
-				legal = false;
-		});
-		if ( !legal )
-			kit = $.props.default_kit_info;
-	} else {
-		kit = $.props.default_kit_info;
-	}
+	// 从地图读取初始 kit
+	let kit = $.map.initial_kit_info;
+
 	initPetals.bind(this)(newPlayer, kit);	// 初始化花瓣相关信息
 }
 
@@ -303,16 +294,16 @@ petals: [uuid]
 记录已解绑实体花瓣的 uuid
 */
 
-function initPetals(player, defaultKitInfo) { // Game 调用
+function initPetals(player, kitInfo) { // Game 调用
 	const $ = this.var;
 
 	const kit = player.var.kit = {
-		size: defaultKitInfo.size,
+		size: kitInfo.size,
 		primary: [],
-		secondary: [],	
+		secondary: [],
 	};
 
-	defaultKitInfo.primary.forEach(id => {
+	kitInfo.primary.forEach(id => {
 		if ( !id ) { // 空花瓣
 			kit.primary.push({id: ''});
 			return ;
@@ -341,7 +332,7 @@ function initPetals(player, defaultKitInfo) { // Game 调用
 	} else if ( kit.primary.lenth > kit.size ) { // 长度超过，删除多余的
 		kit.primary = kit.primary.slice(0, kit.size);
 	}
-	defaultKitInfo.secondary.forEach(id => {
+	kitInfo.secondary.forEach(id => {
 		kit.secondary.push({
 			id: id,
 			info: $.config.petalInfo[id],

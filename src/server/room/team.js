@@ -4,6 +4,8 @@ class Team {
 	id;
 
 	size;
+
+	color = `rgb(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)})`;
 	
 	players = {};
 	

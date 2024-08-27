@@ -40,6 +40,7 @@ class Game {
 			console.log('Must set map before starting game.');
 			return ;
 		}
+		this.sendInitUpdate();
 		$.endFn = endFn; // 结束函数
 		$.isStarted = true; // 表示游戏开始
 		$.intervalID = setInterval(this.update.bind(this), 1000 / $.props.tick_per_second); // 开启游戏主循环
@@ -111,6 +112,17 @@ class Game {
 		playerHandler.addPlayer.bind(this)(playerInRoom);
 	}
 
+	sendInitUpdate() {
+		const $ = this.var;
+		Object.keys($.websockets).forEach(clientUUID => {
+			const ws = $.websockets[clientUUID];
+			const player = $.entities[$.players[clientUUID]];
+			const update = this.createInitUpdate(player);
+
+			sendWsMsg(ws, Constants.MSG_TYPES.SERVER.GAME.UPDATE, update);
+		});
+	}
+
 	sendUpdate() {
 		const $ = this.var;
 		Object.keys($.websockets).forEach(clientUUID => {
@@ -120,6 +132,14 @@ class Game {
 
 			sendWsMsg(ws, Constants.MSG_TYPES.SERVER.GAME.UPDATE, update);
 		});
+	}
+	
+	createInitUpdate(player) {
+		const $ = this.var;
+		return {
+			kit: player.var.kit,
+			map: $.map,
+		};
 	}
 
 	createUpdate(player) {

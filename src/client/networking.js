@@ -1,4 +1,4 @@
-import { processGameUpdate } from './state.js';
+import { processGameUpdate } from './render/game/state_old.js';
 import Constants from '../shared/constants.js';
 import { getStorage } from './utility.js';
 import client from './index.js';
@@ -31,7 +31,7 @@ function sendWsMsg(type, data) {
 
 function onMessage(event) {
 	const msg = JSON.parse(event.data);
-	console.log(msg);
+	// console.log(msg);
 	const {type, data} = msg;
 	switch ( type ) {
 		case Constants.MSG_TYPES.SERVER.CONNECT: {
@@ -62,10 +62,20 @@ function onMessage(event) {
 			client.onSettingsUpdate(data);
 			break;
 		}
-		case Constants.MSG_TYPES.SERVER.GAME.START: {
-			
+		case Constants.MSG_TYPES.SERVER.ROOM.START: {
+			client.onRoomStart(data);
 			break;
 		}
+		case Constants.MSG_TYPES.SERVER.GAME.INIT: {
+			client.onGameInit(data);
+			break;
+		}
+		case Constants.MSG_TYPES.SERVER.GAME.UPDATE: {
+			client.onGameUpdate(data);
+			break;
+		}
+		default:
+			break;
 	}
 }
 

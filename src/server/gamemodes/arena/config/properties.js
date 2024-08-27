@@ -4,8 +4,6 @@ export default Object.freeze({
 	default_kit_info: { // 默认抽象花瓣信息
 		size: 8,
 		primary: ['stinger', 'iris', 'stinger', 'dandelion', 'cactus_toxic', 'epic_rose', 'salt', 'bubble'],
-		// primary: ['faster', 'triplet', 'corn', 'heavy', 'rock', 'rice', 'leaf', 'rose'],
-		// primary: ['dahlia', 'wing', 'cactus', 'triple_cactus', 'missile', 'peas', 'peas_toxic', 'peas_legendary'],
 		secondary: [],
 	},
 	pkb: 2, // 穿透击退乘数，游戏内所有碰撞击退都会应用这个乘数

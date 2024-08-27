@@ -7,6 +7,11 @@ export default Object.freeze({
 		height: 1000,
 		teamCount: 2,
 		teamSize: 1,
+		initial_kit_info: {
+			size: 5,
+			primary: ['basic', 'basic', 'basic', 'basic', 'basic'],
+			secondary: [],
+		},
 	},
 	'2v2': {
 		id: '2v2',
@@ -14,5 +19,10 @@ export default Object.freeze({
 		height: 1500,
 		teamCount: 2,
 		teamSize: 2,
+		initial_kit_info: {
+			size: 5,
+			primary: ['basic', 'basic', 'basic', 'basic', 'basic'],
+			secondary: [],
+		},
 	},
 });
