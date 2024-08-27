@@ -1,5 +1,5 @@
-import * as entityHandler from '../entityHandler.js';
-import * as playerHandler from '../playerHandler.js';
+import * as entityHandler from '../../../game/entityHandler.js';
+import * as playerHandler from '../../../game/playerHandler.js';
 
 // 花瓣技能
 

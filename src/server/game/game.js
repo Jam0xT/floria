@@ -1,9 +1,10 @@
 import * as playerHandler from './playerHandler.js';
 import * as entityHandler from './entityHandler.js';
 import * as physics from './physics.js';
+import * as time from './time.js';
 import Constants from '../../shared/constants.js';
 import * as util from './utility.js';
-import * as defaultConfig from './defaultConfig.js';
+import { sendWsMsg } from '../utility.js';
 
 class Game {
 	constructor(config) {
@@ -13,24 +14,33 @@ class Game {
 			tick: 0, // 游戏刻计数
 			ended: false, // 获胜已判定
 			stopped: false, // 停止运行
-			config: structuredClone(defaultConfig), // 配置文件
+			config: config, // 配置文件
 		};
-		this.init(config);
+		this.init();
 	}
 
-	init(config) { // 初始化
+	init() { // 初始化
 		const $ = this.var;
+		$.props = $.config.properties;
 		playerHandler.init.bind(this)();
 		entityHandler.init.bind(this)();
 		physics.init.bind(this)();
-		Object.keys($.config).forEach(key => {
-			Object.assign($.config[key], config[key]);
-		});
-		$.map = $.config.maps[$.config.properties.map]; // 游戏地图
+		time.init.bind(this)();
+	}
+
+	// 设置地图 必须在游戏开始前设置
+	setMap(mapID) {
+		const $ = this.var;
+		$.map = $.config.maps[mapID]; // 游戏地图
 	}
 
 	start(endFn) { // 开始游戏
 		const $ = this.var;
+		if ( !$.map ) { // 如果没设置地图
+			console.log('Must set map before starting game.');
+			return ;
+		}
+		this.sendInitUpdate();
 		$.endFn = endFn; // 结束函数
 		$.isStarted = true; // 表示游戏开始
 		$.intervalID = setInterval(this.update.bind(this), 1000 / $.props.tick_per_second); // 开启游戏主循环
@@ -45,6 +55,7 @@ class Game {
 		if ( !this.var.stopped ) {
 			const dt = 1 / this.var.props.tick_per_second;
 			this.var.tick ++;
+			time.update.bind(this)();
 			entityHandler.updateEntities.bind(this)(); // 更新实体
 			playerHandler.updatePlayers.bind(this)(); // 更新玩家
 			entityHandler.updateAcceleration.bind(this)(dt); // 更新加速度
@@ -87,9 +98,9 @@ class Game {
 		}
 	}
 
-	handlePlayerInput(socketID, type, input) {
+	handlePlayerInput(clientUUID, type, input) {
 		const $ = this.var;
-		const player = $.entities[$.players[socketID]];
+		const player = $.entities[$.players[clientUUID]];
 		if ( type == 0 ) { // 鼠标移动
 			entityHandler.move.bind(player)(input.dir, input.power * player.var.attr.speed);
 		} else if ( type == 1 ) { // 鼠标按下/松开
@@ -97,30 +108,55 @@ class Game {
 		}
 	}
 
-	addPlayer(socket, username, team) {
-		playerHandler.addPlayer.bind(this)(socket, username, team);
+	addPlayer(playerInRoom) {
+		playerHandler.addPlayer.bind(this)(playerInRoom);
+	}
+
+	sendInitUpdate() {
+		const $ = this.var;
+		Object.keys($.websockets).forEach(clientUUID => {
+			const ws = $.websockets[clientUUID];
+			const player = $.entities[$.players[clientUUID]];
+			const update = this.createInitUpdate(player);
+
+			sendWsMsg(ws, Constants.MSG_TYPES.SERVER.GAME.INIT, update);
+		});
 	}
 
 	sendUpdate() {
 		const $ = this.var;
-		Object.keys($.sockets).forEach(socketID => {
-			const socket = $.sockets[socketID];
-			const player = $.entities[$.players[socketID]];
+		Object.keys($.websockets).forEach(clientUUID => {
+			const ws = $.websockets[clientUUID];
+			const player = $.entities[$.players[clientUUID]];
 			const update = this.createUpdate(player);
-			socket.emit(Constants.MSG_TYPES.SERVER.GAME.UPDATE, update);
+
+			sendWsMsg(ws, Constants.MSG_TYPES.SERVER.GAME.UPDATE, update);
 		});
+	}
+	
+	createInitUpdate(player) {
+		const $ = this.var;
+		return {
+			kit: player.var.kit,
+			vision: player.var.vision,
+			loadDistance: player.var.attr.vision,
+			map: $.map,
+		};
 	}
 
 	createUpdate(player) {
 		const $ = this.var;
 		const d = player.var.attr.vision; // 视距
-		const nearbyEntities = Object.values($.entities).filter(e => ((e.var.uuid != player.var.uuid) && (util.getDistance(e.var.pos, player.var.pos) <= d)));
+		const nearbyEntities = Object.values($.entities).filter(e => ((util.getDistance(e.var.pos, player.var.pos) <= d)));
+		const entities = {};
+		nearbyEntities.forEach(e => {
+			entities[e.uuid] = entityHandler.getUpdate.bind(e)();
+		});
 
 		return {
 			t: Date.now(), // current time
 			mspt: Date.now() - this.var.time.lastUpdTime, // mspt
-			self: entityHandler.getUpdate.bind(player)(),
-			entities: nearbyEntities.map(e => entityHandler.getUpdate.bind(e)()), // 视距内实体
+			entities: entities, // 视距内实体
 		};
 	}
 }

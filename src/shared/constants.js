@@ -11,10 +11,6 @@ export default Object.freeze({
 				UPDATE_SETTINGS: 'client_room_update_settings',
 				FIND_PUBLIC: 'client_room_find_public',
 				KICK_PLAYER: 'client_room_kick_player',
-				INFO: 'client_room_info',
-				SETTINGS: 'client_room_settings',
-				CHANGE_TEAM: 'client_room_change_team',
-				MAP_UPDATE: 'client_room_map_update',
 			},
 			GAME: {
 				INPUT: 'client_game_input',
@@ -30,16 +26,11 @@ export default Object.freeze({
 				PLAYER_LEAVE: 'server_room_player_leave',
 				PLAYER_READY: 'server_room_player_ready',
 				UPDATE_SETTINGS: 'server_room_update_settings',
-				UPDATE: 'server_room_update',
-				INFO: 'server_room_info',
-				SETTINGS: 'server_room_settings',
 				READY: 'server_room_ready',
 				START: 'server_room_start',
-				JOIN_REJECTED: 'server_room_join_rejected',
 			},
 			GAME: {
 				INIT: 'server_game_init',
-				START: 'server_game_start',
 				OVER: 'server_game_over',
 				UPDATE: 'server_game_update',
 			}

@@ -8,21 +8,27 @@ import Petal from './petal.js';
 
 $ = this.var
 
-$.sockets: {socket id -> socket}
-$.players: {socket id -> uuid}
+$.websockets: {client uuid -> websocket}
+$.players: {client uuid -> entity uuid}
 */
 
 function init() { // 初始化
 	const $ = this.var;
-	$.sockets = {};
+	$.websockets = {};
 	$.players = {};
 }
 
-function addPlayer(socket, username, team) { // 添加玩家
+function addPlayer(playerInRoom) { // 添加玩家
 	const $ = this.var;
-	$.sockets[socket.id] = socket; // 储存 socket
+
+	const client = playerInRoom.client;
+	const clientUUID = client.uuid;
+	$.websockets[clientUUID] = client.ws; // 储存 websocket
+
 	const x = util.randomInt(0, $.map.width); // 生成随机出生点
 	const y = util.randomInt(0, $.map.height);
+
+	// 获取属性
 	const attr = structuredClone($.config.mobAttr.player);
 	const defaultAttr = structuredClone($.config.mobAttr.default);
 
@@ -33,32 +39,24 @@ function addPlayer(socket, username, team) { // 添加玩家
 	attr.hp ??= attr.max_hp;
 
 	const newPlayer = new Player( // 创建新 Player 实例
-		socket.id,
-		username,
+		clientUUID,
+		client.username,
 		x, y,
-		team,
+		playerInRoom.team.id,
 		attr,
 	);
-	const uuid = newPlayer.var.uuid;	// 获取 uuid
-	$.players[socket.id] = uuid;		// 储存 uuid
+
+	const uuid = newPlayer.var.uuid;	// 获取实体 uuid
+	$.players[clientUUID] = uuid;		// 储存实体 uuid
 	entityHandler.addEntity.bind(this)(uuid, newPlayer);	// 添加实体到实体列表
 
 	if ( $.props.random_initial_angle ) // 如果设置为 true
 		newPlayer.var.angle = util.random(0, Math.PI * 2); // 设置随机玩家初始起始角度
 	
-	let kit = $.props.kit_info;
-	if ( kit ) {
-		let legal = true;
-		kit.primary.forEach(id => {
-			if ( id && (!$.config.petalInfo[id]) )
-				legal = false;
-		});
-		if ( !legal )
-			kit = $.props.default_kit_info;
-	} else {
-		kit = $.props.default_kit_info;
-	}
-	initPetals.bind(newPlayer)(kit);	// 初始化花瓣相关信息
+	// 从地图读取初始 kit
+	let kit = $.map.initial_kit_info;
+
+	initPetals.bind(this)(newPlayer, kit);	// 初始化花瓣相关信息
 }
 
 function playerNaturalRegen(player) { // 玩家自然回血
@@ -296,16 +294,18 @@ petals: [uuid]
 记录已解绑实体花瓣的 uuid
 */
 
-function initPetals(defaultKitInfo) { // Player 调用
+function initPetals(player, kitInfo) { // Game 调用
 	const $ = this.var;
-	$.kit = {
-		size: defaultKitInfo.size,
+
+	const kit = player.var.kit = {
+		size: kitInfo.size,
 		primary: [],
-		secondary: [],	
+		secondary: [],
 	};
-	defaultKitInfo.primary.forEach(id => {
+
+	kitInfo.primary.forEach(id => {
 		if ( !id ) { // 空花瓣
-			$.kit.primary.push({id: ''});
+			kit.primary.push({id: ''});
 			return ;
 		}
 		const info = structuredClone($.config.petalInfo[id]); // 获取抽象花瓣信息
@@ -325,23 +325,23 @@ function initPetals(defaultKitInfo) { // Player 调用
 			instances: [],
 		};
 
-		$.kit.primary.push(data);
+		kit.primary.push(data);
 	});
-	if ( $.kit.primary.length < $.kit.size ) { // 长度不够，补空的
-		$.kit.primary = $.kit.primary.concat(new Array($.kit.size - $.kit.primary.length).fill({id: ''}));
-	} else if ( $.kit.primary.lenth > $.kit.size ) { // 长度超过，删除多余的
-		$.kit.primary = $.kit.primary.slice(0, $.kit.size);
+	if ( kit.primary.length < kit.size ) { // 长度不够，补空的
+		kit.primary = kit.primary.concat(new Array(kit.size - kit.primary.length).fill({id: ''}));
+	} else if ( kit.primary.lenth > kit.size ) { // 长度超过，删除多余的
+		kit.primary = kit.primary.slice(0, kit.size);
 	}
-	defaultKitInfo.secondary.forEach(id => {
-		$.kit.secondary.push({
+	kitInfo.secondary.forEach(id => {
+		kit.secondary.push({
 			id: id,
 			info: $.config.petalInfo[id],
 		});
 	});
-	if ( $.kit.secondary.length < $.kit.size ) { // 长度不够，补空的
-		$.kit.secondary = $.kit.secondary.concat(new Array($.kit.size - $.kit.secondary.length).fill({id: ''}));
-	} else if ( $.kit.secondary.lenth > $.kit.size ) { // 长度超过，删除多余的
-		$.kit.secondary = $.kit.secondary.slice(0, $.kit.size);
+	if ( kit.secondary.length < kit.size ) { // 长度不够，补空的
+		kit.secondary = kit.secondary.concat(new Array(kit.size - kit.secondary.length).fill({id: ''}));
+	} else if ( kit.secondary.lenth > kit.size ) { // 长度超过，删除多余的
+		kit.secondary = kit.secondary.slice(0, kit.size);
 	}
 }
 

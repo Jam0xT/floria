@@ -1,6 +1,7 @@
 import * as util from './utility.js';
 import Room from './room.js';
 import App from './render/app.js';
+import * as gameState from './render/game/state_old.js';
 
 // 主菜单，寻找房间，等待服务器返回房间信息，房间中，游戏中，错误
 const legalStates = ['main', 'get_room', 'to_room', 'room', 'game', 'err'];
@@ -103,6 +104,28 @@ class Client {
 	onSettingsUpdate(data) {
 		if ( this.state == 'room' ) {
 			this.room.updateSettings(data);
+		}
+	}
+
+	onRoomStart(data) {
+		if ( this.state == 'room' ) {
+			this.state = 'game';
+			this.app.game.reset();
+			this.app.game.setTeamColors(data.teamColors);
+			this.app.roomMenu.off();
+			this.app.game.on();
+		}
+	}
+
+	onGameInit(data) {
+		if ( this.state == 'game' ) {
+			this.app.game.init(data);
+		}
+	}
+
+	onGameUpdate(data) {
+		if ( this.state == 'game' ) {
+			this.app.game.processRawUpdate(data);
 		}
 	}
 }

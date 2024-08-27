@@ -8,6 +8,8 @@ class Player {
 
 	isOwner = false;
 
+	team;
+
 	constructor(client) {
 		this.client = client;
 		this.uuid = client.uuid;

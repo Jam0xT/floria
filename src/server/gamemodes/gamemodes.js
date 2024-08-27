@@ -4,6 +4,4 @@ const gamemodes = {
 	'arena': Game_Arena,
 }
 
-export {
-	gamemodes,
-};
+export default gamemodes;
