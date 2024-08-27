@@ -42,6 +42,7 @@ class Game {
 	// 初始化
 	init(data) {
 		this.world.setSize(data.map.width, data.map.height);
+		this.world.setVision(data.vision);
 	}
 
 	// 处理原始更新数据

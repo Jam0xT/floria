@@ -1,5 +1,8 @@
 import * as pixi from 'pixi.js';
 import Background from './world/background.js';
+import Entities from './world/entities.js';
+import client from '../../index.js';
+import * as util from '../../utility.js';
 
 class World {
 	container = new pixi.Container({
@@ -13,11 +16,29 @@ class World {
 
 	height = 0;
 
+	// 实际视距
+	vision = new util.DynamicNumber(1);
+
+	// 背景
 	background = new Background();
+
+	// 实体
+	entities = new Entities();
 
 	constructor(game) {
 		this.game = game;
-		this.container.addChild(this.background.container);
+		this.container.addChild(
+			this.background.container,
+			this.entities.container,
+		);
+	}
+
+	setLoadDistance(loadDistance) {
+		this.entities.setLoadDistance(loadDistance);
+	}
+
+	setVision(vision) {
+		this.vision.to(vision);
 	}
 
 	setSize(width, height) {
@@ -34,7 +55,7 @@ class World {
 			return ;
 		}
 
-		const x = state.self.x, y = state.self.y;
+		const x = state.entities[client.uuid].x, y = state.entities[client.uuid].y;
 
 		const w = window.innerWidth, h = window.innerHeight;
 
@@ -42,6 +63,8 @@ class World {
 
 		this.container.x += (targetX - this.container.x) * 0.1;
 		this.container.y += (targetY - this.container.y) * 0.1;
+
+		this.entities.update(state, x, y);
 	}
 }
 

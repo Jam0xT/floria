@@ -138,6 +138,8 @@ class Game {
 		const $ = this.var;
 		return {
 			kit: player.var.kit,
+			vision: player.var.vision,
+			loadDistance: player.var.attr.vision,
 			map: $.map,
 		};
 	}
@@ -145,13 +147,16 @@ class Game {
 	createUpdate(player) {
 		const $ = this.var;
 		const d = player.var.attr.vision; // 视距
-		const nearbyEntities = Object.values($.entities).filter(e => ((e.var.uuid != player.var.uuid) && (util.getDistance(e.var.pos, player.var.pos) <= d)));
+		const nearbyEntities = Object.values($.entities).filter(e => ((util.getDistance(e.var.pos, player.var.pos) <= d)));
+		const entities = {};
+		nearbyEntities.forEach(e => {
+			entities[e.uuid] = entityHandler.getUpdate.bind(e)();
+		});
 
 		return {
 			t: Date.now(), // current time
 			mspt: Date.now() - this.var.time.lastUpdTime, // mspt
-			self: entityHandler.getUpdate.bind(player)(),
-			entities: nearbyEntities.map(e => entityHandler.getUpdate.bind(e)()), // 视距内实体
+			entities: entities, // 视距内实体
 		};
 	}
 }
