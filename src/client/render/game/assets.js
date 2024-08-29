@@ -41,10 +41,7 @@ function getAsset(assetName, radius) {
 			break;
 		}
 		case 'petal/stinger': {
-			asset.moveTo(80, 65.36).
-				lineTo(80, 134.64).
-				lineTo(140, 100).
-				lineTo(80, 65.36);
+			asset.poly([{x: 80, y: 65.36}, {x: 140, y: 100}, {x: 80, y: 134.64}]);
 			asset.fill('#333333');
 			asset.stroke({color:'#292929', width:32, join:'round'});
 			asset.pivot.x = 100;

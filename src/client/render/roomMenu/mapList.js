@@ -122,7 +122,7 @@ class Map {
 	init() {
 		// 底部的圆角长方形图案
 		const g = new pixi.Graphics();
-		const width = 200; // 长
+		const width = 400; // 长
 		const height = 30; // 宽
 		const radius = 5; // 圆角半径
 		const strokeWidth = 3; // 边线半径

@@ -21,6 +21,18 @@ export default Object.freeze({
 		teamSize: 2,
 		initial_kit_info: {
 			size: 5,
+			primary: ['bubble', 'stinger', 'stinger', 'stinger', 'rose'],
+			secondary: [],
+		},
+	},
+	'8x1': {
+		id: '8x1',
+		width: 2000,
+		height: 2000,
+		teamCount: 8,
+		teamSize: 1,
+		initial_kit_info: {
+			size: 5,
 			primary: ['basic', 'basic', 'basic', 'basic', 'basic'],
 			secondary: [],
 		},

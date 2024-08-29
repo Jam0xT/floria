@@ -67,6 +67,9 @@ class Room {
 	// 移除一个客户端
 	removeClient(uuid) {
 		const client = server.clients[uuid];
+		if ( !client ) {
+			return ;
+		}
 		client.room = '';
 		delete this.players[uuid];
 
