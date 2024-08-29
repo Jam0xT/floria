@@ -55,7 +55,8 @@ class World {
 			return ;
 		}
 
-		const x = state.entities[client.uuid].x, y = state.entities[client.uuid].y;
+		const uuid = this.game.selfEntityUUID;
+		const x = state.entities[uuid].x, y = state.entities[uuid].y;
 
 		const w = window.innerWidth, h = window.innerHeight;
 

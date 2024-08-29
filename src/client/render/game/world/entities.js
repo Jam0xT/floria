@@ -24,7 +24,7 @@ class Entities {
 			const entity = entities[uuid];
 			if ( !this.entities[uuid] ) { // 该实体在客户端无记录
 				// 创建新的客户端实体
-				this.entities[uuid] = new Entity();
+				this.entities[uuid] = new Entity(entity);
 				this.container.addChild(this.entities[uuid].container);
 			}
 			if ( !this.entities[uuid].isActive ) { // 该实体为不活跃状态

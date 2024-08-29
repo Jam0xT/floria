@@ -1,5 +1,5 @@
 import Client from './client.js';
-import { downloadAssets } from './assets.js';
+import { downloadAssets } from './assets_old.js';
 import './css/main.css';
 
 window.onload = onLoad;
@@ -9,11 +9,6 @@ const client = new Client('floria.io');
 function onLoad() {
 	document.body.style.cursor = "default";
 	preventDefaultActions();
-	Promise.all([
-		downloadAssets(),
-	]).then(() => {
-		// 开始渲染
-	});
 }
 
 function preventDefaultActions() {

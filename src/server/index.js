@@ -8,7 +8,7 @@ import webpackConfigProd from '../../webpack.prod.js';
 import Server from './server.js';
 
 const app = express();
-app.use(express.static('public'));
+// app.use(express.static('public'));
 
 if (process.env.NODE_ENV == "development") {
 	const compiler = webpack(webpackConfigDev);
