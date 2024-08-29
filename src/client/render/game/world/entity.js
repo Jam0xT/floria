@@ -43,6 +43,17 @@ class Entity {
 
 	// ticker
 	update() {
+		// 已卸载
+		if ( !this.container.visible ) {
+			return ;
+		}
+
+		// 停止收到更新且可以卸载就卸载
+		if ( (!this.isActive) && this.deathAlpha.isDone && this.deathScale.isDone && this.hurtFilterAlpha.isDone ) {
+			this.container.visible = false;
+			return ;
+		}
+
 		if ( this.dead ) {
 			this.asset.alpha = this.deathAlpha.get();
 			this.asset.scale = this.deathScale.get();
@@ -88,6 +99,7 @@ class Entity {
 	updatePos(entity) {
 		this.container.x = entity.x;
 		this.container.y = entity.y;
+		this.container.rotation = entity.attr.dir;
 	}
 
 	// 受伤
@@ -98,7 +110,7 @@ class Entity {
 	// 死亡
 	onDeath() {
 		this.deathAlpha.to(0);
-		this.deathScale.to(2);
+		this.deathScale.to(1.5);
 		this.dead = true;
 	}
 
@@ -111,7 +123,6 @@ class Entity {
 	// 卸载
 	unload() {
 		this.isActive = false;
-		this.container.visible = false; // 隐藏
 	}
 }
 
