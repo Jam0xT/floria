@@ -1,4 +1,3 @@
-import { processGameUpdate } from './render/game/state_old.js';
 import Constants from '../shared/constants.js';
 import { getStorage } from './utility.js';
 import client from './index.js';

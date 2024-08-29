@@ -24,6 +24,7 @@ class Entity {
 			assetName = `mob/${mob.id}`;
 		}
 		this.asset = assets.getAsset(assetName);
+		this.asset.scale = 2 * entity.attr.radius / this.asset.width;
 		this.container.addChild(this.asset);
 	}
 

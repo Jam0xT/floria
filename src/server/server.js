@@ -96,6 +96,11 @@ class Server {
 				break;
 			}
 
+			case Constants.MSG_TYPES.CLIENT.GAME.INPUT: {
+				wsMsgHandler.gameInput(data, ws);
+				break;
+			}
+
 			default:
 				break;
 		}

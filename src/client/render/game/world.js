@@ -25,6 +25,10 @@ class World {
 	// 实体
 	entities = new Entities();
 
+	// 世界坐标
+	x = new util.DynamicNumber(0);
+	y = new util.DynamicNumber(0);
+
 	constructor(game) {
 		this.game = game;
 		this.container.addChild(
@@ -47,6 +51,7 @@ class World {
 		this.background.setSize(width, height);
 	}
 
+	// ticker
 	update() {
 		const state = this.game.state;
 
@@ -62,8 +67,11 @@ class World {
 
 		const targetX = w / 2 - x, targetY = h / 2 - y;
 
-		this.container.x += (targetX - this.container.x) * 0.1;
-		this.container.y += (targetY - this.container.y) * 0.1;
+		this.x.to(targetX);
+		this.y.to(targetY);
+
+		this.container.x = this.x.get();
+		this.container.y = this.y.get();
 
 		this.entities.update(state, x, y);
 	}

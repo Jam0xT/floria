@@ -8,3 +8,4 @@ export { default as changeUsername } from "./solveRequests/changeUsername.js";
 export { default as updateRoomSettings } from "./solveRequests/updateRoomSettings.js";
 export { default as kickPlayer } from "./solveRequests/kickPlayer.js";
 export { default as findPublicRoom } from "./solveRequests/findPublicRoom.js";
+export { default as gameInput } from './solveRequests/gameInput.js';

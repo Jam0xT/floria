@@ -6,7 +6,7 @@ function getAsset(assetName) {
 		case 'petal/basic': {
 			asset.circle(100, 100, 72);
 			asset.fill('#ffffff');
-			asset.circle(100,100,72);
+			asset.circle(100, 100, 72);
 			asset.stroke({color:'#cfcfcf',width:16});
 			break;
 		}

@@ -98,13 +98,13 @@ class Game {
 		}
 	}
 
-	handlePlayerInput(clientUUID, type, input) {
+	handlePlayerInput(clientUUID, type, value) {
 		const $ = this.var;
 		const player = $.entities[$.players[clientUUID]];
 		if ( type == 0 ) { // 鼠标移动
-			entityHandler.move.bind(player)(input.dir, input.power * player.var.attr.speed);
+			entityHandler.move.bind(player)(value.dir, value.power * player.var.attr.speed);
 		} else if ( type == 1 ) { // 鼠标按下/松开
-			player.var.state = input;
+			player.var.state = value;
 		}
 	}
 

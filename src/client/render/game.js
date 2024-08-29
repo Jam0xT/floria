@@ -46,6 +46,7 @@ class Game {
 	init(data) {
 		this.world.setSize(data.map.width, data.map.height);
 		this.world.setVision(data.vision);
+		this.world.setLoadDistance(data.loadDistance);
 		this.selfEntityUUID = data.uuid;
 	}
 
@@ -54,7 +55,7 @@ class Game {
 		this.stateProcessor.process(update);
 	}
 
-	// 更新渲染内容
+	// 更新渲染内容 ticker
 	update() {
 		this.state = this.stateProcessor.get();
 		this.world.update();
@@ -63,10 +64,12 @@ class Game {
 
 	on() {
 		this.container.visible = true;
+		this.ui.startCapturingInput();
 	}
 
 	off() {
 		this.container.visible = false;
+		this.ui.stopCapturingInput();
 	}
 };
 
