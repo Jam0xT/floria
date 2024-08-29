@@ -6,7 +6,7 @@ import WebpackObfuscator from 'webpack-obfuscator';
 // Medium obfuscation, optimal performance
 
 export default merge(common, {
-	mode: "production",
+	mode: "development",
     performance: {
         hints: false,
         maxEntrypointSize: 512000,

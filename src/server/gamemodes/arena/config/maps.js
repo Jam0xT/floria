@@ -9,7 +9,7 @@ export default Object.freeze({
 		teamSize: 1,
 		initial_kit_info: {
 			size: 5,
-			primary: ['bubble', 'stinger', 'stinger', 'stinger', 'rose'],
+			primary: ['basic', 'basic', 'basic', 'basic', 'basic'],
 			secondary: [],
 		},
 	},
