@@ -15,6 +15,7 @@ class Game {
 			ended: false, // 获胜已判定
 			stopped: false, // 停止运行
 			config: config, // 配置文件
+			deadEntities: [],
 		};
 		this.init();
 	}
@@ -56,6 +57,7 @@ class Game {
 			const dt = 1 / this.var.props.tick_per_second;
 			this.var.tick ++;
 			time.update.bind(this)();
+			this.deadEntities = [];
 			entityHandler.updateEntities.bind(this)(); // 更新实体
 			playerHandler.updatePlayers.bind(this)(); // 更新玩家
 			entityHandler.updateAcceleration.bind(this)(dt); // 更新加速度
@@ -65,9 +67,10 @@ class Game {
 			physics.solveCollisions.bind(this)(dt); // 计算碰撞
 			physics.solveBorderCollisions.bind(this)(); // 处理边界碰撞
 			entityHandler.handleEntityDeaths.bind(this)(); // 处理实体死亡
+			this.sendUpdate();
 			if ( !this.var.ended )
 				this.checkGameOver();
-			this.sendUpdate();
+			entityHandler.removeDeadEntities.bind(this)();
 		}
 	}
 	

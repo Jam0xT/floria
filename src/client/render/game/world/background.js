@@ -45,7 +45,6 @@ class Background {
 	}
 
 	setSize(width, height) {
-		console.log('setsize');
 		this.g2.clear();
 		this.g2.rect(0, 0, width, height);
 		this.g2.fill('1ea761');

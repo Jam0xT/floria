@@ -26,8 +26,8 @@ class World {
 	entities = new Entities();
 
 	// 世界坐标
-	x = new util.DynamicNumber(0);
-	y = new util.DynamicNumber(0);
+	x = new util.DynamicNumber(0, 0, 'exp', 0.5);
+	y = new util.DynamicNumber(0, 0, 'exp', 0.5);
 
 	constructor(game) {
 		this.game = game;

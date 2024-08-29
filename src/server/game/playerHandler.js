@@ -358,7 +358,7 @@ function handlePlayerDeath(player) { // Game 调用
 				return ;
 			petal.var.unbound = true;
 			handlePetalDeath.bind(this)(petal); // 移除花瓣记录
-			entityHandler.removeEntity.bind(this)(petal.var.uuid); // 移除花瓣实体
+			entityHandler.recordDeadEntity.bind(this)(petal.var.uuid); // 移除花瓣实体
 		});
 	});
 }

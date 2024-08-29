@@ -100,28 +100,36 @@ function handleEntityDeaths() { // Game 调用 判定实体死亡
 			if ( entity.var.type == 'petal' ) {
 				playerHandler.handlePetalDeath.bind(this)(entity);
 			}
-			removeEntity.bind(this)(entity.var.uuid);
+			recordDeadEntity.bind(this)(entity.var.uuid);
 		}
 	});
 }
 
-function removeEntity(uuid) { // Game 调用 移除实体
+function recordDeadEntity(uuid) { // Game 调用 移除实体
 	const $ = this.var;
-	const entity = $.entities[uuid];
-	if ( !entity )
-		return ;
-	entity.var.chunks.forEach(chunk => { // 清除区块中对这个实体的记录
-		const id = physics.getChunkID(chunk);
-		if ( $.chunks[id] ) {
-			$.chunks[id].splice(
-				$.chunks[id].findIndex(uuid_ => {
-					return (uuid_ == entity.var.uuid);
-				}),
-				1
-			);
-		}
+	$.entities[uuid].var.isDead = true;
+	$.deadEntities.push(uuid);
+}
+
+function removeDeadEntities() {
+	const $ = this.var;
+	$.deadEntities.forEach(uuid => {
+		const entity = $.entities[uuid];
+		if ( !entity )
+			return ;
+		entity.var.chunks.forEach(chunk => { // 清除区块中对这个实体的记录
+			const id = physics.getChunkID(chunk);
+			if ( $.chunks[id] ) {
+				$.chunks[id].splice(
+					$.chunks[id].findIndex(uuid_ => {
+						return (uuid_ == entity.var.uuid);
+					}),
+					1
+				);
+			}
+		});
+		delete $.entities[uuid];
 	});
-	delete $.entities[uuid];
 }
 
 function updateEntities() { // Game 调用 更新实体状态
@@ -156,6 +164,7 @@ function getUpdate() { // Entity 调用 获取更新信息
 		y: $.pos.y,
 		attr: $.attr,
 		isHurt: $.isHurt,
+		isDead: $.isDead,
 		effects: $.effects,
 	};
 	if ( $.type == 'player' ) {
@@ -179,6 +188,7 @@ export {
 	updatePosition,
 	handleEntityDeaths,
 	getUpdate,
-	removeEntity,
+	recordDeadEntity,
 	updateEntities,
+	removeDeadEntities,
 };

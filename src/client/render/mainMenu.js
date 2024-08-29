@@ -34,7 +34,7 @@ class MainMenu {
 		this.title = new Title(this);
 		this.usernameInput = new UsernameInput(this);
 		this.gamemodeArenaButton = new GamemodeArenaButton(this);
-		this.gamemodeUHCButton = new GamemodeUHCButton(this);
+		// this.gamemodeUHCButton = new GamemodeUHCButton(this);
 		this.discordButton = new DiscordButton(this);
 		this.init();
 	}

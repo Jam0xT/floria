@@ -18,7 +18,8 @@ export default Object.freeze({
 		skill_var: {},
 	},
 	'basic': {
-		cd: 62,
+		// cd: 62,
+		cd: 1,
 	},
 	'stinger': {
 		cd: 100,

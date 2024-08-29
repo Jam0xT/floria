@@ -502,7 +502,7 @@ export default Object.freeze({
 				const sv = instance.var.skill_var;
 				if ( sv.flag[sv.remove.on] ) {
 					playerHandler.handlePetalDeath.bind(this)(instance);
-					entityHandler.removeEntity.bind(this)(instance.var.uuid);
+					entityHandler.recordDeadEntity.bind(this)(instance.var.uuid);
 				}
 			}
 		]
