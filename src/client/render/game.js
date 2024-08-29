@@ -18,6 +18,9 @@ class Game {
 
 	state;
 
+	// 自身实体uuid
+	selfEntityUUID;
+
 	constructor(app) {
 		this.app = app;
 		this.container.addChild(
@@ -43,6 +46,7 @@ class Game {
 	init(data) {
 		this.world.setSize(data.map.width, data.map.height);
 		this.world.setVision(data.vision);
+		this.selfEntityUUID = data.uuid;
 	}
 
 	// 处理原始更新数据

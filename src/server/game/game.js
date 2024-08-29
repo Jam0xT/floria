@@ -138,6 +138,7 @@ class Game {
 		const $ = this.var;
 		return {
 			kit: player.var.kit,
+			uuid: player.var.uuid,
 			vision: player.var.vision,
 			loadDistance: player.var.attr.vision,
 			map: $.map,
@@ -150,7 +151,7 @@ class Game {
 		const nearbyEntities = Object.values($.entities).filter(e => ((util.getDistance(e.var.pos, player.var.pos) <= d)));
 		const entities = {};
 		nearbyEntities.forEach(e => {
-			entities[e.uuid] = entityHandler.getUpdate.bind(e)();
+			entities[e.var.uuid] = entityHandler.getUpdate.bind(e)();
 		});
 
 		return {
