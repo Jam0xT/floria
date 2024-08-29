@@ -14,5 +14,11 @@ export default Object.freeze({
 		}
 	},
 	'uhc': {
+		'ffa-8': {
+			id: 'ffa-8',
+			display: 'ffa;8p',
+			teamCount: 8,
+			teamSize: 1,
+		},
 	},
 });
