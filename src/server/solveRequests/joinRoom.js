@@ -7,7 +7,7 @@ export default function (data, ws) {
 
 	// 如果已经在一个房间里就先从这个房间里移除
 	if ( client.room )
-		client.room.removePlayer(client);
+		client.room.removeClient(client);
 	
 	const room = roomManager.get(data.roomID);
 	if ( !room )
