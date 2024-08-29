@@ -73,6 +73,10 @@ function onMessage(event) {
 			client.onGameUpdate(data);
 			break;
 		}
+		case Constants.MSG_TYPES.SERVER.GAME.OVER: {
+			client.onGameOver(data);
+			break;
+		}
 		default:
 			break;
 	}

@@ -217,9 +217,19 @@ class Room {
 			this.game.addPlayer(player);
 		});
 
-		this.game.start();
+		this.game.start(this.endGame.bind(this));
 
 		this.isGameStarted = true;
+	}
+
+	endGame(winners) {
+		this.broadcast(
+			Constants.MSG_TYPES.SERVER.GAME.OVER,
+			{
+				winners,
+			},
+			[],
+		);
 	}
 }
 

@@ -128,6 +128,14 @@ class Client {
 			this.app.game.processRawUpdate(data);
 		}
 	}
+
+	onGameOver(data) {
+		if ( this.state == 'game' ) {
+			// array data.winners
+			this.app.game.off();
+			this.app.gameEndMenu.on();
+		}
+	}
 }
 
 export default Client;

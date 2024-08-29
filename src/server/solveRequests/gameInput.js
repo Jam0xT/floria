@@ -7,5 +7,10 @@ export default function (data, ws) {
 	if ( !room )
 		return ;
 
-	room.game.handlePlayerInput(client.uuid, data.type, data.value);
+	const game = room.game;
+
+	if ( !game )
+		return ;
+
+	game.handlePlayerInput(client.uuid, data.type, data.value);
 }

@@ -8,6 +8,7 @@ import ArenaMenu from './arenaMenu.js';
 import UHCMenu from './uhcMenu.js';
 import ErrorMenu from './errorMenu.js';
 import Game from './game.js';
+import GameEndMenu from './gameEndMenu.js';
 import client from '../index.js';
 
 class App {
@@ -53,6 +54,9 @@ class App {
 	// 游戏本体
 	game;
 
+	// 游戏结束菜单
+	gameEndMenu;
+
 	constructor() {
 		this.application = new pixi.Application();
 		this.onResizeFnList = [];
@@ -76,6 +80,7 @@ class App {
 		this.roomMenu = new RoomMenu(this);
 		this.arenaMenu = new ArenaMenu(this);
 		this.uhcMenu = new UHCMenu(this);
+		this.gameEndMenu = new GameEndMenu(this);
 		this.game = new Game(this);
 
 		this.onResize();

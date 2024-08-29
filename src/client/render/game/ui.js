@@ -7,32 +7,31 @@ class UI {
 
 	game;
 
+	captureInput = false;
+
 	constructor(game) {
 		this.game = game;
-	}
-
-	startCapturingInput() {
 		window.addEventListener('mousemove', this.onMouseMove.bind(this));
 		window.addEventListener('mousedown', this.onMouseDown.bind(this));
 		window.addEventListener('mouseup', this.onMouseUp.bind(this));
-		// window.addEventListener('keydown', onKeyDown);
-		// window.addEventListener('keyup', onKeyUp);
+	}
+
+	startCapturingInput() {
+		this.captureInput = true;
 	}
 
 	stopCapturingInput() {
-		window.removeEventListener('mousemove', this.onMouseMove.bind(this));
-		window.removeEventListener('mousedown', this.onMouseDown.bind(this));
-		window.removeEventListener('mouseup', this.onMouseUp.bind(this));
-		// window.removeEventListener('keydown', onKeyDown);
-		// window.removeEventListener('keyup', onKeyUp);
+		this.captureInput = false;
 	}
 
 	// ticker
 	update() {
-		
+
 	}
 
 	onMouseMove(e) {
+		if ( !this.captureInput )
+			return ;
 		const dpr = window.devicePixelRatio;
 		const x = e.clientX, y = e.clientY;
 		const w = window.innerWidth, h = window.innerHeight;
@@ -52,6 +51,8 @@ class UI {
 	}
 	
 	onMouseDown(e) {
+		if ( !this.captureInput )
+			return ;
 		nw.sendWsMsg(Constants.MSG_TYPES.CLIENT.GAME.INPUT, {
 			type: 1,
 			value: (e.buttons & 3),
@@ -59,6 +60,8 @@ class UI {
 	}
 	
 	onMouseUp(e) {
+		if ( !this.captureInput )
+			return ;
 		nw.sendWsMsg(Constants.MSG_TYPES.CLIENT.GAME.INPUT, {
 			type: 1,
 			value: (e.buttons & 3),
