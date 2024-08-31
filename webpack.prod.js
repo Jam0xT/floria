@@ -6,7 +6,7 @@ import WebpackObfuscator from 'webpack-obfuscator';
 // Medium obfuscation, optimal performance
 
 export default merge(common, {
-	mode: "development",
+	mode: "production",
     performance: {
         hints: false,
         maxEntrypointSize: 512000,
@@ -24,6 +24,8 @@ export default merge(common, {
 			disableConsoleOutput: true,
 			identifierNamesGenerator: 'hexadecimal',
 			log: false,
+
+			/*
 			numbersToExpressions: true,
 			renameGlobals: false,
 			selfDefending: true,
@@ -34,10 +36,13 @@ export default merge(common, {
 			stringArrayCallsTransform: true,
 			stringArrayCallsTransformThreshold: 0.75,
 			stringArrayEncoding: ['base64'],
+			*/
+			
 			stringArrayIndexShift: true,
 			stringArrayRotate: true,
 			stringArrayShuffle: true,
 			stringArrayWrappersCount: 2,
+			
 			stringArrayWrappersChainedCalls: true,
 			stringArrayWrappersParametersMaxCount: 4,
 			stringArrayWrappersType: 'function',

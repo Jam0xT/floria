@@ -1,16 +1,23 @@
 import * as pixi from 'pixi.js';
 
-function getAsset(assetName, radius) {
+function getAsset(assetName, radius, options) {
 	const container = new pixi.Container();
 	const asset = new pixi.Graphics();
 	container.addChild(asset);
 	switch ( assetName ) {
+		case 'healthBar': {
+			asset.rect(-130, 170, 260, 30);
+			asset.fill('#000000');
+			asset.rect(-120, 177, options.rectWidth, 16);
+			asset.fill('#33CC00');
+			break;
+		}
 		case 'player': {
-			asset.circle(100, 100, 72);
+			asset.circle(200, 200, 72);
 			asset.fill('#ffe763');
 			asset.stroke({color:'#cfbb50',width:16});
-			asset.pivot.x = 100;
-			asset.pivot.y = 100;
+			asset.pivot.x = 200;
+			asset.pivot.y = 200;
 			break;
 		}
 		case 'petal/basic': {

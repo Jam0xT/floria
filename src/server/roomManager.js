@@ -1,5 +1,6 @@
 import Room from './room/room.js';
 import logger from './logger.js';
+import crypto from 'crypto';
 
 const roomList = {}; // 房间列表
 

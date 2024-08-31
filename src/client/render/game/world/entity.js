@@ -1,6 +1,7 @@
 import * as pixi from 'pixi.js';
 import * as assets from '../assets.js';
 import * as util from '../../../utility.js';
+import HealthBar from './healthBar.js';
 
 class Entity {
 	// 是否活跃 活跃的充要条件是在视距范围内
@@ -39,6 +40,11 @@ class Entity {
 		}
 		this.asset = assets.getAsset(assetName, entity.attr.radius);
 		this.container.addChild(this.asset);
+
+		if (entity.type !== `petal`) {
+			this.healthBar = new HealthBar(entity);
+			this.container.addChild(this.healthBar.container);
+		}
 	}
 
 	// ticker
@@ -87,6 +93,8 @@ class Entity {
 	// 更新数据
 	updateState(entity) {
 		this.updatePos(entity);
+		if (this.healthBar) this.healthBar.update(entity);
+
 		if ( entity.isHurt ) {
 			this.onHurt();
 		}
@@ -112,6 +120,7 @@ class Entity {
 		this.deathAlpha.to(0);
 		this.deathScale.to(1.5);
 		this.dead = true;
+		if (this.healthBar) this.healthBar.container.visible = false;
 	}
 
 	// 加载

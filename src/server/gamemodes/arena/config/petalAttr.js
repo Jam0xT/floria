@@ -17,8 +17,8 @@ export default Object.freeze({
 		elasticity: 0.7,
 	},
 	'basic': { // 实体花瓣 id
-		max_hp: 0.01,
-		dmg: 0.01,
+		max_hp: 10,
+		dmg: 10,
 	},
 	'stinger': {
 		max_hp: 8,
